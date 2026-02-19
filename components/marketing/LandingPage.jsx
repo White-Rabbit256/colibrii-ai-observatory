@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { FACTS } from "../../data/facts";
@@ -38,7 +38,7 @@ export function LandingPage() {
       desc: en
         ? "6-dimension composite index extending IMF AIPI. 20 peer countries evaluated in real-time using 11 World Bank indicators."
         : "Índice compuesto de 6 dimensiones que extiende el AIPI del FMI. 20 países pares evaluados en tiempo real con 11 indicadores del Banco Mundial.",
-      color: "#0ea5e9"
+      color: "#2563eb"
     },
     {
       icon: "shield",
@@ -87,6 +87,9 @@ export function LandingPage() {
 
       {/* ── HERO ── */}
       <motion.section className="mkt-hero" initial="hidden" animate="visible" variants={stagger}>
+        <motion.div variants={fadeUp} style={{ marginBottom: 24 }}>
+          <img src="/favicon.svg" alt="" className="logo-iridescent" style={{ width: 56, height: 56 }} />
+        </motion.div>
         <motion.div variants={fadeUp} className="mkt-hero-label">
           AI Observatory &middot; Costa Rica
         </motion.div>
@@ -131,6 +134,66 @@ export function LandingPage() {
         ))}
       </motion.section>
 
+      {/* ── What is an AI Observatory? ── */}
+      <section style={{ maxWidth: 900, margin: "0 auto", padding: "80px 24px" }}>
+        <div className="mkt-section-title">{en ? "What is an AI Observatory?" : "¿Qué es un Observatorio AI?"}</div>
+        <p style={{ textAlign: "center", fontSize: 15, color: "var(--mkt-text2)", lineHeight: 1.8, maxWidth: 640, margin: "0 auto 40px" }}>
+          {en
+            ? "A real-time intelligence platform that collects, analyzes, and visualizes data from 25+ international sources to inform Costa Rica's AI strategy."
+            : "Una plataforma de inteligencia en tiempo real que recopila, analiza y visualiza datos de 25+ fuentes internacionales para informar la estrategia AI de Costa Rica."}
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20, textAlign: "center" }}>
+          {[
+            { num: "25+", label: en ? "Data Sources" : "Fuentes de Datos", desc: en ? "World Bank, WEF, IMF, OECD, Stanford HAI, Oxford Insights" : "Banco Mundial, WEF, FMI, OCDE, Stanford HAI, Oxford Insights" },
+            { num: "4", label: en ? "Live APIs" : "APIs en Vivo", desc: en ? "Real-time data from World Bank, GDELT, Exchange Rates, REST Countries" : "Datos en tiempo real del Banco Mundial, GDELT, Tipos de Cambio, REST Countries" },
+            { num: "10", label: en ? "Algorithms" : "Algoritmos", desc: en ? "Proprietary analytical models including CAPI-CR composite index" : "Modelos analíticos propietarios incluyendo índice compuesto CAPI-CR" },
+            { num: "13", label: en ? "Analysis Views" : "Vistas de Análisis", desc: en ? "From country profiles to policy simulators to risk dashboards" : "Desde perfiles país hasta simuladores de política y dashboards de riesgo" }
+          ].map((item, i) => (
+            <div key={i} style={{ padding: 24, background: "var(--mkt-surface)", borderRadius: 12, border: "1px solid var(--mkt-border)" }}>
+              <div style={{ fontSize: 36, fontWeight: 800, fontFamily: "var(--font-mono, 'IBM Plex Mono', monospace)", background: "var(--mkt-accent)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", marginBottom: 8 }}>{item.num}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "var(--mkt-text)", marginBottom: 4 }}>{item.label}</div>
+              <div style={{ fontSize: 12, color: "var(--mkt-text3)", lineHeight: 1.5 }}>{item.desc}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Referenced Institutions ── */}
+      <section style={{ borderTop: "1px solid var(--mkt-border)", borderBottom: "1px solid var(--mkt-border)", padding: "32px 24px" }}>
+        <div style={{ fontSize: 10, letterSpacing: 2, textTransform: "uppercase", color: "var(--mkt-text3)", fontFamily: "var(--font-mono, 'IBM Plex Mono', monospace)", textAlign: "center", marginBottom: 16 }}>
+          {en ? "DATA REFERENCED FROM" : "DATOS REFERENCIADOS DE"}
+        </div>
+        <div className="institution-bar">
+          {["World Bank", "WEF", "IMF", "OECD", "Oxford Insights", "Stanford HAI", "OWASP", "ILO", "UNDP"].map((name, i, arr) => (
+            <React.Fragment key={i}>
+              <span className="institution-name" style={{ color: "var(--mkt-text3)" }}>{name}</span>
+              {i < arr.length - 1 && <span className="institution-sep" style={{ background: "var(--mkt-border)" }} />}
+            </React.Fragment>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Why Costa Rica Needs This Now ── */}
+      <section style={{ maxWidth: 900, margin: "0 auto", padding: "80px 24px" }}>
+        <div className="mkt-section-title">{en ? "Why Costa Rica Needs This Now" : "Por Qué Costa Rica Necesita Esto Ahora"}</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
+          {[
+            { stat: "100/100", label: en ? "AI Vision Score" : "Puntaje Visión AI", desc: en ? "Oxford Insights: Perfect strategy score, but..." : "Oxford Insights: Puntaje perfecto de estrategia, pero...", color: "#10b981" },
+            { stat: "0.38", label: en ? "Readiness Score" : "Puntaje Preparación", desc: en ? "Overall AI readiness is only 0.38/1.0 — the gap is in execution" : "Preparación AI general es solo 0.38/1.0 — la brecha está en ejecución", color: "#ef4444" },
+            { stat: "40%", label: en ? "Workforce Exposed" : "Fuerza Laboral Expuesta", desc: en ? "IMF: 40% of global jobs exposed to AI disruption" : "FMI: 40% de empleos globales expuestos a disrupción AI", color: "#f59e0b" },
+            { stat: "0", label: en ? "AI Laws" : "Leyes AI", desc: en ? "Zero binding AI legislation. No AI authority. No mandatory transparency." : "Cero legislación AI vinculante. Sin autoridad AI. Sin transparencia obligatoria.", color: "#ef4444" },
+            { stat: "#5", label: en ? "AI Risk (WEF)" : "Riesgo AI (WEF)", desc: en ? "AI adverse outcomes jumped from #30→#5 in one year" : "Resultados adversos AI saltaron de #30→#5 en un año", color: "#8b5cf6" },
+            { stat: "0", label: en ? "AI in CR's EOS" : "AI en EOS de CR", desc: en ? "Business leaders see ZERO AI risks in top 5. Vietnam sees it as #1." : "Líderes empresariales ven CERO riesgos AI en top 5. Vietnam lo ve como #1.", color: "#f97316" }
+          ].map((item, i) => (
+            <div key={i} style={{ padding: 24, background: "var(--mkt-surface)", border: "1px solid var(--mkt-border)", borderRadius: 12, borderLeft: `3px solid ${item.color}` }}>
+              <div style={{ fontSize: 32, fontWeight: 800, fontFamily: "var(--font-mono, 'IBM Plex Mono', monospace)", color: item.color, marginBottom: 4 }}>{item.stat}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--mkt-text)", marginBottom: 4 }}>{item.label}</div>
+              <div style={{ fontSize: 12, color: "var(--mkt-text3)", lineHeight: 1.5 }}>{item.desc}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ── THREE PILLARS ── */}
       <motion.section
         className="mkt-pillars"
@@ -169,7 +232,7 @@ export function LandingPage() {
         <div className="mkt-audience-grid">
           {audiences.map((a, i) => (
             <motion.div key={i} variants={fadeUp} className="mkt-audience-card">
-              <Icon name={a.icon} size={22} color="#9a9aad" />
+              <Icon name={a.icon} size={22} color="#94a3b8" />
               <div>
                 <div className="mkt-audience-title">{a.title}</div>
                 <div className="mkt-audience-desc">{a.desc}</div>

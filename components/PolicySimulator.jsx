@@ -142,12 +142,12 @@ export function Simulator({ en, t, idx, dark }) {
             </div>
             <ResponsiveContainer width="100%" height={260}>
               <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="70%">
-                <PolarGrid stroke={dark ? "#1e1e2d" : "#e2e4ea"} />
-                <PolarAngleAxis dataKey="dim" tick={{ fontSize: 9, fill: dark ? "#9a9aad" : "#4a4a6a" }} />
+                <PolarGrid stroke={dark ? "#1e293b" : "#d1d5e0"} />
+                <PolarAngleAxis dataKey="dim" tick={{ fontSize: 9, fill: dark ? "#94a3b8" : "#475569" }} />
                 <PolarRadiusAxis tick={false} axisLine={false} domain={[0, 100]} />
                 <Radar name={en ? "Actual" : "Actual"} dataKey="actual" stroke={t.tx3} fill={t.tx3} fillOpacity={0.05} strokeWidth={1.5} strokeDasharray="4 2" />
                 <Radar name={en ? "Simulated" : "Simulado"} dataKey="simulated" stroke={t.cy} fill={t.cy} fillOpacity={0.15} strokeWidth={2.5} />
-                <Tooltip contentStyle={{ background: dark ? "#0a0a0f" : "#fff", border: `1px solid ${dark ? "#1e1e2d" : "#e2e4ea"}`, borderRadius: 8, fontSize: 11 }} />
+                <Tooltip contentStyle={{ background: dark ? "#111827" : "#fff", border: `1px solid ${dark ? "#1e293b" : "#d1d5e0"}`, borderRadius: 8, fontSize: 11 }} />
               </RadarChart>
             </ResponsiveContainer>
             <div style={{ display: "flex", gap: 16, justifyContent: "center", fontSize: 12 }}>

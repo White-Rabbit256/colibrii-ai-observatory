@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { CO, CC, DM } from "./data";
 import { Card, SH, Tag, Grid, AN, ScrollReveal, DimBadge, ScorePill, Ci, MiniStat, fadeUp, stagger, ExportBtn } from "./ui";
+import { WorldMapMini } from "./WorldMapMini";
+import { RiskHeatmap } from "./RiskHeatmap";
 
 /* ═══════════════════════════════════════════════════════════════
    INDEX VIEW v13 — Full CAPI-CR leaderboard + dimension breakdown
@@ -54,6 +56,20 @@ export function Idx({ en, t, idx, board, dark }) {
         <div style={{ fontSize: 11, color: t.tx2, marginTop: 4 }}>{en ? "11 World Bank indicators + 2 curated dimensions · Min-max normalization · Benchmarked vs IMF AIPI" : "11 indicadores Banco Mundial + 2 dimensiones curadas · Normalización min-max · Comparado con IMF AIPI"}</div>
       </Card>
 
+      {/* World Map */}
+      <ScrollReveal>
+        <div style={{ marginBottom: 24 }}>
+          <WorldMapMini idx={idx} en={en} t={t} dark={dark} />
+        </div>
+      </ScrollReveal>
+
+      {/* Risk Heatmap */}
+      <ScrollReveal>
+        <div style={{ marginBottom: 24 }}>
+          <RiskHeatmap idx={idx} board={board} en={en} t={t} />
+        </div>
+      </ScrollReveal>
+
       {/* Region filter */}
       <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
         {regions.map(r => (
@@ -71,10 +87,10 @@ export function Idx({ en, t, idx, board, dark }) {
           </div>
           <ResponsiveContainer width="100%" height={Math.max(filtered.slice(0, 15).length * 32, 200)}>
             <BarChart data={barData} layout="vertical" margin={{ left: 0, right: 20, top: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke={dark ? "#1e1e2d" : "#e2e4ea"} horizontal={false} />
-              <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10, fill: dark ? "#9a9aad" : "#4a4a6a" }} />
-              <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 10, fill: dark ? "#9a9aad" : "#4a4a6a" }} />
-              <Tooltip contentStyle={{ background: dark ? "#0a0a0f" : "#fff", border: `1px solid ${dark ? "#1e1e2d" : "#e2e4ea"}`, borderRadius: 8, fontSize: 11 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke={dark ? "#1e293b" : "#d1d5e0"} horizontal={false} />
+              <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10, fill: dark ? "#94a3b8" : "#475569" }} />
+              <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 10, fill: dark ? "#94a3b8" : "#475569" }} />
+              <Tooltip contentStyle={{ background: dark ? "#111827" : "#fff", border: `1px solid ${dark ? "#1e293b" : "#d1d5e0"}`, borderRadius: 8, fontSize: 11 }} />
               {Object.entries(DM).map(([dk, d]) => (
                 <Bar key={dk} dataKey={dk} stackId="dims" fill={d.co} name={en ? d.e : d.l} radius={dk === "D6" ? [0, 4, 4, 0] : undefined} />
               ))}
@@ -145,15 +161,27 @@ export function Compare({ en, t, idx, board, dark }) {
     <div>
       <SH color={t.pk} label={en ? "Compare" : "Comparar"} title={en ? "Country Comparison" : "Comparación de Países"} desc={en ? "Select up to 3 countries to compare across all 6 CAPI-CR dimensions. Radar overlay + dimension table." : "Selecciona hasta 3 países para comparar en las 6 dimensiones CAPI-CR. Radar + tabla de dimensiones."} />
 
-      {/* Selectors */}
+      {/* Country Selectors — Flag Buttons */}
       <Grid cols="repeat(3,1fr)" gap={10} style={{ marginBottom: 24 }}>
         {sel.map((s, i) => (
-          <div key={i} style={{ position: "relative" }}>
-            <div style={{ fontSize: 10, color: colors[i], fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>{en ? "COUNTRY" : "PAÍS"} {i + 1}</div>
-            <select value={s} onChange={e => handleChange(i, e.target.value)} style={{ width: "100%", padding: "8px 12px", borderRadius: 8, fontSize: 13, borderColor: colors[i] }}>
-              {CC.map(c => <option key={c} value={c}>{CO[c].f} {en ? CO[c].e : CO[c].n}</option>)}
-            </select>
-          </div>
+          <Card key={i} d={0.02} style={{ padding: 16, borderTop: `3px solid ${colors[i]}` }}>
+            <div style={{ fontSize: 10, color: colors[i], fontFamily: "'IBM Plex Mono',monospace", marginBottom: 8 }}>{en ? "COUNTRY" : "PAÍS"} {i + 1}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+              <span style={{ fontSize: 28 }}>{CO[s].f}</span>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: t.tx }}>{en ? CO[s].e : CO[s].n}</div>
+                <div style={{ fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>{CO[s].cont} · {CO[s].pop}</div>
+              </div>
+            </div>
+            <div className="flag-selector">
+              {CC.map(c => (
+                <button key={c} className={`flag-btn ${s === c ? "selected" : ""}`} onClick={() => handleChange(i, c)} style={s === c ? { borderColor: colors[i], color: colors[i], background: `${colors[i]}10` } : {}}>
+                  <span className="flag-emoji">{CO[c].f}</span>
+                  <span style={{ fontSize: 11 }}>{(en ? CO[c].e : CO[c].n).slice(0, 8)}</span>
+                </button>
+              ))}
+            </div>
+          </Card>
         ))}
       </Grid>
 
@@ -161,13 +189,13 @@ export function Compare({ en, t, idx, board, dark }) {
       <Card style={{ marginBottom: 24 }}>
         <ResponsiveContainer width="100%" height={320}>
           <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="70%">
-            <PolarGrid stroke={dark ? "#1e1e2d" : "#e2e4ea"} />
-            <PolarAngleAxis dataKey="dim" tick={{ fontSize: 10, fill: dark ? "#9a9aad" : "#4a4a6a" }} />
+            <PolarGrid stroke={dark ? "#1e293b" : "#d1d5e0"} />
+            <PolarAngleAxis dataKey="dim" tick={{ fontSize: 10, fill: dark ? "#94a3b8" : "#475569" }} />
             <PolarRadiusAxis tick={false} axisLine={false} domain={[0, 100]} />
             {sel.map((c, i) => (
               <Radar key={c} name={`${CO[c].f} ${en ? CO[c].e : CO[c].n}`} dataKey={c} stroke={colors[i]} fill={colors[i]} fillOpacity={i === 0 ? 0.15 : 0.06} strokeWidth={i === 0 ? 2.5 : 1.5} strokeDasharray={i > 0 ? "4 2" : undefined} />
             ))}
-            <Tooltip contentStyle={{ background: dark ? "#0a0a0f" : "#fff", border: `1px solid ${dark ? "#1e1e2d" : "#e2e4ea"}`, borderRadius: 8, fontSize: 12 }} />
+            <Tooltip contentStyle={{ background: dark ? "#111827" : "#fff", border: `1px solid ${dark ? "#1e293b" : "#d1d5e0"}`, borderRadius: 8, fontSize: 12 }} />
           </RadarChart>
         </ResponsiveContainer>
         <div style={{ display: "flex", gap: 16, justifyContent: "center", fontSize: 12 }}>

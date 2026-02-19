@@ -2,7 +2,7 @@
 /* ═══════════════════════════════════════════════════════════════
    COLIBRII LABS — SVG Icon System
    Replaces emoji in nav pills and stat badges.
-   Usage: <Icon name="home" size={16} color="#0ea5e9" />
+   Usage: <Icon name="home" size={16} color="#2563eb" />
    ═══════════════════════════════════════════════════════════════ */
 
 const P = (d) => <path d={d} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />;
@@ -172,6 +172,36 @@ const ICONS = {
     <>
       {P("M5 12h14")}
       {P("M12 5l7 7-7 7")}
+    </>
+  ),
+  twitter: (
+    <>
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" fill="currentColor" stroke="none" />
+    </>
+  ),
+  instagram: (
+    <>
+      <rect x="2" y="2" width="20" height="20" rx="5" fill="none" stroke="currentColor" strokeWidth={1.8} />
+      <circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" strokeWidth={1.8} />
+      <circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none" />
+    </>
+  ),
+  mail: (
+    <>
+      <rect x="2" y="4" width="20" height="16" rx="2" fill="none" stroke="currentColor" strokeWidth={1.8} />
+      {P("M22 6l-10 7L2 6")}
+    </>
+  ),
+  chevronDown: (
+    <>
+      {P("M6 9l6 6 6-6")}
+    </>
+  ),
+  externalLink: (
+    <>
+      {P("M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6")}
+      {P("M15 3h6v6")}
+      {P("M10 14L21 3")}
     </>
   ),
 };

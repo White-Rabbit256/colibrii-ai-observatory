@@ -1,10 +1,11 @@
 "use client";
 import Link from "next/link";
+import { Icon } from "../system/Icon";
 import { FACTS } from "../../data/facts";
 
 /* ═══════════════════════════════════════════════════════════════
    COLIBRII LABS — Marketing Footer (Dark Editorial)
-   Brand identity, portal links, legal, CC BY-NC 4.0
+   Brand identity, portal links, social media, legal, CC BY-NC 4.0
    ═══════════════════════════════════════════════════════════════ */
 export function MarketingFooter({ en }) {
   const year = new Date().getFullYear();
@@ -13,12 +14,27 @@ export function MarketingFooter({ en }) {
     <footer className="mkt-footer">
       <div className="mkt-footer-inner">
         <div className="mkt-footer-brand">
-          <div className="mkt-footer-logo">Colibrii Labs</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <img src="/favicon.svg" alt="" className="logo-iridescent" style={{ width: 20, height: 20 }} />
+            <div className="mkt-footer-logo">Colibrii Labs</div>
+          </div>
           <div className="mkt-footer-tagline">{FACTS.tagline}</div>
           <div className="mkt-footer-founder">
             {en ? "Founded by" : "Fundado por"} {FACTS.founder}
           </div>
           <a href={`mailto:${FACTS.email}`} className="mkt-footer-email">{FACTS.email}</a>
+          {/* Social Media */}
+          <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
+            <a href="https://x.com/ColibriilLabs" target="_blank" rel="noopener noreferrer" style={{ color: "var(--mkt-text3)", transition: "color 0.2s" }} title="X (Twitter) — Coming Soon">
+              <Icon name="twitter" size={16} />
+            </a>
+            <a href="https://instagram.com/colibriilabs" target="_blank" rel="noopener noreferrer" style={{ color: "var(--mkt-text3)", transition: "color 0.2s" }} title="Instagram — Coming Soon">
+              <Icon name="instagram" size={16} />
+            </a>
+            <a href={`mailto:${FACTS.email}`} style={{ color: "var(--mkt-text3)", transition: "color 0.2s" }} title={FACTS.email}>
+              <Icon name="mail" size={16} />
+            </a>
+          </div>
         </div>
 
         <div className="mkt-footer-links">
@@ -34,13 +50,19 @@ export function MarketingFooter({ en }) {
             <Link href="/app">{en ? "WEF 2026 Analysis" : "Análisis WEF 2026"}</Link>
             <Link href="/app">{en ? "Glossary" : "Glosario"}</Link>
           </div>
+          <div className="mkt-footer-col">
+            <div className="mkt-footer-col-title">{en ? "Connect" : "Conectar"}</div>
+            <a href="https://x.com/ColibriilLabs" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+            <a href="https://instagram.com/colibriilabs" target="_blank" rel="noopener noreferrer">Instagram</a>
+            <a href={`mailto:${FACTS.email}`}>{FACTS.email}</a>
+          </div>
         </div>
 
         <div className="mkt-footer-legal">
           <p>
             {en
-              ? `Data and analysis © ${FACTS.org} 2024–${year}. Licensed under CC BY-NC 4.0.`
-              : `Datos y análisis © ${FACTS.org} 2024–${year}. Licencia CC BY-NC 4.0.`}
+              ? `Data and analysis \u00A9 ${FACTS.org} 2024\u2013${year}. Licensed under CC BY-NC 4.0.`
+              : `Datos y an\u00E1lisis \u00A9 ${FACTS.org} 2024\u2013${year}. Licencia CC BY-NC 4.0.`}
           </p>
           <p className="mkt-footer-disclaimer">
             {en

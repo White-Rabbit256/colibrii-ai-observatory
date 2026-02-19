@@ -215,13 +215,14 @@ export default function PortalShell() {
           >
             <Icon name="menu" size={20} color={t.tx2} />
           </button>
-          <div className="portal-mobile-title">
+          <div className="portal-mobile-title" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <img src="/favicon.svg" alt="" className="logo-iridescent" style={{ width: 20, height: 20 }} />
             <span style={{ fontWeight: 800, fontFamily: "'Fraunces',serif", fontSize: 14, color: t.tx }}>Colibrii Labs</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             {xr && (
               <span style={{ fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>
-                $1=₡{xr.toFixed(0)}
+                ₡{xr.toFixed(0)} <span style={{ opacity: 0.5 }}>mid</span>
               </span>
             )}
           </div>
@@ -230,8 +231,10 @@ export default function PortalShell() {
         {/* Desktop top bar with exchange rate */}
         <div className="portal-topbar no-print">
           {xr && (
-            <div style={{ fontSize: 11, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>
-              $1 = ₡{xr.toFixed(0)} CRC/USD
+            <div style={{ fontSize: 11, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", display: "flex", alignItems: "center", gap: 8 }}>
+              <span>$1 = ₡{xr.toFixed(2)}</span>
+              <span style={{ fontSize: 9, opacity: 0.6 }}>{en ? "(mid-market)" : "(mercado medio)"}</span>
+              <span style={{ fontSize: 9, opacity: 0.4 }}>open.er-api.com</span>
             </div>
           )}
           <div style={{ fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>

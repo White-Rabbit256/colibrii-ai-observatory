@@ -91,12 +91,12 @@ export function Countries({ en, t, idx, board, govData, dark }) {
             </div>
             <ResponsiveContainer width="100%" height={280}>
               <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="70%">
-                <PolarGrid stroke={dark ? "#1e1e2d" : "#e2e4ea"} />
-                <PolarAngleAxis dataKey="dim" tick={{ fontSize: 10, fill: dark ? "#9a9aad" : "#4a4a6a" }} />
+                <PolarGrid stroke={dark ? "#1e293b" : "#d1d5e0"} />
+                <PolarAngleAxis dataKey="dim" tick={{ fontSize: 10, fill: dark ? "#94a3b8" : "#475569" }} />
                 <PolarRadiusAxis tick={false} axisLine={false} domain={[0, 100]} />
                 <Radar dataKey={selected} stroke={t.cy} fill={t.cy} fillOpacity={0.15} strokeWidth={2} />
                 {selected !== "CRI" && <Radar dataKey="CRI" stroke={t.or} fill={t.or} fillOpacity={0.06} strokeWidth={1.5} strokeDasharray="4 2" />}
-                <Tooltip contentStyle={{ background: dark ? "#0a0a0f" : "#fff", border: `1px solid ${dark ? "#1e1e2d" : "#e2e4ea"}`, borderRadius: 8, fontSize: 12 }} />
+                <Tooltip contentStyle={{ background: dark ? "#111827" : "#fff", border: `1px solid ${dark ? "#1e293b" : "#d1d5e0"}`, borderRadius: 8, fontSize: 12 }} />
               </RadarChart>
             </ResponsiveContainer>
             {selected !== "CRI" && (

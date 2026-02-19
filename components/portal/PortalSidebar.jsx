@@ -22,9 +22,7 @@ export function PortalSidebar({ tab, setTab, en, setEn, dark, setDark, t, mobile
     <div className="portal-sidebar-content">
       {/* Logo */}
       <div className="portal-sidebar-logo" onClick={() => { setTab("home"); setMobileOpen?.(false); }}>
-        <div className="portal-sidebar-logo-icon" style={{ background: t.grad1 }}>
-          <span style={{ fontSize: 12, filter: "brightness(10)" }}>&#9670;</span>
-        </div>
+        <img src="/favicon.svg" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 28, height: 28, flexShrink: 0 }} />
         <div>
           <div style={{ fontSize: 14, fontWeight: 800, fontFamily: "'Fraunces',serif", color: t.tx }}>Colibrii Labs</div>
           <div style={{ fontSize: 8, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", letterSpacing: 1.5 }}>

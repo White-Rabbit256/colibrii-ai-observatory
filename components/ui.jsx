@@ -92,9 +92,9 @@ export function SH({ color, label, title, desc }) {
 }
 
 /* ── STAT CARD ── */
-export function Stat({ value, label, sub, color, prefix = "", precision = 2, icon }) {
+export function Stat({ value, label, sub, color, prefix = "", precision = 2, icon, onClick }) {
   return (
-    <Card d={0.05}>
+    <Card d={0.05} onClick={onClick} className={onClick ? "stat-clickable" : ""}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
           <div style={{ fontSize: 28, fontWeight: 800, color: color || "var(--cyan)", fontFamily: "'IBM Plex Mono',monospace" }}>

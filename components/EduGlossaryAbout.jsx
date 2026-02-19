@@ -3,6 +3,8 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TH, GLOSSARY, ALGOS, PARTNERS, API_SOURCES, ANNUAL_SOURCES, WEF_RESOURCES } from "./data";
 import { Card, SH, Tag, Ci, Lnk, Grid, ScrollReveal, MiniStat, fadeUp } from "./ui";
+import { Icon } from "./system/Icon";
+import { FACTS } from "../data/facts";
 
 /* ═══════════════════════════════════════════════════════════════
    EDUCATION VIEW v13 — 8 CR programs + WEF skills
@@ -66,6 +68,38 @@ export function Edu({ en, t }) {
   );
 }
 
+/* ── Deep Detail expandable sub-section for glossary entries ── */
+function DeepDetail({ en, t, deep }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ marginTop: 8 }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: `1px solid ${t.vi}33`, borderRadius: 6, padding: "4px 10px", fontSize: 11, color: t.vi, cursor: "pointer", fontFamily: "'IBM Plex Mono',monospace" }}
+      >
+        {en ? "Technical Detail" : "Detalle Técnico"}
+        <span style={{ transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s", display: "inline-block" }}>▾</span>
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            style={{ overflow: "hidden" }}
+          >
+            <div style={{ marginTop: 8, padding: "8px 12px", background: `${t.vi}06`, borderRadius: 8, borderLeft: `3px solid ${t.vi}` }}>
+              <div style={{ fontSize: 10, color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 3 }}>{en ? "TECHNICAL DETAIL" : "DETALLE TÉCNICO"}</div>
+              <p style={{ fontSize: 12, color: t.tx, lineHeight: 1.6 }}>{deep}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 /* ═══════════════════════════════════════════════════════════════
    GLOSSARY VIEW v13 — 34 terms with search + filter + accordion
    ═══════════════════════════════════════════════════════════════ */
@@ -115,6 +149,9 @@ export function Glos({ en, t }) {
                       <div style={{ fontSize: 10, color: t.cy, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 3 }}>{en ? "COSTA RICA CONTEXT" : "CONTEXTO COSTA RICA"}</div>
                       <p style={{ fontSize: 12, color: t.tx, lineHeight: 1.6 }}>{g.ctx}</p>
                     </div>
+                    {g.deep && (
+                      <DeepDetail en={en} t={t} deep={g.deep} />
+                    )}
                   </div>
                 </motion.div>
               )}
@@ -140,15 +177,106 @@ export function Abt({ en, t }) {
     <div>
       <SH color={t.vi} label={en ? "About" : "Información"} title={en ? "About Colibrii Labs" : "Sobre Colibrii Labs"} desc={en ? "An AI-powered observatory providing strategic intelligence for Costa Rica's positioning in the global AI transformation. Designed for legislators, ministers, executives, and citizens." : "Un observatorio potenciado por AI que provee inteligencia estratégica para el posicionamiento de Costa Rica en la transformación global de AI. Diseñado para legisladores, ministros, ejecutivos y ciudadanos."} />
 
-      {/* Author */}
-      <Card d={0.05} accent={t.cy} style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 18, fontWeight: 700, fontFamily: "'Fraunces',serif", marginBottom: 4 }}>Andrés Alpízar</div>
-        <div style={{ fontSize: 12, color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 8 }}>Founder · Colibrii Labs · Agile Intelligence</div>
-        <div style={{ fontSize: 13, color: t.tx2, marginBottom: 8, lineHeight: 1.7 }}>
-          {en ? "Colibrii Labs operates at the intersection of AI policy research, economic analysis, and strategic advisory for Costa Rica. The observatory combines real-time data from international APIs with proprietary analytical frameworks to provide decision-makers with actionable intelligence — not just data points. Every metric answers: 'So what? What should Costa Rica do?'" : "Colibrii Labs opera en la intersección de investigación de política AI, análisis económico y asesoría estratégica para Costa Rica. El observatorio combina datos en tiempo real de APIs internacionales con marcos analíticos propietarios para proveer inteligencia accionable a tomadores de decisiones — no solo datos. Cada métrica responde: '¿Y qué? ¿Qué debe hacer Costa Rica?'"}
+      {/* ── 1. What is an AI Observatory? ── */}
+      <Card d={0.03} accent={t.cy} style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 11, letterSpacing: 2, color: t.cy, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>
+          {en ? "WHAT IS AN AI OBSERVATORY?" : "¿QUÉ ES UN OBSERVATORIO AI?"}
         </div>
-        <Lnk href="mailto:andres@colibriilabs.com">andres@colibriilabs.com</Lnk>
+        <p style={{ fontSize: 13, color: t.tx2, lineHeight: 1.8, marginBottom: 16 }}>
+          {en
+            ? "An AI Observatory is a systematic, data-driven platform that continuously monitors the global artificial intelligence landscape — tracking policy, investment, risk, talent, and adoption — to provide actionable strategic intelligence for national decision-makers."
+            : "Un Observatorio AI es una plataforma sistemática basada en datos que monitorea continuamente el panorama global de inteligencia artificial — rastreando política, inversión, riesgo, talento y adopción — para proveer inteligencia estratégica accionable a tomadores de decisiones nacionales."}
+        </p>
+        {/* Data flow visual */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, textAlign: "center", marginBottom: 12 }}>
+          {[
+            { icon: "database", num: "25+", label: en ? "Sources" : "Fuentes", color: t.gn },
+            { icon: "refresh", num: "4", label: en ? "Live APIs" : "APIs en Vivo", color: t.cy },
+            { icon: "chart", num: "10", label: en ? "Algorithms" : "Algoritmos", color: t.vi },
+            { icon: "target", num: "13", label: en ? "Views" : "Vistas", color: t.pk }
+          ].map((step, i) => (
+            <div key={i} style={{ padding: "14px 8px", background: t.sf, borderRadius: 10, border: `1px solid ${t.bd}`, position: "relative" }}>
+              <div style={{ marginBottom: 6 }}>
+                <Icon name={step.icon} size={22} color={step.color} />
+              </div>
+              <div style={{ fontSize: 22, fontWeight: 800, fontFamily: "'IBM Plex Mono',monospace", color: step.color, marginBottom: 2 }}>{step.num}</div>
+              <div style={{ fontSize: 11, color: t.tx2, fontWeight: 600 }}>{step.label}</div>
+              {i < 3 && (
+                <div style={{ position: "absolute", right: -12, top: "50%", transform: "translateY(-50%)", fontSize: 14, color: t.tx3, zIndex: 1 }}>→</div>
+              )}
+            </div>
+          ))}
+        </div>
+        <div style={{ padding: "8px 12px", background: `${t.cy}06`, borderRadius: 8, borderLeft: `3px solid ${t.cy}`, fontSize: 12, color: t.tx2, lineHeight: 1.6 }}>
+          {en
+            ? "Data flows from 25+ international sources through 4 real-time APIs, is processed by 10 proprietary algorithms, and rendered across 13 analytical views — from country profiles to policy simulators to risk dashboards."
+            : "Los datos fluyen de 25+ fuentes internacionales a través de 4 APIs en tiempo real, son procesados por 10 algoritmos propietarios y se presentan en 13 vistas analíticas — desde perfiles país hasta simuladores de política y dashboards de riesgo."}
+        </div>
       </Card>
+
+      {/* ── 2. Expanded Founder Card ── */}
+      <Card d={0.05} accent={t.cy} style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Fraunces',serif", marginBottom: 4 }}>Andrés Alpízar</div>
+        <div style={{ fontSize: 12, color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>Founder · Colibrii Labs · Agile Intelligence</div>
+        <div style={{ fontSize: 13, color: t.tx2, marginBottom: 10, lineHeight: 1.8 }}>
+          {en
+            ? "This observatory was built because Costa Rica has the vision but lacks the intelligence infrastructure. Our country scored 100/100 on AI strategic vision (Oxford Insights 2023) — yet overall readiness is only 0.38/1.0. The gap isn't ambition; it's execution data. Legislators draft policy without comparative benchmarks. Ministers allocate budgets without risk quantification. Executives make AI investments without understanding where Costa Rica stands relative to peers."
+            : "Este observatorio se construyó porque Costa Rica tiene la visión pero carece de la infraestructura de inteligencia. Nuestro país obtuvo 100/100 en visión estratégica AI (Oxford Insights 2023) — pero la preparación general es solo 0.38/1.0. La brecha no es ambición; son datos de ejecución. Legisladores elaboran política sin benchmarks comparativos. Ministros asignan presupuestos sin cuantificación de riesgo. Ejecutivos hacen inversiones AI sin entender dónde está Costa Rica frente a sus pares."}
+        </div>
+        <div style={{ fontSize: 13, color: t.tx2, marginBottom: 12, lineHeight: 1.8 }}>
+          {en
+            ? "My background is in strategic intelligence and agile advisory. Colibrii Labs exists to close the gap between Costa Rica's AI ambition and its decision-making data. Every algorithm, every visualization, every data point in this observatory answers one question: 'What should Costa Rica do next?'"
+            : "Mi experiencia es en inteligencia estratégica y asesoría ágil. Colibrii Labs existe para cerrar la brecha entre la ambición AI de Costa Rica y sus datos de toma de decisiones. Cada algoritmo, cada visualización, cada dato en este observatorio responde una pregunta: '¿Qué debe hacer Costa Rica ahora?'"}
+        </div>
+        {/* Contact & Social */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
+          <a href="mailto:andres@colibriilabs.com" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: t.cy, textDecoration: "none", fontFamily: "'IBM Plex Mono',monospace" }}>
+            <Icon name="mail" size={14} color={t.cy} />
+            andres@colibriilabs.com
+          </a>
+          <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>
+            <Icon name="twitter" size={14} color={t.tx3} />
+            @ColibriilLabs
+            <Tag color={t.tx3}>{en ? "Coming Soon" : "Próximamente"}</Tag>
+          </span>
+          <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>
+            <Icon name="instagram" size={14} color={t.tx3} />
+            @colibriilabs
+            <Tag color={t.tx3}>{en ? "Coming Soon" : "Próximamente"}</Tag>
+          </span>
+        </div>
+      </Card>
+
+      {/* ── 3. Mission & Vision Card ── */}
+      <Card d={0.08} accent={t.gn} style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 11, letterSpacing: 2, color: t.gn, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 12 }}>
+          {en ? "MISSION & VISION" : "MISIÓN Y VISIÓN"}
+        </div>
+        <Grid cols="1fr 1fr" gap={12}>
+          <div style={{ padding: "14px 16px", background: t.sf, borderRadius: 10, borderLeft: `3px solid ${t.gn}` }}>
+            <div style={{ fontSize: 10, letterSpacing: 1.5, color: t.gn, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 6 }}>
+              {en ? "MISSION" : "MISIÓN"}
+            </div>
+            <p style={{ fontSize: 13, color: t.tx, lineHeight: 1.7, fontWeight: 600 }}>
+              {en
+                ? "Democratize access to strategic AI intelligence for Costa Rica."
+                : "Democratizar el acceso a inteligencia AI estratégica para Costa Rica."}
+            </p>
+          </div>
+          <div style={{ padding: "14px 16px", background: t.sf, borderRadius: 10, borderLeft: `3px solid ${t.vi}` }}>
+            <div style={{ fontSize: 10, letterSpacing: 1.5, color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 6 }}>
+              {en ? "VISION" : "VISIÓN"}
+            </div>
+            <p style={{ fontSize: 13, color: t.tx, lineHeight: 1.7, fontWeight: 600 }}>
+              {en
+                ? "An informed nation navigating the AI transformation."
+                : "Una nación informada navegando la transformación AI."}
+            </p>
+          </div>
+        </Grid>
+      </Card>
+
+      {/* ── 4. Existing sections preserved below ── */}
 
       {/* 10+ API Data Sources */}
       <Card d={0.1} style={{ marginBottom: 16 }}>

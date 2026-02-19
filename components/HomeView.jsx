@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip } from "recharts";
-import { CO, DM, TIMELINE, PARTNERS, WEF_2026_RISKS, EOS_RISKS } from "./data";
+import { CO, DM, TIMELINE, PARTNERS, WEF_2026_RISKS, EOS_RISKS, INDICATOR_META, VIP_QUOTES, NEWS_CATEGORIES } from "./data";
 import { Card, SH, Stat, Tag, Ci, Lnk, Grid, AN, ScrollReveal, PartnerBar, MiniStat, fadeUp, stagger } from "./ui";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -217,8 +217,10 @@ function WefDashboard({ en, t, dark }) {
   );
 }
 
-export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, setTab }) {
+export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, setTab, onIndicatorClick }) {
   const TL = TIMELINE(en);
+  const [tlOpen, setTlOpen] = useState(null);
+  const [newsFeed, setNewsFeed] = useState("cr");
 
   /* Radar data: CR vs Chile vs Singapore */
   const radarData = Object.entries(DM).map(([dk, d]) => ({
@@ -268,12 +270,12 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
       {/* ═══════ KEY STATS ═══════ */}
       <motion.div variants={stagger} initial="hidden" animate="visible">
         <Grid cols="repeat(auto-fit,minmax(155px,1fr))" gap={12} style={{ marginBottom: 28 }}>
-          <Stat value={crS} label={en ? "Colibrii Index" : "Índice Colibrii"} sub="CAPI-CR" color={t.cy} icon="diamond" />
-          <Stat value={crR} label={en ? "Global Rank" : "Ranking Global"} sub={en ? "of 20 countries" : "de 20 países"} color={t.vi} precision={0} prefix="#" icon="chart" />
-          <Stat value={40} label={en ? "AI Job Exposure" : "Exposición Laboral AI"} sub="IMF 2024" color={t.or} precision={0} prefix="" icon="lightning" />
-          <Stat value={5} label={en ? "AI Risk (WEF)" : "Riesgo AI (WEF)"} sub="5.28 sev · #30→#5" color={t.rd} precision={0} prefix="#" icon="shield" />
-          <Stat value={626} label={en ? "FZ Companies" : "Empresas ZF"} sub="PROCOMER 2024" color={t.am} precision={0} icon="factory" />
-          <Stat value={4.3} label={en ? "FDI (B USD)" : "IED (B USD)"} sub="CINDE 2024" color={t.gn} prefix="$" icon="coins" />
+          <Stat value={crS} label={en ? "Colibrii Index" : "Índice Colibrii"} sub="CAPI-CR" color={t.cy} icon="diamond" onClick={() => onIndicatorClick({...INDICATOR_META.colibrii_index, value: crS != null ? (crS * 100).toFixed(1) : null, color: t.cy})} />
+          <Stat value={crR} label={en ? "Global Rank" : "Ranking Global"} sub={en ? "of 20 countries" : "de 20 países"} color={t.vi} precision={0} prefix="#" icon="chart" onClick={() => onIndicatorClick({...INDICATOR_META.global_rank, value: crR != null ? `#${crR}` : null, color: t.vi})} />
+          <Stat value={40} label={en ? "AI Job Exposure" : "Exposición Laboral AI"} sub="IMF 2024" color={t.or} precision={0} prefix="" icon="lightning" onClick={() => onIndicatorClick({...INDICATOR_META.ai_exposure, value: "40%", color: t.or})} />
+          <Stat value={5} label={en ? "AI Risk (WEF)" : "Riesgo AI (WEF)"} sub="5.28 sev · #30→#5" color={t.rd} precision={0} prefix="#" icon="shield" onClick={() => onIndicatorClick({...INDICATOR_META.ai_risk, value: "#5 (5.28/7.0)", color: t.rd})} />
+          <Stat value={626} label={en ? "FZ Companies" : "Empresas ZF"} sub="PROCOMER 2024" color={t.am} precision={0} icon="factory" onClick={() => onIndicatorClick({...INDICATOR_META.fz_companies, value: "626", color: t.am})} />
+          <Stat value={4.3} label={en ? "FDI (B USD)" : "IED (B USD)"} sub="CINDE 2024" color={t.gn} prefix="$" icon="coins" onClick={() => onIndicatorClick({...INDICATOR_META.fdi, value: "$4.3B", color: t.gn})} />
         </Grid>
       </motion.div>
 
@@ -339,6 +341,33 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
         </Card>
       </ScrollReveal>
 
+      {/* ═══════ VIP QUOTES REEL ═══════ */}
+      <ScrollReveal delay={100}>
+        <Card style={{ marginBottom: 28, overflow: "visible" }}>
+          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>
+            {en ? "VOICES ON AI" : "VOCES SOBRE AI"}
+          </div>
+          <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Fraunces',serif", marginBottom: 16 }}>
+            {en ? "What Global Leaders Are Saying" : "Qué Dicen los Líderes Globales"}
+          </div>
+          <div className="vip-reel">
+            {VIP_QUOTES(en).map((q, i) => (
+              <div key={i} className="vip-card">
+                <div className="vip-avatar" style={{ background: q.gradient }}>{q.initials}</div>
+                <div className="vip-quote">{q.quote}</div>
+                <div className="vip-name">{q.name}</div>
+                <div className="vip-title">{q.title}</div>
+                {q.src && (
+                  <a href={q.src} target="_blank" rel="noopener noreferrer" style={{ fontSize: 10, color: t.cy, marginTop: 6, display: "inline-block" }}>
+                    {en ? "Source" : "Fuente"} ↗
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        </Card>
+      </ScrollReveal>
+
       {/* ═══════ RADAR CHART ═══════ */}
       <ScrollReveal delay={150}>
         <Card style={{ marginBottom: 28 }}>
@@ -350,13 +379,13 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="70%">
-              <PolarGrid stroke={dark ? "#1e1e2d" : "#e2e4ea"} />
-              <PolarAngleAxis dataKey="dim" tick={{ fontSize: 10, fill: dark ? "#9a9aad" : "#4a4a6a" }} />
+              <PolarGrid stroke={dark ? "#1e293b" : "#d1d5e0"} />
+              <PolarAngleAxis dataKey="dim" tick={{ fontSize: 10, fill: dark ? "#94a3b8" : "#475569" }} />
               <PolarRadiusAxis tick={false} axisLine={false} domain={[0, 100]} />
               <Radar name="Costa Rica" dataKey="CR" stroke={t.cy} fill={t.cy} fillOpacity={0.15} strokeWidth={2} />
               <Radar name="Chile" dataKey="CHL" stroke={t.am} fill={t.am} fillOpacity={0.08} strokeWidth={1.5} strokeDasharray="4 2" />
               <Radar name="Singapore" dataKey="SGP" stroke={t.vi} fill={t.vi} fillOpacity={0.08} strokeWidth={1.5} strokeDasharray="4 2" />
-              <Tooltip contentStyle={{ background: dark ? "#0a0a0f" : "#fff", border: `1px solid ${dark ? "#1e1e2d" : "#e2e4ea"}`, borderRadius: 8, fontSize: 12 }} />
+              <Tooltip contentStyle={{ background: dark ? "#111827" : "#fff", border: `1px solid ${dark ? "#1e293b" : "#d1d5e0"}`, borderRadius: 8, fontSize: 12 }} />
             </RadarChart>
           </ResponsiveContainer>
           <div style={{ display: "flex", gap: 16, justifyContent: "center", marginTop: 8, fontSize: 12 }}>
@@ -416,7 +445,7 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
         </Card>
       </ScrollReveal>
 
-      {/* ═══════ AI GLOBAL TIMELINE ═══════ */}
+      {/* ═══════ AI GLOBAL TIMELINE — INTERACTIVE ═══════ */}
       <ScrollReveal delay={100}>
         <Card style={{ marginBottom: 28 }}>
           <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>
@@ -425,17 +454,30 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
           <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Fraunces',serif", marginBottom: 16 }}>
             {en ? "From ChatGPT to La Encrucijada" : "De ChatGPT a La Encrucijada"}
           </div>
-          <div className="timeline">
+          <div className="timeline-interactive">
             {TL.map((m, i) => (
-              <div key={i} className="timeline-item" style={{ "--timeline-color": m.c }}>
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-                  <div>
-                    <div style={{ fontSize: 10, fontFamily: "'IBM Plex Mono',monospace", color: m.c, fontWeight: 700, marginBottom: 2 }}>{m.date}</div>
-                    <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 2 }}>{m.t}</div>
-                    <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6, marginBottom: 2 }}>{m.d}</p>
-                    <div style={{ fontSize: 11, color: m.c, fontFamily: "'IBM Plex Mono',monospace" }}>CR: {m.cr}</div>
-                  </div>
+              <div key={i} className={`timeline-node ${tlOpen === i ? "active" : ""}`} onClick={() => setTlOpen(tlOpen === i ? null : i)}>
+                <div className="timeline-node-dot" style={{ borderColor: m.c }} />
+                <div className="timeline-node-header">
+                  <span style={{ fontSize: 10, fontFamily: "'IBM Plex Mono',monospace", color: m.c, fontWeight: 700, minWidth: 70 }}>{m.date}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: t.tx, flex: 1 }}>{m.t}</span>
+                  <span style={{ fontSize: 12, color: t.tx3, transform: tlOpen === i ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s" }}>▾</span>
                 </div>
+                <AnimatePresence>
+                  {tlOpen === i && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.25 }} className="timeline-node-content">
+                      <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.7, marginBottom: 8 }}>{m.d}</p>
+                      <div style={{ fontSize: 11, color: m.c, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 6, padding: "6px 10px", background: `${m.c}08`, borderRadius: 6, borderLeft: `2px solid ${m.c}` }}>
+                        🇨🇷 CR: {m.cr}
+                      </div>
+                      {m.src && (
+                        <a href={m.src} target="_blank" rel="noopener noreferrer" className="timeline-source-btn">
+                          {en ? "View Source" : "Ver Fuente"} ↗
+                        </a>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             ))}
           </div>
@@ -445,19 +487,48 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
       {/* ═══════ DATA PARTNERS ═══════ */}
       <PartnerBar items={PARTNERS} en={en} />
 
-      {/* ═══════ GDELT NEWS ═══════ */}
+      {/* ═══════ AI NEWS — DUAL FEED ═══════ */}
       {news.length > 0 && (
         <ScrollReveal delay={150}>
           <Card style={{ marginTop: 20 }}>
-            <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.pk, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>
-              {en ? "AI NEWS — COSTA RICA (72H)" : "NOTICIAS AI — COSTA RICA (72H)"}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4, flexWrap: "wrap", gap: 8 }}>
+              <div>
+                <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.pk, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>
+                  {en ? "AI NEWS FEED (72H)" : "FEED NOTICIAS AI (72H)"}
+                </div>
+                <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Fraunces',serif" }}>
+                  {en ? "Latest Intelligence" : "Inteligencia Reciente"}
+                </div>
+              </div>
             </div>
-            {news.map((n, i) => (
-              <a key={i} href={n.url} target="_blank" rel="noopener noreferrer" style={{ display: "block", padding: "8px 0", borderBottom: i < news.length - 1 ? `1px solid ${t.bd}` : "none", textDecoration: "none" }}>
-                <div style={{ fontSize: 13, color: t.tx, fontWeight: 500, lineHeight: 1.5 }}>{n.title}</div>
-                <div style={{ fontSize: 10, color: t.tx3, marginTop: 2, fontFamily: "'IBM Plex Mono',monospace" }}>{n.domain} · {n.seendate?.slice(0, 10)}</div>
-              </a>
-            ))}
+            <div className="news-tabs">
+              <button className={`news-tab ${newsFeed === "cr" ? "active" : ""}`} onClick={() => setNewsFeed("cr")}>{en ? "Costa Rica" : "Costa Rica"} 🇨🇷</button>
+              <button className={`news-tab ${newsFeed === "global" ? "active" : ""}`} onClick={() => setNewsFeed("global")}>{en ? "Global" : "Global"} 🌎</button>
+            </div>
+            <div className="news-grid">
+              {news.map((n, i) => {
+                const cat = n.title?.toLowerCase().includes("security") || n.title?.toLowerCase().includes("cyber") ? "security"
+                  : n.title?.toLowerCase().includes("regulat") || n.title?.toLowerCase().includes("law") || n.title?.toLowerCase().includes("policy") ? "policy"
+                  : n.title?.toLowerCase().includes("econom") || n.title?.toLowerCase().includes("invest") ? "economy"
+                  : n.title?.toLowerCase().includes("educat") || n.title?.toLowerCase().includes("universit") ? "education"
+                  : "tech";
+                const nc = NEWS_CATEGORIES[cat];
+                return (
+                  <a key={i} href={n.url} target="_blank" rel="noopener noreferrer" className="news-card">
+                    <div className="news-thumb" style={{ background: `linear-gradient(135deg, ${nc.color}20, ${nc.color}40)` }}>
+                      <span>{nc.icon}</span>
+                    </div>
+                    <div className="news-body">
+                      <div className="news-title">{n.title}</div>
+                      <div className="news-meta">{n.domain} · {n.seendate?.slice(0, 10)}</div>
+                      <div className="news-impact" style={{ background: `${t.cy}10`, color: t.cy }}>
+                        🇨🇷 {en ? "CR Impact" : "Impacto CR"}
+                      </div>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
             <Ci s="GDELT Project API — 72h window" />
           </Card>
         </ScrollReveal>

@@ -12,7 +12,7 @@ export function ZF({ en, t, dark }) {
   /* Sector treemap data */
   const treemapData = [
     { name: en ? "Medical Devices" : "Dispositivos Médicos", size: 35, fill: "#10b981" },
-    { name: en ? "Digital Services" : "Servicios Digitales", size: 28, fill: "#0ea5e9" },
+    { name: en ? "Digital Services" : "Servicios Digitales", size: 28, fill: "#2563eb" },
     { name: en ? "Electronics" : "Electrónica", size: 15, fill: "#8b5cf6" },
     { name: en ? "Semiconductors" : "Semiconductores", size: 10, fill: "#ec4899" },
     { name: en ? "Manufacturing" : "Manufactura", size: 8, fill: "#f59e0b" },
@@ -60,7 +60,7 @@ export function ZF({ en, t, dark }) {
             {en ? "FREE ZONE SECTOR BREAKDOWN" : "DISTRIBUCIÓN SECTORES ZF"}
           </div>
           <ResponsiveContainer width="100%" height={200}>
-            <Treemap data={treemapData} dataKey="size" nameKey="name" stroke={dark ? "#1e1e2d" : "#fff"} content={({ x, y, width, height, name, fill }) => (
+            <Treemap data={treemapData} dataKey="size" nameKey="name" stroke={dark ? "#1e293b" : "#fff"} content={({ x, y, width, height, name, fill }) => (
               width > 40 && height > 30 ? (
                 <g>
                   <rect x={x} y={y} width={width} height={height} fill={fill} rx={4} opacity={0.85} />
@@ -165,10 +165,10 @@ export function PAI({ en, t, dark }) {
           </div>
           <ResponsiveContainer width="100%" height={260}>
             <AreaChart data={costData} margin={{ top: 5, right: 20, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke={dark ? "#1e1e2d" : "#e2e4ea"} />
-              <XAxis dataKey="year" tick={{ fontSize: 11, fill: dark ? "#9a9aad" : "#4a4a6a" }} />
-              <YAxis tick={{ fontSize: 10, fill: dark ? "#9a9aad" : "#4a4a6a" }} tickFormatter={v => `$${(v / 1000).toFixed(0)}K`} />
-              <Tooltip contentStyle={{ background: dark ? "#0a0a0f" : "#fff", border: `1px solid ${dark ? "#1e1e2d" : "#e2e4ea"}`, borderRadius: 8, fontSize: 11 }} formatter={v => `$${v.toLocaleString()}`} />
+              <CartesianGrid strokeDasharray="3 3" stroke={dark ? "#1e293b" : "#d1d5e0"} />
+              <XAxis dataKey="year" tick={{ fontSize: 11, fill: dark ? "#94a3b8" : "#475569" }} />
+              <YAxis tick={{ fontSize: 10, fill: dark ? "#94a3b8" : "#475569" }} tickFormatter={v => `$${(v / 1000).toFixed(0)}K`} />
+              <Tooltip contentStyle={{ background: dark ? "#111827" : "#fff", border: `1px solid ${dark ? "#1e293b" : "#d1d5e0"}`, borderRadius: 8, fontSize: 11 }} formatter={v => `$${v.toLocaleString()}`} />
               <Area type="monotone" dataKey="cost" name={en ? "Humanoid Cost" : "Costo Humanoide"} stroke={t.pk} fill={t.pk} fillOpacity={0.1} strokeWidth={2.5} />
               <Area type="monotone" dataKey="crWage" name={en ? "CR Annual Wage" : "Salario Anual CR"} stroke={t.am} fill={t.am} fillOpacity={0.05} strokeWidth={2} strokeDasharray="4 2" />
             </AreaChart>
@@ -185,10 +185,10 @@ export function PAI({ en, t, dark }) {
           </div>
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={shipmentData} margin={{ top: 5, right: 20, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke={dark ? "#1e1e2d" : "#e2e4ea"} />
-              <XAxis dataKey="year" tick={{ fontSize: 11, fill: dark ? "#9a9aad" : "#4a4a6a" }} />
-              <YAxis tick={{ fontSize: 10, fill: dark ? "#9a9aad" : "#4a4a6a" }} domain={[300, 700]} />
-              <Tooltip contentStyle={{ background: dark ? "#0a0a0f" : "#fff", border: `1px solid ${dark ? "#1e1e2d" : "#e2e4ea"}`, borderRadius: 8, fontSize: 11 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke={dark ? "#1e293b" : "#d1d5e0"} />
+              <XAxis dataKey="year" tick={{ fontSize: 11, fill: dark ? "#94a3b8" : "#475569" }} />
+              <YAxis tick={{ fontSize: 10, fill: dark ? "#94a3b8" : "#475569" }} domain={[300, 700]} />
+              <Tooltip contentStyle={{ background: dark ? "#111827" : "#fff", border: `1px solid ${dark ? "#1e293b" : "#d1d5e0"}`, borderRadius: 8, fontSize: 11 }} />
               <Line type="monotone" dataKey="units" stroke={t.vi} strokeWidth={2.5} dot={{ fill: t.vi, r: 4 }} name={en ? "K units" : "K unidades"} />
             </LineChart>
           </ResponsiveContainer>

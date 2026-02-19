@@ -1,5 +1,6 @@
 "use client";
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { TH, ALGOS, LAWS, CHECKLIST } from "./data";
 import { Card, SH, Tag, Ci, Lnk, Grid, ProgressBar, ScrollReveal, MiniStat, fadeUp } from "./ui";
 import { FACTS } from "../data/facts";
@@ -138,6 +139,7 @@ export function SecTab({ en, t }) {
 export function Leg({ en, t }) {
   const L = LAWS(en);
   const CK = CHECKLIST(en);
+  const [expandedLaw, setExpandedLaw] = useState(null);
 
   return (
     <div>
@@ -155,6 +157,51 @@ export function Leg({ en, t }) {
             <p style={{ fontSize: 13, color: t.tx, lineHeight: 1.6 }}>{l.cr}</p>
           </div>
           {l.lk && <Lnk href={l.lk}>{en ? "Full text" : "Texto completo"}</Lnk>}
+          {/* Expandable detail */}
+          {(l.timeline || l.crActions) && (
+            <>
+              <button
+                className="law-expand-btn"
+                onClick={() => setExpandedLaw(expandedLaw === i ? null : i)}
+                style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8, background: "none", border: `1px solid ${t.bd}`, borderRadius: 6, padding: "5px 12px", fontSize: 11, color: t.tx2, cursor: "pointer", fontFamily: "'IBM Plex Mono',monospace" }}
+              >
+                {expandedLaw === i ? (en ? "Less" : "Menos") : (en ? "Details & CR Actions" : "Detalles y Acciones CR")}
+                <span style={{ transform: expandedLaw === i ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s", display: "inline-block" }}>▾</span>
+              </button>
+              <AnimatePresence>
+                {expandedLaw === i && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.25 }} className="law-detail" style={{ overflow: "hidden", marginTop: 10 }}>
+                    {l.timeline && (
+                      <div style={{ marginBottom: 12 }}>
+                        <div style={{ fontSize: 10, letterSpacing: 1.5, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 6 }}>
+                          {en ? "KEY DATES" : "FECHAS CLAVE"}
+                        </div>
+                        {l.timeline.map((tl, j) => (
+                          <div key={j} className="law-timeline-item" style={{ display: "flex", gap: 10, alignItems: "baseline", padding: "3px 0", borderBottom: `1px solid ${t.bd}` }}>
+                            <span className="law-timeline-date" style={{ fontSize: 11, fontWeight: 700, fontFamily: "'IBM Plex Mono',monospace", color: t.vi, minWidth: 80 }}>{tl.date}</span>
+                            <span style={{ fontSize: 12, color: t.tx2 }}>{tl.event}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {l.crActions && (
+                      <div>
+                        <div style={{ fontSize: 10, letterSpacing: 1.5, color: t.cy, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 6 }}>
+                          {en ? "CR RECOMMENDATIONS" : "RECOMENDACIONES CR"}
+                        </div>
+                        {(typeof l.crActions === 'function' ? l.crActions(en) : l.crActions).map((action, j) => (
+                          <div key={j} className="law-cr-action" style={{ display: "flex", gap: 8, alignItems: "flex-start", padding: "4px 0" }}>
+                            <span className="law-cr-action-num" style={{ fontSize: 10, fontWeight: 700, fontFamily: "'IBM Plex Mono',monospace", color: t.cy, minWidth: 18, textAlign: "center", background: `${t.cy}10`, borderRadius: 4, padding: "1px 4px" }}>{j + 1}</span>
+                            <span style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6 }}>{action}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </>
+          )}
         </Card>
       ))}
 
