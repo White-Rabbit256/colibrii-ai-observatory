@@ -1,0 +1,214 @@
+"use client";
+import { useState, useMemo } from "react";
+import { motion } from "framer-motion";
+import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { CO, CC, DM } from "./data";
+import { Card, SH, Tag, Grid, AN, ScrollReveal, DimBadge, ScorePill, Ci, MiniStat, fadeUp, stagger, ExportBtn } from "./ui";
+
+/* ═══════════════════════════════════════════════════════════════
+   INDEX VIEW v13 — Full CAPI-CR leaderboard + dimension breakdown
+   ═══════════════════════════════════════════════════════════════ */
+
+export function Idx({ en, t, idx, board, dark }) {
+  const [region, setRegion] = useState("all");
+  const regions = ["all", "latam", "asia", "eu"];
+  const regionLabel = { all: en ? "All" : "Todos", latam: "LATAM", asia: "Asia", eu: "Europe" };
+
+  const filtered = useMemo(() => {
+    if (region === "all") return board;
+    return board.filter(c => CO[c.code]?.r === region);
+  }, [board, region]);
+
+  /* Bar chart data for dimension stacked view */
+  const barData = filtered.slice(0, 15).map(c => ({
+    name: c.f + " " + (en ? c.e : c.n).slice(0, 12),
+    code: c.code,
+    ...Object.fromEntries(Object.keys(DM).map(dk => [dk, idx[c.code]?.[dk] != null ? +(idx[c.code][dk] * DM[dk].w * 100).toFixed(1) : 0])),
+    total: c.composite != null ? +(c.composite * 100).toFixed(1) : 0
+  }));
+
+  return (
+    <div>
+      <SH color={t.cy} label="CAPI-CR" title={en ? "Colibrii AI Preparedness Index" : "Índice de Preparación AI Colibrii"} desc={en ? "Extends IMF AIPI from 4→6 dimensions. 20 countries, 11 live World Bank indicators + 2 curated dimensions. Min-max normalization." : "Extiende AIPI del FMI de 4→6 dimensiones. 20 países, 11 indicadores BM en vivo + 2 dimensiones curadas. Normalización min-max."} />
+
+      {/* Dimension cards */}
+      <Grid cols="repeat(auto-fit,minmax(160px,1fr))" gap={10} style={{ marginBottom: 24 }}>
+        {Object.entries(DM).map(([dk, d]) => (
+          <Card key={dk} d={0.02} accent={d.co}>
+            <div style={{ fontSize: 20, marginBottom: 4 }}>{d.ic}</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: d.co }}>{en ? d.e : d.l}</div>
+            <div style={{ fontSize: 11, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>{(d.w * 100).toFixed(0)}%</div>
+            {idx.CRI?.[dk] != null && (
+              <div style={{ fontSize: 18, fontWeight: 800, fontFamily: "'IBM Plex Mono',monospace", color: d.co, marginTop: 4 }}>
+                <AN v={idx.CRI[dk] * 100} p={1} />
+              </div>
+            )}
+          </Card>
+        ))}
+      </Grid>
+
+      {/* Formula */}
+      <Card d={0.1} style={{ marginBottom: 24, textAlign: "center", padding: "16px 20px" }}>
+        <div style={{ fontSize: 11, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 6 }}>{en ? "COMPOSITE FORMULA" : "FÓRMULA COMPUESTA"}</div>
+        <div style={{ fontSize: 16, color: t.cy, fontFamily: "'IBM Plex Mono',monospace", fontWeight: 700 }}>CAPI = Σ(wᵢ × Dᵢ), i=1..6</div>
+        <div style={{ fontSize: 11, color: t.tx2, marginTop: 4 }}>D1:20% · D2:20% · D3:15% · D4:15% · D5:15% · D6:15%</div>
+      </Card>
+
+      {/* Region filter */}
+      <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
+        {regions.map(r => (
+          <button key={r} onClick={() => setRegion(r)} style={{ padding: "5px 12px", fontSize: 11, fontWeight: 600, border: `1px solid ${region === r ? t.cy : t.bd}`, borderRadius: 6, background: region === r ? `${t.cy}10` : "transparent", color: region === r ? t.cy : t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>
+            {regionLabel[r]}
+          </button>
+        ))}
+      </div>
+
+      {/* Stacked bar chart */}
+      <ScrollReveal>
+        <Card style={{ marginBottom: 24 }}>
+          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>
+            {en ? "DIMENSION CONTRIBUTIONS" : "CONTRIBUCIONES POR DIMENSIÓN"}
+          </div>
+          <ResponsiveContainer width="100%" height={Math.max(filtered.slice(0, 15).length * 32, 200)}>
+            <BarChart data={barData} layout="vertical" margin={{ left: 0, right: 20, top: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={dark ? "#1e1e2d" : "#e2e4ea"} horizontal={false} />
+              <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10, fill: dark ? "#9a9aad" : "#4a4a6a" }} />
+              <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 10, fill: dark ? "#9a9aad" : "#4a4a6a" }} />
+              <Tooltip contentStyle={{ background: dark ? "#0a0a0f" : "#fff", border: `1px solid ${dark ? "#1e1e2d" : "#e2e4ea"}`, borderRadius: 8, fontSize: 11 }} />
+              {Object.entries(DM).map(([dk, d]) => (
+                <Bar key={dk} dataKey={dk} stackId="dims" fill={d.co} name={en ? d.e : d.l} radius={dk === "D6" ? [0, 4, 4, 0] : undefined} />
+              ))}
+            </BarChart>
+          </ResponsiveContainer>
+        </Card>
+      </ScrollReveal>
+
+      {/* Leaderboard table */}
+      <Card>
+        <div style={{ overflowX: "auto" }}>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>{en ? "Country" : "País"}</th>
+                {Object.entries(DM).map(([dk, d]) => <th key={dk} style={{ color: d.co }}>{dk}</th>)}
+                <th>CAPI</th>
+                <th>{en ? "Status" : "Estado"}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((c, i) => (
+                <tr key={c.code} className={c.code === "CRI" ? "highlight" : ""}>
+                  <td style={{ fontFamily: "'IBM Plex Mono',monospace", fontWeight: 700, fontSize: 12, color: t.tx3 }}>{board.indexOf(c) + 1}</td>
+                  <td><span style={{ fontSize: 14, marginRight: 6 }}>{c.f}</span><span style={{ fontWeight: c.code === "CRI" ? 700 : 400 }}>{en ? c.e : c.n}</span></td>
+                  {Object.keys(DM).map(dk => (
+                    <td key={dk} style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 12, color: idx[c.code]?.[dk] >= 0.65 ? t.gn : idx[c.code]?.[dk] >= 0.40 ? t.am : t.rd }}>
+                      {idx[c.code]?.[dk] != null ? (idx[c.code][dk] * 100).toFixed(1) : "—"}
+                    </td>
+                  ))}
+                  <td style={{ fontFamily: "'IBM Plex Mono',monospace", fontWeight: 700, fontSize: 14 }}>
+                    {c.composite != null ? (c.composite * 100).toFixed(1) : "—"}
+                  </td>
+                  <td><ScorePill score={c.composite} en={en} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <Ci s={en ? "World Bank API (live), Oxford Insights, IMF AIPI, OWASP" : "API Banco Mundial (vivo), Oxford Insights, IMF AIPI, OWASP"} />
+      </Card>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   COMPARE VIEW v13 — 3-country radar overlay + dimension table
+   ═══════════════════════════════════════════════════════════════ */
+
+export function Compare({ en, t, idx, board, dark }) {
+  const [sel, setSel] = useState(["CRI", "CHL", "SGP"]);
+  const colors = [t.cy, t.am, t.vi];
+
+  const handleChange = (i, val) => {
+    const next = [...sel];
+    next[i] = val;
+    setSel(next);
+  };
+
+  const radarData = Object.entries(DM).map(([dk, d]) => {
+    const row = { dim: en ? d.e : d.l };
+    sel.forEach((c, i) => { row[c] = idx[c]?.[dk] != null ? +(idx[c][dk] * 100).toFixed(1) : 0; });
+    return row;
+  });
+
+  return (
+    <div>
+      <SH color={t.pk} label={en ? "Compare" : "Comparar"} title={en ? "Country Comparison" : "Comparación de Países"} desc={en ? "Select up to 3 countries to compare across all 6 CAPI-CR dimensions. Radar overlay + dimension table." : "Selecciona hasta 3 países para comparar en las 6 dimensiones CAPI-CR. Radar + tabla de dimensiones."} />
+
+      {/* Selectors */}
+      <Grid cols="repeat(3,1fr)" gap={10} style={{ marginBottom: 24 }}>
+        {sel.map((s, i) => (
+          <div key={i} style={{ position: "relative" }}>
+            <div style={{ fontSize: 10, color: colors[i], fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>{en ? "COUNTRY" : "PAÍS"} {i + 1}</div>
+            <select value={s} onChange={e => handleChange(i, e.target.value)} style={{ width: "100%", padding: "8px 12px", borderRadius: 8, fontSize: 13, borderColor: colors[i] }}>
+              {CC.map(c => <option key={c} value={c}>{CO[c].f} {en ? CO[c].e : CO[c].n}</option>)}
+            </select>
+          </div>
+        ))}
+      </Grid>
+
+      {/* Radar */}
+      <Card style={{ marginBottom: 24 }}>
+        <ResponsiveContainer width="100%" height={320}>
+          <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="70%">
+            <PolarGrid stroke={dark ? "#1e1e2d" : "#e2e4ea"} />
+            <PolarAngleAxis dataKey="dim" tick={{ fontSize: 10, fill: dark ? "#9a9aad" : "#4a4a6a" }} />
+            <PolarRadiusAxis tick={false} axisLine={false} domain={[0, 100]} />
+            {sel.map((c, i) => (
+              <Radar key={c} name={`${CO[c].f} ${en ? CO[c].e : CO[c].n}`} dataKey={c} stroke={colors[i]} fill={colors[i]} fillOpacity={i === 0 ? 0.15 : 0.06} strokeWidth={i === 0 ? 2.5 : 1.5} strokeDasharray={i > 0 ? "4 2" : undefined} />
+            ))}
+            <Tooltip contentStyle={{ background: dark ? "#0a0a0f" : "#fff", border: `1px solid ${dark ? "#1e1e2d" : "#e2e4ea"}`, borderRadius: 8, fontSize: 12 }} />
+          </RadarChart>
+        </ResponsiveContainer>
+        <div style={{ display: "flex", gap: 16, justifyContent: "center", fontSize: 12 }}>
+          {sel.map((c, i) => <span key={c}><span style={{ color: colors[i] }}>●</span> {CO[c].f} {en ? CO[c].e : CO[c].n}</span>)}
+        </div>
+      </Card>
+
+      {/* Dimension comparison table */}
+      <Card>
+        <div style={{ overflowX: "auto" }}>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>{en ? "Dimension" : "Dimensión"}</th>
+                {sel.map((c, i) => <th key={c} style={{ color: colors[i] }}>{CO[c].f} {en ? CO[c].e : CO[c].n}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(DM).map(([dk, d]) => (
+                <tr key={dk}>
+                  <td><DimBadge dim={d} en={en} /></td>
+                  {sel.map((c, i) => (
+                    <td key={c} style={{ fontFamily: "'IBM Plex Mono',monospace", fontWeight: 700, color: idx[c]?.[dk] >= 0.65 ? t.gn : idx[c]?.[dk] >= 0.40 ? t.am : t.rd }}>
+                      {idx[c]?.[dk] != null ? (idx[c][dk] * 100).toFixed(1) : "—"}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+              <tr style={{ fontWeight: 700, borderTop: `2px solid ${t.bd}` }}>
+                <td style={{ fontWeight: 700 }}>CAPI-CR</td>
+                {sel.map((c, i) => (
+                  <td key={c} style={{ fontFamily: "'IBM Plex Mono',monospace", fontWeight: 800, fontSize: 16, color: colors[i] }}>
+                    {idx[c]?.composite != null ? (idx[c].composite * 100).toFixed(1) : "—"}
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <Ci s={en ? "World Bank API, Oxford Insights, OWASP" : "API Banco Mundial, Oxford Insights, OWASP"} />
+      </Card>
+    </div>
+  );
+}

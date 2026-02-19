@@ -1,0 +1,11 @@
+# Colibrii Labs — AI Observatory Costa Rica
+# https://colibriilabs.com
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://colibriilabs.com/sitemap.xml
+
+# Crawl-delay for polite bots
+Crawl-delay: 1

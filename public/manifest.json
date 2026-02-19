@@ -1,0 +1,20 @@
+{
+  "name": "Colibrii Labs — AI Observatory Costa Rica",
+  "short_name": "Colibrii Labs",
+  "description": "Real-time strategic AI intelligence for Costa Rica. 20-country composite index, 10 proprietary algorithms, 55-term glossary, WEF 2026 risk data.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fafbfc",
+  "theme_color": "#0ea5e9",
+  "orientation": "portrait-primary",
+  "lang": "es",
+  "categories": ["business", "education", "government"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
