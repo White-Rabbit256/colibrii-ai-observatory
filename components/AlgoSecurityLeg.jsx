@@ -2,15 +2,17 @@
 import { motion } from "framer-motion";
 import { TH, ALGOS, LAWS, CHECKLIST } from "./data";
 import { Card, SH, Tag, Ci, Lnk, Grid, ProgressBar, ScrollReveal, MiniStat, fadeUp } from "./ui";
+import { FACTS } from "../data/facts";
 
 /* ═══════════════════════════════════════════════════════════════
-   ALGORITHMS VIEW v13 — All 7 with formulas, weights, previews
+   ALGORITHMS VIEW v13 — All 10 with methodology, inputs, validation
+   Trade secrets protected: formulas and weights removed.
    ═══════════════════════════════════════════════════════════════ */
 export function Algo({ en, t }) {
   const A = ALGOS(en);
   return (
     <div>
-      <SH color={t.vi} label={en ? "Proprietary Analysis" : "Análisis Propietario"} title={en ? "Colibrii Algorithms" : "Algoritmos Colibrii"} desc={en ? "7 proprietary algorithms designed for CR's context as an upper-middle-income AI Overperformer. Methodologies transparent; calibrations proprietary." : "7 algoritmos propietarios diseñados para el contexto de CR como AI Overperformer de ingreso medio-alto. Metodologías transparentes; calibraciones propietarias."} />
+      <SH color={t.vi} label={en ? "Proprietary Analysis" : "Análisis Propietario"} title={en ? "Colibrii Algorithms" : "Algoritmos Colibrii"} desc={en ? `${FACTS.algorithms} proprietary algorithms designed for CR's context as an upper-middle-income AI Overperformer. Methodologies transparent; calibrations proprietary.` : `${FACTS.algorithms} algoritmos propietarios diseñados para el contexto de CR como AI Overperformer de ingreso medio-alto. Metodologías transparentes; calibraciones propietarias.`} />
       {A.map((a, i) => (
         <Card key={i} d={0.06 + i * 0.04} accent={a.c} style={{ marginBottom: 12 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
@@ -22,11 +24,14 @@ export function Algo({ en, t }) {
           </div>
           <p style={{ fontSize: 13, color: t.tx2, lineHeight: 1.7, marginBottom: 10 }}>{a.desc}</p>
           <div style={{ padding: "8px 12px", background: t.sf, borderRadius: 8, marginBottom: 8 }}>
-            <div style={{ fontSize: 9, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>FORMULA</div>
-            <div style={{ fontSize: 13, color: t.cy, fontFamily: "'IBM Plex Mono',monospace" }}>{a.f}</div>
+            <div style={{ fontSize: 9, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>{en ? "METHODOLOGY" : "METODOLOGÍA"}</div>
+            <div style={{ fontSize: 13, color: t.tx2, lineHeight: 1.6 }}>{a.method}</div>
           </div>
           <Grid cols="1fr 1fr" gap={6}>
-            <MiniStat label={en ? "WEIGHTS" : "PESOS"} value={a.w} />
+            <MiniStat label={en ? "INPUTS" : "INSUMOS"} value={a.inputs} />
+            <MiniStat label={en ? "VALIDATION" : "VALIDACIÓN"} value={a.validation} />
+          </Grid>
+          <Grid cols="1fr" gap={6} style={{ marginTop: 6 }}>
             <MiniStat label={en ? "SOURCES" : "FUENTES"} value={a.sr} />
           </Grid>
           {a.pv && (

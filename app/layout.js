@@ -1,12 +1,33 @@
 import "./globals.css";
+import { Inter } from "next/font/google";
+import { Fraunces } from "next/font/google";
+import { IBM_Plex_Mono } from "next/font/google";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  weight: ["700", "800", "900"],
+  display: "swap",
+});
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
 
 export const metadata = {
   metadataBase: new URL("https://colibriilabs.com"),
   title: {
-    default: "Colibrii Labs — AI Observatory Costa Rica | La Encrucijada 2026",
+    default: "Colibrii Labs — AI Observatory Costa Rica | Agile Intelligence",
     template: "%s | Colibrii Labs"
   },
-  description: "Real-time strategic AI intelligence for Costa Rica. 20-country composite index (CAPI-CR), 25+ international data sources, 10 proprietary algorithms, 55-term glossary, WEF 2026 risk data with EOS per-country analysis, policy simulator. By Colibrii Labs.",
+  description: "Real-time strategic AI intelligence for Costa Rica. 20-country composite index (CAPI-CR), 25+ international data sources, 10 proprietary algorithms, 55-term glossary, WEF 2026 risk data with EOS per-country analysis, policy simulator. By Andrés Alpízar / Colibrii Labs.",
   keywords: [
     "AI Observatory", "Costa Rica", "artificial intelligence", "AI readiness", "CAPI-CR",
     "nearshoring", "free zones", "Colibrii Labs", "physical AI", "humanoid robots",
@@ -22,9 +43,10 @@ export const metadata = {
     "post-quantum cryptography", "K-shaped economy", "polycrisis",
     "quantum computing risks", "QVRI", "SIRI", "GERI",
     "WEF Executive Opinion Survey", "INCAE Business School", "EOS risks",
-    "AI blind spot", "country risk profiles"
+    "AI blind spot", "country risk profiles",
+    "Andrés Alpízar", "Agile Intelligence"
   ],
-  authors: [{ name: "Andrés", url: "https://colibriilabs.com" }],
+  authors: [{ name: "Andrés Alpízar", url: "https://colibriilabs.com" }],
   creator: "Colibrii Labs",
   publisher: "Colibrii Labs",
   robots: { index: true, follow: true },
@@ -33,15 +55,15 @@ export const metadata = {
     locale: "es_CR",
     alternateLocale: "en_US",
     url: "https://colibriilabs.com",
-    title: "Colibrii Labs — AI Observatory Costa Rica",
+    title: "Colibrii Labs — AI Observatory Costa Rica | Agile Intelligence",
     description: "Real-time strategic AI intelligence. 20-country composite index, 25+ data sources, WEF 2026 risk data with EOS per-country analysis, 10 proprietary algorithms. Policy simulator, country profiles, 55-term glossary.",
     siteName: "Colibrii Labs",
     images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "Colibrii Labs — AI Observatory Costa Rica" }]
   },
   twitter: {
     card: "summary_large_image",
-    title: "Colibrii Labs — AI Observatory Costa Rica",
-    description: "Real-time strategic AI intelligence for Costa Rica's positioning in the global AI transformation.",
+    title: "Colibrii Labs — AI Observatory Costa Rica | Agile Intelligence",
+    description: "Real-time strategic AI intelligence for Costa Rica's positioning in the global AI transformation. By Andrés Alpízar.",
     images: ["/og-image.svg"]
   },
   alternates: {
@@ -77,8 +99,8 @@ export default function RootLayout({ children }) {
         name: "Colibrii Labs",
         url: "https://colibriilabs.com",
         email: "andres@colibriilabs.com",
-        description: "Strategic AI intelligence research for Costa Rica and Latin America.",
-        founder: { "@type": "Person", name: "Andrés" },
+        description: "Strategic AI intelligence research for Costa Rica and Latin America. Agile Intelligence.",
+        founder: { "@type": "Person", name: "Andrés Alpízar" },
         areaServed: { "@type": "Country", name: "Costa Rica" },
         knowsAbout: ["Artificial Intelligence", "AI Policy", "Nearshoring", "Free Zones", "Digital Security"]
       },
@@ -86,7 +108,7 @@ export default function RootLayout({ children }) {
         "@type": "Dataset",
         name: "CAPI-CR — Colibrii AI Preparedness Index",
         description: "Composite index measuring AI readiness across 6 dimensions for 20 countries. Extends IMF AIPI methodology.",
-        url: "https://colibriilabs.com",
+        url: "https://colibriilabs.com/app",
         creator: { "@type": "Organization", "@id": "https://colibriilabs.com/#org" },
         license: "https://creativecommons.org/licenses/by-nc/4.0/",
         temporalCoverage: "2018/2026",
@@ -127,14 +149,14 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/favicon.svg" />
         <link rel="manifest" href="/manifest.json" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>
-      <body>{children}</body>
+      <body className={`${inter.variable} ${fraunces.variable} ${ibmPlexMono.variable}`}>
+        {children}
+      </body>
     </html>
   );
 }

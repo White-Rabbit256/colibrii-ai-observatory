@@ -47,11 +47,11 @@ export function Idx({ en, t, idx, board, dark }) {
         ))}
       </Grid>
 
-      {/* Formula */}
+      {/* Methodology */}
       <Card d={0.1} style={{ marginBottom: 24, textAlign: "center", padding: "16px 20px" }}>
-        <div style={{ fontSize: 11, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 6 }}>{en ? "COMPOSITE FORMULA" : "FÓRMULA COMPUESTA"}</div>
-        <div style={{ fontSize: 16, color: t.cy, fontFamily: "'IBM Plex Mono',monospace", fontWeight: 700 }}>CAPI = Σ(wᵢ × Dᵢ), i=1..6</div>
-        <div style={{ fontSize: 11, color: t.tx2, marginTop: 4 }}>D1:20% · D2:20% · D3:15% · D4:15% · D5:15% · D6:15%</div>
+        <div style={{ fontSize: 11, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 6 }}>{en ? "METHODOLOGY" : "METODOLOGÍA"}</div>
+        <div style={{ fontSize: 14, color: t.cy, fontFamily: "'IBM Plex Mono',monospace", fontWeight: 700 }}>{en ? "Weighted composite across 6 dimensions" : "Compuesto ponderado de 6 dimensiones"}</div>
+        <div style={{ fontSize: 11, color: t.tx2, marginTop: 4 }}>{en ? "11 World Bank indicators + 2 curated dimensions · Min-max normalization · Benchmarked vs IMF AIPI" : "11 indicadores Banco Mundial + 2 dimensiones curadas · Normalización min-max · Comparado con IMF AIPI"}</div>
       </Card>
 
       {/* Region filter */}

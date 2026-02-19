@@ -142,8 +142,8 @@ export function Abt({ en, t }) {
 
       {/* Author */}
       <Card d={0.05} accent={t.cy} style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 18, fontWeight: 700, fontFamily: "'Fraunces',serif", marginBottom: 4 }}>Andrés</div>
-        <div style={{ fontSize: 12, color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 8 }}>Founder · Colibrii Labs</div>
+        <div style={{ fontSize: 18, fontWeight: 700, fontFamily: "'Fraunces',serif", marginBottom: 4 }}>Andrés Alpízar</div>
+        <div style={{ fontSize: 12, color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 8 }}>Founder · Colibrii Labs · Agile Intelligence</div>
         <div style={{ fontSize: 13, color: t.tx2, marginBottom: 8, lineHeight: 1.7 }}>
           {en ? "Colibrii Labs operates at the intersection of AI policy research, economic analysis, and strategic advisory for Costa Rica. The observatory combines real-time data from international APIs with proprietary analytical frameworks to provide decision-makers with actionable intelligence — not just data points. Every metric answers: 'So what? What should Costa Rica do?'" : "Colibrii Labs opera en la intersección de investigación de política AI, análisis económico y asesoría estratégica para Costa Rica. El observatorio combina datos en tiempo real de APIs internacionales con marcos analíticos propietarios para proveer inteligencia accionable a tomadores de decisiones — no solo datos. Cada métrica responde: '¿Y qué? ¿Qué debe hacer Costa Rica?'"}
         </div>

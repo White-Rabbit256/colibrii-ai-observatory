@@ -268,12 +268,12 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
       {/* ═══════ KEY STATS ═══════ */}
       <motion.div variants={stagger} initial="hidden" animate="visible">
         <Grid cols="repeat(auto-fit,minmax(155px,1fr))" gap={12} style={{ marginBottom: 28 }}>
-          <Stat value={crS} label={en ? "Colibrii Index" : "Índice Colibrii"} sub="CAPI-CR" color={t.cy} icon="◈" />
-          <Stat value={crR} label={en ? "Global Rank" : "Ranking Global"} sub={en ? "of 20 countries" : "de 20 países"} color={t.vi} precision={0} prefix="#" icon="📊" />
-          <Stat value={40} label={en ? "AI Job Exposure" : "Exposición Laboral AI"} sub="IMF 2024" color={t.or} precision={0} prefix="" icon="⚡" />
-          <Stat value={5} label={en ? "AI Risk (WEF)" : "Riesgo AI (WEF)"} sub="5.28 sev · #30→#5" color={t.rd} precision={0} prefix="#" icon="🛡" />
-          <Stat value={626} label={en ? "FZ Companies" : "Empresas ZF"} sub="PROCOMER 2024" color={t.am} precision={0} icon="🏭" />
-          <Stat value={4.3} label={en ? "FDI (B USD)" : "IED (B USD)"} sub="CINDE 2024" color={t.gn} prefix="$" icon="💰" />
+          <Stat value={crS} label={en ? "Colibrii Index" : "Índice Colibrii"} sub="CAPI-CR" color={t.cy} icon="diamond" />
+          <Stat value={crR} label={en ? "Global Rank" : "Ranking Global"} sub={en ? "of 20 countries" : "de 20 países"} color={t.vi} precision={0} prefix="#" icon="chart" />
+          <Stat value={40} label={en ? "AI Job Exposure" : "Exposición Laboral AI"} sub="IMF 2024" color={t.or} precision={0} prefix="" icon="lightning" />
+          <Stat value={5} label={en ? "AI Risk (WEF)" : "Riesgo AI (WEF)"} sub="5.28 sev · #30→#5" color={t.rd} precision={0} prefix="#" icon="shield" />
+          <Stat value={626} label={en ? "FZ Companies" : "Empresas ZF"} sub="PROCOMER 2024" color={t.am} precision={0} icon="factory" />
+          <Stat value={4.3} label={en ? "FDI (B USD)" : "IED (B USD)"} sub="CINDE 2024" color={t.gn} prefix="$" icon="coins" />
         </Grid>
       </motion.div>
 

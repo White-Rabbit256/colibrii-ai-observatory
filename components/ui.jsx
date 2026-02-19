@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Icon } from "./system/Icon";
 
 /* ═══════════════════════════════════════════════════════════════
    COLIBRII LABS — UI Components v13
@@ -102,7 +103,7 @@ export function Stat({ value, label, sub, color, prefix = "", precision = 2, ico
           <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", marginTop: 2 }}>{label}</div>
           {sub && <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 2 }}>{sub}</div>}
         </div>
-        {icon && <span style={{ fontSize: 20, opacity: 0.6 }}>{icon}</span>}
+        {icon && <Icon name={icon} size={22} style={{ opacity: 0.5 }} />}
       </div>
     </Card>
   );
