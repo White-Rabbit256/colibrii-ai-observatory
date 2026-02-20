@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo } from "react";
+import Link from "next/link";
 import { AnimatePresence } from "framer-motion";
 import { TH, TH_DARK, CO, CC, IND_MAP, CUR, GOV, DM, TABS, PARTNERS, cacheGet, cacheSet, mm, av, sco, sla } from "../data";
 import { LoadCard, Grid, TabContent } from "../ui";
@@ -24,7 +25,7 @@ import { FACTS } from "../../data/facts";
    ═══════════════════════════════════════════════════════════════ */
 
 const WB = "https://api.worldbank.org/v2/country";
-const GDELT_URL = "https://api.gdeltproject.org/api/v2/doc/doc?query=%22artificial+intelligence%22+%22costa+rica%22&mode=artlist&maxrecords=8&format=json&sort=datedesc&timespan=72h";
+const GDELT_URL = "https://api.gdeltproject.org/api/v2/doc/doc?query=%22artificial+intelligence%22+%22costa+rica%22&mode=artlist&maxrecords=12&format=json&sort=datedesc&timespan=72h";
 const XR_URL = "https://open.er-api.com/v6/latest/USD";
 
 export default function PortalShell() {
@@ -120,7 +121,7 @@ export default function PortalShell() {
     try {
       const r = await fetch(GDELT_URL);
       const d = await r.json();
-      const articles = d.articles?.slice(0, 8) || [];
+      const articles = d.articles?.slice(0, 12) || [];
       cacheSet("gdelt", articles);
       return articles;
     } catch { return []; }
@@ -225,14 +226,14 @@ export default function PortalShell() {
           >
             <Icon name="menu" size={20} color={t.tx2} />
           </button>
-          <div className="portal-mobile-title" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <Link href="/" style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", gap: 6 }} className="portal-mobile-title">
             <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 32, height: 32 }} />
             <span style={{ fontWeight: 800, fontFamily: "var(--font-display, 'Playfair Display', serif)", fontSize: 14, color: t.tx }}>Colibrii Labs</span>
-          </div>
+          </Link>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             {xr && (
               <span style={{ fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>
-                ₡{xr.toFixed(0)} <span style={{ opacity: 0.5 }}>mid</span>
+                ₡{Math.round(xr - 3)} compra · ₡{Math.round(xr + 3)} venta
               </span>
             )}
           </div>
@@ -242,8 +243,8 @@ export default function PortalShell() {
         <div className="portal-topbar no-print">
           {xr && (
             <div style={{ fontSize: 11, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", display: "flex", alignItems: "center", gap: 8 }}>
-              <span>$1 = ₡{xr.toFixed(2)}</span>
-              <span style={{ fontSize: 9, opacity: 0.6 }}>{en ? "(mid-market)" : "(mercado medio)"}</span>
+              <span>$1 USD → ₡{Math.round(xr - 3)} {en ? "buy" : "compra"} · ₡{Math.round(xr + 3)} {en ? "sell" : "venta"}</span>
+              <span style={{ fontSize: 9, opacity: 0.6 }}>{en ? "(estimated)" : "(estimado)"}</span>
               <span style={{ fontSize: 9, opacity: 0.4 }}>open.er-api.com</span>
             </div>
           )}

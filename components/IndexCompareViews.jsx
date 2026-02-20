@@ -2,8 +2,8 @@
 import { useState, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
-import { CO, CC, DM } from "./data";
-import { Card, SH, Tag, Grid, AN, ScrollReveal, DimBadge, ScorePill, Ci, MiniStat, fadeUp, stagger, ExportBtn } from "./ui";
+import { CO, CC, DM, A3_TO_A2 } from "./data";
+import { Card, SH, Tag, Grid, AN, ScrollReveal, DimBadge, ScorePill, Ci, MiniStat, Flag, fadeUp, stagger, ExportBtn } from "./ui";
 import { WorldMapMini } from "./WorldMapMini";
 import { RiskHeatmap } from "./RiskHeatmap";
 
@@ -13,6 +13,7 @@ import { RiskHeatmap } from "./RiskHeatmap";
 
 export function Idx({ en, t, idx, board, dark, setTab, setSelectedCountry }) {
   const [region, setRegion] = useState("all");
+  const [openDim, setOpenDim] = useState(null);
   const regions = ["all", "latam", "asia", "eu"];
   const regionLabel = { all: en ? "All" : "Todos", latam: "LATAM", asia: "Asia", eu: "Europe" };
 
@@ -49,27 +50,40 @@ export function Idx({ en, t, idx, board, dark, setTab, setSelectedCountry }) {
               </div>
             )}
             {d.desc && (
-              <details style={{ marginTop: 8, fontSize: 11 }}>
-                <summary style={{ color: d.co, cursor: "pointer", fontWeight: 600, fontSize: 10, fontFamily: "'IBM Plex Mono',monospace" }}>
+              <div style={{ marginTop: 8, fontSize: 11 }}>
+                <div
+                  onClick={() => setOpenDim(openDim === dk ? null : dk)}
+                  style={{ color: d.co, cursor: "pointer", fontWeight: 600, fontSize: 10, fontFamily: "'IBM Plex Mono',monospace", display: "flex", alignItems: "center", gap: 4, userSelect: "none" }}
+                >
+                  <span style={{ fontSize: 8, transition: "transform 0.2s", transform: openDim === dk ? "rotate(90deg)" : "rotate(0deg)" }}>▶</span>
                   {en ? "What does this measure?" : "¿Qué mide esto?"}
-                </summary>
-                <div style={{ marginTop: 6, color: t.tx2, lineHeight: 1.6, fontSize: 11 }}>
-                  {en ? d.descEn : d.desc}
                 </div>
-                {d.indicators && (
-                  <div style={{ marginTop: 6, padding: "4px 8px", background: `${d.co}08`, borderRadius: 4 }}>
-                    <div style={{ fontSize: 9, color: d.co, fontFamily: "'IBM Plex Mono',monospace", letterSpacing: 1, marginBottom: 2 }}>{en ? "INDICATORS" : "INDICADORES"}</div>
-                    {d.indicators.map((ind, ii) => (
-                      <div key={ii} style={{ fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>{ind}</div>
-                    ))}
-                  </div>
+                {openDim === dk && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div style={{ marginTop: 6, color: t.tx2, lineHeight: 1.6, fontSize: 11 }}>
+                      {en ? d.descEn : d.desc}
+                    </div>
+                    {d.indicators && (
+                      <div style={{ marginTop: 6, padding: "4px 8px", background: `${d.co}08`, borderRadius: 4 }}>
+                        <div style={{ fontSize: 9, color: d.co, fontFamily: "'IBM Plex Mono',monospace", letterSpacing: 1, marginBottom: 2 }}>{en ? "INDICATORS" : "INDICADORES"}</div>
+                        {d.indicators.map((ind, ii) => (
+                          <div key={ii} style={{ fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>{ind}</div>
+                        ))}
+                      </div>
+                    )}
+                    {d.interp && (
+                      <div style={{ marginTop: 6, fontSize: 10, color: t.tx3, fontStyle: "italic", borderLeft: `2px solid ${d.co}40`, paddingLeft: 8 }}>
+                        {en ? d.interpEn : d.interp}
+                      </div>
+                    )}
+                  </motion.div>
                 )}
-                {d.interp && (
-                  <div style={{ marginTop: 6, fontSize: 10, color: t.tx3, fontStyle: "italic", borderLeft: `2px solid ${d.co}40`, paddingLeft: 8 }}>
-                    {en ? d.interpEn : d.interp}
-                  </div>
-                )}
-              </details>
+              </div>
             )}
           </Card>
         ))}
@@ -145,7 +159,7 @@ export function Idx({ en, t, idx, board, dark, setTab, setSelectedCountry }) {
               {filtered.map((c, i) => (
                 <tr key={c.code} className={c.code === "CRI" ? "highlight" : ""}>
                   <td style={{ fontFamily: "'IBM Plex Mono',monospace", fontWeight: 700, fontSize: 12, color: t.tx3 }}>{board.indexOf(c) + 1}</td>
-                  <td><span style={{ fontSize: 14, marginRight: 6 }}>{c.f}</span><span style={{ fontWeight: c.code === "CRI" ? 700 : 400 }}>{en ? c.e : c.n}</span></td>
+                  <td><Flag code={A3_TO_A2[c.code]} size={14} style={{ marginRight: 6 }} /><span style={{ fontWeight: c.code === "CRI" ? 700 : 400 }}>{en ? c.e : c.n}</span></td>
                   {Object.keys(DM).map(dk => (
                     <td key={dk} style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 12, color: idx[c.code]?.[dk] >= 0.65 ? t.gn : idx[c.code]?.[dk] >= 0.40 ? t.am : t.rd }}>
                       {idx[c.code]?.[dk] != null ? (idx[c.code][dk] * 100).toFixed(1) : "—"}
@@ -196,7 +210,7 @@ export function Compare({ en, t, idx, board, dark }) {
           <Card key={i} d={0.02} style={{ padding: 16, borderTop: `3px solid ${colors[i]}` }}>
             <div style={{ fontSize: 10, color: colors[i], fontFamily: "'IBM Plex Mono',monospace", marginBottom: 8 }}>{en ? "COUNTRY" : "PAÍS"} {i + 1}</div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-              <span style={{ fontSize: 28 }}>{CO[s].f}</span>
+              <Flag code={A3_TO_A2[s]} size={28} />
               <div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: t.tx }}>{en ? CO[s].e : CO[s].n}</div>
                 <div style={{ fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>{CO[s].cont} · {CO[s].pop}</div>
@@ -205,7 +219,7 @@ export function Compare({ en, t, idx, board, dark }) {
             <div className="flag-selector">
               {CC.map(c => (
                 <button key={c} className={`flag-btn ${s === c ? "selected" : ""}`} onClick={() => handleChange(i, c)} style={s === c ? { borderColor: colors[i], color: colors[i], background: `${colors[i]}10` } : {}}>
-                  <span className="flag-emoji">{CO[c].f}</span>
+                  <Flag code={A3_TO_A2[c]} size={16} />
                   <span style={{ fontSize: 11 }}>{(en ? CO[c].e : CO[c].n).slice(0, 8)}</span>
                 </button>
               ))}
@@ -228,7 +242,7 @@ export function Compare({ en, t, idx, board, dark }) {
           </RadarChart>
         </ResponsiveContainer>
         <div style={{ display: "flex", gap: 16, justifyContent: "center", fontSize: 12 }}>
-          {sel.map((c, i) => <span key={c}><span style={{ color: colors[i] }}>●</span> {CO[c].f} {en ? CO[c].e : CO[c].n}</span>)}
+          {sel.map((c, i) => <span key={c} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><span style={{ color: colors[i] }}>●</span> <Flag code={A3_TO_A2[c]} size={14} /> {en ? CO[c].e : CO[c].n}</span>)}
         </div>
       </Card>
 
@@ -239,7 +253,7 @@ export function Compare({ en, t, idx, board, dark }) {
             <thead>
               <tr>
                 <th>{en ? "Dimension" : "Dimensión"}</th>
-                {sel.map((c, i) => <th key={c} style={{ color: colors[i] }}>{CO[c].f} {en ? CO[c].e : CO[c].n}</th>)}
+                {sel.map((c, i) => <th key={c} style={{ color: colors[i] }}><Flag code={A3_TO_A2[c]} size={16} style={{ marginRight: 4 }} /> {en ? CO[c].e : CO[c].n}</th>)}
               </tr>
             </thead>
             <tbody>

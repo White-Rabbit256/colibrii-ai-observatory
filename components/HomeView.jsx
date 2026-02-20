@@ -5,7 +5,6 @@ import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Responsi
 import { CO, DM, TIMELINE, PARTNERS, WEF_2026_RISKS, EOS_RISKS, INDICATOR_META, VIP_QUOTES, COUNTRY_RATIONALE, A3_TO_A2, RADAR_RATIONALE } from "./data";
 import { Card, SH, Stat, Tag, Ci, Lnk, Grid, AN, ScrollReveal, PartnerBar, MiniStat, Flag, fadeUp, stagger } from "./ui";
 import { NewsSection } from "./NewsSection";
-import { TikTokSection } from "./TikTokEmbed";
 
 /* ═══════════════════════════════════════════════════════════════
    HOME VIEW v13 — Hero + Stats + Timeline + Radar + News
@@ -253,17 +252,12 @@ function VipQuotesReel({ en, t }) {
   alt={q.name}
   referrerPolicy="no-referrer"
   crossOrigin="anonymous"
+  loading="lazy"
   className="vip-avatar-img"
   style={{ width: 48, height: 48, borderRadius: "50%", objectFit: "cover", border: `2px solid ${t.bd}`, flexShrink: 0 }}
   onError={(e) => {
-    const bgColor = q.gradient?.match(/#([a-f0-9]{6})/i)?.[1] || '2563eb';
-    if (!e.target.dataset.fallback) {
-      e.target.dataset.fallback = "1";
-      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(q.name)}&size=128&background=${bgColor}&color=fff&bold=true&font-size=0.4`;
-    } else {
-      e.target.style.display = "none";
-      if (e.target.nextSibling) e.target.nextSibling.style.display = "flex";
-    }
+    e.target.style.display = "none";
+    if (e.target.nextSibling) e.target.nextSibling.style.display = "flex";
   }}
 />
             ) : null}
@@ -623,8 +617,6 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
       {/* ═══════ AI NEWS INTELLIGENCE ═══════ */}
       {news.length > 0 && <NewsSection news={news} en={en} t={t} />}
 
-      {/* ═══════ VIDEO INTELLIGENCE — TIKTOK ═══════ */}
-      <TikTokSection en={en} t={t} />
     </div>
   );
 }

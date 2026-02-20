@@ -52,6 +52,64 @@ export function Edu({ en, t }) {
         ))}
       </Grid>
 
+      {/* International Benchmarks */}
+      <div style={{ fontSize: 13, fontWeight: 700, color: t.vi, marginTop: 28, marginBottom: 12, fontFamily: "'IBM Plex Mono',monospace", letterSpacing: 1 }}>
+        {en ? "\u{1F30E} INTERNATIONAL BENCHMARKS" : "\u{1F30E} REFERENTES INTERNACIONALES"}
+      </div>
+      <Grid cols="repeat(auto-fit,minmax(260px,1fr))" gap={10} style={{ marginBottom: 20 }}>
+        <Card d={0.35} accent={t.cy}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+            <span style={{ fontSize: 16 }}>{"\u{1F1F8}\u{1F1EC}"}</span>
+            <Tag color={t.cy}>IMDA</Tag>
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 700, marginTop: 4 }}>{en ? "Singapore AI Apprenticeship" : "Aprendizaje AI Singapur"}</div>
+          <div style={{ fontSize: 11, color: t.cy, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 6 }}>IMDA + AI Singapore</div>
+          <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6, marginBottom: 8 }}>
+            {en ? "9-month program with industry placement. 100+ graduates/year. Free for Singaporean citizens. Bridges academic AI knowledge with real-world deployment." : "Programa de 9 meses con colocación industrial. 100+ graduados/año. Gratis para ciudadanos singapurenses. Conecta conocimiento académico AI con despliegue real."}
+          </p>
+          <Lnk href="https://www.imda.gov.sg/">{en ? "Access" : "Acceder"}</Lnk>
+        </Card>
+
+        <Card d={0.38} accent={t.vi}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+            <span style={{ fontSize: 16 }}>{"\u{1F1EA}\u{1F1EA}"}</span>
+            <Tag color={t.vi}>K-12</Tag>
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 700, marginTop: 4 }}>{en ? "Estonia AI Education" : "Educación AI Estonia"}</div>
+          <div style={{ fontSize: 11, color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 6 }}>{en ? "\"Kratt\" Initiative" : "Iniciativa \"Kratt\""}</div>
+          <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6, marginBottom: 8 }}>
+            {en ? "AI integrated across all school levels K-12. \"Kratt\" initiative mandates data-literate workforce. First European country to integrate AI across entire curriculum." : "AI integrado en todos los niveles escolares K-12. Iniciativa \"Kratt\" exige fuerza laboral alfabetizada en datos. Primer país europeo en integrar AI en todo el currículo."}
+          </p>
+          <Lnk href="https://e-estonia.com/">{en ? "Access" : "Acceder"}</Lnk>
+        </Card>
+
+        <Card d={0.41} accent={t.or}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+            <span style={{ fontSize: 16 }}>{"\u{1F1F0}\u{1F1F7}"}</span>
+            <Tag color={t.or}>2025</Tag>
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 700, marginTop: 4 }}>{en ? "South Korea AI Education Mandate" : "Mandato Educación AI Corea del Sur"}</div>
+          <div style={{ fontSize: 11, color: t.or, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 6 }}>{en ? "Ministry of Education" : "Ministerio de Educación"}</div>
+          <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6, marginBottom: 8 }}>
+            {en ? "2025 mandate: all schools must offer AI classes. 20K AI teachers trained. Largest national AI education investment at $2.4B." : "Mandato 2025: todas las escuelas deben ofrecer clases AI. 20K profesores AI capacitados. Mayor inversión nacional en educación AI: $2.4B."}
+          </p>
+          <Lnk href="https://www.moe.go.kr/">{en ? "Access" : "Acceder"}</Lnk>
+        </Card>
+
+        <Card d={0.44} accent={t.gn}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+            <span style={{ fontSize: 16 }}>{"\u{1F1EC}\u{1F1E7}"}</span>
+            <Tag color={t.gn}>2030</Tag>
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 700, marginTop: 4 }}>{en ? "UK AI Masters Programme" : "Programa Maestría AI Reino Unido"}</div>
+          <div style={{ fontSize: 11, color: t.gn, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 6 }}>{en ? "Office for AI / DSIT" : "Oficina para AI / DSIT"}</div>
+          <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6, marginBottom: 8 }}>
+            {en ? "2,500 AI Masters scholarships by 2030. 16 universities. Focus on underrepresented groups. Includes industry placement component." : "2,500 becas de Maestría AI para 2030. 16 universidades. Enfoque en grupos subrepresentados. Incluye componente de colocación industrial."}
+          </p>
+          <Lnk href="https://www.gov.uk/government/organisations/office-for-artificial-intelligence">{en ? "Access" : "Acceder"}</Lnk>
+        </Card>
+      </Grid>
+
       {/* WEF Top Skills */}
       <Card d={0.5} accent={t.am}>
         <div style={{ fontSize: 11, letterSpacing: 2, color: t.am, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>WEF TOP SKILLS 2025-2030</div>

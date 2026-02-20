@@ -61,10 +61,10 @@ export function Algo({ en, t }) {
    ═══════════════════════════════════════════════════════════════ */
 export function SecTab({ en, t }) {
   const secDomains = [
-    { icon: "🛡", nm: en ? "National Security" : "Seguridad Nacional", c: t.rd, st: [{ v: "340", l: en ? "Criminal orgs" : "Orgs criminales" }, { v: "17.2", l: en ? "Homicides/100K" : "Homicidios/100K" }, { v: "88t", l: en ? "Cocaine EU ports" : "Cocaína puertos UE" }], desc: en ? "Drug groups grew 10x in a decade. US Treasury: CR is 'key cocaine transshipment hub' (2025). 70% homicides linked to trafficking. AI: container scanning, maritime patterns, OSINT." : "Grupos criminales crecieron 10x en una década. Tesoro EEUU: CR es 'hub clave transbordo cocaína' (2025). 70% homicidios vinculados a narcotráfico. Oportunidades AI: escaneo contenedores, patrones marítimos, OSINT." },
-    { icon: "🔒", nm: en ? "Cybersecurity" : "Ciberseguridad", c: t.or, st: [{ v: "$25M", l: en ? "US investment" : "Inversión EEUU" }, { v: "672GB", l: en ? "Exfiltrated 2022" : "Exfiltrados 2022" }, { v: "2K+", l: en ? "Cyber workers" : "Trabajadores ciber" }], desc: en ? "Conti 2022: 30 institutions, national emergency, ~$30M/day losses. SOC-CR ($9.8M) by 2026. IBM 24/7 security center from CR (320+ staff, 130 countries). AI detects threats 1000x faster." : "Conti 2022: 30 instituciones, emergencia nacional, ~$30M/día pérdidas. SOC-CR ($9.8M) para 2026. Centro seguridad IBM 24/7 desde CR (320+ personas, 130 países). AI detecta amenazas 1000x más rápido." },
-    { icon: "🌾", nm: en ? "Food Security" : "Seguridad Alimentaria", c: t.am, st: [{ v: "55%", l: en ? "Imported food" : "Alimentos import." }, { v: "-44%", l: en ? "Coffee decade" : "Café década" }, { v: "-67K", l: en ? "Ag. jobs 8yr" : "Empleos ag. 8 años" }], desc: en ? "Coffee production -44% in a decade. Emergency bean imports Oct 2024. By 2050: 50% of coffee areas unsuitable. AI: PineSORT drones (50x processing), CNN rust detection (95%+)." : "Producción café -44% en década. Importación emergencia frijoles Oct 2024. Para 2050: 50% áreas café inaptadas. AI: drones PineSORT (50x procesamiento), CNN detección roya (95%+)." },
-    { icon: "🏥", nm: en ? "Social Security" : "Seguridad Social", c: t.vi, st: [{ v: "$4.4B", l: en ? "CCSS debt" : "Deuda CCSS" }, { v: "8yr", l: "EDUS" }, { v: "51.8%", l: en ? "Female labor" : "Participación mujer" }], desc: en ? "CCSS fiscal crisis. 8 years of EDUS digital health records — massive AI opportunity for predictive medicine, but data protection law restricts use." : "CCSS crisis fiscal. 8 años de EDUS — oportunidad masiva para medicina predictiva, pero ley protección datos restringe uso." }
+    { icon: "🛡", nm: en ? "National Security" : "Seguridad Nacional", c: t.rd, sid: "sec-nat", st: [{ v: "340", l: en ? "Criminal orgs" : "Orgs criminales" }, { v: "17.2", l: en ? "Homicides/100K" : "Homicidios/100K" }, { v: "88t", l: en ? "Cocaine EU ports" : "Cocaína puertos UE" }], desc: en ? "Drug groups grew 10x in a decade. US Treasury: CR is 'key cocaine transshipment hub' (2025). 70% homicides linked to trafficking. AI: container scanning, maritime patterns, OSINT." : "Grupos criminales crecieron 10x en una década. Tesoro EEUU: CR es 'hub clave transbordo cocaína' (2025). 70% homicidios vinculados a narcotráfico. Oportunidades AI: escaneo contenedores, patrones marítimos, OSINT." },
+    { icon: "🔒", nm: en ? "Cybersecurity" : "Ciberseguridad", c: t.or, sid: "sec-cyber", st: [{ v: "$25M", l: en ? "US investment" : "Inversión EEUU" }, { v: "672GB", l: en ? "Exfiltrated 2022" : "Exfiltrados 2022" }, { v: "2K+", l: en ? "Cyber workers" : "Trabajadores ciber" }], desc: en ? "Conti 2022: 30 institutions, national emergency, ~$30M/day losses. SOC-CR ($9.8M) by 2026. IBM 24/7 security center from CR (320+ staff, 130 countries). AI detects threats 1000x faster." : "Conti 2022: 30 instituciones, emergencia nacional, ~$30M/día pérdidas. SOC-CR ($9.8M) para 2026. Centro seguridad IBM 24/7 desde CR (320+ personas, 130 países). AI detecta amenazas 1000x más rápido." },
+    { icon: "🌾", nm: en ? "Food Security" : "Seguridad Alimentaria", c: t.am, sid: "sec-food", st: [{ v: "55%", l: en ? "Imported food" : "Alimentos import." }, { v: "-44%", l: en ? "Coffee decade" : "Café década" }, { v: "-67K", l: en ? "Ag. jobs 8yr" : "Empleos ag. 8 años" }], desc: en ? "Coffee production -44% in a decade. Emergency bean imports Oct 2024. By 2050: 50% of coffee areas unsuitable. AI: PineSORT drones (50x processing), CNN rust detection (95%+)." : "Producción café -44% en década. Importación emergencia frijoles Oct 2024. Para 2050: 50% áreas café inaptadas. AI: drones PineSORT (50x procesamiento), CNN detección roya (95%+)." },
+    { icon: "🏥", nm: en ? "Social Security" : "Seguridad Social", c: t.vi, sid: "sec-social", st: [{ v: "$4.4B", l: en ? "CCSS debt" : "Deuda CCSS" }, { v: "8yr", l: "EDUS" }, { v: "51.8%", l: en ? "Female labor" : "Participación mujer" }], desc: en ? "CCSS fiscal crisis. 8 years of EDUS digital health records — massive AI opportunity for predictive medicine, but data protection law restricts use." : "CCSS crisis fiscal. 8 años de EDUS — oportunidad masiva para medicina predictiva, pero ley protección datos restringe uso." }
   ];
 
   const threats = [
@@ -80,11 +80,28 @@ export function SecTab({ en, t }) {
     <div>
       <SH color={t.rd} label={en ? "Multi-dimensional Security" : "Seguridad Multidimensional"} title={en ? "Security in the AI Era" : "Seguridad en la Era AI"} desc={en ? "National (340 criminal orgs), cyber (post-Conti), food (55% imported), social (CCSS crisis). AI is both tool and threat." : "Nacional (340 orgs criminales), ciber (post-Conti), alimentaria (55% importado), social (crisis CCSS). AI es herramienta y amenaza."} />
 
+      {/* Security Sub-Navigation */}
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 20 }}>
+        {[
+          { id: "nat", label: en ? "National" : "Nacional", icon: "\u{1F6E1}\uFE0F" },
+          { id: "cyber", label: en ? "Cyber" : "Ciber", icon: "\u{1F510}" },
+          { id: "food", label: en ? "Food" : "Alimentos", icon: "\u{1F33E}" },
+          { id: "social", label: "Social", icon: "\u{1F3E5}" },
+          { id: "threats", label: en ? "AI Threats" : "Amenazas AI", icon: "\u26A0\uFE0F" },
+          { id: "actions", label: en ? "Actions" : "Acciones", icon: "\u{1F4CB}" },
+        ].map(s => (
+          <button key={s.id} onClick={() => document.getElementById(`sec-${s.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+            style={{ padding: "6px 14px", fontSize: 11, fontWeight: 600, border: `1px solid ${t.bd}`, borderRadius: 6, background: t.sf, color: t.tx2, cursor: "pointer", fontFamily: "'IBM Plex Mono',monospace", display: "flex", alignItems: "center", gap: 4 }}>
+            {s.icon} {s.label}
+          </button>
+        ))}
+      </div>
+
       {/* 4 Security Domains */}
       <Grid cols="repeat(auto-fit,minmax(260px,1fr))" gap={10} style={{ marginBottom: 20 }}>
         {secDomains.map((sec, i) => (
-          <Card key={i} d={0.1 + i * 0.04} accent={sec.c}>
-            <div style={{ fontSize: 16, marginBottom: 6 }}>{sec.icon} <strong style={{ fontSize: 14 }}>{sec.nm}</strong></div>
+          <Card key={i} d={0.1 + i * 0.04} accent={sec.c} style={{ cursor: "pointer", borderLeft: `3px solid ${sec.c}` }}>
+            <div id={sec.sid} style={{ fontSize: 16, marginBottom: 6 }}>{sec.icon} <strong style={{ fontSize: 14 }}>{sec.nm}</strong></div>
             <Grid cols="1fr 1fr 1fr" gap={4} style={{ marginBottom: 8 }}>
               {sec.st.map((s, j) => (
                 <div key={j} style={{ padding: 4, background: t.sf, borderRadius: 4, textAlign: "center" }}>
@@ -100,7 +117,7 @@ export function SecTab({ en, t }) {
 
       {/* 6 AI-Specific Threats */}
       <Card d={0.4} style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 11, letterSpacing: 2, color: t.rd, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>{en ? "AI-SPECIFIC THREATS" : "AMENAZAS AI"}</div>
+        <div id="sec-threats" style={{ fontSize: 11, letterSpacing: 2, color: t.rd, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>{en ? "AI-SPECIFIC THREATS" : "AMENAZAS AI"}</div>
         <Grid cols="repeat(auto-fit,minmax(200px,1fr))" gap={8}>
           {threats.map((th, i) => (
             <div key={i} style={{ padding: "10px 12px", background: t.sf, borderRadius: 8, borderLeft: `3px solid ${th.c}` }}>
@@ -116,7 +133,7 @@ export function SecTab({ en, t }) {
 
       {/* Priority Actions */}
       <Card d={0.5} accent={t.gn}>
-        <div style={{ fontSize: 11, letterSpacing: 2, color: t.gn, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>{en ? "PRIORITY ACTIONS" : "ACCIONES PRIORITARIAS"}</div>
+        <div id="sec-actions" style={{ fontSize: 11, letterSpacing: 2, color: t.gn, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>{en ? "PRIORITY ACTIONS" : "ACCIONES PRIORITARIAS"}</div>
         {[
           en ? "AI container scanning at Moín/Caldera ports" : "Escaneo AI contenedores puertos Moín/Caldera",
           en ? "Cybersecurity AI in SOC-CR" : "AI ciberseguridad en SOC-CR",

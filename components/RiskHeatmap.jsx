@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { CO, DM } from "./data";
+import { Card } from "./ui";
 
 /* =================================================================
    COLIBRII LABS — Risk Heatmap Grid v14
@@ -33,6 +34,17 @@ export function RiskHeatmap({ idx, board, en, t }) {
       <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "var(--font-display, 'Playfair Display', serif)", marginBottom: 16, color: t.tx }}>
         {en ? "Dimension Scores by Country" : "Puntajes por Dimensión y País"}
       </div>
+
+      <Card d={0.02} style={{ marginBottom: 16, padding: "14px 18px", borderLeft: `3px solid ${t.cy}` }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: t.cy, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>
+          {en ? "HOW TO READ THIS" : "C\u00D3MO LEER ESTO"}
+        </div>
+        <div style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6 }}>
+          {en
+            ? "Each cell shows a country's score (0-100) for that dimension. Blue = strong, green = good, amber = developing, red = weak. Countries are ranked by their weighted CAPI-CR composite score."
+            : "Cada celda muestra el puntaje (0-100) de un pa\u00EDs en esa dimensi\u00F3n. Azul = fuerte, verde = bueno, \u00E1mbar = en desarrollo, rojo = d\u00E9bil. Los pa\u00EDses se ordenan por su puntaje compuesto ponderado CAPI-CR."}
+        </div>
+      </Card>
 
       <div style={{ overflowX: "auto" }}>
         <div className="heatmap-grid" style={{ gridTemplateColumns: `32px 120px repeat(${dims.length}, 1fr)`, minWidth: 500 }}>
@@ -91,6 +103,26 @@ export function RiskHeatmap({ idx, board, en, t }) {
           <span style={{ width: 12, height: 12, borderRadius: 3, background: `${t.cy}25` }} />{en ? "Strong" : "Fuerte"}
         </span>
       </div>
+
+      {/* What-if Scenarios */}
+      <Card style={{ marginTop: 16 }}>
+        <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.am, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>
+          {en ? "WHAT-IF SCENARIOS" : "ESCENARIOS QU\u00C9-PASA-SI"}
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
+          {[
+            { label: en ? "If CR passes AI Law" : "Si CR aprueba Ley AI", impact: "+8-12 pts", dim: "D5 Governance", color: t.gn },
+            { label: en ? "If SOC-CR completes" : "Si SOC-CR se completa", impact: "+5-8 pts", dim: "D4 Cybersecurity", color: t.cy },
+            { label: en ? "If R&D doubles" : "Si I+D se duplica", impact: "+10-15 pts", dim: "D3 Innovation", color: t.vi },
+          ].map((s, i) => (
+            <div key={i} style={{ padding: 14, background: `${s.color}08`, border: `1px solid ${s.color}20`, borderRadius: 8 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: s.color, marginBottom: 4 }}>{s.label}</div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: s.color, fontFamily: "'IBM Plex Mono',monospace" }}>{s.impact}</div>
+              <div style={{ fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>{s.dim}</div>
+            </div>
+          ))}
+        </div>
+      </Card>
     </div>
   );
 }

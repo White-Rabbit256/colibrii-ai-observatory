@@ -8,6 +8,14 @@ import { PYMES_DEEP } from "./data";
    SME intelligence for Costa Rica's 97% SME economy
    ═══════════════════════════════════════════════════════════════ */
 
+const Src = ({ label, url, t }) => (
+  <a href={url} target="_blank" rel="noopener noreferrer" style={{
+    fontSize: 9, padding: "2px 6px", borderRadius: 4, background: `${t.cy}10`,
+    color: t.cy, fontFamily: "'IBM Plex Mono',monospace", fontWeight: 600,
+    textDecoration: "none", marginLeft: 4, whiteSpace: "nowrap"
+  }}>{label} {"\u2197"}</a>
+);
+
 export function Pymes({ en, t, dark }) {
   const data = PYMES_DEEP(en);
 
@@ -36,6 +44,7 @@ export function Pymes({ en, t, dark }) {
               </div>
               <div style={{ fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", marginTop: 4 }}>
                 {stat.source}
+                {stat.source === "MEIC 2024" && <Src label="MEIC 2024" url="https://www.meic.go.cr/" t={t} />}
               </div>
             </Card>
           ))}
@@ -58,6 +67,7 @@ export function Pymes({ en, t, dark }) {
               </div>
               <p style={{ fontSize: 13, color: t.tx2, lineHeight: 1.7, margin: 0 }}>
                 {r.desc}
+                {i === 0 && <Src label="OIT 2024" url="https://www.ilo.org/publications" t={t} />}
               </p>
             </Card>
           ))}
@@ -107,7 +117,10 @@ export function Pymes({ en, t, dark }) {
               <Lnk href={prog.url}>{en ? "Visit" : "Visitar"}</Lnk>
             </div>
           ))}
-          <Ci s="MEIC, PROCOMER, INA, CAMTIC, IDB" />
+          <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 4, marginTop: 4 }}>
+            <Ci s="MEIC, PROCOMER, INA, CAMTIC, IDB" />
+            <Src label="MEIC 2024" url="https://www.meic.go.cr/" t={t} />
+          </div>
         </Card>
       </ScrollReveal>
 
@@ -124,7 +137,10 @@ export function Pymes({ en, t, dark }) {
               </li>
             ))}
           </ol>
-          <Ci s="Colibrii Labs Policy Recommendations 2025, Singapore SME Go Digital, OECD SME Policy Index" />
+          <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 4, marginTop: 8 }}>
+            <Ci s="Colibrii Labs Policy Recommendations 2025, Singapore SME Go Digital, OECD SME Policy Index" />
+            <Src label="WEF 2025" url="https://www.weforum.org/publications/the-future-of-jobs-report-2025/" t={t} />
+          </div>
         </Card>
       </ScrollReveal>
 
@@ -144,7 +160,10 @@ export function Pymes({ en, t, dark }) {
               ? "Costa Rica's SME sector faces a critical AI adoption gap. With 72% lacking any digital strategy and only 12% using AI tools, the window for proactive transition is 2025-2028 before larger AI-powered competitors permanently capture market share."
               : "El sector PYME de Costa Rica enfrenta una brecha critica de adopcion AI. Con 72% sin estrategia digital y solo 12% usando herramientas AI, la ventana para transicion proactiva es 2025-2028 antes de que competidores mas grandes potenciados con AI capturen permanentemente cuota de mercado."}
           </p>
-          <Ci s="CAMTIC, IDB/Deloitte, MEIC, Colibrii Labs Analysis" />
+          <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 4, marginTop: 4 }}>
+            <Ci s="CAMTIC, IDB/Deloitte, MEIC, Colibrii Labs Analysis" />
+            <Src label="OIT 2024" url="https://www.ilo.org/publications" t={t} />
+          </div>
         </Card>
       </ScrollReveal>
 

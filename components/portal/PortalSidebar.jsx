@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { TABS } from "../data";
 import { Icon } from "../system/Icon";
@@ -23,7 +24,7 @@ export function PortalSidebar({ tab, setTab, en, setEn, dark, setDark, t, mobile
   const navContent = (
     <div className="portal-sidebar-content">
       {/* Logo */}
-      <div className="portal-sidebar-logo" onClick={() => { setTab("home"); setMobileOpen?.(false); }}>
+      <Link href="/" style={{ textDecoration: "none", color: "inherit" }} className="portal-sidebar-logo" onClick={() => setMobileOpen?.(false)}>
         <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 40, height: 40, flexShrink: 0 }} />
         <div>
           <div style={{ fontSize: 14, fontWeight: 800, fontFamily: "var(--font-display, 'Playfair Display', serif)", color: t.tx }}>Colibrii Labs</div>
@@ -31,7 +32,7 @@ export function PortalSidebar({ tab, setTab, en, setEn, dark, setDark, t, mobile
             {FACTS.tagline.toUpperCase()}
           </div>
         </div>
-      </div>
+      </Link>
 
       {/* Navigation Groups */}
       <nav className="portal-sidebar-nav" aria-label="Portal navigation">

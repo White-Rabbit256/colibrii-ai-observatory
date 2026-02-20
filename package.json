@@ -1,6 +1,6 @@
 {
   "name": "colibrii-encrucijada",
-  "version": "18.0.0",
+  "version": "19.0.0",
   "private": true,
   "description": "Colibrii Labs AI Observatory — Real-time strategic AI intelligence for Costa Rica",
   "homepage": "https://colibriilabs.com",
@@ -14,6 +14,8 @@
   },
   "dependencies": {
     "@react-spring/web": "^10.0.3",
+    "@tsparticles/react": "^3.0.0",
+    "@tsparticles/slim": "^3.9.1",
     "framer-motion": "^12.34.2",
     "next": "^14.2.21",
     "react": "^18.3.1",

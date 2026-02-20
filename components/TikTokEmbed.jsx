@@ -1,11 +1,10 @@
 "use client";
-import { useEffect, useRef } from "react";
 import { Card, SH, ScrollReveal } from "./ui";
 
 /* ═══════════════════════════════════════════════════════════════
-   COLIBRII LABS — TikTok Video Intelligence Section v18
+   COLIBRII LABS — TikTok Video Intelligence Section v19
    Embeds curated TikTok videos about AI from WEF, CNN, CNBC
-   Uses TikTok blockquote embed + async script loader
+   Uses direct iframe embeds (no embed.js script injection)
    ═══════════════════════════════════════════════════════════════ */
 
 const TIKTOK_VIDEOS = [
@@ -19,30 +18,6 @@ const TIKTOK_VIDEOS = [
 const COLIBRII_TIKTOK = "colibrii.labs";
 
 export function TikTokSection({ en, t }) {
-  const loaded = useRef(false);
-
-  useEffect(() => {
-    if (loaded.current) return;
-    loaded.current = true;
-    const script = document.createElement("script");
-    script.src = "https://www.tiktok.com/embed.js";
-    script.async = true;
-    document.body.appendChild(script);
-    return () => {
-      try { document.body.removeChild(script); } catch {}
-    };
-  }, []);
-
-  /* Re-process embeds when component re-renders */
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (typeof window !== "undefined" && window.tiktok?.embed?.lib?.render) {
-        window.tiktok.embed.lib.render(document.body);
-      }
-    }, 500);
-    return () => clearTimeout(timer);
-  });
-
   return (
     <ScrollReveal delay={100}>
       <Card style={{ marginTop: 20 }}>
@@ -56,29 +31,46 @@ export function TikTokSection({ en, t }) {
           }
         />
 
-        <div className="tiktok-grid">
-          {TIKTOK_VIDEOS.map((v, i) => (
-            <div key={v.id} className="tiktok-embed-wrapper">
-              <div style={{ fontSize: 11, fontWeight: 600, color: t.tx3, marginBottom: 8, fontFamily: "'IBM Plex Mono',monospace", letterSpacing: 0.5 }}>
+        <div
+          className="tiktok-grid"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gap: 16,
+            marginTop: 16,
+          }}
+        >
+          {TIKTOK_VIDEOS.map((v) => (
+            <div
+              key={v.id}
+              className="tiktok-embed-wrapper"
+              style={{
+                overflow: "hidden",
+                borderRadius: 12,
+                background: t.sf,
+                border: `1px solid ${t.bd}`,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: t.tx3,
+                  padding: "10px 12px 6px",
+                  fontFamily: "'IBM Plex Mono',monospace",
+                  letterSpacing: 0.5,
+                }}
+              >
                 {v.label}
               </div>
-              <blockquote
-                className="tiktok-embed"
-                cite={`https://www.tiktok.com/@${v.user}/video/${v.id}`}
-                data-video-id={v.id}
-                style={{ maxWidth: 325, minWidth: 280 }}
-              >
-                <section>
-                  <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={`https://www.tiktok.com/@${v.user}/video/${v.id}`}
-                    style={{ fontSize: 12, color: t.cy, textDecoration: "none" }}
-                  >
-                    {en ? "Watch on TikTok →" : "Ver en TikTok →"}
-                  </a>
-                </section>
-              </blockquote>
+              <iframe
+                src={`https://www.tiktok.com/embed/v2/${v.id}`}
+                style={{ width: "100%", height: 580, border: "none", borderRadius: 12 }}
+                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                loading="lazy"
+                sandbox="allow-scripts allow-same-origin allow-popups"
+              />
             </div>
           ))}
         </div>

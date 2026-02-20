@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Particles, { initParticlesEngine } from "@tsparticles/react";
+import { loadSlim } from "@tsparticles/slim";
 import { FACTS } from "../../data/facts";
 import { MarketingHeader } from "./MarketingHeader";
 import { MarketingFooter } from "./MarketingFooter";
@@ -31,6 +33,49 @@ export function LandingPage() {
   useEffect(() => {
     localStorage.setItem("clb_lang", en ? "en" : "es");
   }, [en]);
+
+  const [particlesReady, setParticlesReady] = useState(false);
+
+  useEffect(() => {
+    initParticlesEngine(async (engine) => {
+      await loadSlim(engine);
+    }).then(() => setParticlesReady(true));
+  }, []);
+
+  const particlesOptions = {
+    fullScreen: false,
+    fpsLimit: 60,
+    particles: {
+      number: { value: 45, density: { enable: true, area: 800 } },
+      color: { value: ["#2563eb", "#8b5cf6", "#06b6d4", "#ec4899", "#10b981"] },
+      opacity: { value: { min: 0.2, max: 0.5 } },
+      size: { value: { min: 2, max: 5 } },
+      move: {
+        enable: true,
+        speed: 1.2,
+        direction: "none",
+        outModes: "bounce",
+      },
+      links: {
+        enable: true,
+        distance: 140,
+        color: "#2563eb",
+        opacity: 0.12,
+        width: 1,
+      },
+    },
+    interactivity: {
+      events: {
+        onHover: { enable: true, mode: "grab" },
+        onClick: { enable: true, mode: "push" },
+      },
+      modes: {
+        grab: { distance: 180, links: { opacity: 0.35 } },
+        push: { quantity: 3 },
+      },
+    },
+    detectRetina: true,
+  };
 
   const pillars = [
     {
@@ -88,29 +133,14 @@ export function LandingPage() {
 
       {/* ── HERO ── */}
       <motion.section className="mkt-hero" initial="hidden" animate="visible" variants={stagger} style={{ position: "relative" }}>
-        {/* Floating geometric elements */}
-        <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
-          {[
-            { left: "5%", top: "15%", size: 60, delay: 0 },
-            { left: "85%", top: "25%", size: 40, delay: 2 },
-            { left: "15%", top: "70%", size: 50, delay: 4 },
-            { left: "75%", top: "60%", size: 35, delay: 6 },
-            { left: "50%", top: "10%", size: 45, delay: 8 },
-          ].map((s, i) => (
-            <motion.div
-              key={i}
-              style={{ position: "absolute", left: s.left, top: s.top, width: s.size, height: s.size, opacity: 0.04 }}
-              animate={{ y: [0, -25, 12, 0], rotate: [0, 90, 180, 360] }}
-              transition={{ duration: 18 + i * 3, repeat: Infinity, ease: "easeInOut", delay: s.delay }}
-            >
-              <svg width={s.size} height={s.size} viewBox="0 0 40 40">
-                {i % 3 === 0 && <circle cx="20" cy="20" r="18" fill="none" stroke="#2563eb" strokeWidth="1.5" />}
-                {i % 3 === 1 && <rect x="4" y="4" width="32" height="32" rx="4" fill="none" stroke="#2563eb" strokeWidth="1.5" />}
-                {i % 3 === 2 && <polygon points="20,2 38,38 2,38" fill="none" stroke="#2563eb" strokeWidth="1.5" />}
-              </svg>
-            </motion.div>
-          ))}
-        </div>
+        {/* tsParticles background */}
+        {particlesReady && (
+          <Particles
+            id="hero-particles"
+            options={particlesOptions}
+            style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "auto" }}
+          />
+        )}
         <motion.div variants={fadeUp} style={{ marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "center", gap: 16 }}>
           <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 160, height: 160 }} />
           <img src="/costa-rica-hero.jpg" alt="Costa Rica" style={{ width: 80, height: 56, borderRadius: 8, objectFit: "cover", boxShadow: "0 2px 12px rgba(0,0,0,0.15)" }} />
@@ -130,13 +160,8 @@ export function LandingPage() {
         <motion.div variants={fadeUp} className="mkt-hero-accent" />
         <motion.p variants={fadeUp} className="mkt-hero-desc">
           {en
-            ? "This observatory gives Costa Ricans a holistic understanding of our country's positioning in the world regarding AI adoption, literacy, risks, and legislation. 20 countries. 25+ data sources. Real-time data. Actionable intelligence."
-            : "Este observatorio entrega a los costarricenses una comprensión holística del posicionamiento de nuestro país ante el mundo en cuanto a adopción, alfabetización, riesgos y legislación de inteligencia artificial. 20 países. 25+ fuentes de datos. Datos en tiempo real. Inteligencia accionable."}
-        </motion.p>
-        <motion.p variants={fadeUp} style={{ fontSize: 14, color: "var(--mkt-text3)", maxWidth: 560, margin: "0 auto 32px", lineHeight: 1.7, textAlign: "center" }}>
-          {en
-            ? "Costa Rica scored 100/100 in AI Vision but only 0.38 in readiness. This observatory exists to close that gap — with evidence, not opinion."
-            : "Costa Rica obtuvo 100/100 en Visión AI pero solo 0.38 en preparación. Este observatorio existe para cerrar esa brecha — con evidencia, no opinión."}
+            ? "This observatory gives Costa Ricans a holistic understanding of our country's positioning in the world regarding AI adoption, literacy, risks, and legislation. 20 countries. 25+ data sources. Real-time data. Actionable intelligence. Costa Rica scored 100/100 in AI Vision but only 0.38 in readiness — this observatory exists to close that gap with evidence, not opinion."
+            : "Este observatorio entrega a los costarricenses una comprensión holística del posicionamiento de nuestro país ante el mundo en cuanto a adopción, alfabetización, riesgos y legislación de inteligencia artificial. 20 países. 25+ fuentes de datos. Datos en tiempo real. Inteligencia accionable. Costa Rica obtuvo 100/100 en Visión AI pero solo 0.38 en preparación — este observatorio existe para cerrar esa brecha con evidencia, no opinión."}
         </motion.p>
         <motion.div variants={fadeUp}>
           <Link href="/app" className="mkt-hero-cta">
@@ -168,14 +193,14 @@ export function LandingPage() {
       </motion.section>
 
       {/* ── What is an AI Observatory? ── */}
-      <section style={{ maxWidth: 900, margin: "0 auto", padding: "80px 24px" }}>
+      <section style={{ maxWidth: 900, margin: "0 auto", padding: "40px 24px" }}>
         <div className="mkt-section-title">{en ? "What is an AI Observatory?" : "¿Qué es un Observatorio AI?"}</div>
-        <p style={{ textAlign: "center", fontSize: 15, color: "var(--mkt-text2)", lineHeight: 1.8, maxWidth: 640, margin: "0 auto 40px" }}>
+        <p style={{ textAlign: "center", fontSize: 15, color: "var(--mkt-text2)", lineHeight: 1.8, maxWidth: 640, margin: "0 auto 24px" }}>
           {en
             ? "A real-time intelligence platform that collects, analyzes, and visualizes data from 25+ international sources to inform Costa Rica's AI strategy."
             : "Una plataforma de inteligencia en tiempo real que recopila, analiza y visualiza datos de 25+ fuentes internacionales para informar la estrategia AI de Costa Rica."}
         </p>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20, textAlign: "center" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 20, textAlign: "center" }}>
           {[
             { num: "25+", label: en ? "Data Sources" : "Fuentes de Datos", desc: en ? "World Bank, WEF, IMF, OECD, Stanford HAI, Oxford Insights" : "Banco Mundial, WEF, FMI, OCDE, Stanford HAI, Oxford Insights" },
             { num: "4", label: en ? "Live APIs" : "APIs en Vivo", desc: en ? "Real-time data from World Bank, GDELT, Exchange Rates, REST Countries" : "Datos en tiempo real del Banco Mundial, GDELT, Tipos de Cambio, REST Countries" },
@@ -225,7 +250,7 @@ export function LandingPage() {
       </section>
 
       {/* ── Why Costa Rica Needs This Now ── */}
-      <section style={{ maxWidth: 900, margin: "0 auto", padding: "80px 24px" }}>
+      <section style={{ maxWidth: 900, margin: "0 auto", padding: "48px 24px" }}>
         <div className="mkt-section-title">{en ? "Why Costa Rica Needs This Now" : "Por Qué Costa Rica Necesita Esto Ahora"}</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
           {[
