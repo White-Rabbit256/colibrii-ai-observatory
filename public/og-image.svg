@@ -25,10 +25,12 @@
   <circle cx="900" cy="200" r="250" fill="#2563eb" opacity="0.04"/>
   <circle cx="300" cy="450" r="200" fill="#6366f1" opacity="0.03"/>
   <circle cx="1050" cy="500" r="180" fill="#ec4899" opacity="0.03"/>
+  <!-- Logo image -->
+  <image href="/colibrii-logo.png" x="80" y="80" width="120" height="120" />
   <!-- Logo text -->
-  <text x="80" y="200" font-family="Inter, system-ui, sans-serif" font-weight="900" font-size="72" fill="url(#grad)">Colibrii Labs</text>
+  <text x="220" y="160" font-family="Inter, system-ui, sans-serif" font-weight="900" font-size="72" fill="url(#grad)">Colibrii Labs</text>
   <!-- Subtitle -->
-  <text x="80" y="270" font-family="Inter, system-ui, sans-serif" font-weight="600" font-size="36" fill="#0f172a">AI Observatory — Costa Rica</text>
+  <text x="220" y="210" font-family="Inter, system-ui, sans-serif" font-weight="600" font-size="36" fill="#0f172a">AI Observatory — Costa Rica</text>
   <!-- Description -->
   <text x="80" y="340" font-family="Inter, system-ui, sans-serif" font-weight="400" font-size="22" fill="#475569">Real-time strategic AI intelligence</text>
   <text x="80" y="375" font-family="Inter, system-ui, sans-serif" font-weight="400" font-size="22" fill="#475569">20 countries  ·  25+ data sources  ·  10 algorithms  ·  55-term glossary</text>

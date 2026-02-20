@@ -11,10 +11,11 @@ import { FACTS } from "../../data/facts";
    ═══════════════════════════════════════════════════════════════ */
 
 const GROUPS = [
-  { label: { es: "OBSERVATORIO", en: "OBSERVATORY" }, ids: ["home", "idx", "cmp", "countries"] },
-  { label: { es: "ANÁLISIS", en: "ANALYSIS" }, ids: ["sim", "zf", "pai"] },
-  { label: { es: "METODOLOGÍA", en: "METHODOLOGY" }, ids: ["algo", "sec", "leg"] },
-  { label: { es: "REFERENCIA", en: "REFERENCE" }, ids: ["edu", "glos", "about"] },
+  { label: { es: "INTELIGENCIA", en: "INTELLIGENCE" }, ids: ["home", "zf", "pai", "pymes"] },
+  { label: { es: "POLÍTICAS", en: "POLICY" }, ids: ["leg", "sec"] },
+  { label: { es: "FORMACIÓN", en: "TRAINING" }, ids: ["edu", "glos"] },
+  { label: { es: "HERRAMIENTAS", en: "TOOLS" }, ids: ["idx", "countries", "cmp", "algo", "sim"] },
+  { label: { es: "ACERCA", en: "ABOUT" }, ids: ["about"] },
 ];
 
 export function PortalSidebar({ tab, setTab, en, setEn, dark, setDark, t, mobileOpen, setMobileOpen }) {
@@ -22,7 +23,7 @@ export function PortalSidebar({ tab, setTab, en, setEn, dark, setDark, t, mobile
     <div className="portal-sidebar-content">
       {/* Logo */}
       <div className="portal-sidebar-logo" onClick={() => { setTab("home"); setMobileOpen?.(false); }}>
-        <img src="/favicon.svg" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 28, height: 28, flexShrink: 0 }} />
+        <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 28, height: 28, flexShrink: 0 }} />
         <div>
           <div style={{ fontSize: 14, fontWeight: 800, fontFamily: "'Fraunces',serif", color: t.tx }}>Colibrii Labs</div>
           <div style={{ fontSize: 8, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", letterSpacing: 1.5 }}>

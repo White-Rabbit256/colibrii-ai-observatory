@@ -2,7 +2,7 @@
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip } from "recharts";
-import { CO, DM, TIMELINE, PARTNERS, WEF_2026_RISKS, EOS_RISKS, INDICATOR_META, VIP_QUOTES, NEWS_CATEGORIES } from "./data";
+import { CO, DM, TIMELINE, PARTNERS, WEF_2026_RISKS, EOS_RISKS, INDICATOR_META, VIP_QUOTES, NEWS_CATEGORIES, COUNTRY_RATIONALE } from "./data";
 import { Card, SH, Stat, Tag, Ci, Lnk, Grid, AN, ScrollReveal, PartnerBar, MiniStat, fadeUp, stagger } from "./ui";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -464,6 +464,38 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
             <span><span style={{ color: t.am }}>●</span> Chile</span>
             <span><span style={{ color: t.vi }}>●</span> Singapore</span>
           </div>
+        </Card>
+      </ScrollReveal>
+
+      {/* ═══════ COUNTRY SELECTION RATIONALE ═══════ */}
+      <ScrollReveal delay={100}>
+        <Card style={{ marginBottom: 28 }}>
+          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>
+            {en ? "METHODOLOGY" : "METODOLOGÍA"}
+          </div>
+          <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Fraunces',serif", marginBottom: 6, color: t.tx }}>
+            {COUNTRY_RATIONALE(en).title}
+          </div>
+          <p style={{ fontSize: 13, color: t.tx2, lineHeight: 1.7, marginBottom: 16 }}>
+            {COUNTRY_RATIONALE(en).desc}
+          </p>
+          <Grid cols="repeat(auto-fit,minmax(200px,1fr))" gap={10}>
+            {COUNTRY_RATIONALE(en).groups.map((g, i) => (
+              <div key={i} style={{ padding: 14, borderRadius: 10, border: `1px solid ${t.bd}`, borderLeft: `3px solid ${g.color}` }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: g.color, marginBottom: 6, fontFamily: "'IBM Plex Mono',monospace" }}>{g.label}</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 8 }}>
+                  {g.countries.map(cc => (
+                    <span key={cc} style={{ fontSize: 12, background: `${g.color}0a`, padding: "2px 6px", borderRadius: 4 }}>
+                      {CO[cc]?.f} {en ? CO[cc]?.e : CO[cc]?.n}
+                    </span>
+                  ))}
+                </div>
+                <div style={{ fontSize: 11, color: t.tx3, lineHeight: 1.5 }}>{g.why}</div>
+              </div>
+            ))}
+          </Grid>
+          <Ci s={en ? "Colibrii Labs peer selection methodology — based on FDI competition, AI readiness, regional economics, and sector profiles"
+                   : "Metodología de selección de pares Colibrii Labs — basada en competencia IED, preparación AI, economía regional y perfiles sectoriales"} />
         </Card>
       </ScrollReveal>
 

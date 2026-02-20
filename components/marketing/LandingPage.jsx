@@ -88,7 +88,10 @@ export function LandingPage() {
       {/* ── HERO ── */}
       <motion.section className="mkt-hero" initial="hidden" animate="visible" variants={stagger}>
         <motion.div variants={fadeUp} style={{ marginBottom: 24 }}>
-          <img src="/favicon.svg" alt="" className="logo-iridescent" style={{ width: 56, height: 56 }} />
+          <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 56, height: 56 }} />
+        </motion.div>
+        <motion.div variants={fadeUp} style={{ fontSize: 20, fontFamily: "'Fraunces',serif", fontStyle: "italic", color: "var(--mkt-text2)", marginBottom: 8, letterSpacing: 0.3 }}>
+          {en ? "Costa Rica is my beloved homeland." : "Costa Rica es mi patria querida."}
         </motion.div>
         <motion.div variants={fadeUp} className="mkt-hero-label">
           <span style={{ fontSize: 18, marginRight: 6 }}>🇨🇷</span> AI Observatory &middot; Costa Rica
@@ -102,8 +105,8 @@ export function LandingPage() {
         <motion.div variants={fadeUp} className="mkt-hero-accent" />
         <motion.p variants={fadeUp} className="mkt-hero-desc">
           {en
-            ? "The first AI Observatory built for Costa Rica — tracking 20 countries, 11 World Bank indicators, and 7 international frameworks to deliver actionable intelligence for policymakers, investors, and researchers shaping the country's AI future."
-            : "El primer Observatorio AI construido para Costa Rica — monitoreando 20 países, 11 indicadores del Banco Mundial y 7 marcos internacionales para entregar inteligencia accionable a legisladores, inversionistas e investigadores que moldean el futuro AI del país."}
+            ? "This observatory gives Costa Ricans a holistic understanding of our country's positioning in the world regarding AI adoption, literacy, risks, and legislation. 20 countries. 25+ data sources. Real-time data. Actionable intelligence."
+            : "Este observatorio entrega a los costarricenses una comprensión holística del posicionamiento de nuestro país ante el mundo en cuanto a adopción, alfabetización, riesgos y legislación de inteligencia artificial. 20 países. 25+ fuentes de datos. Datos en tiempo real. Inteligencia accionable."}
         </motion.p>
         <motion.p variants={fadeUp} style={{ fontSize: 14, color: "var(--mkt-text3)", maxWidth: 560, margin: "0 auto 32px", lineHeight: 1.7, textAlign: "center" }}>
           {en
@@ -152,7 +155,7 @@ export function LandingPage() {
             { num: "25+", label: en ? "Data Sources" : "Fuentes de Datos", desc: en ? "World Bank, WEF, IMF, OECD, Stanford HAI, Oxford Insights" : "Banco Mundial, WEF, FMI, OCDE, Stanford HAI, Oxford Insights" },
             { num: "4", label: en ? "Live APIs" : "APIs en Vivo", desc: en ? "Real-time data from World Bank, GDELT, Exchange Rates, REST Countries" : "Datos en tiempo real del Banco Mundial, GDELT, Tipos de Cambio, REST Countries" },
             { num: "10", label: en ? "Algorithms" : "Algoritmos", desc: en ? "Proprietary analytical models including CAPI-CR composite index" : "Modelos analíticos propietarios incluyendo índice compuesto CAPI-CR" },
-            { num: "13", label: en ? "Analysis Views" : "Vistas de Análisis", desc: en ? "From country profiles to policy simulators to risk dashboards" : "Desde perfiles país hasta simuladores de política y dashboards de riesgo" }
+            { num: "14", label: en ? "Analysis Views" : "Vistas de Análisis", desc: en ? "From country profiles to policy simulators to risk dashboards" : "Desde perfiles país hasta simuladores de política y dashboards de riesgo" }
           ].map((item, i) => (
             <div key={i} style={{ padding: 24, background: "var(--mkt-surface)", borderRadius: 12, border: "1px solid var(--mkt-border)" }}>
               <div style={{ fontSize: 36, fontWeight: 800, fontFamily: "var(--font-mono, 'IBM Plex Mono', monospace)", background: "var(--mkt-accent)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", marginBottom: 8 }}>{item.num}</div>

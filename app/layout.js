@@ -148,9 +148,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/favicon.svg" />
+        <link rel="icon" href="/colibrii-logo.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/colibrii-logo.png" />
         <link rel="manifest" href="/manifest.json" />
+        <link rel="alternate" type="application/rss+xml" title="Colibrii Labs AI Observatory RSS" href="/api/rss" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>
       <body className={`${inter.variable} ${fraunces.variable} ${ibmPlexMono.variable}`}>

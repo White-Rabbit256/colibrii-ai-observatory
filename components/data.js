@@ -56,6 +56,51 @@ export const CO = {
   MYS: { n: "Malasia", e: "Malaysia", f: "🇲🇾", r: "asia", w: "AI overperformer, semiconductores", pop: "33M", gdp: "$399B", cont: "Asia" },
   IDN: { n: "Indonesia", e: "Indonesia", f: "🇮🇩", r: "asia", w: "AI overperformer, 270M mercado", pop: "277M", gdp: "$1.32T", cont: "Asia" }
 };
+
+export const COUNTRY_RATIONALE = (en) => ({
+  title: en ? "Why These 20 Countries?" : "¿Por Qué Estos 20 Países?",
+  desc: en
+    ? "The 20-country peer set was carefully selected to give Costa Rica maximum strategic context across five analytical dimensions:"
+    : "El grupo de 20 países pares fue cuidadosamente seleccionado para dar a Costa Rica máximo contexto estratégico en cinco dimensiones analíticas:",
+  groups: [
+    {
+      label: en ? "Direct FDI Competitors" : "Competidores IED Directos",
+      color: "#ef4444",
+      countries: ["COL", "DOM", "VNM", "PHL"],
+      why: en ? "Countries actively competing with CR for the same nearshoring, BPO, and shared services investment flows. If a multinational considers Costa Rica, these are the alternatives on the shortlist."
+             : "Países compitiendo activamente con CR por los mismos flujos de inversión nearshoring, BPO y servicios compartidos. Si una multinacional considera Costa Rica, estos son las alternativas en la lista corta."
+    },
+    {
+      label: en ? "AI Readiness Leaders" : "Líderes Preparación AI",
+      color: "#2563eb",
+      countries: ["SGP", "KOR", "JPN"],
+      why: en ? "Global gold standard benchmarks — what 'best in class' looks like in AI governance, investment, and talent development. Singapore's AI framework is the model most cited by OECD."
+             : "Benchmarks estándar de oro global — cómo luce lo 'mejor en su clase' en gobernanza AI, inversión y desarrollo de talento. El marco AI de Singapur es el modelo más citado por la OCDE."
+    },
+    {
+      label: en ? "Regional LATAM Peers" : "Pares Regionales LATAM",
+      color: "#10b981",
+      countries: ["CHL", "URY", "BRA", "MEX", "ARG", "PER", "PAN"],
+      why: en ? "Economic, regulatory, and cultural comparators in Latin America. Chile leads LATAM in AI strategy, Brazil in scale, Mexico in manufacturing proximity to the US."
+             : "Comparadores económicos, regulatorios y culturales en América Latina. Chile lidera LATAM en estrategia AI, Brasil en escala, México en cercanía manufacturera a EE.UU."
+    },
+    {
+      label: en ? "Small Economy Digital Leaders" : "Economías Pequeñas Líderes Digitales",
+      color: "#6366f1",
+      countries: ["EST", "FIN", "IRL"],
+      why: en ? "Similar population size (<6M) with world-leading digital governance — proof that small countries can compete at the highest level. Estonia's e-residency and Ireland's tech FDI are direct playbooks for CR."
+             : "Tamaño de población similar (<6M) con gobernanza digital líder mundial — prueba de que países pequeños pueden competir al más alto nivel. La e-residencia de Estonia y la IED tech de Irlanda son hojas de ruta directas para CR."
+    },
+    {
+      label: en ? "Manufacturing Competitors" : "Competidores Manufactura",
+      color: "#f59e0b",
+      countries: ["MYS", "IDN"],
+      why: en ? "Similar sector profiles in electronics, medical devices, and light manufacturing. Competing for the same FDI in an era where AI-driven automation reshapes manufacturing location decisions."
+             : "Perfiles sectoriales similares en electrónica, dispositivos médicos y manufactura ligera. Compitiendo por la misma IED en una era donde la automatización impulsada por AI redefine las decisiones de ubicación manufacturera."
+    }
+  ]
+});
+
 export const CC = Object.keys(CO);
 
 // ── 11 WORLD BANK INDICATORS ──
@@ -174,7 +219,8 @@ export const TABS = [
   { id: "leg", l: "Legislación", le: "Legislation", ic: "legal", c: TH.or },
   { id: "edu", l: "Educación", le: "Education", ic: "edu", c: TH.gn },
   { id: "glos", l: "Glosario", le: "Glossary", ic: "book", c: TH.cy },
-  { id: "about", l: "Info", le: "About", ic: "info", c: TH.vi }
+  { id: "about", l: "Info", le: "About", ic: "info", c: TH.vi },
+  { id: "pymes", l: "PYMES", le: "SMEs", ic: "store", c: TH.or },
 ];
 
 // ── PARTNERS / DATA SOURCES ──
@@ -930,7 +976,6 @@ export const VIP_QUOTES = (en) => [
   { name: "Jensen Huang", title: "CEO, NVIDIA", initials: "JH", gradient: "linear-gradient(135deg, #76b900, #1a1a2e)", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Jensen_Huang_-_Pair_%28cropped%29.jpg/440px-Jensen_Huang_-_Pair_%28cropped%29.jpg", quote: en ? "Every country needs to own the production of their own intelligence. It is the single most important infrastructure of every country." : "Cada país necesita ser dueño de la producción de su propia inteligencia. Es la infraestructura más importante de cada país.", src: "https://www.nvidia.com/" },
   { name: "Satya Nadella", title: "CEO, Microsoft", initials: "SN", gradient: "linear-gradient(135deg, #00a4ef, #7fba00)", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Satya_smiling-print_%28cropped%29.jpg/440px-Satya_smiling-print_%28cropped%29.jpg", quote: en ? "AI is going to be the defining technology of our times. The question is, what are we going to do with it?" : "AI va a ser la tecnología definitoria de nuestros tiempos. La pregunta es, ¿qué vamos a hacer con ella?", src: "https://www.microsoft.com/" },
   { name: "Mustafa Suleyman", title: en ? "CEO, Microsoft AI" : "CEO, Microsoft AI", initials: "MS", gradient: "linear-gradient(135deg, #2563eb, #f59e0b)", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Mustafa_Suleyman_at_TechCrunch_Disrupt_2023_%28cropped%29.jpg/440px-Mustafa_Suleyman_at_TechCrunch_Disrupt_2023_%28cropped%29.jpg", quote: en ? "AI is the most consequential technology since fire. We need new institutions, not just new technology." : "AI es la tecnología más consecuente desde el fuego. Necesitamos nuevas instituciones, no solo nueva tecnología.", src: "https://www.microsoft.com/en-us/ai" },
-  { name: "Carlos Alvarado", title: en ? "Ex-President of Costa Rica (2018-2022)" : "Ex-Presidente de Costa Rica (2018-2022)", initials: "CA", gradient: "linear-gradient(135deg, #10b981, #059669)", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Presidente_de_Costa_Rica%2C_Carlos_Alvarado_%28cropped%29.jpg/440px-Presidente_de_Costa_Rica%2C_Carlos_Alvarado_%28cropped%29.jpg", quote: en ? "Costa Rica's commitment to sustainability and innovation must extend to the digital frontier. We can be leaders in responsible technology." : "El compromiso de Costa Rica con la sostenibilidad e innovación debe extenderse a la frontera digital. Podemos ser líderes en tecnología responsable.", src: "https://www.presidencia.go.cr/" },
   { name: "Alicia Bárcena", title: en ? "ECLAC Executive Secretary (2008-2022)" : "Secretaria Ejecutiva CEPAL (2008-2022)", initials: "AB", gradient: "linear-gradient(135deg, #2563eb, #8b5cf6)", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Alicia_Barcena_2016.jpg/440px-Alicia_Barcena_2016.jpg", quote: en ? "Latin America cannot afford to be a passive consumer of AI. The region must develop sovereign capabilities or risk permanent digital dependency." : "América Latina no puede permitirse ser consumidora pasiva de AI. La región debe desarrollar capacidades soberanas o arriesgar dependencia digital permanente.", src: "https://www.cepal.org/" },
   { name: "Kai-Fu Lee", title: en ? "CEO Sinovation, AI Author" : "CEO Sinovation, Autor AI", initials: "KL", gradient: "linear-gradient(135deg, #ef4444, #f97316)", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Kai-Fu_Lee_at_TechCrunch.jpg/440px-Kai-Fu_Lee_at_TechCrunch.jpg", quote: en ? "AI will displace 40% of jobs in the next 15 years. Countries that prepare their workforce now will thrive; those that don't will suffer." : "AI desplazará el 40% de los empleos en los próximos 15 años. Los países que preparen su fuerza laboral ahora prosperarán; los que no, sufrirán.", src: "https://www.sinovationventures.com/" }
 ];
@@ -1031,6 +1076,125 @@ export const FZ_DEEP = (en) => ({
     { name: "World Bank Digital Progress", url: "https://www.worldbank.org/" },
     { name: "fDi Markets Greenfield FDI Performance Index", url: "https://www.fdimarkets.com/" },
     { name: "McKinsey Global Institute", url: "https://www.mckinsey.com/mgi/" }
+  ]
+});
+
+// ── PYMES / SME INTELLIGENCE ──
+export const PYMES_DEEP = (en) => ({
+  landscape: {
+    title: en ? "Costa Rica's SME Landscape" : "Panorama PYMES Costa Rica",
+    stats: [
+      { value: "97%", label: en ? "Businesses are SMEs" : "Negocios son PYMES", source: "MEIC 2024" },
+      { value: "33%", label: en ? "GDP Contribution" : "Contribución al PIB", source: "MEIC" },
+      { value: "47%", label: en ? "Formal Employment" : "Empleo Formal", source: "MTSS" },
+      { value: "~106K", label: en ? "Registered PYMES" : "PYMES Registradas", source: "DIGEPYME" },
+      { value: "18%", label: en ? "Export-active" : "Exportadoras activas", source: "PROCOMER" },
+      { value: "<5%", label: en ? "Use AI Tools" : "Usan Herramientas AI", source: en ? "Estimate 2025" : "Estimado 2025" }
+    ]
+  },
+  risks: [
+    {
+      title: en ? "Job Displacement in SME Sectors" : "Desplazamiento Laboral en Sectores PYME",
+      severity: en ? "HIGH" : "ALTO",
+      color: "#ef4444",
+      desc: en ? "SMEs in retail, food service, and professional services face 30-50% task automation by 2028. Unlike Free Zone companies with dedicated reskilling budgets, most PYMES lack resources for workforce transition programs. The ILO estimates 34% of CR's informal workers are in highly automatable roles."
+           : "PYMES en comercio, alimentación y servicios profesionales enfrentan automatización de 30-50% de tareas para 2028. A diferencia de empresas de Zonas Francas con presupuestos dedicados de recapacitación, la mayoría de PYMES carecen de recursos para programas de transición laboral. La OIT estima que 34% de los trabajadores informales de CR están en roles altamente automatizables."
+    },
+    {
+      title: en ? "Technology Adoption Cost Barrier" : "Barrera de Costo de Adopción Tecnológica",
+      severity: en ? "HIGH" : "ALTO",
+      color: "#f59e0b",
+      desc: en ? "AI SaaS tools cost $50-500/month per seat. For a 5-person SME earning $15K/month, this represents 2-10% of revenue. Most CR PYMES operate on margins below 10%, making AI adoption a financial stretch without subsidies or tax incentives."
+           : "Herramientas AI SaaS cuestan $50-500/mes por usuario. Para una PYME de 5 personas que gana $15K/mes, esto representa 2-10% de ingresos. La mayoría de PYMES CR operan con márgenes debajo del 10%, haciendo la adopción de AI un estiramiento financiero sin subsidios o incentivos fiscales."
+    },
+    {
+      title: en ? "Cybersecurity Vulnerability" : "Vulnerabilidad de Ciberseguridad",
+      severity: en ? "CRITICAL" : "CRÍTICO",
+      color: "#ef4444",
+      desc: en ? "An estimated 98% of CR SMEs have zero formal cybersecurity measures. AI-powered phishing increasingly targets Spanish-speaking businesses with highly convincing emails. Post-Conti (2022) awareness is high but investment remains critically low — most PYMES spend $0 on cybersecurity annually."
+           : "Se estima que el 98% de PYMES CR tienen cero medidas formales de ciberseguridad. Phishing potenciado por AI cada vez más apunta a negocios hispanohablantes con correos altamente convincentes. La conciencia post-Conti (2022) es alta pero la inversión sigue críticamente baja — la mayoría de PYMES gastan $0 en ciberseguridad anualmente."
+    },
+    {
+      title: en ? "Digital Divide Widening" : "Brecha Digital Ampliándose",
+      severity: en ? "MEDIUM" : "MEDIO",
+      color: "#f97316",
+      desc: en ? "Free Zone companies invest $10K-50K/employee in AI tools and training. SMEs invest less than $500/employee. Without policy intervention, the productivity gap between formal/FZ and informal/SME sectors will accelerate into a K-shaped economy where AI amplifies existing inequalities."
+           : "Empresas de Zonas Francas invierten $10K-50K/empleado en herramientas AI y capacitación. PYMES invierten menos de $500/empleado. Sin intervención de política, la brecha de productividad entre sectores formal/ZF e informal/PYME se acelerará hacia una economía en K donde la AI amplifica desigualdades existentes."
+    },
+    {
+      title: en ? "Regulatory Compliance Burden" : "Carga de Cumplimiento Regulatorio",
+      severity: en ? "MEDIUM" : "MEDIO",
+      color: "#f59e0b",
+      desc: en ? "Upcoming AI regulations (EU AI Act extraterritorial reach, potential CR law) will create compliance costs that large firms absorb easily but may crush SMEs. Costa Rica needs proportional regulation — exemptions or simplified frameworks for businesses under 50 employees."
+           : "Próximas regulaciones AI (alcance extraterritorial EU AI Act, potencial ley CR) crearán costos de cumplimiento que firmas grandes absorben fácilmente pero podrían aplastar a PYMES. Costa Rica necesita regulación proporcional — exenciones o marcos simplificados para negocios con menos de 50 empleados."
+    }
+  ],
+  opportunities: [
+    {
+      title: en ? "Operational Efficiency via AI Tools" : "Eficiencia Operativa vía Herramientas AI",
+      impact: en ? "HIGH" : "ALTO",
+      color: "#10b981",
+      desc: en ? "AI accounting (QuickBooks AI, Xero), inventory management, and customer service chatbots can reduce SME overhead by 20-40%. Free/low-cost tools already available: ChatGPT for drafting, Canva AI for design, Notion AI for documentation, Google Workspace AI for email/docs."
+           : "Contabilidad AI (QuickBooks AI, Xero), gestión de inventarios y chatbots de servicio al cliente pueden reducir gastos operativos PYME en 20-40%. Herramientas gratuitas/bajo costo ya disponibles: ChatGPT para redacción, Canva AI para diseño, Notion AI para documentación, Google Workspace AI para correo/docs."
+    },
+    {
+      title: en ? "Market Access & E-Commerce" : "Acceso a Mercados y E-Commerce",
+      impact: en ? "HIGH" : "ALTO",
+      color: "#2563eb",
+      desc: en ? "AI-powered platforms enable PYMES to sell internationally: automated translation, dynamic pricing, personalized marketing, AI-generated product photography. PROCOMER's programs support export-ready PYMES — AI tools can dramatically lower the barrier to entry for international trade."
+           : "Plataformas potenciadas por AI permiten a PYMES vender internacionalmente: traducción automatizada, precios dinámicos, marketing personalizado, fotografía de producto generada por AI. Los programas de PROCOMER apoyan PYMES listas para exportar — herramientas AI pueden reducir dramáticamente la barrera de entrada al comercio internacional."
+    },
+    {
+      title: en ? "AI-Augmented Professional Services" : "Servicios Profesionales Aumentados por AI",
+      impact: en ? "HIGH" : "ALTO",
+      color: "#6366f1",
+      desc: en ? "SME accountants, lawyers, consultants, and architects can use AI to serve 3-5x more clients at the same quality level. AI drafts contracts, generates financial reports, analyzes regulatory compliance, and creates technical documentation. Professional services PYMES have the highest ROI from AI adoption."
+           : "Contadores, abogados, consultores y arquitectos PYME pueden usar AI para servir 3-5x más clientes al mismo nivel de calidad. AI redacta contratos, genera reportes financieros, analiza cumplimiento regulatorio y crea documentación técnica. PYMES de servicios profesionales tienen el mayor ROI de adopción de AI."
+    },
+    {
+      title: en ? "Precision Agriculture for Small Farms" : "Agricultura de Precisión para Fincas Pequeñas",
+      impact: en ? "MEDIUM" : "MEDIO",
+      color: "#10b981",
+      desc: en ? "87% of CR farms are small/medium scale. AI drones for crop monitoring ($200/season), mobile disease detection apps (free), yield prediction models. Coffee rust detection AI achieves 95%+ accuracy — critical for CR's $300M+ coffee export industry. Banana and pineapple sectors also benefit."
+           : "87% de fincas CR son de pequeña/mediana escala. Drones AI para monitoreo de cultivos ($200/temporada), apps móviles de detección de enfermedades (gratis), modelos de predicción de rendimiento. AI de detección de roya del café alcanza 95%+ precisión — crítico para la industria exportadora de café de CR de $300M+. Sectores de banano y piña también se benefician."
+    },
+    {
+      title: en ? "Tourism AI for CR's #1 Industry" : "AI Turismo para Industria #1 de CR",
+      impact: en ? "HIGH" : "ALTO",
+      color: "#ec4899",
+      desc: en ? "AI chatbots for multilingual bookings, dynamic pricing optimization, personalized itinerary generation, automated review management and response. Tourism PYMES (hotels, eco-lodges, tour operators, restaurants) can compete with international chains using AI at a fraction of the cost."
+           : "Chatbots AI para reservas multilingüe, optimización de precios dinámicos, generación de itinerarios personalizados, gestión automatizada de reseñas y respuestas. PYMES de turismo (hoteles, eco-lodges, operadores turísticos, restaurantes) pueden competir con cadenas internacionales usando AI a una fracción del costo."
+    }
+  ],
+  programs: {
+    title: en ? "Support Programs & Resources" : "Programas de Apoyo y Recursos",
+    items: [
+      { name: "PROCOMER", desc: en ? "Export readiness programs + market intelligence for PYMES looking to internationalize" : "Programas de preparación exportadora + inteligencia de mercados para PYMES buscando internacionalizarse", url: "https://www.procomer.com/" },
+      { name: "MEIC / DIGEPYME", desc: en ? "Official SME registry, business development training, financing access programs" : "Registro oficial PYMES, capacitación desarrollo empresarial, programas acceso a financiamiento", url: "https://www.meic.go.cr/" },
+      { name: "SBD", desc: en ? "Sistema de Banca para el Desarrollo — subsidized credit lines for technology adoption" : "Sistema de Banca para el Desarrollo — líneas de crédito subsidiadas para adopción tecnológica", url: "https://www.sbdcr.com/" },
+      { name: "INA", desc: en ? "Free technical training institute (currently lacks dedicated AI curriculum — key gap)" : "Instituto técnico de capacitación gratuita (actualmente carece de currículo AI dedicado — brecha clave)", url: "https://www.ina.ac.cr/" },
+      { name: "MICITT", desc: en ? "Ministry of Science & Technology — digital literacy programs, technology policy coordination" : "Ministerio de Ciencia y Tecnología — programas de alfabetización digital, coordinación de política tecnológica", url: "https://www.micitt.go.cr/" }
+    ]
+  },
+  recommendations: [
+    en ? "Create 'AI Starter Kit' program for PYMES: curated free/low-cost tools catalog + 2-day practical training workshops (MEIC + INA partnership)"
+       : "Crear programa 'AI Starter Kit' para PYMES: catálogo curado de herramientas gratuitas/bajo costo + talleres de capacitación práctica de 2 días (alianza MEIC + INA)",
+    en ? "Establish proportional AI regulation: simplified self-assessment for businesses under 50 employees, exemptions from full compliance burden"
+       : "Establecer regulación AI proporcional: auto-evaluación simplificada para negocios con menos de 50 empleados, exenciones de carga de cumplimiento total",
+    en ? "SBD credit lines specifically for AI tool adoption ($5K-$20K per PYME, subsidized interest, 3-year terms)"
+       : "Líneas de crédito SBD específicamente para adopción de herramientas AI ($5K-$20K por PYME, interés subsidiado, plazos de 3 años)",
+    en ? "PROCOMER AI export readiness program: train PYMES to use AI for international market research, automated translation, and digital marketing"
+       : "Programa de preparación exportadora AI de PROCOMER: capacitar PYMES para usar AI en investigación de mercados internacionales, traducción automatizada y marketing digital",
+    en ? "MICITT cybersecurity voucher program: subsidized basic security assessment + AI-powered threat monitoring for SMEs ($500-$2K vouchers)"
+       : "Programa de vouchers de ciberseguridad MICITT: evaluación de seguridad básica subsidiada + monitoreo de amenazas potenciado por AI para PYMES (vouchers de $500-$2K)"
+  ],
+  sources: [
+    { name: "MEIC — Estado PYMES CR", url: "https://www.meic.go.cr/" },
+    { name: "PROCOMER — Exportaciones PYMES", url: "https://www.procomer.com/" },
+    { name: "ILO — AI and SMEs", url: "https://www.ilo.org/" },
+    { name: "OECD — SMEs in the AI Economy", url: "https://www.oecd.org/" },
+    { name: "WEF Future of Jobs 2025", url: "https://www.weforum.org/" },
+    { name: "McKinsey — AI for Small Business", url: "https://www.mckinsey.com/" }
   ]
 });
 
@@ -1207,6 +1371,7 @@ export const PAI_NEWS = (en) => [
   { headline: en ? "NVIDIA Isaac Sim: Digital Twins for Robot Training" : "NVIDIA Isaac Sim: Gemelos Digitales para Entrenamiento de Robots", date: "2025", source: "NVIDIA", url: "https://developer.nvidia.com/isaac-sim", significance: en ? "NVIDIA's simulation platform enables training robots in virtual environments before physical deployment. 4,000+ digital twins used by Boston Dynamics. Accelerates development cycle 100x." : "Plataforma de simulación de NVIDIA permite entrenar robots en entornos virtuales antes de despliegue físico. 4,000+ gemelos digitales usados por Boston Dynamics. Acelera ciclo de desarrollo 100x.", icon: "🎮" },
   { headline: en ? "IFR Report: 4.28M Industrial Robots Operating Globally" : "Reporte IFR: 4.28M Robots Industriales Operando Globalmente", date: "2025", source: "International Federation of Robotics", url: "https://ifr.org/", significance: en ? "Record number of industrial robots deployed. Growth rate: 7% annually. Asia leads with 70%+ of installations. LATAM represents <2% — opportunity and risk for CR." : "Número récord de robots industriales desplegados. Tasa crecimiento: 7% anual. Asia lidera con 70%+ de instalaciones. LATAM representa <2% — oportunidad y riesgo para CR.", icon: "🌏" }
 ];
+
 
 // ── ISO COUNTRY CODE MAPPING (Alpha-3 to Alpha-2 for flag rendering) ──
 export const A3_TO_A2 = {

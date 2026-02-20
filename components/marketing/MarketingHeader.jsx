@@ -12,7 +12,7 @@ export function MarketingHeader({ en, setEn }) {
     <header className="mkt-header">
       <div className="mkt-header-inner">
         <div className="mkt-wordmark" style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <img src="/favicon.svg" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 24, height: 24 }} />
+          <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 24, height: 24 }} />
           <span className="mkt-wordmark-text">Colibrii Labs</span>
         </div>
         <div className="mkt-header-actions">

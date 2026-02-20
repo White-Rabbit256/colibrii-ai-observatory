@@ -10,6 +10,7 @@ import { Simulator } from "../PolicySimulator";
 import { ZF, PAI } from "../FreeZonesPhysicalAI";
 import { Algo, SecTab, Leg } from "../AlgoSecurityLeg";
 import { Edu, Glos, Abt } from "../EduGlossaryAbout";
+import { Pymes } from "../PymesAI";
 import { PortalSidebar } from "./PortalSidebar";
 import { IndicatorDrawer } from "./IndicatorDrawer";
 import { Icon } from "../system/Icon";
@@ -163,6 +164,7 @@ export default function PortalShell() {
       case "sim": return <Simulator {...tp} />;
       case "zf": return <ZF {...tp} />;
       case "pai": return <PAI {...tp} />;
+      case "pymes": return <Pymes {...tp} />;
       case "algo": return <Algo {...tp} />;
       case "sec": return <SecTab {...tp} />;
       case "leg": return <Leg {...tp} />;
@@ -216,7 +218,7 @@ export default function PortalShell() {
             <Icon name="menu" size={20} color={t.tx2} />
           </button>
           <div className="portal-mobile-title" style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <img src="/favicon.svg" alt="" className="logo-iridescent" style={{ width: 20, height: 20 }} />
+            <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 20, height: 20 }} />
             <span style={{ fontWeight: 800, fontFamily: "'Fraunces',serif", fontSize: 14, color: t.tx }}>Colibrii Labs</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>

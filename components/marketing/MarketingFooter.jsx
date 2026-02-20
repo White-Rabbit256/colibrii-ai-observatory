@@ -15,7 +15,7 @@ export function MarketingFooter({ en }) {
       <div className="mkt-footer-inner">
         <div className="mkt-footer-brand">
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-            <img src="/favicon.svg" alt="" className="logo-iridescent" style={{ width: 20, height: 20 }} />
+            <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 20, height: 20 }} />
             <div className="mkt-footer-logo">Colibrii Labs</div>
           </div>
           <div className="mkt-footer-tagline">{FACTS.tagline}</div>
