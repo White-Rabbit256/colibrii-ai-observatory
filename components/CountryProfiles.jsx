@@ -1,17 +1,23 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip } from "recharts";
-import { CO, CC, DM, GOV, COUNTRY_PROFILES, EOS_RISKS } from "./data";
-import { Card, SH, Tag, Grid, AN, ScrollReveal, DimBadge, ScorePill, Ci, Lnk, CountryLabel, MiniStat, fadeUp } from "./ui";
+import { CO, CC, DM, GOV, COUNTRY_PROFILES, EOS_RISKS, A3_TO_A2, AI_OVERPERFORMER_CONTEXT } from "./data";
+import { Card, SH, Tag, Grid, AN, ScrollReveal, DimBadge, ScorePill, Ci, Lnk, CountryLabel, MiniStat, Flag, fadeUp } from "./ui";
 
 /* ═══════════════════════════════════════════════════════════════
    COUNTRY PROFILES v13 — 20-country deep-dives (NEW TAB)
    Grid selector → full profile with radar, governance, strategy
    ═══════════════════════════════════════════════════════════════ */
 
-export function Countries({ en, t, idx, board, govData, dark }) {
-  const [selected, setSelected] = useState("CRI");
+export function Countries({ en, t, idx, board, govData, dark, selectedCountry, setSelectedCountry }) {
+  const [selected, setSelected] = useState(selectedCountry || "CRI");
+
+  useEffect(() => {
+    if (selectedCountry && selectedCountry !== selected) {
+      setSelected(selectedCountry);
+    }
+  }, [selectedCountry]);
   const profiles = COUNTRY_PROFILES(en);
   const co = CO[selected];
   const scores = idx[selected];
@@ -51,7 +57,7 @@ export function Countries({ en, t, idx, board, govData, dark }) {
                 <button key={c} onClick={() => setSelected(c)}
                   className={`country-card ${selected === c ? "selected" : ""}`}
                   style={{ padding: "6px 12px", border: `1px solid ${selected === c ? t.cy : t.bd}`, borderRadius: 8, background: selected === c ? `${t.cy}08` : t.cardBg, fontSize: 13, display: "flex", alignItems: "center", gap: 6, color: selected === c ? t.cy : t.tx2, fontWeight: selected === c ? 600 : 400 }}>
-                  <span>{CO[c].f}</span>
+                  <Flag code={A3_TO_A2[c]} size={18} />
                   <span className="hide-xs">{en ? CO[c].e : CO[c].n}</span>
                 </button>
               ))}
@@ -67,8 +73,8 @@ export function Countries({ en, t, idx, board, govData, dark }) {
           <Card accent={t.cy} style={{ marginBottom: 16 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
               <div>
-                <div style={{ fontSize: 32, marginBottom: 4 }}>{co.f}</div>
-                <h3 style={{ fontSize: 22, fontWeight: 800, fontFamily: "'Fraunces',serif" }}>{en ? co.e : co.n}</h3>
+                <div style={{ marginBottom: 4 }}><Flag code={A3_TO_A2[selected]} size={40} /></div>
+                <h3 style={{ fontSize: 22, fontWeight: 800, fontFamily: "var(--font-display, 'Playfair Display', serif)" }}>{en ? co.e : co.n}</h3>
                 <div style={{ fontSize: 12, color: t.tx2, marginTop: 2 }}>{co.w}</div>
               </div>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -81,8 +87,45 @@ export function Countries({ en, t, idx, board, govData, dark }) {
               <MiniStat label="GDP" value={co.gdp} />
               <MiniStat label="CAPI-CR" value={scores?.composite != null ? (scores.composite * 100).toFixed(1) : "—"} color={t.cy} mono />
               <MiniStat label={en ? "Region" : "Región"} value={co.cont} />
+              {gov && <MiniStat label="HDI" value={gov.hdi?.toFixed(3) || "—"} color={gov.hdi >= 0.8 ? t.gn : gov.hdi >= 0.7 ? t.am : t.rd} />}
+              {gov && <MiniStat label="Oxford AI" value={gov.oxai ? `${gov.oxai.toFixed(1)}/10` : "—"} color={gov.oxai >= 6 ? t.gn : gov.oxai >= 4 ? t.am : t.rd} />}
             </Grid>
           </Card>
+
+          {/* AI Overperformer explanation */}
+          {selected === "CRI" && (
+            <Card style={{ marginBottom: 16, borderLeft: `3px solid ${t.gn}` }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                <span style={{ fontSize: 18 }}>🏆</span>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: t.gn }}>
+                    {AI_OVERPERFORMER_CONTEXT(en).title}
+                  </div>
+                  <div style={{ fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>
+                    {AI_OVERPERFORMER_CONTEXT(en).source}
+                  </div>
+                </div>
+              </div>
+              <p style={{ fontSize: 13, color: t.tx2, lineHeight: 1.7, marginBottom: 12 }}>
+                {AI_OVERPERFORMER_CONTEXT(en).explanation}
+              </p>
+              <div style={{ fontSize: 11, fontWeight: 600, color: t.tx, marginBottom: 6 }}>
+                {en ? "Key Factors:" : "Factores Clave:"}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                {AI_OVERPERFORMER_CONTEXT(en).keyFactors.map((f, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 6, fontSize: 12, color: t.tx2 }}>
+                    <span style={{ color: t.gn, flexShrink: 0, marginTop: 2 }}>✓</span>
+                    <span>{f}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ marginTop: 10, fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>
+                {en ? "Peer overperformers: " : "Pares sobrerendimiento: "}
+                {AI_OVERPERFORMER_CONTEXT(en).peers.join(", ")}
+              </div>
+            </Card>
+          )}
 
           {/* Radar: selected vs CR */}
           <Card style={{ marginBottom: 16 }}>

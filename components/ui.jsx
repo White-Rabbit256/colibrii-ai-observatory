@@ -2,6 +2,7 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Icon } from "./system/Icon";
+import { PARTNER_LOGOS } from "./data";
 
 /* ═══════════════════════════════════════════════════════════════
    COLIBRII LABS — UI Components v13
@@ -85,7 +86,7 @@ export function SH({ color, label, title, desc }) {
   return (
     <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} style={{ marginBottom: 24 }}>
       {label && <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 6 }}>{label}</div>}
-      <h2 style={{ fontSize: 24, fontWeight: 800, fontFamily: "'Fraunces',serif", color: "var(--text)", marginBottom: 6, lineHeight: 1.3 }}>{title}</h2>
+      <h2 style={{ fontSize: 24, fontWeight: 800, fontFamily: "var(--font-display, 'Playfair Display', serif)", color: "var(--text)", marginBottom: 6, lineHeight: 1.3 }}>{title}</h2>
       {desc && <p style={{ fontSize: 14, color: "var(--text2)", lineHeight: 1.7, maxWidth: 640 }}>{desc}</p>}
     </motion.div>
   );
@@ -154,12 +155,30 @@ export function ProgressBar({ value, max = 1, color = "var(--cyan)", height = 6 
 }
 
 /* ── PARTNER BAR ── */
-export function PartnerBar({ items, en }) {
+export function PartnerBar({ items, en, showLogos = true }) {
   return (
     <Card d={0.2} style={{ marginTop: 20 }}>
-      <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: "var(--text3)", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>{en ? "DATA PARTNERS" : "SOCIOS DE DATOS"}</div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-        {items.map((p, i) => <span key={i} style={{ padding: "4px 10px", background: "var(--surface)", borderRadius: 20, fontSize: 11, color: "var(--text2)" }}>{p}</span>)}
+      <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: "var(--text3)", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>
+        {en ? "DATA PARTNERS & SOURCES" : "SOCIOS DE DATOS Y FUENTES"}
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+        {items.map((p, i) => {
+          const domain = PARTNER_LOGOS?.[p];
+          return (
+            <span key={i} style={{ padding: "4px 10px", background: "var(--surface)", borderRadius: 20, fontSize: 11, color: "var(--text2)", display: "inline-flex", alignItems: "center", gap: 4 }}>
+              {showLogos && domain && (
+                <img
+                  src={`https://logo.clearbit.com/${domain}?size=32`}
+                  alt=""
+                  loading="lazy"
+                  style={{ width: 14, height: 14, borderRadius: 2 }}
+                  onError={(e) => { e.target.style.display = "none"; }}
+                />
+              )}
+              {p}
+            </span>
+          );
+        })}
       </div>
     </Card>
   );
@@ -200,11 +219,11 @@ export function DimBadge({ dim, en }) {
 }
 
 /* ── COUNTRY FLAG + NAME ── */
-export function CountryLabel({ co, en, size = "sm" }) {
+export function CountryLabel({ co, en, size = "sm", alpha2 }) {
   const s = size === "lg" ? { flag: 24, name: 16 } : { flag: 16, name: 13 };
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-      <span style={{ fontSize: s.flag }}>{co.f}</span>
+      {alpha2 ? <Flag code={alpha2} size={s.flag} /> : <span style={{ fontSize: s.flag }}>{co.f}</span>}
       <span style={{ fontSize: s.name, fontWeight: 600 }}>{en ? co.e : co.n}</span>
     </span>
   );

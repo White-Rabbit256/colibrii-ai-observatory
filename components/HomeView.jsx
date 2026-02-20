@@ -2,8 +2,10 @@
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip } from "recharts";
-import { CO, DM, TIMELINE, PARTNERS, WEF_2026_RISKS, EOS_RISKS, INDICATOR_META, VIP_QUOTES, NEWS_CATEGORIES, COUNTRY_RATIONALE } from "./data";
-import { Card, SH, Stat, Tag, Ci, Lnk, Grid, AN, ScrollReveal, PartnerBar, MiniStat, fadeUp, stagger } from "./ui";
+import { CO, DM, TIMELINE, PARTNERS, WEF_2026_RISKS, EOS_RISKS, INDICATOR_META, VIP_QUOTES, COUNTRY_RATIONALE, A3_TO_A2, RADAR_RATIONALE } from "./data";
+import { Card, SH, Stat, Tag, Ci, Lnk, Grid, AN, ScrollReveal, PartnerBar, MiniStat, Flag, fadeUp, stagger } from "./ui";
+import { NewsSection } from "./NewsSection";
+import { TikTokSection } from "./TikTokEmbed";
 
 /* ═══════════════════════════════════════════════════════════════
    HOME VIEW v13 — Hero + Stats + Timeline + Radar + News
@@ -29,7 +31,7 @@ function WefDashboard({ en, t, dark }) {
             <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.rd, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>
               WEF GLOBAL RISKS 2026
             </div>
-            <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Fraunces',serif" }}>
+            <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "var(--font-display, 'Playfair Display', serif)" }}>
               {en ? "Risk Landscape — 3 Time Horizons" : "Panorama de Riesgos — 3 Horizontes"}
             </div>
           </div>
@@ -233,7 +235,7 @@ function VipQuotesReel({ en, t }) {
           <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>
             {en ? "VOICES ON AI" : "VOCES SOBRE AI"}
           </div>
-          <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Fraunces',serif" }}>
+          <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "var(--font-display, 'Playfair Display', serif)" }}>
             {en ? "What Global Leaders Are Saying" : "Qué Dicen los Líderes Globales"}
           </div>
         </div>
@@ -246,7 +248,24 @@ function VipQuotesReel({ en, t }) {
         {quotes.map((q, i) => (
           <div key={i} className="vip-card">
             {q.photo ? (
-              <img src={q.photo} alt={q.name} className="vip-avatar-img" style={{ width: 48, height: 48, borderRadius: "50%", objectFit: "cover", border: `2px solid ${t.bd}`, flexShrink: 0 }} onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }} />
+              <img
+  src={q.photo}
+  alt={q.name}
+  referrerPolicy="no-referrer"
+  crossOrigin="anonymous"
+  className="vip-avatar-img"
+  style={{ width: 48, height: 48, borderRadius: "50%", objectFit: "cover", border: `2px solid ${t.bd}`, flexShrink: 0 }}
+  onError={(e) => {
+    const bgColor = q.gradient?.match(/#([a-f0-9]{6})/i)?.[1] || '2563eb';
+    if (!e.target.dataset.fallback) {
+      e.target.dataset.fallback = "1";
+      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(q.name)}&size=128&background=${bgColor}&color=fff&bold=true&font-size=0.4`;
+    } else {
+      e.target.style.display = "none";
+      if (e.target.nextSibling) e.target.nextSibling.style.display = "flex";
+    }
+  }}
+/>
             ) : null}
             <div className="vip-avatar" style={{ background: q.gradient, display: q.photo ? "none" : "flex" }}>{q.initials}</div>
             <div className="vip-quote">{q.quote}</div>
@@ -270,7 +289,6 @@ function VipQuotesReel({ en, t }) {
 export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, setTab, onIndicatorClick }) {
   const TL = TIMELINE(en);
   const [tlOpen, setTlOpen] = useState(null);
-  const [newsFeed, setNewsFeed] = useState("cr");
 
   /* Radar data: CR vs Chile vs Singapore */
   const radarData = Object.entries(DM).map(([dk, d]) => ({
@@ -295,7 +313,7 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
                 {en ? "LIVE DATA" : "DATOS EN VIVO"}
               </span>
             </div>
-            <h1 style={{ fontSize: "clamp(28px, 5vw, 42px)", fontWeight: 900, fontFamily: "'Fraunces',serif", lineHeight: 1.15, marginBottom: 12 }}>
+            <h1 style={{ fontSize: "clamp(28px, 5vw, 42px)", fontWeight: 900, fontFamily: "var(--font-display, 'Playfair Display', serif)", lineHeight: 1.15, marginBottom: 12 }}>
               <span className="gradient-text">{en ? "AI Observatory" : "Observatorio AI"}</span>
               <br />
               <span style={{ color: t.tx }}>Costa Rica</span>
@@ -340,7 +358,7 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
               <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.or, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>
                 {en ? "COSTA RICA — EXECUTIVE VIEW" : "COSTA RICA — VISIÓN EJECUTIVA"}
               </div>
-              <div style={{ fontSize: 15, fontWeight: 700, fontFamily: "'Fraunces',serif" }}>
+              <div style={{ fontSize: 15, fontWeight: 700, fontFamily: "var(--font-display, 'Playfair Display', serif)" }}>
                 {en ? "What Business Leaders See vs. Global Experts" : "Qué Ven Líderes Empresariales vs. Expertos Globales"}
               </div>
             </div>
@@ -397,7 +415,7 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
           <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>
             {en ? "WEF & COSTA RICA" : "WEF Y COSTA RICA"}
           </div>
-          <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Fraunces',serif", marginBottom: 14 }}>
+          <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "var(--font-display, 'Playfair Display', serif)", marginBottom: 14 }}>
             {en ? "Costa Rica in the Global AI Context" : "Costa Rica en el Contexto AI Global"}
           </div>
           <Grid cols="1fr 1fr" gap={12}>
@@ -445,8 +463,8 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
           <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>
             CAPI-CR COMPOSITE
           </div>
-          <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Fraunces',serif", marginBottom: 16 }}>
-            🇨🇷 Costa Rica vs 🇨🇱 Chile vs 🇸🇬 Singapore
+          <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "var(--font-display, 'Playfair Display', serif)", marginBottom: 16, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+            <Flag code="CR" size={18} /> Costa Rica vs <Flag code="CL" size={18} /> Chile vs <Flag code="SG" size={18} /> Singapore
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="70%">
@@ -465,6 +483,18 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
             <span><span style={{ color: t.vi }}>●</span> Singapore</span>
           </div>
         </Card>
+        {/* ═══════ RADAR COMPARISON RATIONALE ═══════ */}
+        <Card style={{ marginBottom: 12, padding: "14px 18px", background: `${t.vi}04` }}>
+          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 8 }}>
+            {RADAR_RATIONALE(en).title}
+          </div>
+          {RADAR_RATIONALE(en).countries.map((c, i) => (
+            <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: i < 2 ? 10 : 0 }}>
+              <Flag code={A3_TO_A2[c.code]} size={18} style={{ marginTop: 2, flexShrink: 0 }} />
+              <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6, margin: 0 }}>{c.why}</p>
+            </div>
+          ))}
+        </Card>
       </ScrollReveal>
 
       {/* ═══════ COUNTRY SELECTION RATIONALE ═══════ */}
@@ -473,7 +503,7 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
           <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>
             {en ? "METHODOLOGY" : "METODOLOGÍA"}
           </div>
-          <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Fraunces',serif", marginBottom: 6, color: t.tx }}>
+          <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "var(--font-display, 'Playfair Display', serif)", marginBottom: 6, color: t.tx }}>
             {COUNTRY_RATIONALE(en).title}
           </div>
           <p style={{ fontSize: 13, color: t.tx2, lineHeight: 1.7, marginBottom: 16 }}>
@@ -485,8 +515,8 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
                 <div style={{ fontSize: 11, fontWeight: 700, color: g.color, marginBottom: 6, fontFamily: "'IBM Plex Mono',monospace" }}>{g.label}</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 8 }}>
                   {g.countries.map(cc => (
-                    <span key={cc} style={{ fontSize: 12, background: `${g.color}0a`, padding: "2px 6px", borderRadius: 4 }}>
-                      {CO[cc]?.f} {en ? CO[cc]?.e : CO[cc]?.n}
+                    <span key={cc} style={{ fontSize: 12, background: `${g.color}0a`, padding: "2px 6px", borderRadius: 4, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                      <Flag code={A3_TO_A2[cc]} size={14} /> {en ? CO[cc]?.e : CO[cc]?.n}
                     </span>
                   ))}
                 </div>
@@ -529,7 +559,7 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
               <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.cy, fontFamily: "'IBM Plex Mono',monospace" }}>
                 {en ? "LEADERBOARD" : "CLASIFICACIÓN"}
               </div>
-              <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Fraunces',serif" }}>Top 10</div>
+              <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "var(--font-display, 'Playfair Display', serif)" }}>Top 10</div>
             </div>
             <button onClick={() => setTab("idx")} style={{ fontSize: 12, border: `1px solid ${t.bd}`, borderRadius: 6, padding: "4px 12px", background: t.sf, color: t.cy, fontWeight: 600 }}>
               {en ? "Full Index" : "Índice Completo"} →
@@ -538,7 +568,7 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
           {board.slice(0, 10).map((c, i) => (
             <div key={c.code} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: i < 9 ? `1px solid ${t.bd}` : "none", background: c.code === "CRI" ? `${t.cy}06` : "transparent", borderRadius: c.code === "CRI" ? 6 : 0, padding: c.code === "CRI" ? "8px 10px" : "8px 0" }}>
               <span style={{ width: 22, fontSize: 12, fontWeight: 700, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", textAlign: "center" }}>{i + 1}</span>
-              <span style={{ fontSize: 16 }}>{c.f}</span>
+              <Flag code={A3_TO_A2[c.code]} size={20} />
               <span style={{ flex: 1, fontSize: 13, fontWeight: c.code === "CRI" ? 700 : 400, color: c.code === "CRI" ? t.cy : t.tx }}>{en ? c.e : c.n}</span>
               <span style={{ fontSize: 14, fontWeight: 700, fontFamily: "'IBM Plex Mono',monospace", color: c.composite >= 0.65 ? t.gn : c.composite >= 0.40 ? t.am : t.rd }}>
                 {c.composite != null ? (c.composite * 100).toFixed(1) : "—"}
@@ -554,7 +584,7 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
           <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>
             {en ? "AI GLOBAL TIMELINE" : "CRONOLOGÍA AI GLOBAL"}
           </div>
-          <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Fraunces',serif", marginBottom: 16 }}>
+          <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "var(--font-display, 'Playfair Display', serif)", marginBottom: 16 }}>
             {en ? "From ChatGPT to La Encrucijada" : "De ChatGPT a La Encrucijada"}
           </div>
           <div className="timeline-interactive">
@@ -571,7 +601,7 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.25 }} className="timeline-node-content">
                       <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.7, marginBottom: 8 }}>{m.d}</p>
                       <div style={{ fontSize: 11, color: m.c, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 6, padding: "6px 10px", background: `${m.c}08`, borderRadius: 6, borderLeft: `2px solid ${m.c}` }}>
-                        🇨🇷 CR: {m.cr}
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><Flag code="CR" size={14} /> CR:</span> {m.cr}
                       </div>
                       {m.src && (
                         <a href={m.src} target="_blank" rel="noopener noreferrer" className="timeline-source-btn">
@@ -590,52 +620,11 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
       {/* ═══════ DATA PARTNERS ═══════ */}
       <PartnerBar items={PARTNERS} en={en} />
 
-      {/* ═══════ AI NEWS — DUAL FEED ═══════ */}
-      {news.length > 0 && (
-        <ScrollReveal delay={150}>
-          <Card style={{ marginTop: 20 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4, flexWrap: "wrap", gap: 8 }}>
-              <div>
-                <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.pk, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>
-                  {en ? "AI NEWS FEED (72H)" : "FEED NOTICIAS AI (72H)"}
-                </div>
-                <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Fraunces',serif" }}>
-                  {en ? "Latest Intelligence" : "Inteligencia Reciente"}
-                </div>
-              </div>
-            </div>
-            <div className="news-tabs">
-              <button className={`news-tab ${newsFeed === "cr" ? "active" : ""}`} onClick={() => setNewsFeed("cr")}>{en ? "Costa Rica" : "Costa Rica"} 🇨🇷</button>
-              <button className={`news-tab ${newsFeed === "global" ? "active" : ""}`} onClick={() => setNewsFeed("global")}>{en ? "Global" : "Global"} 🌎</button>
-            </div>
-            <div className="news-grid">
-              {news.map((n, i) => {
-                const cat = n.title?.toLowerCase().includes("security") || n.title?.toLowerCase().includes("cyber") ? "security"
-                  : n.title?.toLowerCase().includes("regulat") || n.title?.toLowerCase().includes("law") || n.title?.toLowerCase().includes("policy") ? "policy"
-                  : n.title?.toLowerCase().includes("econom") || n.title?.toLowerCase().includes("invest") ? "economy"
-                  : n.title?.toLowerCase().includes("educat") || n.title?.toLowerCase().includes("universit") ? "education"
-                  : "tech";
-                const nc = NEWS_CATEGORIES[cat];
-                return (
-                  <a key={i} href={n.url} target="_blank" rel="noopener noreferrer" className="news-card">
-                    <div className="news-thumb" style={{ background: `linear-gradient(135deg, ${nc.color}20, ${nc.color}40)` }}>
-                      <span>{nc.icon}</span>
-                    </div>
-                    <div className="news-body">
-                      <div className="news-title">{n.title}</div>
-                      <div className="news-meta">{n.domain} · {n.seendate?.slice(0, 10)}</div>
-                      <div className="news-impact" style={{ background: `${t.cy}10`, color: t.cy }}>
-                        🇨🇷 {en ? "CR Impact" : "Impacto CR"}
-                      </div>
-                    </div>
-                  </a>
-                );
-              })}
-            </div>
-            <Ci s="GDELT Project API — 72h window" />
-          </Card>
-        </ScrollReveal>
-      )}
+      {/* ═══════ AI NEWS INTELLIGENCE ═══════ */}
+      {news.length > 0 && <NewsSection news={news} en={en} t={t} />}
+
+      {/* ═══════ VIDEO INTELLIGENCE — TIKTOK ═══════ */}
+      <TikTokSection en={en} t={t} />
     </div>
   );
 }

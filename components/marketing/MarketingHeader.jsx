@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Icon } from "../system/Icon";
+import { Flag } from "../ui";
 
 /* ═══════════════════════════════════════════════════════════════
    COLIBRII LABS — Marketing Header (Dark Editorial)
@@ -12,7 +13,7 @@ export function MarketingHeader({ en, setEn }) {
     <header className="mkt-header">
       <div className="mkt-header-inner">
         <div className="mkt-wordmark" style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 24, height: 24 }} />
+          <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 56, height: 56 }} />
           <span className="mkt-wordmark-text">Colibrii Labs</span>
         </div>
         <div className="mkt-header-actions">
@@ -21,7 +22,7 @@ export function MarketingHeader({ en, setEn }) {
             onClick={() => setEn(!en)}
             aria-label={en ? "Cambiar a español" : "Switch to English"}
           >
-            <span style={{ fontSize: 14 }}>{en ? "🇪🇸" : "🇬🇧"}</span>
+            <Flag code={en ? "CR" : "GB"} size={16} />
             <span>{en ? "ES" : "EN"}</span>
           </button>
           <Link href="/app" className="mkt-cta-button">

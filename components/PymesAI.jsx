@@ -94,8 +94,8 @@ export function Pymes({ en, t, dark }) {
           <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.cy, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 12 }}>
             {en ? "SUPPORT PROGRAMS & INSTITUTIONS" : "PROGRAMAS DE APOYO E INSTITUCIONES"}
           </div>
-          {data.programs.map((prog, i) => (
-            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: i < data.programs.length - 1 ? `1px solid ${t.bd}` : "none" }}>
+          {(data.programs.items || data.programs).map((prog, i) => (
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: i < (data.programs.items || data.programs).length - 1 ? `1px solid ${t.bd}` : "none" }}>
               <div style={{ flex: 1 }}>
                 <span style={{ fontSize: 14, fontWeight: 700, color: t.cy }}>
                   {prog.name}
@@ -136,7 +136,7 @@ export function Pymes({ en, t, dark }) {
           </div>
           <Grid cols="1fr 1fr 1fr" gap={10} style={{ marginBottom: 10 }}>
             <MiniStat label={en ? "AI adoption rate" : "Tasa adopción AI"} value="12%" color={t.rd} />
-            <MiniStat label={en ? "No digital strategy" : "Sin estrategia digital"} value="72%" color={t.am} />
+            <MiniStat label={en ? "No digital strategy" : "Sin estrategia digital"} value="72%" color={t.or} />
             <MiniStat label={en ? "SME GDP share" : "PYMES % PIB"} value="33%" color={t.gn} />
           </Grid>
           <p style={{ fontSize: 12, color: t.tx3, lineHeight: 1.7, fontStyle: "italic" }}>

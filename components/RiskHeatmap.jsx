@@ -30,7 +30,7 @@ export function RiskHeatmap({ idx, board, en, t }) {
       <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>
         {en ? "RISK HEATMAP" : "MAPA DE CALOR DE RIESGO"}
       </div>
-      <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Fraunces',serif", marginBottom: 16, color: t.tx }}>
+      <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "var(--font-display, 'Playfair Display', serif)", marginBottom: 16, color: t.tx }}>
         {en ? "Dimension Scores by Country" : "Puntajes por Dimensión y País"}
       </div>
 

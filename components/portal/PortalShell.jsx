@@ -12,13 +12,14 @@ import { Algo, SecTab, Leg } from "../AlgoSecurityLeg";
 import { Edu, Glos, Abt } from "../EduGlossaryAbout";
 import { Pymes } from "../PymesAI";
 import { PortalSidebar } from "./PortalSidebar";
+import { BottomNav } from "./BottomNav";
 import { IndicatorDrawer } from "./IndicatorDrawer";
 import { Icon } from "../system/Icon";
 import { FACTS } from "../../data/facts";
 
 /* ═══════════════════════════════════════════════════════════════
-   COLIBRII LABS — Portal Shell v14
-   Sidebar navigation · Indicator drawer · 13 tabs · 4 APIs
+   COLIBRII LABS — Portal Shell v17
+   Sidebar navigation · Indicator drawer · 14 tabs · 4 APIs
    Refactored from Portal.jsx — ALL state/API logic preserved
    ═══════════════════════════════════════════════════════════════ */
 
@@ -43,6 +44,7 @@ export default function PortalShell() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerIndicator, setDrawerIndicator] = useState(null);
+  const [selectedCountry, setSelectedCountry] = useState(null);
 
   /* ── THEME TOKENS ── */
   const t = dark ? TH_DARK : TH;
@@ -64,6 +66,11 @@ export default function PortalShell() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  /* ── SCROLL RESET ON TAB CHANGE ── */
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [tab]);
 
   /* ── API FETCHING (preserved exactly from Portal.jsx) ── */
   const fetchWB = useCallback(async () => {
@@ -151,8 +158,9 @@ export default function PortalShell() {
   /* ── TAB PROPS ── */
   const tp = useMemo(() => ({
     en, t, idx, crS, crR, board, news, loading, xr, govData, dark, setTab,
+    selectedCountry, setSelectedCountry,
     onIndicatorClick: (indicator) => { setDrawerIndicator(indicator); setDrawerOpen(true); }
-  }), [en, t, idx, crS, crR, board, news, loading, xr, govData, dark]);
+  }), [en, t, idx, crS, crR, board, news, loading, xr, govData, dark, selectedCountry]);
 
   /* ── RENDER TAB ── */
   const renderTab = () => {
@@ -218,8 +226,8 @@ export default function PortalShell() {
             <Icon name="menu" size={20} color={t.tx2} />
           </button>
           <div className="portal-mobile-title" style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 20, height: 20 }} />
-            <span style={{ fontWeight: 800, fontFamily: "'Fraunces',serif", fontSize: 14, color: t.tx }}>Colibrii Labs</span>
+            <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 32, height: 32 }} />
+            <span style={{ fontWeight: 800, fontFamily: "var(--font-display, 'Playfair Display', serif)", fontSize: 14, color: t.tx }}>Colibrii Labs</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             {xr && (
@@ -262,6 +270,9 @@ export default function PortalShell() {
             {en ? "Data from public international sources · Observatory analysis © 2026 Colibrii Labs · CC BY-NC 4.0" : "Datos de fuentes internacionales públicas · Análisis observatorio © 2026 Colibrii Labs · CC BY-NC 4.0"}
           </p>
         </footer>
+
+        {/* ── MOBILE BOTTOM NAV ── */}
+        <BottomNav tab={tab} setTab={setTab} en={en} t={t} onMoreClick={() => setMobileNav(true)} />
       </div>
 
       {/* ── INDICATOR DRAWER ── */}

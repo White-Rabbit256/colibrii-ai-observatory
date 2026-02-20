@@ -38,7 +38,7 @@ export function IndicatorDrawer({ open, onClose, indicator, en, t }) {
           >
             {/* Header */}
             <div className="indicator-drawer-header">
-              <h3 style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Fraunces',serif", color: t.tx }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, fontFamily: "var(--font-display, 'Playfair Display', serif)", color: t.tx }}>
                 {en ? indicator.name : (indicator.nameEs || indicator.name)}
               </h3>
               <button

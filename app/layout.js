@@ -1,6 +1,6 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
-import { Fraunces } from "next/font/google";
+import { Playfair_Display } from "next/font/google";
 import { IBM_Plex_Mono } from "next/font/google";
 
 const inter = Inter({
@@ -8,10 +8,10 @@ const inter = Inter({
   variable: "--font-inter",
   display: "swap",
 });
-const fraunces = Fraunces({
+const playfair = Playfair_Display({
   subsets: ["latin"],
-  variable: "--font-fraunces",
-  weight: ["700", "800", "900"],
+  variable: "--font-display",
+  weight: ["400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
 const ibmPlexMono = IBM_Plex_Mono({
@@ -154,7 +154,7 @@ export default function RootLayout({ children }) {
         <link rel="alternate" type="application/rss+xml" title="Colibrii Labs AI Observatory RSS" href="/api/rss" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>
-      <body className={`${inter.variable} ${fraunces.variable} ${ibmPlexMono.variable}`}>
+      <body className={`${inter.variable} ${playfair.variable} ${ibmPlexMono.variable}`}>
         {children}
       </body>
     </html>

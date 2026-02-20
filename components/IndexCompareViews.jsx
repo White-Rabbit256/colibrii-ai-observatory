@@ -11,7 +11,7 @@ import { RiskHeatmap } from "./RiskHeatmap";
    INDEX VIEW v13 — Full CAPI-CR leaderboard + dimension breakdown
    ═══════════════════════════════════════════════════════════════ */
 
-export function Idx({ en, t, idx, board, dark }) {
+export function Idx({ en, t, idx, board, dark, setTab, setSelectedCountry }) {
   const [region, setRegion] = useState("all");
   const regions = ["all", "latam", "asia", "eu"];
   const regionLabel = { all: en ? "All" : "Todos", latam: "LATAM", asia: "Asia", eu: "Europe" };
@@ -85,7 +85,10 @@ export function Idx({ en, t, idx, board, dark }) {
       {/* World Map */}
       <ScrollReveal>
         <div style={{ marginBottom: 24 }}>
-          <WorldMapMini idx={idx} en={en} t={t} dark={dark} />
+          <WorldMapMini idx={idx} en={en} t={t} dark={dark} onCountryClick={(code) => {
+            if (setSelectedCountry) setSelectedCountry(code);
+            if (setTab) setTab("countries");
+          }} />
         </div>
       </ScrollReveal>
 

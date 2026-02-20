@@ -2,6 +2,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { TABS } from "../data";
 import { Icon } from "../system/Icon";
+import { Flag } from "../ui";
 import { FACTS } from "../../data/facts";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -23,9 +24,9 @@ export function PortalSidebar({ tab, setTab, en, setEn, dark, setDark, t, mobile
     <div className="portal-sidebar-content">
       {/* Logo */}
       <div className="portal-sidebar-logo" onClick={() => { setTab("home"); setMobileOpen?.(false); }}>
-        <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 28, height: 28, flexShrink: 0 }} />
+        <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 40, height: 40, flexShrink: 0 }} />
         <div>
-          <div style={{ fontSize: 14, fontWeight: 800, fontFamily: "'Fraunces',serif", color: t.tx }}>Colibrii Labs</div>
+          <div style={{ fontSize: 14, fontWeight: 800, fontFamily: "var(--font-display, 'Playfair Display', serif)", color: t.tx }}>Colibrii Labs</div>
           <div style={{ fontSize: 8, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", letterSpacing: 1.5 }}>
             {FACTS.tagline.toUpperCase()}
           </div>
@@ -73,7 +74,7 @@ export function PortalSidebar({ tab, setTab, en, setEn, dark, setDark, t, mobile
           onClick={() => setEn(!en)}
           aria-label={en ? "Switch to Spanish" : "Cambiar a inglés"}
         >
-          <span style={{ fontSize: 14 }}>{en ? "🇪🇸" : "🇬🇧"}</span>
+          <Flag code={en ? "CR" : "GB"} size={16} />
           <span>{en ? "ES" : "EN"}</span>
         </button>
       </div>

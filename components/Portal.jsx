@@ -198,7 +198,7 @@ export default function Portal() {
               <span style={{ fontSize: 14, filter: "brightness(10)" }}>◈</span>
             </div>
             <div>
-              <div style={{ fontSize: 15, fontWeight: 800, fontFamily: "'Fraunces',serif", color: t.tx }}>Colibrii Labs</div>
+              <div style={{ fontSize: 15, fontWeight: 800, fontFamily: "var(--font-display, 'Playfair Display', serif)", color: t.tx }}>Colibrii Labs</div>
               <div style={{ fontSize: 9, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", letterSpacing: 1 }}>AI OBSERVATORY</div>
             </div>
           </div>
@@ -252,7 +252,7 @@ export default function Portal() {
             <motion.div className="mobile-nav-panel" initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 300 }}>
               <div style={{ padding: 20 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                  <span style={{ fontWeight: 700, fontFamily: "'Fraunces',serif", fontSize: 16 }}>Colibrii Labs</span>
+                  <span style={{ fontWeight: 700, fontFamily: "var(--font-display, 'Playfair Display', serif)", fontSize: 16 }}>Colibrii Labs</span>
                   <button onClick={() => setMobileNav(false)} style={{ border: "none", background: "transparent", fontSize: 20, color: t.tx2 }}>✕</button>
                 </div>
                 {TABS.map(t2 => (

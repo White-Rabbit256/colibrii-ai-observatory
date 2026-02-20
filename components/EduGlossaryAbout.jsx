@@ -29,7 +29,7 @@ export function Edu({ en, t }) {
       <ScrollReveal delay={50}>
         <div style={{ marginBottom: 20, padding: 18, borderRadius: 12, background: `${t.gn}06`, border: `1px solid ${t.gn}22`, textAlign: "center" }}>
           <div style={{ fontSize: 18, marginBottom: 4 }}>🏆</div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: t.gn, fontFamily: "'Fraunces',serif" }}>
+          <div style={{ fontSize: 16, fontWeight: 700, color: t.gn, fontFamily: "var(--font-display, 'Playfair Display', serif)" }}>
             {en ? "FIRST IN CENTRAL AMERICA" : "PRIMERO EN CENTROAMÉRICA"}
           </div>
           <p style={{ fontSize: 13, color: t.tx2, marginTop: 6 }}>{en ? "CR formalized AI as a secondary school specialization (MEP-Intel, 2022). Now 14+ schools. MICITT + Cisco + U. Latina free AI courses: 4,000 enrolled month 1. WEF: 59% of workers need reskilling by 2030." : "CR formalizó AI como especialidad secundaria (MEP-Intel, 2022). Ahora 14+ escuelas. MICITT + Cisco + U. Latina cursos AI gratis: 4,000 inscritos mes 1. WEF: 59% trabajadores necesitan recapacitación para 2030."}</p>
@@ -216,7 +216,7 @@ export function Abt({ en, t }) {
 
       {/* ── 2. Expanded Founder Card ── */}
       <Card d={0.05} accent={t.cy} style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Fraunces',serif", marginBottom: 4 }}>Andrés Alpízar</div>
+        <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "var(--font-display, 'Playfair Display', serif)", marginBottom: 4 }}>Andrés Alpízar</div>
         <div style={{ fontSize: 12, color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>Founder · Colibrii Labs · Agile Intelligence</div>
         <div style={{ fontSize: 13, color: t.tx2, marginBottom: 10, lineHeight: 1.8 }}>
           {en

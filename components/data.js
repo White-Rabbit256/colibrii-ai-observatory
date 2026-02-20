@@ -11,6 +11,7 @@ export const TH = {
   tx: "#0f172a", tx2: "#475569", tx3: "#94a3b8",
   cy: "#2563eb", vi: "#6366f1", pk: "#ec4899", am: "#f59e0b",
   rd: "#ef4444", gn: "#10b981", or: "#f97316",
+  navy: "#1a365d", gd: "#c9a84c",
   cardBg: "#ffffff",
   cardShadow: "0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03)",
   cardShadowHover: "0 4px 24px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)",
@@ -98,6 +99,15 @@ export const COUNTRY_RATIONALE = (en) => ({
       why: en ? "Similar sector profiles in electronics, medical devices, and light manufacturing. Competing for the same FDI in an era where AI-driven automation reshapes manufacturing location decisions."
              : "Perfiles sectoriales similares en electrónica, dispositivos médicos y manufactura ligera. Compitiendo por la misma IED en una era donde la automatización impulsada por AI redefine las decisiones de ubicación manufacturera."
     }
+  ]
+});
+
+export const RADAR_RATIONALE = (en) => ({
+  title: en ? "Why These Three Countries?" : "¿Por Qué Estos Tres Países?",
+  countries: [
+    { code: "CRI", why: en ? "Subject country — Costa Rica is the focus of this observatory. Its CAPI-CR composite score reveals specific strengths (digital infrastructure, energy) and gaps (regulation, security) that inform policy recommendations." : "País sujeto — Costa Rica es el foco de este observatorio. Su puntaje compuesto CAPI-CR revela fortalezas específicas (infraestructura digital, energía) y brechas (regulación, seguridad) que informan recomendaciones de política." },
+    { code: "CHL", why: en ? "Best-in-class LATAM peer — Chile ranks #1 in Latin America for AI readiness (Oxford Insights 2024), has completed its UNESCO RAM assessment, and enacted South America's first comprehensive data protection reform. It represents the achievable benchmark for Costa Rica." : "Mejor par LATAM — Chile es #1 en América Latina en preparación AI (Oxford Insights 2024), completó su evaluación RAM UNESCO, y promulgó la primera reforma integral de protección de datos de Sudamérica. Representa el benchmark alcanzable para Costa Rica." },
+    { code: "SGP", why: en ? "Global gold standard — Singapore ranks #1 globally in AI readiness, with binding AI governance frameworks (AICA), world-class talent pipeline, and $1B+ AI investment. It represents the aspirational target and provides proven policy models that small economies can adapt." : "Estándar de oro global — Singapur es #1 global en preparación AI, con marcos de gobernanza AI vinculantes (AICA), pipeline de talento de clase mundial, e inversión AI de $1B+. Representa el objetivo aspiracional y provee modelos de política probados que economías pequeñas pueden adaptar." }
   ]
 });
 
@@ -912,18 +922,29 @@ export const LAWS = (en) => [
 
 // ── CR CHECKLIST (11 items — 8 from v12 + 3 NEW from v9.5 spec) ──
 export const CHECKLIST = (en) => [
-  { i: en ? "Binding AI law" : "Ley AI vinculante", d: false, p: en ? "CRITICAL" : "CRÍTICA" },
-  { i: en ? "Data Protection Law reform" : "Reforma Ley Protección Datos", d: false, p: en ? "CRITICAL" : "CRÍTICA" },
-  { i: en ? "AI authority (PRODHAB)" : "Autoridad AI (PRODHAB)", d: false, p: en ? "CRITICAL" : "CRÍTICA" },
-  { i: en ? "Algorithmic impact assessments" : "Evaluaciones impacto algorítmico", d: false, p: en ? "HIGH" : "ALTA" },
-  { i: en ? "Anti-disinformation framework (post-2026 elections)" : "Marco anti-desinformación (post-elecciones 2026)", d: false, p: en ? "URGENT" : "URGENTE" },
-  { i: en ? "National AI Strategy (ENIA)" : "Estrategia Nacional AI (ENIA)", d: true, p: "✅" },
-  { i: en ? "UNESCO RAM completion" : "Completar RAM UNESCO", d: false, p: en ? "MEDIUM" : "MEDIA" },
-  { i: en ? "Regulatory sandbox" : "Sandbox regulatorio", d: false, p: en ? "MEDIUM" : "MEDIA" },
+  { i: en ? "Binding AI law" : "Ley AI vinculante", d: false, p: en ? "CRITICAL" : "CRÍTICA",
+    desc: en ? "Costa Rica needs a comprehensive, binding AI law that establishes mandatory algorithmic impact assessments for public-sector AI, creates transparency requirements, defines liability frameworks, and designates a regulatory authority. The EU AI Act (2024) and South Korea's AI Framework Act (2025) provide models. Bill 23771 is in committee but lacks enforcement teeth." : "Costa Rica necesita una ley AI integral y vinculante que establezca evaluaciones obligatorias de impacto algorítmico para AI del sector público, cree requisitos de transparencia, defina marcos de responsabilidad y designe una autoridad regulatoria. El EU AI Act (2024) y la Ley Marco AI de Corea del Sur (2025) proveen modelos. El Proyecto 23771 está en comisión pero carece de dientes de aplicación." },
+  { i: en ? "Data Protection Law reform" : "Reforma Ley Protección Datos", d: false, p: en ? "CRITICAL" : "CRÍTICA",
+    desc: en ? "Costa Rica's data protection framework (Law 8968, 2011) predates modern AI. It needs reform to address: algorithmic profiling, automated decision-making rights, AI training data governance, cross-border data flows for AI processing, and GDPR adequacy determination (critical for EU AI Act compliance by free zone companies)." : "El marco de protección de datos de CR (Ley 8968, 2011) es anterior a la AI moderna. Necesita reforma para abordar: perfilamiento algorítmico, derechos de decisión automatizada, gobernanza de datos de entrenamiento AI, flujos transfronterizos de datos para procesamiento AI, y determinación de adecuación GDPR (crítico para cumplimiento EU AI Act por empresas de zona franca)." },
+  { i: en ? "AI authority (PRODHAB)" : "Autoridad AI (PRODHAB)", d: false, p: en ? "CRITICAL" : "CRÍTICA",
+    desc: en ? "PRODHAB (data protection agency) currently lacks the mandate, budget, and technical expertise to regulate AI. Options: expand PRODHAB's mandate with dedicated AI unit (lowest cost), create a new AI authority under MICITT (most independent), or establish a multi-stakeholder AI council with binding powers (Singapore AICA model)." : "PRODHAB (agencia de protección de datos) actualmente carece del mandato, presupuesto y expertise técnico para regular AI. Opciones: expandir mandato de PRODHAB con unidad AI dedicada (menor costo), crear nueva autoridad AI bajo MICITT (más independiente), o establecer consejo AI multiactores con poderes vinculantes (modelo AICA de Singapur)." },
+  { i: en ? "Algorithmic impact assessments" : "Evaluaciones impacto algorítmico", d: false, p: en ? "HIGH" : "ALTA",
+    desc: en ? "Mandatory pre-deployment assessments for AI systems used in high-risk contexts: criminal justice, healthcare, education, employment, immigration, and financial services. Canada's Algorithmic Impact Assessment Tool and the EU's conformity assessments provide frameworks. Costa Rica should start with public sector and extend to private sector for high-risk uses." : "Evaluaciones obligatorias pre-despliegue para sistemas AI usados en contextos de alto riesgo: justicia penal, salud, educación, empleo, inmigración y servicios financieros. La Herramienta de Evaluación de Impacto Algorítmico de Canadá y las evaluaciones de conformidad de la UE proveen marcos. CR debería comenzar con sector público y extender al sector privado para usos de alto riesgo." },
+  { i: en ? "Anti-disinformation framework (post-2026 elections)" : "Marco anti-desinformación (post-elecciones 2026)", d: false, p: en ? "URGENT" : "URGENTE",
+    desc: en ? "AI-generated deepfakes and synthetic media pose immediate risks to Costa Rica's 2026 elections. Needed: mandatory labeling of AI-generated content in political advertising, platform accountability requirements, rapid-response fact-checking infrastructure, and digital literacy campaigns. Brazil and the EU have enacted emergency measures." : "Deepfakes generados por AI y medios sintéticos representan riesgos inmediatos para las elecciones de CR 2026. Se necesita: etiquetado obligatorio de contenido generado por AI en publicidad política, requisitos de responsabilidad de plataformas, infraestructura de verificación de hechos de respuesta rápida, y campañas de alfabetización digital. Brasil y la UE han promulgado medidas de emergencia." },
+  { i: en ? "National AI Strategy (ENIA)" : "Estrategia Nacional AI (ENIA)", d: true, p: "✅",
+    desc: en ? "Costa Rica launched its National AI Strategy (ENIA) achieving a perfect 100/100 on Oxford Insights' AI Vision score. However, the strategy lacks binding enforcement mechanisms, budget allocations, and specific timelines. The gap between vision and execution is Costa Rica's primary vulnerability — Singapore and Estonia both coupled strategy with immediate legislative action." : "CR lanzó su Estrategia Nacional AI (ENIA) logrando un perfecto 100/100 en el puntaje de Visión AI de Oxford Insights. Sin embargo, la estrategia carece de mecanismos de aplicación vinculantes, asignaciones presupuestarias y cronogramas específicos. La brecha entre visión y ejecución es la vulnerabilidad primaria de CR — Singapur y Estonia acoplaron estrategia con acción legislativa inmediata." },
+  { i: en ? "UNESCO RAM completion" : "Completar RAM UNESCO", d: false, p: en ? "MEDIUM" : "MEDIA",
+    desc: en ? "The UNESCO Readiness Assessment Methodology (RAM) provides a structured framework for countries to evaluate their AI preparedness across ethical, legal, technical, and social dimensions. Chile completed its RAM in 2023, gaining credibility and international benchmarking data. CR should complete its assessment to build evidence for legislative action." : "La Metodología de Evaluación de Preparación (RAM) de UNESCO provee un marco estructurado para que los países evalúen su preparación AI en dimensiones éticas, legales, técnicas y sociales. Chile completó su RAM en 2023, ganando credibilidad y datos de benchmarking internacional. CR debería completar su evaluación para construir evidencia para acción legislativa." },
+  { i: en ? "Regulatory sandbox" : "Sandbox regulatorio", d: false, p: en ? "MEDIUM" : "MEDIA",
+    desc: en ? "A regulatory sandbox allows AI companies to test innovations in a controlled environment with relaxed regulations. Singapore's AI Governance Testing Framework and the UK's FCA sandbox are models. For CR, this would let free zone companies test AI deployments under government oversight without full compliance burden, accelerating innovation while maintaining safety." : "Un sandbox regulatorio permite a empresas AI probar innovaciones en un ambiente controlado con regulaciones relajadas. El Marco de Pruebas de Gobernanza AI de Singapur y el sandbox FCA del Reino Unido son modelos. Para CR, esto permitiría a empresas de zona franca probar despliegues AI bajo supervisión gubernamental sin carga de cumplimiento completa, acelerando innovación manteniendo seguridad." },
   // 3 NEW checklist items from v9.5 spec
-  { i: en ? "Bill 23771 (AI Regulation)" : "Proyecto 23771 (Regulación AI)", d: false, p: en ? "IN COMMITTEE" : "EN COMISIÓN" },
-  { i: en ? "OECD AI Policy indexed" : "Política AI OCDE indexada", d: true, p: "✅" },
-  { i: en ? "AI Center of Excellence" : "Centro Excelencia AI", d: false, p: en ? "PLANNED" : "PLANIFICADO" }
+  { i: en ? "Bill 23771 (AI Regulation)" : "Proyecto 23771 (Regulación AI)", d: false, p: en ? "IN COMMITTEE" : "EN COMISIÓN",
+    desc: en ? "Legislative bill 23771 on AI regulation is currently in the Science, Technology, and Education Committee of the Legislative Assembly. The bill proposes basic AI transparency requirements and a regulatory framework, but critics note it lacks enforcement mechanisms, doesn't address algorithmic bias, and has no provisions for high-risk AI systems classification." : "El proyecto de ley 23771 sobre regulación AI está actualmente en la Comisión de Ciencia, Tecnología y Educación de la Asamblea Legislativa. El proyecto propone requisitos básicos de transparencia AI y un marco regulatorio, pero críticos señalan que carece de mecanismos de aplicación, no aborda sesgo algorítmico, y no tiene provisiones para clasificación de sistemas AI de alto riesgo." },
+  { i: en ? "OECD AI Policy indexed" : "Política AI OCDE indexada", d: true, p: "✅",
+    desc: en ? "Costa Rica's AI policies are indexed in the OECD AI Policy Observatory, which tracks AI initiatives across member countries. This provides international visibility and benchmarking. CR is one of only 2 Central American countries indexed (along with Panama), giving it a credibility advantage in attracting AI-related FDI." : "Las políticas AI de CR están indexadas en el Observatorio de Políticas AI de la OCDE, que rastrea iniciativas AI en países miembros. Esto provee visibilidad internacional y benchmarking. CR es uno de solo 2 países centroamericanos indexados (junto con Panamá), dándole una ventaja de credibilidad en atraer IED relacionada con AI." },
+  { i: en ? "AI Center of Excellence" : "Centro Excelencia AI", d: false, p: en ? "PLANNED" : "PLANIFICADO",
+    desc: en ? "A proposed center to coordinate AI research, policy, and industry collaboration. Would serve as: technical advisory body for government AI deployments, certification authority for AI professionals, sandbox operator, and international liaison. South Korea's KAIST AI Graduate School and Estonia's AI Center provide models. Requires ~$5M initial investment." : "Un centro propuesto para coordinar investigación AI, política y colaboración con la industria. Serviría como: cuerpo asesor técnico para despliegues AI gubernamentales, autoridad certificadora para profesionales AI, operador de sandbox, y enlace internacional. La Escuela de Posgrado AI KAIST de Corea del Sur y el Centro AI de Estonia proveen modelos. Requiere ~$5M de inversión inicial." }
 ];
 
 // ── API SOURCES (10+ — merged from both versions) ──
@@ -1380,3 +1401,88 @@ export const A3_TO_A2 = {
   MEX: "MX", ARG: "AR", PER: "PE", DOM: "DO", VNM: "VN", PHL: "PH",
   MYS: "MY", IDN: "ID"
 };
+
+// ── TIKTOK VIDEO EMBEDS ──
+export const TIKTOK_VIDEOS = [
+  { id: "7593331161951259936", user: "worldeconomicforum", label: { en: "WEF: AI & Jobs", es: "WEF: AI y Empleos" } },
+  { id: "7606175085619105037", user: "cnn", label: { en: "CNN: AI Revolution", es: "CNN: Revolución AI" } },
+  { id: "7600087754709519649", user: "worldeconomicforum", label: { en: "WEF: Future of Work", es: "WEF: Futuro del Trabajo" } },
+  { id: "7463218989410372896", user: "worldeconomicforum", label: { en: "WEF: AI Governance", es: "WEF: Gobernanza AI" } },
+  { id: "7581910079994072342", user: "cnbci", label: { en: "CNBC: AI Investment", es: "CNBC: Inversión en AI" } },
+];
+export const COLIBRII_TIKTOK = "@colibrii.labs";
+
+// ── PARTNER LOGOS (Clearbit domain mapping) ──
+export const PARTNER_LOGOS = {
+  "World Bank": "worldbank.org",
+  "WEF": "weforum.org",
+  "IMF": "imf.org",
+  "OECD": "oecd.org",
+  "Oxford Insights": "oxfordinsights.com",
+  "Stanford HAI": "stanford.edu",
+  "OWASP": "owasp.org",
+  "ILO": "ilo.org",
+  "UNDP": "undp.org",
+  "UNESCO": "unesco.org",
+  "PROCOMER": "procomer.com",
+  "CINDE": "cinde.org",
+  "Goldman Sachs": "goldmansachs.com",
+  "Transparency Int'l": "transparency.org",
+  "Freedom House": "freedomhouse.org",
+  "IEP": "visionofhumanity.org",
+  "UNCTAD": "unctad.org",
+  "IDB": "iadb.org",
+  "Deloitte": "deloitte.com",
+  "McKinsey": "mckinsey.com",
+  "Bank of America": "bankofamerica.com",
+  "FAO": "fao.org",
+  "WHO": "who.int",
+  "IFR": "ifr.org",
+  "GDELT": "gdeltproject.org",
+};
+
+// ── NEWS SOURCES CONFIG ──
+export const NEWS_SOURCES = {
+  cr: [
+    { name: "CRHoy", domain: "crhoy.com", color: "#ef4444" },
+    { name: "La Nación", domain: "nacion.com", color: "#2563eb" },
+    { name: "El Financiero", domain: "elfinancierocr.com", color: "#10b981" },
+    { name: "Amelia Rueda", domain: "ameliarueda.com", color: "#8b5cf6" },
+  ],
+  intl: [
+    { name: "MIT Tech Review", domain: "technologyreview.com", color: "#ef4444" },
+    { name: "TechCrunch", domain: "techcrunch.com", color: "#10b981" },
+    { name: "Wired", domain: "wired.com", color: "#000000" },
+    { name: "The Verge", domain: "theverge.com", color: "#ec4899" },
+    { name: "VentureBeat", domain: "venturebeat.com", color: "#6366f1" },
+  ],
+};
+
+// ── AI OVERPERFORMER CONTEXT (bilingual) ──
+export const AI_OVERPERFORMER_CONTEXT = (en) => ({
+  title: en ? "Why AI Overperformer?" : "¿Por qué AI Overperformer?",
+  source: "World Bank — Artificial Intelligence and the Economy (2024)",
+  explanation: en
+    ? "The World Bank classifies countries as AI Overperformers when their AI readiness scores exceed predictions based on GDP per capita. Costa Rica is 1 of only 7 upper-middle-income countries (UMICs) globally that outperform expectations — achieving more AI-related outcomes (digital infrastructure, talent pipeline, policy vision) than its economic development level would predict."
+    : "El Banco Mundial clasifica países como AI Overperformer cuando sus puntajes de preparación AI superan las predicciones basadas en PIB per cápita. Costa Rica es 1 de solo 7 países de ingreso medio-alto (PIMA) globalmente que superan expectativas — logrando más resultados relacionados con AI (infraestructura digital, pipeline de talento, visión política) de lo que su nivel de desarrollo económico predeciría.",
+  peers: en
+    ? ["Costa Rica", "Malaysia", "Indonesia", "Vietnam"]
+    : ["Costa Rica", "Malasia", "Indonesia", "Vietnam"],
+  keyFactors: en
+    ? [
+        "99% renewable electricity — one of the greenest grids on Earth",
+        "OECD member since 2021 — institutional credibility",
+        "Oxford Insights: 100/100 Government AI Vision score",
+        "Record $4.3B FDI in 2024 — tech sector leading",
+        "75+ years of uninterrupted democracy",
+        "Universal healthcare & education — strong human capital base",
+      ]
+    : [
+        "99% electricidad renovable — una de las redes más verdes del planeta",
+        "Miembro OCDE desde 2021 — credibilidad institucional",
+        "Oxford Insights: 100/100 en Visión de AI gubernamental",
+        "Récord de $4.3B IED en 2024 — sector tech liderando",
+        "75+ años de democracia ininterrumpida",
+        "Salud y educación universal — base sólida de capital humano",
+      ],
+});

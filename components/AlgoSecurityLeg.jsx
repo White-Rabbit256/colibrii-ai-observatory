@@ -18,7 +18,7 @@ export function Algo({ en, t }) {
         <Card key={i} d={0.06 + i * 0.04} accent={a.c} style={{ marginBottom: 12 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
             <div>
-              <span style={{ fontSize: 18, fontWeight: 700, color: a.c, fontFamily: "'Fraunces',serif" }}>{a.nm}</span>
+              <span style={{ fontSize: 18, fontWeight: 700, color: a.c, fontFamily: "var(--font-display, 'Playfair Display', serif)" }}>{a.nm}</span>
               <span style={{ fontSize: 13, color: t.tx2, marginLeft: 10 }}>{a.full}</span>
             </div>
             <Tag color={a.c}>{a.st}</Tag>
@@ -161,7 +161,7 @@ export function SecTab({ en, t }) {
         <Grid cols="repeat(auto-fit,minmax(240px,1fr))" gap={10}>
           {SEC_DEEP(en).useCases.map((uc, i) => (
             <div key={i} style={{ padding: 14, background: t.sf, borderRadius: 8, borderTop: `3px solid ${t.cy}` }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: t.tx, marginBottom: 8, fontFamily: "'Fraunces',serif" }}>{uc.sector}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: t.tx, marginBottom: 8, fontFamily: "var(--font-display, 'Playfair Display', serif)" }}>{uc.sector}</div>
               {uc.examples.map((ex, j) => (
                 <div key={j} style={{ fontSize: 12, color: t.tx2, padding: "4px 0 4px 12px", borderLeft: `2px solid ${t.bd}`, marginBottom: 4, lineHeight: 1.6 }}>{ex}</div>
               ))}
@@ -280,6 +280,7 @@ export function Leg({ en, t }) {
   const L = LAWS(en);
   const CK = CHECKLIST(en);
   const [expandedLaw, setExpandedLaw] = useState(null);
+  const [openCheck, setOpenCheck] = useState(null);
 
   return (
     <div>
@@ -288,7 +289,7 @@ export function Leg({ en, t }) {
       {L.map((l, i) => (
         <Card key={i} d={i * 0.05} accent={l.sc} style={{ marginBottom: 12 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-            <span style={{ fontSize: 18, fontWeight: 700, fontFamily: "'Fraunces',serif" }}>{l.f} {l.n}</span>
+            <span style={{ fontSize: 18, fontWeight: 700, fontFamily: "var(--font-display, 'Playfair Display', serif)" }}>{l.f} {l.n}</span>
             <Tag color={l.sc}>{l.st}</Tag>
           </div>
           <p style={{ fontSize: 13, color: t.tx2, lineHeight: 1.7, marginBottom: 10 }}>{l.desc}</p>
@@ -402,12 +403,37 @@ export function Leg({ en, t }) {
           {en ? "CR READINESS CHECKLIST" : "CHECKLIST PREPARACIÓN CR"} ({CK.length} {en ? "items" : "ítems"})
         </div>
         {CK.map((c, j) => (
-          <div key={j} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${t.bd}` }}>
-            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <span>{c.d ? "✅" : "⬜"}</span>
-              <span style={{ fontSize: 13, color: c.d ? t.gn : t.tx }}>{c.i}</span>
+          <div key={j} style={{ borderBottom: `1px solid ${t.bd}` }}>
+            <div
+              onClick={() => setOpenCheck(openCheck === j ? null : j)}
+              style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", cursor: "pointer", userSelect: "none" }}
+            >
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <span>{c.d ? "✅" : "⬜"}</span>
+                <span style={{ fontSize: 13, color: c.d ? t.gn : t.tx }}>{c.i}</span>
+                <motion.span
+                  animate={{ rotate: openCheck === j ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                  style={{ fontSize: 11, color: t.tx3, lineHeight: 1 }}
+                >
+                  ▾
+                </motion.span>
+              </div>
+              <span style={{ fontSize: 10, fontFamily: "'IBM Plex Mono',monospace", color: c.p.includes("CRIT") || c.p.includes("CRÍTICA") ? t.rd : c.p.includes("URG") ? t.or : c.p.includes("HIGH") || c.p.includes("ALTA") ? t.am : t.gn }}>{c.p}</span>
             </div>
-            <span style={{ fontSize: 10, fontFamily: "'IBM Plex Mono',monospace", color: c.p.includes("CRIT") || c.p.includes("CRÍTICA") ? t.rd : c.p.includes("URG") ? t.or : c.p.includes("HIGH") || c.p.includes("ALTA") ? t.am : t.gn }}>{c.p}</span>
+            <AnimatePresence>
+              {openCheck === j && c.desc && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25, ease: "easeInOut" }}
+                  style={{ overflow: "hidden" }}
+                >
+                  <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.65, margin: "0 0 8px 30px", paddingRight: 8 }}>{c.desc}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         ))}
         <Ci s={en ? "Colibrii Labs analysis of legislative gaps" : "Análisis Colibrii Labs de brechas legislativas"} />
@@ -423,7 +449,7 @@ export function Leg({ en, t }) {
               <Grid cols="repeat(auto-fit,minmax(240px,1fr))" gap={10}>
                 {enia.strengths.map((s, i) => (
                   <div key={i} style={{ padding: 12, background: t.sf, borderRadius: 8, borderLeft: `3px solid ${t.gn}` }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: t.gn, marginBottom: 6, fontFamily: "'Fraunces',serif" }}>{s.pillar}</div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: t.gn, marginBottom: 6, fontFamily: "var(--font-display, 'Playfair Display', serif)" }}>{s.pillar}</div>
                     <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6 }}>{s.detail}</p>
                   </div>
                 ))}
@@ -435,7 +461,7 @@ export function Leg({ en, t }) {
               {enia.deficiencies.map((d, i) => (
                 <div key={i} style={{ padding: "10px 12px", background: t.sf, borderRadius: 8, borderLeft: `3px solid ${d.severity === "CRITICAL" || d.severity === "CRÍTICO" ? t.rd : d.severity === "HIGH" || d.severity === "ALTO" ? t.or : t.am}`, marginBottom: 8 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: t.tx, fontFamily: "'Fraunces',serif" }}>{d.pillar}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: t.tx, fontFamily: "var(--font-display, 'Playfair Display', serif)" }}>{d.pillar}</span>
                     <Tag color={d.severity === "CRITICAL" || d.severity === "CRÍTICO" ? t.rd : d.severity === "HIGH" || d.severity === "ALTO" ? t.or : t.am}>{d.severity}</Tag>
                   </div>
                   <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6 }}>{d.detail}</p>

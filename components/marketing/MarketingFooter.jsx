@@ -15,7 +15,7 @@ export function MarketingFooter({ en }) {
       <div className="mkt-footer-inner">
         <div className="mkt-footer-brand">
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-            <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 20, height: 20 }} />
+            <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 32, height: 32 }} />
             <div className="mkt-footer-logo">Colibrii Labs</div>
           </div>
           <div className="mkt-footer-tagline">{FACTS.tagline}</div>
@@ -30,6 +30,9 @@ export function MarketingFooter({ en }) {
             </a>
             <a href="https://instagram.com/colibriilabs" target="_blank" rel="noopener noreferrer" style={{ color: "var(--mkt-text3)", transition: "color 0.2s" }} title="Instagram — Coming Soon">
               <Icon name="instagram" size={16} />
+            </a>
+            <a href="https://www.tiktok.com/@colibrii.labs" target="_blank" rel="noopener noreferrer" style={{ color: "var(--mkt-text3)", transition: "color 0.2s" }} title="TikTok — @colibrii.labs">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.11V9.02a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V8.75a8.18 8.18 0 004.76 1.51V6.82a4.83 4.83 0 01-1-.13z"/></svg>
             </a>
             <a href={`mailto:${FACTS.email}`} style={{ color: "var(--mkt-text3)", transition: "color 0.2s" }} title={FACTS.email}>
               <Icon name="mail" size={16} />
@@ -54,6 +57,7 @@ export function MarketingFooter({ en }) {
             <div className="mkt-footer-col-title">{en ? "Connect" : "Conectar"}</div>
             <a href="https://x.com/ColibriilLabs" target="_blank" rel="noopener noreferrer">X / Twitter</a>
             <a href="https://instagram.com/colibriilabs" target="_blank" rel="noopener noreferrer">Instagram</a>
+            <a href="https://www.tiktok.com/@colibrii.labs" target="_blank" rel="noopener noreferrer">TikTok</a>
             <a href={`mailto:${FACTS.email}`}>{FACTS.email}</a>
           </div>
         </div>

@@ -6,6 +6,7 @@ import { FACTS } from "../../data/facts";
 import { MarketingHeader } from "./MarketingHeader";
 import { MarketingFooter } from "./MarketingFooter";
 import { Icon } from "../system/Icon";
+import { Flag } from "../ui";
 
 /* ═══════════════════════════════════════════════════════════════
    COLIBRII LABS — Marketing Landing Page (Dark Editorial)
@@ -86,15 +87,39 @@ export function LandingPage() {
       <MarketingHeader en={en} setEn={setEn} />
 
       {/* ── HERO ── */}
-      <motion.section className="mkt-hero" initial="hidden" animate="visible" variants={stagger}>
-        <motion.div variants={fadeUp} style={{ marginBottom: 24 }}>
-          <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 56, height: 56 }} />
+      <motion.section className="mkt-hero" initial="hidden" animate="visible" variants={stagger} style={{ position: "relative" }}>
+        {/* Floating geometric elements */}
+        <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
+          {[
+            { left: "5%", top: "15%", size: 60, delay: 0 },
+            { left: "85%", top: "25%", size: 40, delay: 2 },
+            { left: "15%", top: "70%", size: 50, delay: 4 },
+            { left: "75%", top: "60%", size: 35, delay: 6 },
+            { left: "50%", top: "10%", size: 45, delay: 8 },
+          ].map((s, i) => (
+            <motion.div
+              key={i}
+              style={{ position: "absolute", left: s.left, top: s.top, width: s.size, height: s.size, opacity: 0.04 }}
+              animate={{ y: [0, -25, 12, 0], rotate: [0, 90, 180, 360] }}
+              transition={{ duration: 18 + i * 3, repeat: Infinity, ease: "easeInOut", delay: s.delay }}
+            >
+              <svg width={s.size} height={s.size} viewBox="0 0 40 40">
+                {i % 3 === 0 && <circle cx="20" cy="20" r="18" fill="none" stroke="#2563eb" strokeWidth="1.5" />}
+                {i % 3 === 1 && <rect x="4" y="4" width="32" height="32" rx="4" fill="none" stroke="#2563eb" strokeWidth="1.5" />}
+                {i % 3 === 2 && <polygon points="20,2 38,38 2,38" fill="none" stroke="#2563eb" strokeWidth="1.5" />}
+              </svg>
+            </motion.div>
+          ))}
+        </div>
+        <motion.div variants={fadeUp} style={{ marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "center", gap: 16 }}>
+          <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 160, height: 160 }} />
+          <img src="/costa-rica-hero.jpg" alt="Costa Rica" style={{ width: 80, height: 56, borderRadius: 8, objectFit: "cover", boxShadow: "0 2px 12px rgba(0,0,0,0.15)" }} />
         </motion.div>
-        <motion.div variants={fadeUp} style={{ fontSize: 20, fontFamily: "'Fraunces',serif", fontStyle: "italic", color: "var(--mkt-text2)", marginBottom: 8, letterSpacing: 0.3 }}>
+        <motion.div variants={fadeUp} style={{ fontSize: 20, fontFamily: "var(--font-display, 'Playfair Display', serif)", fontStyle: "italic", color: "var(--mkt-text2)", marginBottom: 8, letterSpacing: 0.3 }}>
           {en ? "Costa Rica is my beloved homeland." : "Costa Rica es mi patria querida."}
         </motion.div>
         <motion.div variants={fadeUp} className="mkt-hero-label">
-          <span style={{ fontSize: 18, marginRight: 6 }}>🇨🇷</span> AI Observatory &middot; Costa Rica
+          <Flag code="CR" size={18} style={{ marginRight: 6 }} /> AI Observatory &middot; Costa Rica
         </motion.div>
         <motion.h1 variants={fadeUp} className="mkt-hero-title">
           Colibrii Labs
@@ -158,7 +183,7 @@ export function LandingPage() {
             { num: "14", label: en ? "Analysis Views" : "Vistas de Análisis", desc: en ? "From country profiles to policy simulators to risk dashboards" : "Desde perfiles país hasta simuladores de política y dashboards de riesgo" }
           ].map((item, i) => (
             <div key={i} style={{ padding: 24, background: "var(--mkt-surface)", borderRadius: 12, border: "1px solid var(--mkt-border)" }}>
-              <div style={{ fontSize: 36, fontWeight: 800, fontFamily: "var(--font-mono, 'IBM Plex Mono', monospace)", background: "var(--mkt-accent)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", marginBottom: 8 }}>{item.num}</div>
+              <div style={{ fontSize: 36, fontWeight: 800, fontFamily: "var(--font-mono, 'IBM Plex Mono', monospace)", color: "#2563eb", marginBottom: 8 }}>{item.num}</div>
               <div style={{ fontSize: 14, fontWeight: 700, color: "var(--mkt-text)", marginBottom: 4 }}>{item.label}</div>
               <div style={{ fontSize: 12, color: "var(--mkt-text3)", lineHeight: 1.5 }}>{item.desc}</div>
             </div>
@@ -172,9 +197,27 @@ export function LandingPage() {
           {en ? "DATA REFERENCED FROM" : "DATOS REFERENCIADOS DE"}
         </div>
         <div className="institution-bar">
-          {["World Bank", "WEF", "IMF", "OECD", "Oxford Insights", "Stanford HAI", "OWASP", "ILO", "UNDP"].map((name, i, arr) => (
+          {[
+            { name: "World Bank", domain: "worldbank.org" },
+            { name: "WEF", domain: "weforum.org" },
+            { name: "IMF", domain: "imf.org" },
+            { name: "OECD", domain: "oecd.org" },
+            { name: "Oxford Insights", domain: "oxfordinsights.com" },
+            { name: "Stanford HAI", domain: "stanford.edu" },
+            { name: "OWASP", domain: "owasp.org" },
+            { name: "ILO", domain: "ilo.org" },
+            { name: "UNDP", domain: "undp.org" },
+          ].map((inst, i, arr) => (
             <React.Fragment key={i}>
-              <span className="institution-name" style={{ color: "var(--mkt-text3)" }}>{name}</span>
+              <span className="institution-name" style={{ color: "var(--mkt-text3)", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                <img
+                  src={`https://logo.clearbit.com/${inst.domain}?size=64`}
+                  alt=""
+                  style={{ height: 20, width: "auto", opacity: 0.7 }}
+                  onError={(e) => { e.target.style.display = "none"; }}
+                />
+                {inst.name}
+              </span>
               {i < arr.length - 1 && <span className="institution-sep" style={{ background: "var(--mkt-border)" }} />}
             </React.Fragment>
           ))}
