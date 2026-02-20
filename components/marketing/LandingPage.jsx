@@ -91,7 +91,7 @@ export function LandingPage() {
           <img src="/favicon.svg" alt="" className="logo-iridescent" style={{ width: 56, height: 56 }} />
         </motion.div>
         <motion.div variants={fadeUp} className="mkt-hero-label">
-          AI Observatory &middot; Costa Rica
+          <span style={{ fontSize: 18, marginRight: 6 }}>🇨🇷</span> AI Observatory &middot; Costa Rica
         </motion.div>
         <motion.h1 variants={fadeUp} className="mkt-hero-title">
           Colibrii Labs
@@ -102,8 +102,13 @@ export function LandingPage() {
         <motion.div variants={fadeUp} className="mkt-hero-accent" />
         <motion.p variants={fadeUp} className="mkt-hero-desc">
           {en
-            ? "Real-time strategic AI intelligence for Costa Rica's positioning in the global AI transformation."
-            : "Inteligencia estratégica AI en tiempo real para el posicionamiento de Costa Rica en la transformación global AI."}
+            ? "The first AI Observatory built for Costa Rica — tracking 20 countries, 11 World Bank indicators, and 7 international frameworks to deliver actionable intelligence for policymakers, investors, and researchers shaping the country's AI future."
+            : "El primer Observatorio AI construido para Costa Rica — monitoreando 20 países, 11 indicadores del Banco Mundial y 7 marcos internacionales para entregar inteligencia accionable a legisladores, inversionistas e investigadores que moldean el futuro AI del país."}
+        </motion.p>
+        <motion.p variants={fadeUp} style={{ fontSize: 14, color: "var(--mkt-text3)", maxWidth: 560, margin: "0 auto 32px", lineHeight: 1.7, textAlign: "center" }}>
+          {en
+            ? "Costa Rica scored 100/100 in AI Vision but only 0.38 in readiness. This observatory exists to close that gap — with evidence, not opinion."
+            : "Costa Rica obtuvo 100/100 en Visión AI pero solo 0.38 en preparación. Este observatorio existe para cerrar esa brecha — con evidencia, no opinión."}
         </motion.p>
         <motion.div variants={fadeUp}>
           <Link href="/app" className="mkt-hero-cta">
@@ -251,14 +256,14 @@ export function LandingPage() {
         variants={stagger}
       >
         <motion.div variants={fadeUp} className="mkt-highlight-card">
-          <div className="mkt-highlight-label">WEF 2026 — {en ? "Key Finding" : "Hallazgo Clave"}</div>
+          <div className="mkt-highlight-label">WEF 2026 — {en ? "Awareness Opportunity" : "Oportunidad de Concientización"}</div>
           <p className="mkt-highlight-text">
             {en
-              ? "Global experts rank AI adverse outcomes #5 long-term. Costa Rica's business leaders don't list it at all."
-              : "Expertos globales posicionan resultados adversos AI en #5 largo plazo. Líderes empresariales de Costa Rica ni lo mencionan."}
+              ? "Global experts rank AI adverse outcomes #5 long-term — the fastest-rising risk in WEF history. Costa Rica's business leaders have not yet identified it as a top concern, creating a perception gap that this observatory helps close."
+              : "Expertos globales posicionan resultados adversos AI en #5 largo plazo — el riesgo de mayor ascenso en la historia del WEF. Líderes empresariales de Costa Rica aún no lo identifican como preocupación principal, creando una brecha de percepción que este observatorio ayuda a cerrar."}
           </p>
           <div className="mkt-highlight-badge">
-            {en ? "PERCEPTION GAP = PREPAREDNESS GAP" : "BRECHA DE PERCEPCIÓN = BRECHA DE PREPARACIÓN"}
+            {en ? "PERCEPTION GAP = AWARENESS OPPORTUNITY" : "BRECHA DE PERCEPCIÓN = OPORTUNIDAD DE CONCIENTIZACIÓN"}
           </div>
         </motion.div>
       </motion.section>

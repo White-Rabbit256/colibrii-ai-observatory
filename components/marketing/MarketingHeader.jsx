@@ -21,7 +21,7 @@ export function MarketingHeader({ en, setEn }) {
             onClick={() => setEn(!en)}
             aria-label={en ? "Cambiar a español" : "Switch to English"}
           >
-            <Icon name="lang" size={14} />
+            <span style={{ fontSize: 14 }}>{en ? "🇪🇸" : "🇬🇧"}</span>
             <span>{en ? "ES" : "EN"}</span>
           </button>
           <Link href="/app" className="mkt-cta-button">

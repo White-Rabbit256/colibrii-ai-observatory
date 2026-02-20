@@ -72,7 +72,7 @@ export function PortalSidebar({ tab, setTab, en, setEn, dark, setDark, t, mobile
           onClick={() => setEn(!en)}
           aria-label={en ? "Switch to Spanish" : "Cambiar a inglés"}
         >
-          <Icon name="lang" size={14} />
+          <span style={{ fontSize: 14 }}>{en ? "🇪🇸" : "🇬🇧"}</span>
           <span>{en ? "ES" : "EN"}</span>
         </button>
       </div>

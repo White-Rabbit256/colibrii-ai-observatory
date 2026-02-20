@@ -197,18 +197,52 @@ export function Countries({ en, t, idx, board, govData, dark }) {
 
           {/* AI Strategy profile (if available) */}
           {profile && (
-            <Card accent={t.gn} style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.gn, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>
-                {en ? "AI STRATEGY" : "ESTRATEGIA AI"}
-              </div>
-              <p style={{ fontSize: 13, color: t.tx2, lineHeight: 1.7, marginBottom: 10 }}>{profile.strategy}</p>
-              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{en ? "Key Institutions" : "Instituciones Clave"}</div>
-              <p style={{ fontSize: 12, color: t.tx2, marginBottom: 12 }}>{profile.institutions}</p>
-              <div style={{ fontSize: 12, fontWeight: 600, color: t.cy, marginBottom: 6 }}>{en ? "What CR Can Learn" : "Qué Puede Aprender CR"}</div>
-              {profile.learn.map((l, i) => (
-                <div key={i} style={{ fontSize: 13, color: t.tx, padding: "6px 0 6px 14px", borderBottom: `1px solid ${t.bd}` }}>▸ {l}</div>
-              ))}
-            </Card>
+            <>
+              <Card accent={t.gn} style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.gn, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>
+                  {en ? "AI STRATEGY" : "ESTRATEGIA AI"}
+                </div>
+                <p style={{ fontSize: 13, color: t.tx2, lineHeight: 1.7, marginBottom: 10 }}>{profile.strategy}</p>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{en ? "Key Institutions" : "Instituciones Clave"}</div>
+                <p style={{ fontSize: 12, color: t.tx2, marginBottom: 12 }}>{profile.institutions}</p>
+                <div style={{ fontSize: 12, fontWeight: 600, color: t.cy, marginBottom: 6 }}>{en ? "What CR Can Learn" : "Qué Puede Aprender CR"}</div>
+                {profile.learn.map((l, i) => (
+                  <div key={i} style={{ fontSize: 13, color: t.tx, padding: "6px 0 6px 14px", borderBottom: `1px solid ${t.bd}` }}>▸ {l}</div>
+                ))}
+              </Card>
+
+              {/* Strengths & Weaknesses */}
+              {(profile.strengths || profile.weaknesses) && (
+                <Grid cols="1fr 1fr" gap={12} style={{ marginBottom: 16 }}>
+                  {profile.strengths && (
+                    <Card accent={t.gn} style={{ background: `${t.gn}04` }}>
+                      <div style={{ fontSize: 10, letterSpacing: 2, textTransform: "uppercase", color: t.gn, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 8 }}>
+                        {en ? "STRENGTHS" : "FORTALEZAS"}
+                      </div>
+                      {profile.strengths.map((s, i) => (
+                        <div key={i} style={{ display: "flex", gap: 6, alignItems: "flex-start", padding: "5px 0", borderBottom: i < profile.strengths.length - 1 ? `1px solid ${t.bd}` : "none" }}>
+                          <span style={{ color: t.gn, fontSize: 12, flexShrink: 0, marginTop: 1 }}>+</span>
+                          <span style={{ fontSize: 12, color: t.tx2, lineHeight: 1.5 }}>{s}</span>
+                        </div>
+                      ))}
+                    </Card>
+                  )}
+                  {profile.weaknesses && (
+                    <Card accent={t.rd} style={{ background: `${t.rd}04` }}>
+                      <div style={{ fontSize: 10, letterSpacing: 2, textTransform: "uppercase", color: t.rd, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 8 }}>
+                        {en ? "WEAKNESSES / GAPS" : "DEBILIDADES / BRECHAS"}
+                      </div>
+                      {profile.weaknesses.map((w, i) => (
+                        <div key={i} style={{ display: "flex", gap: 6, alignItems: "flex-start", padding: "5px 0", borderBottom: i < profile.weaknesses.length - 1 ? `1px solid ${t.bd}` : "none" }}>
+                          <span style={{ color: t.rd, fontSize: 12, flexShrink: 0, marginTop: 1 }}>−</span>
+                          <span style={{ fontSize: 12, color: t.tx2, lineHeight: 1.5 }}>{w}</span>
+                        </div>
+                      ))}
+                    </Card>
+                  )}
+                </Grid>
+              )}
+            </>
           )}
 
           {/* No profile available */}

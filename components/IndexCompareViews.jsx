@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { CO, CC, DM } from "./data";
@@ -33,17 +33,43 @@ export function Idx({ en, t, idx, board, dark }) {
     <div>
       <SH color={t.cy} label="CAPI-CR" title={en ? "Colibrii AI Preparedness Index" : "Índice de Preparación AI Colibrii"} desc={en ? "Extends IMF AIPI from 4→6 dimensions. 20 countries, 11 live World Bank indicators + 2 curated dimensions. Min-max normalization." : "Extiende AIPI del FMI de 4→6 dimensiones. 20 países, 11 indicadores BM en vivo + 2 dimensiones curadas. Normalización min-max."} />
 
-      {/* Dimension cards */}
+      {/* Dimension cards with expandable descriptions */}
       <Grid cols="repeat(auto-fit,minmax(160px,1fr))" gap={10} style={{ marginBottom: 24 }}>
         {Object.entries(DM).map(([dk, d]) => (
           <Card key={dk} d={0.02} accent={d.co}>
             <div style={{ fontSize: 20, marginBottom: 4 }}>{d.ic}</div>
             <div style={{ fontSize: 13, fontWeight: 700, color: d.co }}>{en ? d.e : d.l}</div>
-            <div style={{ fontSize: 11, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>{(d.w * 100).toFixed(0)}%</div>
+            <div style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 2 }}>
+              <span style={{ fontSize: 11, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>{(d.w * 100).toFixed(0)}%</span>
+              {d.indicators && <span style={{ fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>· {d.indicators.length} {en ? "ind." : "ind."}</span>}
+            </div>
             {idx.CRI?.[dk] != null && (
               <div style={{ fontSize: 18, fontWeight: 800, fontFamily: "'IBM Plex Mono',monospace", color: d.co, marginTop: 4 }}>
                 <AN v={idx.CRI[dk] * 100} p={1} />
               </div>
+            )}
+            {d.desc && (
+              <details style={{ marginTop: 8, fontSize: 11 }}>
+                <summary style={{ color: d.co, cursor: "pointer", fontWeight: 600, fontSize: 10, fontFamily: "'IBM Plex Mono',monospace" }}>
+                  {en ? "What does this measure?" : "¿Qué mide esto?"}
+                </summary>
+                <div style={{ marginTop: 6, color: t.tx2, lineHeight: 1.6, fontSize: 11 }}>
+                  {en ? d.descEn : d.desc}
+                </div>
+                {d.indicators && (
+                  <div style={{ marginTop: 6, padding: "4px 8px", background: `${d.co}08`, borderRadius: 4 }}>
+                    <div style={{ fontSize: 9, color: d.co, fontFamily: "'IBM Plex Mono',monospace", letterSpacing: 1, marginBottom: 2 }}>{en ? "INDICATORS" : "INDICADORES"}</div>
+                    {d.indicators.map((ind, ii) => (
+                      <div key={ii} style={{ fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>{ind}</div>
+                    ))}
+                  </div>
+                )}
+                {d.interp && (
+                  <div style={{ marginTop: 6, fontSize: 10, color: t.tx3, fontStyle: "italic", borderLeft: `2px solid ${d.co}40`, paddingLeft: 8 }}>
+                    {en ? d.interpEn : d.interp}
+                  </div>
+                )}
+              </details>
             )}
           </Card>
         ))}

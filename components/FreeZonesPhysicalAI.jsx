@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LineChart, Line, Treemap } from "recharts";
 import { Card, SH, Tag, Ci, Lnk, Grid, AN, ScrollReveal, Stat, MiniStat, fadeUp, stagger } from "./ui";
+import { FZ_DEEP, PAI_NEWS } from "./data";
 
 /* ═══════════════════════════════════════════════════════════════
    FREE ZONES VIEW v13 — Sectors, employment, investment signals
@@ -111,6 +112,231 @@ export function ZF({ en, t, dark }) {
         ))}
         <Ci s="CINDE, PROCOMER, Company Reports" />
       </Card>
+
+      {/* ── FDI Projections Chart ── */}
+      <ScrollReveal>
+        <Card style={{ marginTop: 20 }}>
+          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.cy, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>
+            {FZ_DEEP(en).projections.title}
+          </div>
+          <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.7, marginBottom: 12 }}>
+            {FZ_DEEP(en).projections.narrative}
+          </p>
+          <ResponsiveContainer width="100%" height={220}>
+            <AreaChart data={FZ_DEEP(en).projections.data} margin={{ top: 5, right: 20, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={dark ? "#1e293b" : "#d1d5e0"} />
+              <XAxis dataKey="year" tick={{ fontSize: 11, fill: dark ? "#94a3b8" : "#475569" }} />
+              <YAxis tick={{ fontSize: 10, fill: dark ? "#94a3b8" : "#475569" }} tickFormatter={v => `$${v}B`} domain={[3.5, 7.5]} />
+              <Tooltip contentStyle={{ background: dark ? "#111827" : "#fff", border: `1px solid ${dark ? "#1e293b" : "#d1d5e0"}`, borderRadius: 8, fontSize: 11 }} formatter={v => `$${v}B`} />
+              <Area type="monotone" dataKey="fdi" name="FDI" stroke={t.cy} fill={t.cy} fillOpacity={0.15} strokeWidth={2.5} />
+            </AreaChart>
+          </ResponsiveContainer>
+          <Ci s="CINDE, PROCOMER, Colibrii Labs Projections" />
+        </Card>
+      </ScrollReveal>
+
+      {/* ── AI Impact on FZ Regime ── */}
+      <ScrollReveal>
+        <Card style={{ marginTop: 16 }}>
+          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>
+            {en ? "AI IMPACT ON FREE ZONE REGIME" : "IMPACTO AI EN REGIMEN ZONA FRANCA"}
+          </div>
+          {FZ_DEEP(en).aiImpact.map((item, i) => (
+            <details key={i} style={{ marginBottom: 8, border: `1px solid ${t.bd}`, borderRadius: 8, padding: "10px 14px" }}>
+              <summary style={{ cursor: "pointer", fontWeight: 700, fontSize: 14, color: t.tx, listStyle: "none", display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ color: t.vi, fontSize: 16, fontWeight: 700 }}>+</span> {item.title}
+              </summary>
+              <p style={{ fontSize: 13, color: t.tx2, lineHeight: 1.7, marginTop: 8, paddingLeft: 24 }}>{item.desc}</p>
+            </details>
+          ))}
+        </Card>
+      </ScrollReveal>
+
+      {/* ── Labor Profile Changes ── */}
+      <ScrollReveal>
+        <Card style={{ marginTop: 16 }}>
+          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.am, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>
+            {en ? "LABOR PROFILE — CURRENT vs 2030" : "PERFIL LABORAL — ACTUAL vs 2030"}
+          </div>
+          <Grid cols="1fr 1fr" gap={16}>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: t.tx, marginBottom: 6, fontFamily: "'IBM Plex Mono',monospace" }}>
+                {en ? "CURRENT (2024)" : "ACTUAL (2024)"}
+              </div>
+              {FZ_DEEP(en).laborProfile.current.map((item, i) => (
+                <div key={i} style={{ fontSize: 12, color: t.tx2, lineHeight: 1.8, paddingLeft: 12, borderLeft: `2px solid ${t.cy}` }}>
+                  {item}
+                </div>
+              ))}
+            </div>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: t.tx, marginBottom: 6, fontFamily: "'IBM Plex Mono',monospace" }}>
+                {en ? "EXPECTED (2030)" : "ESPERADO (2030)"}
+              </div>
+              {FZ_DEEP(en).laborProfile.expected2030.map((item, i) => (
+                <div key={i} style={{ fontSize: 12, color: item.includes("RISK") || item.includes("RIESGO") ? t.rd : t.gn, lineHeight: 1.8, paddingLeft: 12, borderLeft: `2px solid ${item.includes("RISK") || item.includes("RIESGO") ? t.rd : t.gn}` }}>
+                  {item}
+                </div>
+              ))}
+            </div>
+          </Grid>
+          <Ci s="WEF Future of Jobs 2025, CINDE, INA, Colibrii Labs Projections" />
+        </Card>
+      </ScrollReveal>
+
+      {/* ── Competitiveness Comparison ── */}
+      <ScrollReveal>
+        <Card style={{ marginTop: 16 }}>
+          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.pk, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>
+            {en ? "FZ COMPETITIVENESS — CR vs COMPETITORS" : "COMPETITIVIDAD ZF — CR vs COMPETIDORES"}
+          </div>
+          <details open style={{ marginBottom: 0 }}>
+            <summary style={{ cursor: "pointer", fontWeight: 600, fontSize: 13, color: t.tx2, marginBottom: 10 }}>
+              {en ? "Expand comparison table" : "Expandir tabla comparativa"}
+            </summary>
+            <div style={{ overflowX: "auto" }}>
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>{en ? "Country" : "Pais"}</th>
+                    <th>{en ? "Cost" : "Costo"}</th>
+                    <th>{en ? "Talent" : "Talento"}</th>
+                    <th>{en ? "Infra" : "Infra"}</th>
+                    <th>{en ? "Stability" : "Estabilidad"}</th>
+                    <th>{en ? "Energy" : "Energia"}</th>
+                    <th>{en ? "AI Ready" : "AI Listo"}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {FZ_DEEP(en).competitiveness.map((row, i) => (
+                    <tr key={i} style={i === 0 ? { background: `${t.cy}10` } : {}}>
+                      <td style={{ fontWeight: i === 0 ? 700 : 400, color: i === 0 ? t.cy : t.tx }}>{row.country}</td>
+                      <td style={{ fontSize: 12 }}>{row.cost}</td>
+                      <td style={{ fontSize: 12 }}>{row.talent}</td>
+                      <td style={{ fontSize: 12 }}>{row.infra}</td>
+                      <td style={{ fontSize: 12 }}>{row.stability}</td>
+                      <td style={{ fontSize: 12 }}>{row.energy}</td>
+                      <td style={{ fontSize: 12 }}><Tag color={row.aiReady.includes("Low") || row.aiReady.includes("Bajo") ? t.rd : t.am}>{row.aiReady}</Tag></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
+          <Ci s="CINDE, fDi Markets, EF EPI, ICE, UNCTAD, Colibrii IVAS" />
+        </Card>
+      </ScrollReveal>
+
+      {/* ── Risks & Opportunities ── */}
+      <ScrollReveal>
+        <Card style={{ marginTop: 16 }}>
+          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.am, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>
+            {en ? "RISKS & OPPORTUNITIES" : "RIESGOS Y OPORTUNIDADES"}
+          </div>
+          <Grid cols="1fr 1fr" gap={16}>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: t.rd, marginBottom: 8, fontFamily: "'IBM Plex Mono',monospace" }}>
+                {en ? "RISKS" : "RIESGOS"}
+              </div>
+              {FZ_DEEP(en).risksAndOpps.risks.map((r, i) => (
+                <div key={i} style={{ fontSize: 12, color: t.tx2, lineHeight: 1.8, padding: "6px 10px", marginBottom: 6, borderRadius: 6, background: `${t.rd}08`, borderLeft: `3px solid ${t.rd}` }}>
+                  {r}
+                </div>
+              ))}
+            </div>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: t.gn, marginBottom: 8, fontFamily: "'IBM Plex Mono',monospace" }}>
+                {en ? "OPPORTUNITIES" : "OPORTUNIDADES"}
+              </div>
+              {FZ_DEEP(en).risksAndOpps.opportunities.map((o, i) => (
+                <div key={i} style={{ fontSize: 12, color: t.tx2, lineHeight: 1.8, padding: "6px 10px", marginBottom: 6, borderRadius: 6, background: `${t.gn}08`, borderLeft: `3px solid ${t.gn}` }}>
+                  {o}
+                </div>
+              ))}
+            </div>
+          </Grid>
+        </Card>
+      </ScrollReveal>
+
+      {/* ── Why Invest in CR ── */}
+      <ScrollReveal>
+        <Card style={{ marginTop: 16 }}>
+          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.gn, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>
+            {en ? "WHY INVEST IN COSTA RICA" : "POR QUE INVERTIR EN COSTA RICA"}
+          </div>
+          <details open>
+            <summary style={{ cursor: "pointer", fontWeight: 600, fontSize: 13, color: t.tx2, marginBottom: 8 }}>
+              {en ? "8 competitive advantages" : "8 ventajas competitivas"}
+            </summary>
+            {FZ_DEEP(en).whyInvest.map((item, i) => (
+              <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "8px 0", borderBottom: i < FZ_DEEP(en).whyInvest.length - 1 ? `1px solid ${t.bd}` : "none" }}>
+                <Tag color={t.gn}>{item.reason}</Tag>
+                <span style={{ fontSize: 13, color: t.tx2, lineHeight: 1.6 }}>{item.desc}</span>
+              </div>
+            ))}
+          </details>
+          <Ci s="CINDE, OECD, Freedom House, EF EPI, fDi Markets, World Bank" />
+        </Card>
+      </ScrollReveal>
+
+      {/* ── Government Preparation ── */}
+      <ScrollReveal>
+        <Card style={{ marginTop: 16 }}>
+          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>
+            {en ? "RECOMMENDED GOVERNMENT ACTIONS" : "ACCIONES GUBERNAMENTALES RECOMENDADAS"}
+          </div>
+          <ol style={{ margin: 0, paddingLeft: 20 }}>
+            {FZ_DEEP(en).govPreparation.map((step, i) => (
+              <li key={i} style={{ fontSize: 13, color: t.tx2, lineHeight: 1.8, marginBottom: 6, paddingLeft: 4 }}>
+                {step}
+              </li>
+            ))}
+          </ol>
+          <Ci s="Colibrii Labs Policy Recommendations 2025" />
+        </Card>
+      </ScrollReveal>
+
+      {/* ── Challenges — Current vs Future ── */}
+      <ScrollReveal>
+        <Card style={{ marginTop: 16 }}>
+          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.rd, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>
+            {en ? "KEY CHALLENGES" : "DESAFIOS CLAVE"}
+          </div>
+          <div style={{ overflowX: "auto" }}>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>{en ? "Current Situation" : "Situacion Actual"}</th>
+                  <th>{en ? "Future Impact" : "Impacto Futuro"}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {FZ_DEEP(en).challenges.map((ch, i) => (
+                  <tr key={i}>
+                    <td style={{ fontSize: 12, color: t.am }}>{ch.current}</td>
+                    <td style={{ fontSize: 12, color: t.rd }}>{ch.future}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <Ci s="INA, EU AI Act Timeline, McKinsey Global Institute" />
+        </Card>
+      </ScrollReveal>
+
+      {/* ── Sources ── */}
+      <ScrollReveal>
+        <Card style={{ marginTop: 16 }}>
+          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>
+            {en ? "PRIMARY SOURCES" : "FUENTES PRIMARIAS"}
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {FZ_DEEP(en).sources.map((src, i) => (
+              <Lnk key={i} href={src.url}>{src.name}</Lnk>
+            ))}
+          </div>
+        </Card>
+      </ScrollReveal>
     </div>
   );
 }
@@ -270,6 +496,66 @@ export function PAI({ en, t, dark }) {
         </div>
         <Ci s="IVAS Algorithm (Colibrii), WEF Future of Jobs 2025, IMF" />
       </Card>
+
+      {/* ── Striking Physical AI News ── */}
+      <ScrollReveal>
+        <div style={{ marginTop: 24 }}>
+          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.pk, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 12 }}>
+            {en ? "STRIKING NEWS — PHYSICAL AI" : "NOTICIAS IMPACTANTES — AI FISICA"}
+          </div>
+          <Grid cols="repeat(auto-fit,minmax(280px,1fr))" gap={12}>
+            {PAI_NEWS(en).map((news, i) => (
+              <Card key={i} style={{ position: "relative", overflow: "hidden" }}>
+                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 48, background: `linear-gradient(135deg, ${[t.pk, t.vi, t.cy, t.am, t.gn, t.rd, t.or, t.pk][i % 8]}22, transparent)`, borderRadius: "12px 12px 0 0" }} />
+                <div style={{ position: "relative", paddingTop: 4 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <span style={{ fontSize: 28 }}>{news.icon}</span>
+                    <Tag color={[t.pk, t.vi, t.cy, t.am, t.gn, t.rd, t.or, t.pk][i % 8]}>{news.date}</Tag>
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: t.tx, lineHeight: 1.4, marginBottom: 6 }}>
+                    {news.headline}
+                  </div>
+                  <details>
+                    <summary style={{ cursor: "pointer", fontSize: 11, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>
+                      {en ? "Significance" : "Significancia"}
+                    </summary>
+                    <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.7, marginTop: 6 }}>{news.significance}</p>
+                  </details>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8, paddingTop: 8, borderTop: `1px solid ${t.bd}` }}>
+                    <span style={{ fontSize: 11, color: t.tx3 }}>{news.source}</span>
+                    <Lnk href={news.url}>{en ? "Source" : "Fuente"}</Lnk>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </Grid>
+        </div>
+      </ScrollReveal>
+
+      {/* ── Regional Context: Physical AI in LATAM/CR ── */}
+      <ScrollReveal>
+        <Card accent={t.am} style={{ marginTop: 20 }}>
+          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.am, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 8 }}>
+            {en ? "REGIONAL CONTEXT — PHYSICAL AI IN LATAM/CR" : "CONTEXTO REGIONAL — AI FISICA EN LATAM/CR"}
+          </div>
+          <p style={{ fontSize: 13, color: t.tx2, lineHeight: 1.8, marginBottom: 10 }}>
+            {en
+              ? "Latin America accounts for less than 2% of global industrial robot installations (IFR 2025). Costa Rica's Free Zone manufacturing sector — particularly medical devices and electronics — faces a dual-edged reality: humanoid robots priced below $20K (Unitree G1) are already cheaper than the average FZ annual wage ($27K). By 2028, multi-shift humanoid operations (20-22 hrs/day) could deliver 3-4x the output of a human shift at lower total cost."
+              : "America Latina representa menos del 2% de instalaciones globales de robots industriales (IFR 2025). El sector manufacturero de Zonas Francas de Costa Rica — particularmente dispositivos medicos y electronica — enfrenta una realidad de doble filo: robots humanoides con precio menor a $20K (Unitree G1) ya son mas baratos que el salario promedio anual ZF ($27K). Para 2028, operaciones humanoides multi-turno (20-22 hrs/dia) podrian entregar 3-4x la produccion de un turno humano a menor costo total."}
+          </p>
+          <Grid cols="1fr 1fr 1fr" gap={10} style={{ marginBottom: 10 }}>
+            <MiniStat label={en ? "LATAM robot share" : "Cuota robots LATAM"} value="<2%" color={t.rd} />
+            <MiniStat label={en ? "CR FZ avg wage/yr" : "Salario prom ZF CR/ano"} value="$27K" color={t.am} />
+            <MiniStat label={en ? "Humanoid crossover" : "Cruce humanoide"} value="2028" color={t.pk} mono />
+          </Grid>
+          <p style={{ fontSize: 12, color: t.tx3, lineHeight: 1.7, fontStyle: "italic" }}>
+            {en
+              ? "However, CR's advantage lies in regulatory stability, bilingual talent, and the potential to position FZ workers as robot supervisors and AI-augmented operators rather than direct competitors. The window for proactive transition: 2025-2028."
+              : "Sin embargo, la ventaja de CR reside en estabilidad regulatoria, talento bilingue, y el potencial de posicionar trabajadores ZF como supervisores de robots y operadores aumentados con AI en lugar de competidores directos. La ventana para transicion proactiva: 2025-2028."}
+          </p>
+          <Ci s="IFR 2025, Goldman Sachs, Bank of America, CINDE, Colibrii Labs" />
+        </Card>
+      </ScrollReveal>
     </div>
   );
 }

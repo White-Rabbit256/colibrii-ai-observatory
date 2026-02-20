@@ -108,14 +108,56 @@ export const GOV = {
   IDN: { cpi: 34, fh: 57, gpi: 1.85, oxai: 5.34, hdi: 0.713, vdem: 0.45 }
 };
 
-// ── 6 DIMENSIONS ──
+// ── 6 DIMENSIONS (with full descriptions for context) ──
 export const DM = {
-  D1: { l: "Infraestructura Digital", e: "Digital Infrastructure", w: .20, co: TH.cy, ic: "◈" },
-  D2: { l: "Capital Humano", e: "Human Capital", w: .20, co: TH.vi, ic: "◎" },
-  D3: { l: "Innovación", e: "Innovation", w: .15, co: TH.am, ic: "◇" },
-  D4: { l: "Regulación AI", e: "AI Regulation", w: .15, co: TH.rd, ic: "⬡" },
-  D5: { l: "Energía Sostenible", e: "Sustainable Energy", w: .15, co: TH.gn, ic: "⚡" },
-  D6: { l: "Seguridad Digital", e: "Digital Security", w: .15, co: TH.pk, ic: "⬢" }
+  D1: {
+    l: "Infraestructura Digital", e: "Digital Infrastructure", w: .20, co: TH.cy, ic: "◈",
+    indicators: ["IT.NET.USER.ZS", "IT.NET.BBND.P2"],
+    desc: "Mide la conectividad y penetración digital: porcentaje de usuarios de internet y suscripciones de banda ancha fija por cada 100 habitantes. Según el Banco Mundial, la infraestructura digital explica el 28.8% de la varianza en preparación AI para países de ingreso medio-alto (PIMA). Es la dimensión con mayor peso predictivo.",
+    descEn: "Measures connectivity and digital penetration: internet users (%) and fixed broadband subscriptions per 100 inhabitants. According to the World Bank, digital infrastructure explains 28.8% of variance in AI readiness for upper-middle-income countries (UMICs). It is the dimension with the highest predictive weight.",
+    interp: "Score ≥0.65 = infraestructura lista para despliegue AI. Score 0.40-0.64 = en riesgo, brechas en conectividad rural. Score <0.40 = déficit crítico. CR: ~87% internet, banda ancha moderada — puntaje típico 0.55-0.60.",
+    interpEn: "Score ≥0.65 = infrastructure ready for AI deployment. Score 0.40-0.64 = at risk, rural connectivity gaps. Score <0.40 = critical deficit. CR: ~87% internet, moderate broadband — typical score 0.55-0.60."
+  },
+  D2: {
+    l: "Capital Humano", e: "Human Capital", w: .20, co: TH.vi, ic: "◎",
+    indicators: ["SE.TER.ENRR", "SE.XPD.TOTL.GD.ZS", "SL.UEM.TOTL.ZS"],
+    desc: "Evalúa la capacidad del talento nacional para roles AI: matrícula universitaria (%), inversión educativa como porcentaje del PIB, y tasa de desempleo (invertida — mayor desempleo = peor score). Captura tanto la oferta de talento como la absorción del mercado laboral.",
+    descEn: "Evaluates national talent capacity for AI roles: tertiary enrollment (%), education spending as % of GDP, and unemployment rate (inverted — higher unemployment = lower score). Captures both talent supply and labor market absorption.",
+    interp: "CR: fortaleza en matrícula terciaria (~58%), inversión educativa ~6.7% PIB (alta para LATAM). Debilidad: desempleo ~11% presiona el score. INA no tiene certificación AI (brecha crítica de pipeline).",
+    interpEn: "CR: strength in tertiary enrollment (~58%), education spending ~6.7% GDP (high for LATAM). Weakness: ~11% unemployment drags score. INA has zero AI certification tracks (critical pipeline gap)."
+  },
+  D3: {
+    l: "Innovación", e: "Innovation", w: .15, co: TH.am, ic: "◇",
+    indicators: ["GB.XPD.RSDV.GD.ZS", "TX.VAL.TECH.MF.ZS", "BX.KLT.DINV.WD.GD.ZS"],
+    desc: "Mide la capacidad de innovación: gasto en I+D como porcentaje del PIB, exportaciones de alta tecnología como porcentaje de manufactura, e inversión extranjera directa como porcentaje del PIB. Refleja el ecosistema de innovación y atracción de inversión tecnológica.",
+    descEn: "Measures innovation capacity: R&D spending as % of GDP, high-tech exports as % of manufacturing, and FDI as % of GDP. Reflects the innovation ecosystem and ability to attract technology investment.",
+    interp: "CR: I+D solo 0.4% PIB (vs 4.8% Corea del Sur), pero IED/PIB alta (~6.2%) gracias a zonas francas. Exportaciones hi-tech moderadas. Puntaje se beneficia de IED pero limitado por baja inversión en I+D.",
+    interpEn: "CR: R&D only 0.4% GDP (vs 4.8% South Korea), but FDI/GDP high (~6.2%) thanks to free zones. Moderate hi-tech exports. Score benefits from FDI but limited by low R&D investment."
+  },
+  D4: {
+    l: "Regulación AI", e: "AI Regulation", w: .15, co: TH.rd, ic: "⬡",
+    indicators: ["curated"],
+    desc: "Puntaje curado basado en análisis del marco legal AI: existencia de ley vinculante, autoridad reguladora designada, evaluaciones de impacto algorítmico obligatorias, protecciones anti-discriminación, transparencia en despliegue AI, sandbox regulatorio. No proviene de indicadores del Banco Mundial sino de análisis legislativo comparado.",
+    descEn: "Curated score based on AI legal framework analysis: existence of binding law, designated regulatory authority, mandatory algorithmic impact assessments, anti-discrimination protections, AI deployment transparency, regulatory sandbox. Does not come from World Bank indicators but from comparative legislative analysis.",
+    interp: "CR score: 0.38 (déficit). Sin ley AI vinculante, sin autoridad designada, sin evaluaciones obligatorias. ENIA es solo estrategia (100/100 visión, pero 0/100 aplicación). Comparación: Singapur 0.85, Corea del Sur 0.75, Chile 0.58.",
+    interpEn: "CR score: 0.38 (deficit). No binding AI law, no designated authority, no mandatory assessments. ENIA is strategy only (100/100 vision, but 0/100 enforcement). Comparison: Singapore 0.85, South Korea 0.75, Chile 0.58."
+  },
+  D5: {
+    l: "Energía Sostenible", e: "Sustainable Energy", w: .15, co: TH.gn, ic: "⚡",
+    indicators: ["EG.ELC.ACCS.ZS", "EG.ELC.RNWX.ZS", "EG.USE.ELEC.KH.PC"],
+    desc: "Mide la ventaja energética para AI: acceso a electricidad (%), porcentaje de electricidad renovable, y consumo eléctrico per cápita (proxy para capacidad de data centers). La energía es crucial para AI — los modelos AI consumen 4,600x más energía que software tradicional (WEF 2026).",
+    descEn: "Measures energy advantage for AI: electricity access (%), renewable electricity share (%), and electric consumption per capita (proxy for data center capacity). Energy is crucial for AI — AI models consume 4,600x more energy than traditional software (WEF 2026).",
+    interp: "CR: 99.5% acceso electricidad, ~99% renovable (fortaleza competitiva única). Pero consumo per cápita bajo indica capacidad limitada de data centers. Ventaja verde para ESG-conscious investors.",
+    interpEn: "CR: 99.5% electricity access, ~99% renewable (unique competitive strength). But low per capita consumption indicates limited data center capacity. Green advantage for ESG-conscious investors."
+  },
+  D6: {
+    l: "Seguridad Digital", e: "Digital Security", w: .15, co: TH.pk, ic: "⬢",
+    indicators: ["curated"],
+    desc: "Puntaje curado de capacidad de ciberseguridad: madurez del centro de operaciones de seguridad (SOC), cumplimiento con estándares internacionales, historial de incidentes, inversión en ciberseguridad post-incidentes, capacidad de respuesta, preparación cuántica. Integra datos de WEF Global Cybersecurity Outlook, OWASP, y evaluación nacional.",
+    descEn: "Curated cybersecurity capacity score: security operations center (SOC) maturity, compliance with international standards, incident history, post-incident cybersecurity investment, response capacity, quantum readiness. Integrates data from WEF Global Cybersecurity Outlook, OWASP, and national assessment.",
+    interp: "CR score: 0.40 (en riesgo). Ataque Conti 2022 expuso 30 instituciones (672GB datos). Post-Conti: inversión $35M+, SOC-CR con IBM 24/7. Mejorando pero aún vulnerable. Solo 5% organizaciones tienen cifrado cuántico-seguro (WEF).",
+    interpEn: "CR score: 0.40 (at risk). Conti attack 2022 exposed 30 institutions (672GB data). Post-Conti: $35M+ investment, SOC-CR with IBM 24/7. Improving but still vulnerable. Only 5% of organizations have quantum-safe encryption (WEF)."
+  }
 };
 
 // ── TABS WITH SVG ICONS (13 tabs — emoji replaced with icon string names) ──
@@ -543,7 +585,7 @@ export const TIMELINE = (en) => [
   { date: "Jun 2024", t: "Claude 3.5 Sonnet", d: en ? "Anthropic releases Claude 3.5 Sonnet." : "Anthropic lanza Claude 3.5 Sonnet.", cr: en ? "State-of-the-art coding capability" : "Capacidad de programación de vanguardia", c: TH.vi },
   { date: "Oct 2024", t: "CR ENIA", d: en ? "Costa Rica publishes National AI Strategy." : "Costa Rica publica Estrategia Nacional AI.", cr: en ? "Oxford: 100/100 Vision score" : "Oxford: 100/100 Visión", c: TH.gn },
   { date: "Jan 2025", t: "DeepSeek R1", d: en ? "Chinese lab matches GPT-4 at fraction of cost." : "Laboratorio chino iguala GPT-4 a fracción del costo.", cr: en ? "AI cost barriers collapse" : "Barreras de costo AI colapsan", c: TH.pk },
-  { date: "Jan 2025", t: "WEF Risks 2025", d: en ? "AI risk jumps #31→#6. Misinfo #1 again." : "Riesgo AI salta #31→#6. Desinfo #1 otra vez.", cr: en ? "CR elections 2026 at risk" : "Elecciones CR 2026 en riesgo", c: TH.rd },
+  { date: "Jan 2025", t: "WEF Risks 2025", d: en ? "AI risk jumps #31→#6. Misinfo #1 again." : "Riesgo AI salta #31→#6. Desinfo #1 otra vez.", cr: en ? "CR 2026 elections faced deepfake risks" : "Elecciones CR 2026 enfrentaron riesgos deepfake", c: TH.rd },
   { date: "Jan 2026", t: "WEF Risks 2026", d: en ? "AI adverse outcomes: #30→#5 long-term (fastest rise ever). Geoeconomic confrontation #1. Misinfo top 5 all horizons." : "Resultados adversos AI: #30→#5 largo plazo (mayor salto histórico). Confrontación geoeconómica #1. Desinfo top 5 todos los horizontes.", cr: en ? "50% of experts: outlook 'turbulent' or 'stormy'" : "50% de expertos: perspectiva 'turbulenta' o 'tormentosa'", c: TH.rd },
   { date: "Jan 2026", t: "KOR AI Framework", d: en ? "South Korea's AI law takes effect." : "Ley AI de Corea del Sur entra en vigencia.", cr: en ? "Best model for CR regulation" : "Mejor modelo para regulación CR", c: TH.cy },
   { date: "2026", t: "Tesla Optimus", d: en ? "External humanoid robot sales begin." : "Comienzan ventas externas de robot humanoide.", cr: en ? "Physical AI disruption begins" : "Comienza disrupción Physical AI", c: TH.or },
@@ -555,6 +597,17 @@ export const COUNTRY_PROFILES = (en) => ({
   SGP: {
     strategy: en ? "National AI Strategy 2.0 (Dec 2023). $1B+ investment. AI Governance Framework (2019, updated). Focus: trusted AI ecosystem." : "Estrategia Nacional AI 2.0 (Dic 2023). $1B+ inversión. Marco Gobernanza AI (2019, actualizado). Enfoque: ecosistema AI confiable.",
     institutions: en ? "Smart Nation & Digital Government Office, AI Singapore (AISG), IMDA" : "Smart Nation & Digital Government Office, AI Singapore (AISG), IMDA",
+    strengths: [
+      en ? "#1 AI readiness globally (Oxford Insights)" : "#1 preparación AI global (Oxford Insights)",
+      en ? "$1B+ government AI investment committed" : "$1B+ inversión gubernamental AI comprometida",
+      en ? "AI Governance Framework — world's first voluntary framework" : "Marco Gobernanza AI — primer marco voluntario del mundo",
+      en ? "Strong talent pipeline from NUS, NTU, SUTD" : "Fuerte pipeline de talento desde NUS, NTU, SUTD"
+    ],
+    weaknesses: [
+      en ? "Small domestic market requires export orientation" : "Mercado doméstico pequeño requiere orientación exportadora",
+      en ? "High cost of living limits talent retention" : "Alto costo de vida limita retención de talento",
+      en ? "Limited freedom of press (FH: 47/100) affects AI ethics discourse" : "Libertad de prensa limitada (FH: 47/100) afecta discurso ética AI"
+    ],
     learn: [
       en ? "Governance-first approach: framework before law, building trust" : "Enfoque gobernanza primero: marco antes de ley, construyendo confianza",
       en ? "Public-private AI training programs at scale" : "Programas de capacitación AI público-privados a escala",
@@ -564,6 +617,17 @@ export const COUNTRY_PROFILES = (en) => ({
   KOR: {
     strategy: en ? "AI Framework Act (Jan 2026). Consolidated 19 bills. National AI Committee chaired by president." : "Ley Marco AI (Ene 2026). Consolidó 19 proyectos. Comité Nacional AI presidido por presidente.",
     institutions: en ? "National AI Committee, AI Safety Institute, MSIT" : "Comité Nacional AI, Instituto Seguridad AI, MSIT",
+    strengths: [
+      en ? "AI Framework Act: best 'regulate + promote' model globally" : "Ley Marco AI: mejor modelo 'regular + promover' globalmente",
+      en ? "4.8% GDP spent on R&D (highest in world)" : "4.8% PIB gastado en I+D (más alto del mundo)",
+      en ? "Samsung, LG, Hyundai driving corporate AI adoption" : "Samsung, LG, Hyundai impulsando adopción AI corporativa",
+      en ? "AI Safety Institute with dedicated budget and staff" : "Instituto Seguridad AI con presupuesto y personal dedicado"
+    ],
+    weaknesses: [
+      en ? "Aging population (birth rate 0.72) threatens talent pipeline" : "Población envejeciente (tasa natalidad 0.72) amenaza pipeline de talento",
+      en ? "Geopolitical tensions with North Korea and China" : "Tensiones geopolíticas con Corea del Norte y China",
+      en ? "AI in top 5 EOS business risks (awareness = anxiety)" : "AI en top 5 riesgos empresariales EOS (conciencia = ansiedad)"
+    ],
     learn: [
       en ? "Combined regulate + promote in ONE law — ideal for CR" : "Combinó regular + promover en UNA ley — ideal para CR",
       en ? "AI Safety Institute achievable at small scale" : "Instituto Seguridad AI factible a escala pequeña",
@@ -573,6 +637,16 @@ export const COUNTRY_PROFILES = (en) => ({
   CHL: {
     strategy: en ? "AI Bill approved Chamber Aug 2025, in Senate. Modeled on EU AI Act. First country to complete UNESCO RAM." : "Proyecto AI aprobado Cámara Ago 2025, en Senado. Modelado en EU AI Act. Primer país en completar RAM UNESCO.",
     institutions: en ? "MinCiencia, AI Advisory Council, CORFO" : "MinCiencia, Consejo Consultivo AI, CORFO",
+    strengths: [
+      en ? "Most advanced AI legislation in LATAM (in Senate)" : "Legislación AI más avanzada en LATAM (en Senado)",
+      en ? "First country to complete UNESCO RAM — strong evidence base" : "Primer país en completar RAM UNESCO — fuerte base de evidencia",
+      en ? "Startup Chile program attracts international AI talent" : "Programa Startup Chile atrae talento AI internacional"
+    ],
+    weaknesses: [
+      en ? "Political instability (constitutional process) slows legislation" : "Inestabilidad política (proceso constitucional) ralentiza legislación",
+      en ? "Smaller FDI inflows compared to CR ($6.5B vs $4.3B similar GDP)" : "Menores flujos IED comparado con CR ($6.5B vs $4.3B PIB similar)",
+      en ? "Digital divide between Santiago and regions" : "Brecha digital entre Santiago y regiones"
+    ],
     learn: [
       en ? "Complete UNESCO RAM for credibility and evidence base" : "Completar RAM UNESCO para credibilidad y base de evidencia",
       en ? "Regional coordination through multilateral bodies" : "Coordinación regional a través de organismos multilaterales",
@@ -582,6 +656,16 @@ export const COUNTRY_PROFILES = (en) => ({
   EST: {
     strategy: en ? "AI strategy since 2019. Kratt AI for government services. e-Residency. X-Road data exchange." : "Estrategia AI desde 2019. Kratt AI para servicios gobierno. e-Residency. X-Road intercambio datos.",
     institutions: en ? "Ministry of Economic Affairs, e-Governance Academy, KEMIT" : "Ministerio Economía, e-Governance Academy, KEMIT",
+    strengths: [
+      en ? "#1 digital government worldwide — 99% of services online" : "#1 gobierno digital mundial — 99% de servicios en línea",
+      en ? "X-Road interoperability: every institution connected" : "Interoperabilidad X-Road: toda institución conectada",
+      en ? "e-Residency attracts global digital entrepreneurs" : "e-Residency atrae emprendedores digitales globales"
+    ],
+    weaknesses: [
+      en ? "Small economy limits domestic AI market" : "Economía pequeña limita mercado AI doméstico",
+      en ? "Geopolitical risk (proximity to Russia, NATO border)" : "Riesgo geopolítico (proximidad a Rusia, frontera OTAN)",
+      en ? "Brain drain to Nordic countries for higher salaries" : "Fuga de cerebros a países nórdicos por mayores salarios"
+    ],
     learn: [
       en ? "Digital government infrastructure enables AI deployment" : "Infraestructura gobierno digital habilita despliegue AI",
       en ? "Small country (1.3M) shows scale is not a barrier" : "País pequeño (1.3M) demuestra que escala no es barrera",
@@ -591,10 +675,160 @@ export const COUNTRY_PROFILES = (en) => ({
   FIN: {
     strategy: en ? "Elements of AI: 1% of population educated in AI. AuroraAI for government. Strong ethics focus." : "Elements of AI: 1% de población educada en AI. AuroraAI para gobierno. Fuerte enfoque ético.",
     institutions: en ? "Ministry of Economic Affairs, FCAI (Finnish Center for AI), Business Finland" : "Ministerio Economía, FCAI (Centro Finlandés AI), Business Finland",
+    strengths: [
+      en ? "1% of population completed AI training (Elements of AI)" : "1% de población completó capacitación AI (Elements of AI)",
+      en ? "AuroraAI: government service personalization through AI" : "AuroraAI: personalización de servicios gubernamentales a través de AI",
+      en ? "Nokia legacy: strong tech infrastructure and culture" : "Legado Nokia: fuerte infraestructura y cultura tech"
+    ],
+    weaknesses: [
+      en ? "Small market limits commercial AI scale" : "Mercado pequeño limita escala AI comercial",
+      en ? "Long, dark winters limit some agricultural AI applications" : "Inviernos largos y oscuros limitan algunas aplicaciones AI agrícolas",
+      en ? "Economic slowdown and debt pressures" : "Desaceleración económica y presiones de deuda"
+    ],
     learn: [
       en ? "Mass AI literacy is achievable — Elements of AI is FREE and in Spanish" : "Alfabetización AI masiva es factible — Elements of AI es GRATIS y en español",
       en ? "Ethics-first approach aligns with CR values" : "Enfoque ética primero se alinea con valores CR",
       en ? "AuroraAI model for government service personalization" : "Modelo AuroraAI para personalización servicios gobierno"
+    ]
+  },
+  CRI: {
+    strategy: en ? "National AI Strategy (ENIA) published Oct 2024 by MICITT. 7 pillars: ethics, territorial development, talent, infrastructure, innovation, smart government, international leadership. Oxford Insights: 100/100 AI Vision score. BUT: non-binding strategy only, no law, no AI authority, 0.38/1.0 regulation score. World Bank: AI Overperformer (1 of 7 UMICs globally)." : "Estrategia Nacional AI (ENIA) publicada Oct 2024 por MICITT. 7 pilares: ética, desarrollo territorial, talento, infraestructura, innovación, gobierno inteligente, liderazgo internacional. Oxford Insights: 100/100 Visión AI. PERO: solo estrategia no vinculante, sin ley, sin autoridad AI, 0.38/1.0 regulación. Banco Mundial: AI Overperformer (1 de 7 PIMA globalmente).",
+    institutions: en ? "MICITT (Ministry of Science), PRODHAB (Data Protection), CCSS (Social Security), PROCOMER (Trade), CINDE (Investment), MEP (Education), INA (Technical Training), SUTEL (Telecom), BCCR (Central Bank), CONARE (Universities)" : "MICITT (Ministerio de Ciencia), PRODHAB (Protección de Datos), CCSS (Seguro Social), PROCOMER (Comercio), CINDE (Inversión), MEP (Educación), INA (Formación Técnica), SUTEL (Telecomunicaciones), BCCR (Banco Central), CONARE (Universidades)",
+    strengths: [
+      en ? "World Bank AI Overperformer — 1 of only 7 upper-middle-income countries globally" : "AI Overperformer del Banco Mundial — 1 de solo 7 países de ingreso medio-alto globalmente",
+      en ? "99% renewable electricity — unique competitive advantage for green AI and data centers" : "99% electricidad renovable — ventaja competitiva única para AI verde y data centers",
+      en ? "Record $4.3B FDI (2024), #3 Greenfield FDI Performance Index globally" : "Récord $4.3B IED (2024), #3 Índice de Desempeño IED Greenfield globalmente",
+      en ? "OECD member since 2021 — regulatory credibility and institutional quality" : "Miembro OCDE desde 2021 — credibilidad regulatoria y calidad institucional",
+      en ? "First AI curriculum in Central America (Intel AI For Youth in CTPs)" : "Primer currículo AI en Centroamérica (Intel AI For Youth en CTPs)",
+      en ? "75+ years uninterrupted democracy, no army since 1948 — political stability" : "75+ años democracia ininterrumpida, sin ejército desde 1948 — estabilidad política",
+      en ? "Bilingual talent pool (#1 English proficiency in Central America)" : "Pool talento bilingüe (#1 dominio inglés en Centroamérica)",
+      en ? "CAFTA-DR trade access + US timezone alignment" : "Acceso comercial CAFTA-DR + alineación huso horario EEUU"
+    ],
+    weaknesses: [
+      en ? "No binding AI law — 0.38/1.0 regulation score (largest strategy-execution gap in peer set)" : "Sin ley AI vinculante — 0.38/1.0 regulación (mayor brecha estrategia-ejecución en grupo de pares)",
+      en ? "37-38% workforce exposed to AI automation (IMF) — highest in Latin America" : "37-38% fuerza laboral expuesta a automatización AI (FMI) — más alta en América Latina",
+      en ? "Business leaders blind to AI risk — zero AI/tech in WEF EOS top 5 concerns" : "Líderes empresariales ciegos al riesgo AI — cero AI/tech en top 5 preocupaciones EOS WEF",
+      en ? "INA: 13,000 IT graduates/year with zero AI certification tracks" : "INA: 13,000 graduados IT/año con cero tracks de certificación AI",
+      en ? "Post-Conti cybersecurity rebuilding still in progress (30 institutions attacked 2022)" : "Reconstrucción ciberseguridad post-Conti aún en progreso (30 instituciones atacadas 2022)",
+      en ? "R&D spending only 0.4% GDP (vs 4.8% South Korea, 2.2% OECD average)" : "Gasto I+D solo 0.4% PIB (vs 4.8% Corea del Sur, 2.2% promedio OCDE)",
+      en ? "Brain drain: top AI talent emigrates for US/EU salaries" : "Fuga de cerebros: mejor talento AI emigra por salarios EEUU/UE"
+    ],
+    learn: [
+      en ? "Key opportunity: first Central American country with binding AI law = competitive FDI advantage" : "Oportunidad clave: primer país centroamericano con ley AI vinculante = ventaja competitiva IED",
+      en ? "Critical window: 12-18 months to convert ENIA vision (100/100) into enforceable legislation" : "Ventana crítica: 12-18 meses para convertir visión ENIA (100/100) en legislación aplicable",
+      en ? "Model: South Korea's regulate+promote AI Framework Act adapted for small-country context" : "Modelo: Ley Marco AI regular+promover de Corea del Sur adaptada para contexto de país pequeño"
+    ]
+  },
+  JPN: {
+    strategy: en ? "AI Strategy 2025. Society 5.0 vision. $15B+ AI investment. Focus: aging population, productivity." : "Estrategia AI 2025. Visión Sociedad 5.0. $15B+ inversión AI. Enfoque: envejecimiento población, productividad.",
+    institutions: en ? "METI, NEDO, RIKEN, AI Safety Institute (2024)" : "METI, NEDO, RIKEN, Instituto Seguridad AI (2024)",
+    learn: [
+      en ? "Robotics leader — Physical AI applications most advanced" : "Líder en robótica — aplicaciones Physical AI más avanzadas",
+      en ? "AI addressing aging population challenges relevant to CR's demographic shift" : "AI abordando desafíos de envejecimiento poblacional relevante para cambio demográfico CR"
+    ]
+  },
+  IRL: {
+    strategy: en ? "AI Strategy 2021. €20B+ FDI host for Big Tech HQs (Google, Meta, Apple). Enterprise Ireland AI programs." : "Estrategia AI 2021. €20B+ anfitrión IED para sedes Big Tech (Google, Meta, Apple). Programas AI Enterprise Ireland.",
+    institutions: en ? "Enterprise Ireland, IDA Ireland, SFI (Science Foundation)" : "Enterprise Ireland, IDA Ireland, SFI (Fundación Ciencia)",
+    learn: [
+      en ? "FDI attraction model for tech — similar small-country playbook to CR" : "Modelo atracción IED para tech — playbook de país pequeño similar a CR",
+      en ? "Tax incentive structures that evolved from labor-intensive to knowledge-based" : "Estructuras incentivos fiscales que evolucionaron de intensivas en mano de obra a basadas en conocimiento"
+    ]
+  },
+  URY: {
+    strategy: en ? "National AI Strategy (2019). Plan Ceibal: laptop-per-child. High digital literacy. AI Ethics Commission." : "Estrategia Nacional AI (2019). Plan Ceibal: laptop por niño. Alta alfabetización digital. Comisión Ética AI.",
+    institutions: en ? "AGESIC, Plan Ceibal, Agencia de Gobierno Electrónico" : "AGESIC, Plan Ceibal, Agencia de Gobierno Electrónico",
+    learn: [
+      en ? "Plan Ceibal universal digital access model for AI literacy" : "Modelo acceso digital universal Plan Ceibal para alfabetización AI",
+      en ? "Small, stable democracy with high institutional quality — similar to CR profile" : "Democracia pequeña y estable con alta calidad institucional — perfil similar a CR"
+    ]
+  },
+  PAN: {
+    strategy: en ? "National Digital Agenda 2025. No specific AI strategy. Hub Panamá digital program. Focus on logistics and finance AI." : "Agenda Digital Nacional 2025. Sin estrategia AI específica. Programa Hub Panamá digital. Enfoque en logística y finanzas AI.",
+    institutions: en ? "AIG (Innovation Authority), Panama Canal Authority, Secretaría de Innovación" : "AIG (Autoridad Innovación), Autoridad Canal de Panamá, Secretaría de Innovación",
+    learn: [
+      en ? "Canal logistics AI: direct model for CR port operations" : "AI logística Canal: modelo directo para operaciones portuarias CR",
+      en ? "CR's main Central American competitor for FDI — comparison important" : "Principal competidor centroamericano de CR para IED — comparación importante"
+    ]
+  },
+  BRA: {
+    strategy: en ? "AI Bill (PL 2338/2023) in Senate. Regulatory sandboxes. $1B+ annual AI investment. Largest LATAM market." : "Proyecto AI (PL 2338/2023) en Senado. Sandboxes regulatorios. $1B+ inversión AI anual. Mayor mercado LATAM.",
+    institutions: en ? "CNPD, ANPD (Data Protection), MCTI, BNDES" : "CNPD, ANPD (Protección Datos), MCTI, BNDES",
+    learn: [
+      en ? "Regulatory sandbox model in AI bill — applicable to CR" : "Modelo sandbox regulatorio en proyecto AI — aplicable a CR",
+      en ? "TSE anti-deepfake electoral rules since 2024 — model for CR" : "Reglas TSE anti-deepfake electorales desde 2024 — modelo para CR"
+    ]
+  },
+  COL: {
+    strategy: en ? "National AI Policy (CONPES 3975). AI Ethics Framework. Focus: agriculture, justice, health AI." : "Política Nacional AI (CONPES 3975). Marco Ética AI. Enfoque: agricultura, justicia, salud AI.",
+    institutions: en ? "MinTIC, Consejería Presidencial para Transformación Digital, C4IR Colombia" : "MinTIC, Consejería Presidencial para Transformación Digital, C4IR Colombia",
+    learn: [
+      en ? "Direct nearshoring competitor — CR must differentiate on quality and regulation" : "Competidor nearshoring directo — CR debe diferenciarse en calidad y regulación",
+      en ? "AI in justice system (Pretoria AI tool) — innovative government application" : "AI en sistema de justicia (herramienta AI Pretoria) — aplicación gubernamental innovadora"
+    ]
+  },
+  MEX: {
+    strategy: en ? "No comprehensive AI strategy. AI Mexico Coalition (private sector). Focus: nearshoring boom, manufacturing AI." : "Sin estrategia AI integral. Coalición AI México (sector privado). Enfoque: boom nearshoring, AI manufactura.",
+    institutions: en ? "CONACYT, Secretaría de Economía, AI Mexico (private coalition)" : "CONACYT, Secretaría de Economía, AI México (coalición privada)",
+    learn: [
+      en ? "Nearshoring leader by volume — CR competes on quality and specialization" : "Líder nearshoring por volumen — CR compite en calidad y especialización",
+      en ? "Absence of AI regulation creates both risk and opportunity for differentiation" : "Ausencia de regulación AI crea tanto riesgo como oportunidad de diferenciación"
+    ]
+  },
+  ARG: {
+    strategy: en ? "National AI Plan (2019). Strong university AI research. Focus: agriculture, fintech, healthcare AI." : "Plan Nacional AI (2019). Fuerte investigación AI universitaria. Enfoque: agricultura, fintech, salud AI.",
+    institutions: en ? "Secretaría de Innovación, CONICET, Universidad de Buenos Aires" : "Secretaría de Innovación, CONICET, Universidad de Buenos Aires",
+    learn: [
+      en ? "Talent-rich but economically unstable — CR has opposite profile (stable but smaller talent)" : "Rico en talento pero económicamente inestable — CR tiene perfil opuesto (estable pero menor talento)",
+      en ? "Mercado Libre AI (largest LATAM e-commerce) — innovation despite macro challenges" : "AI Mercado Libre (mayor e-commerce LATAM) — innovación a pesar de desafíos macro"
+    ]
+  },
+  PER: {
+    strategy: en ? "National AI Strategy (2021). Early stage implementation. Focus: mining, agriculture, government services." : "Estrategia Nacional AI (2021). Implementación en etapa temprana. Enfoque: minería, agricultura, servicios gubernamentales.",
+    institutions: en ? "Secretaría de Gobierno y Transformación Digital, CONCYTEC" : "Secretaría de Gobierno y Transformación Digital, CONCYTEC",
+    learn: [
+      en ? "Mining sector AI applications relevant to CR resource management" : "Aplicaciones AI sector minero relevantes para gestión de recursos CR",
+      en ? "Similar income level — tracks AI readiness evolution at comparable development stage" : "Nivel de ingreso similar — rastrea evolución preparación AI en etapa de desarrollo comparable"
+    ]
+  },
+  DOM: {
+    strategy: en ? "Digital Republic 2030 strategy. No specific AI policy. Focus: tourism tech, FZ digital services." : "Estrategia República Digital 2030. Sin política AI específica. Enfoque: tech turismo, servicios digitales ZF.",
+    institutions: en ? "OGTIC, CEI-RD (Investment Council), INDOTEL" : "OGTIC, CEI-RD (Consejo Inversión), INDOTEL",
+    learn: [
+      en ? "Direct FDI competitor in Caribbean — CR ahead on AI governance" : "Competidor IED directo en Caribe — CR adelante en gobernanza AI",
+      en ? "Tourism AI applications (demand forecasting, personalization) applicable to CR" : "Aplicaciones AI turismo (pronóstico demanda, personalización) aplicables a CR"
+    ]
+  },
+  VNM: {
+    strategy: en ? "National AI Strategy 2030. $950M investment. Focus: manufacturing, smart city, agriculture. AI in EOS Top 5 (#1)." : "Estrategia Nacional AI 2030. $950M inversión. Enfoque: manufactura, ciudad inteligente, agricultura. AI en EOS Top 5 (#1).",
+    institutions: en ? "MIC (Ministry of Information), VNPT, FPT Corporation" : "MIC (Ministerio Información), VNPT, FPT Corporation",
+    learn: [
+      en ? "Business leaders rank AI #1 risk (EOS) — opposite of CR's blind spot" : "Líderes empresariales clasifican AI riesgo #1 (EOS) — opuesto al punto ciego de CR",
+      en ? "Manufacturing competitor: 30-50% lower costs but lower governance quality" : "Competidor manufactura: 30-50% menores costos pero menor calidad gobernanza"
+    ]
+  },
+  PHL: {
+    strategy: en ? "National AI Strategy (NAIS) 2025. $38B IT-BPM sector. 1.82M BPO employees. Focus: BPO resilience." : "Estrategia Nacional AI (NAIS) 2025. $38B sector IT-BPM. 1.82M empleados BPO. Enfoque: resiliencia BPO.",
+    institutions: en ? "DICT, DOST, IBPAP (IT-BPO Association)" : "DICT, DOST, IBPAP (Asociación IT-BPO)",
+    learn: [
+      en ? "BPO scale (1.82M workers) vs CR (28K) — different magnitude but same AI threat" : "Escala BPO (1.82M trabajadores) vs CR (28K) — diferente magnitud pero misma amenaza AI",
+      en ? "AI in EOS Top 5 — business leaders aware, unlike CR" : "AI en EOS Top 5 — líderes empresariales conscientes, a diferencia de CR"
+    ]
+  },
+  MYS: {
+    strategy: en ? "National AI Roadmap 2025-2030. $2.7B investment including NVIDIA partnership. AI Overperformer (World Bank)." : "Hoja de Ruta Nacional AI 2025-2030. $2.7B inversión incluyendo asociación con NVIDIA. AI Overperformer (Banco Mundial).",
+    institutions: en ? "MDEC, MOSTI, MaGIC" : "MDEC, MOSTI, MaGIC",
+    learn: [
+      en ? "Fellow AI Overperformer — comparison of strategies at similar development level" : "AI Overperformer par — comparación de estrategias a nivel de desarrollo similar",
+      en ? "NVIDIA partnership for national AI infrastructure — model for CR energy advantage" : "Asociación con NVIDIA para infraestructura AI nacional — modelo para ventaja energética CR"
+    ]
+  },
+  IDN: {
+    strategy: en ? "National AI Strategy 2025. Focus: 270M market digitalization, agriculture, healthcare, smart city." : "Estrategia Nacional AI 2025. Enfoque: digitalización mercado 270M, agricultura, salud, ciudad inteligente.",
+    institutions: en ? "BRIN (Research Agency), Kominfo, BAPPENAS" : "BRIN (Agencia Investigación), Kominfo, BAPPENAS",
+    learn: [
+      en ? "AI Overperformer with 270M market — different scale but similar governance challenges" : "AI Overperformer con mercado 270M — diferente escala pero desafíos de gobernanza similares",
+      en ? "Agricultural AI for tropical crops directly applicable to CR" : "AI agrícola para cultivos tropicales directamente aplicable a CR"
     ]
   }
 });
@@ -625,7 +859,7 @@ export const LAWS = (en) => [
   { n: en ? "Chile AI Bill" : "Proyecto AI Chile", f: "🇨🇱", st: en ? "IN SENATE" : "EN SENADO", sc: TH.am, desc: en ? "Approved Chamber Aug 2025. Modeled on EU AI Act 4 tiers. First country to complete UNESCO RAM. AI Advisory Council. CR's closest LATAM comparator." : "Aprobado Cámara Ago 2025. Modelado en EU AI Act 4 niveles. Primer país en completar RAM UNESCO. Consejo Consultivo AI. Comparador LATAM más cercano de CR.", cr: en ? "Complete UNESCO RAM (evidence base + credibility). Regional coordination via SICA." : "Completar RAM UNESCO (base evidencia + credibilidad). Coordinación regional via SICA.", lk: "https://www.camara.cl/legislacion/ProyectosDeLey/tramitacion.aspx?prmID=16554", timeline: [{ date: "2024-03", event: en ? "UNESCO RAM completed (first country)" : "RAM UNESCO completada (primer país)" }, { date: "2025-08", event: en ? "Approved by Chamber of Deputies" : "Aprobado por Cámara de Diputados" }, { date: "2025-H2", event: en ? "Senate deliberation" : "Deliberación en Senado" }, { date: "2026-H1", event: en ? "Expected enactment" : "Promulgación esperada" }], crActions: [en ? "Complete UNESCO RAM to match Chile's evidence base" : "Completar RAM UNESCO para igualar base de evidencia de Chile", en ? "Coordinate LATAM AI harmonization via SICA and Pacific Alliance" : "Coordinar armonización AI LATAM vía SICA y Alianza del Pacífico", en ? "Establish AI Advisory Council modeled on Chile's approach" : "Establecer Consejo Consultivo AI modelado en enfoque de Chile"] },
   { n: "CR ENIA", f: "🇨🇷", st: en ? "STRATEGY ONLY" : "SOLO ESTRATEGIA", sc: TH.or, desc: en ? "First Central American country with national AI strategy (MICITT, Oct 2024). 7 pillars: ethics, territorial development, talent, infrastructure, innovation, smart government, international leadership. Aligned with UNESCO AI Ethics Recommendation. BUT: NO binding law, NO authority, NO mandatory transparency. Score: 0.38/1.0." : "Primer país centroamericano con estrategia nacional AI (MICITT, Oct 2024). 7 pilares: ética, desarrollo territorial, talento, infraestructura, innovación, gobierno inteligente, liderazgo internacional. Alineada con Recomendación UNESCO. PERO: SIN ley vinculante, SIN autoridad, SIN transparencia obligatoria. Score: 0.38/1.0.", cr: en ? "Must legislate within 12 months: (1) AI disclosure, (2) anti-discrimination, (3) PRODHAB as authority. First Central American AI law = FDI advantage." : "Debe legislar en 12 meses: (1) divulgación AI, (2) anti-discriminación, (3) PRODHAB como autoridad. Primera ley AI centroamericana = ventaja IED.", lk: "https://www.micit.go.cr/sites/default/files/estrategia-nacional-ia-cr.pdf", timeline: [{ date: "2024-10", event: en ? "ENIA published by MICITT" : "ENIA publicada por MICITT" }, { date: "2025-Q1", event: en ? "Oxford Insights: 100/100 Vision score" : "Oxford Insights: 100/100 puntaje Visión" }, { date: "2025-H2", event: en ? "Implementation gaps identified" : "Brechas de implementación identificadas" }, { date: "2026", event: en ? "Legislative conversion target" : "Meta de conversión legislativa" }], crActions: [en ? "Convert ENIA from strategy to binding legislation within 12 months" : "Convertir ENIA de estrategia a legislación vinculante en 12 meses", en ? "Assign PRODHAB as national AI authority with expanded mandate" : "Asignar PRODHAB como autoridad nacional AI con mandato ampliado", en ? "Establish measurable KPIs for each of the 7 ENIA pillars" : "Establecer KPIs medibles para cada uno de los 7 pilares ENIA", en ? "Create inter-institutional AI coordination mechanism" : "Crear mecanismo de coordinación AI interinstitucional"] },
   // NEW Law 6: CR Bill 23771
-  { n: en ? "CR Bill 23771" : "Proyecto CR 23771", f: "🇨🇷", st: en ? "IN COMMITTEE" : "EN COMISIÓN", sc: TH.am, desc: en ? "'Law for the Regulation of AI in Costa Rica' filed May 2023 by Rep. Vanessa Castro. Notable: drafted WITH ChatGPT-4. Covers transparency, privacy, data security. References CR Constitution 1949. First AI-specific bill in Central America." : "'Ley para la Regulación de AI en Costa Rica' presentado May 2023 por Dip. Vanessa Castro. Notable: redactado CON ChatGPT-4. Cubre transparencia, privacidad, seguridad datos. Referencia Constitución CR 1949. Primer proyecto específico AI en Centroamérica.", cr: en ? "Critical first step. Needs modernization with EU AI Act risk tiers and South Korea's promote+regulate approach." : "Primer paso crítico. Necesita modernización con niveles riesgo EU AI Act y enfoque promover+regular de Corea del Sur.", lk: "https://www.asamblea.go.cr/glcp/SitePages/ConsultaProyectos.aspx", timeline: [{ date: "2023-05", event: en ? "Filed by Rep. Vanessa Castro" : "Presentado por Dip. Vanessa Castro" }, { date: "2023-H2", event: en ? "Referred to Science & Tech committee" : "Referido a comisión Ciencia y Tecnología" }, { date: "2025", event: en ? "Still in committee — stalled" : "Aún en comisión — estancado" }], crActions: [en ? "Modernize bill with EU AI Act risk-tier framework" : "Modernizar proyecto con marco de niveles de riesgo del EU AI Act", en ? "Add South Korea-style promote+regulate dual mandate" : "Agregar mandato dual promover+regular estilo Corea del Sur", en ? "Include free zone AI compliance provisions" : "Incluir provisiones de cumplimiento AI para zonas francas", en ? "Fast-track committee review before 2026 elections" : "Acelerar revisión en comisión antes de elecciones 2026"] },
+  { n: en ? "CR Bill 23771" : "Proyecto CR 23771", f: "🇨🇷", st: en ? "IN COMMITTEE" : "EN COMISIÓN", sc: TH.am, desc: en ? "'Law for the Regulation of AI in Costa Rica' filed May 2023 by Rep. Vanessa Castro. Notable: drafted WITH ChatGPT-4. Covers transparency, privacy, data security. References CR Constitution 1949. First AI-specific bill in Central America." : "'Ley para la Regulación de AI en Costa Rica' presentado May 2023 por Dip. Vanessa Castro. Notable: redactado CON ChatGPT-4. Cubre transparencia, privacidad, seguridad datos. Referencia Constitución CR 1949. Primer proyecto específico AI en Centroamérica.", cr: en ? "Critical first step. Needs modernization with EU AI Act risk tiers and South Korea's promote+regulate approach." : "Primer paso crítico. Necesita modernización con niveles riesgo EU AI Act y enfoque promover+regular de Corea del Sur.", lk: "https://www.asamblea.go.cr/glcp/SitePages/ConsultaProyectos.aspx", timeline: [{ date: "2023-05", event: en ? "Filed by Rep. Vanessa Castro" : "Presentado por Dip. Vanessa Castro" }, { date: "2023-H2", event: en ? "Referred to Science & Tech committee" : "Referido a comisión Ciencia y Tecnología" }, { date: "2025", event: en ? "Still in committee — stalled" : "Aún en comisión — estancado" }], crActions: [en ? "Modernize bill with EU AI Act risk-tier framework" : "Modernizar proyecto con marco de niveles de riesgo del EU AI Act", en ? "Add South Korea-style promote+regulate dual mandate" : "Agregar mandato dual promover+regular estilo Corea del Sur", en ? "Include free zone AI compliance provisions" : "Incluir provisiones de cumplimiento AI para zonas francas", en ? "Fast-track committee review post-2026 elections" : "Acelerar revisión en comisión post-elecciones 2026"] },
   // NEW Law 7: CR Bill 23097
   { n: en ? "CR Bill 23097" : "Proyecto CR 23097", f: "🇨🇷", st: en ? "IN REVIEW" : "EN REVISIÓN", sc: TH.vi, desc: en ? "Data Protection reform aligning with EU GDPR. Strengthens PRODHAB. Essential for AI governance infrastructure. GDPR adequacy enables EU data flows for free zone companies. Key enabler for responsible AI deployment." : "Reforma Protección Datos alineándose con GDPR UE. Fortalece PRODHAB. Esencial para infraestructura de gobernanza AI. Adecuación GDPR habilita flujos datos UE para empresas zonas francas. Habilitador clave para despliegue AI responsable.", cr: en ? "Must pass BEFORE AI law. GDPR adequacy = competitive advantage for FZ companies serving EU clients." : "Debe aprobarse ANTES de ley AI. Adecuación GDPR = ventaja competitiva para empresas ZF sirviendo clientes UE.", lk: "https://www.asamblea.go.cr/glcp/SitePages/ConsultaProyectos.aspx", timeline: [{ date: "2022", event: en ? "Data Protection reform bill introduced" : "Proyecto reforma Protección Datos introducido" }, { date: "2024", event: en ? "Committee review and amendments" : "Revisión en comisión y enmiendas" }, { date: "2025-H2", event: en ? "Expected plenary vote" : "Votación plenaria esperada" }], crActions: [en ? "Prioritize passage BEFORE AI-specific legislation" : "Priorizar aprobación ANTES de legislación AI específica", en ? "Align PRODHAB mandate with GDPR supervisory authority model" : "Alinear mandato PRODHAB con modelo autoridad supervisora GDPR", en ? "Ensure GDPR adequacy determination to enable EU data flows for FZ" : "Asegurar determinación de adecuación GDPR para habilitar flujos datos UE para ZF"] }
 ];
@@ -636,7 +870,7 @@ export const CHECKLIST = (en) => [
   { i: en ? "Data Protection Law reform" : "Reforma Ley Protección Datos", d: false, p: en ? "CRITICAL" : "CRÍTICA" },
   { i: en ? "AI authority (PRODHAB)" : "Autoridad AI (PRODHAB)", d: false, p: en ? "CRITICAL" : "CRÍTICA" },
   { i: en ? "Algorithmic impact assessments" : "Evaluaciones impacto algorítmico", d: false, p: en ? "HIGH" : "ALTA" },
-  { i: en ? "Anti-misinfo framework (2026 elections)" : "Marco anti-desinfo (elecciones 2026)", d: false, p: en ? "URGENT" : "URGENTE" },
+  { i: en ? "Anti-disinformation framework (post-2026 elections)" : "Marco anti-desinformación (post-elecciones 2026)", d: false, p: en ? "URGENT" : "URGENTE" },
   { i: en ? "National AI Strategy (ENIA)" : "Estrategia Nacional AI (ENIA)", d: true, p: "✅" },
   { i: en ? "UNESCO RAM completion" : "Completar RAM UNESCO", d: false, p: en ? "MEDIUM" : "MEDIA" },
   { i: en ? "Regulatory sandbox" : "Sandbox regulatorio", d: false, p: en ? "MEDIUM" : "MEDIA" },
@@ -685,12 +919,20 @@ export const SOCIAL = {
 
 // ── VIP QUOTES REEL ──
 export const VIP_QUOTES = (en) => [
-  { name: "Geoffrey Hinton", title: en ? "Nobel Laureate, 'Godfather of AI'" : "Nobel, 'Padrino de la AI'", initials: "GH", gradient: "linear-gradient(135deg, #2563eb, #6366f1)", quote: en ? "There is a 10 to 20 percent probability of AI leading to the extinction of humanity in the next 30 years." : "Hay una probabilidad de 10 a 20 por ciento de que la AI lleve a la extinción de la humanidad en los próximos 30 años.", src: "https://www.bbc.com/news/technology-68495207" },
-  { name: "Rodrigo Chaves", title: en ? "President of Costa Rica" : "Presidente de Costa Rica", initials: "RC", gradient: "linear-gradient(135deg, #10b981, #2563eb)", quote: en ? "Costa Rica has a unique window to position itself as a leader in responsible AI in Latin America." : "Costa Rica tiene una ventana única para posicionarse como líder en AI responsable en América Latina.", src: "https://www.presidencia.go.cr/" },
-  { name: "Sundar Pichai", title: "CEO, Google / Alphabet", initials: "SP", gradient: "linear-gradient(135deg, #f59e0b, #ef4444)", quote: en ? "AI is probably the most important thing humanity has ever worked on. I think of it as something more profound than electricity or fire." : "AI es probablemente lo más importante en lo que la humanidad ha trabajado. La veo como algo más profundo que la electricidad o el fuego.", src: "https://abc.xyz" },
-  { name: "Sam Altman", title: "CEO, OpenAI", initials: "SA", gradient: "linear-gradient(135deg, #6366f1, #ec4899)", quote: en ? "AI will probably most change the world of any technology we've yet built." : "AI probablemente cambiará el mundo más que cualquier tecnología que hayamos construido.", src: "https://openai.com" },
-  { name: "Bill Gates", title: en ? "Co-founder, Microsoft" : "Co-fundador, Microsoft", initials: "BG", gradient: "linear-gradient(135deg, #2563eb, #10b981)", quote: en ? "AI is as revolutionary as mobile phones and the Internet." : "AI es tan revolucionaria como los teléfonos móviles e Internet.", src: "https://www.gatesnotes.com/" },
-  { name: "Daron Acemoglu", title: en ? "Nobel Laureate, MIT Economist" : "Nobel, Economista MIT", initials: "DA", gradient: "linear-gradient(135deg, #ef4444, #f59e0b)", quote: en ? "The real risk is not that AI becomes super-intelligent, but that we deploy it in ways that concentrate power and increase inequality." : "El riesgo real no es que la AI se vuelva super-inteligente, sino que la despleguemos de formas que concentren poder y aumenten desigualdad.", src: "https://economics.mit.edu/people/faculty/daron-acemoglu" }
+  { name: "Geoffrey Hinton", title: en ? "Nobel Laureate, 'Godfather of AI'" : "Nobel, 'Padrino de la AI'", initials: "GH", gradient: "linear-gradient(135deg, #2563eb, #6366f1)", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Geoffrey_Hinton_-_Collision_2023_-_Centre_Stage_%28cropped%29.jpg/440px-Geoffrey_Hinton_-_Collision_2023_-_Centre_Stage_%28cropped%29.jpg", quote: en ? "There is a 10 to 20 percent probability of AI leading to the extinction of humanity in the next 30 years." : "Hay una probabilidad de 10 a 20 por ciento de que la AI lleve a la extinción de la humanidad en los próximos 30 años.", src: "https://www.bbc.com/news/technology-68495207" },
+  { name: "Rodrigo Chaves", title: en ? "President of Costa Rica" : "Presidente de Costa Rica", initials: "RC", gradient: "linear-gradient(135deg, #10b981, #2563eb)", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Rodrigo-Chaves-Robles-Presidente.jpg/440px-Rodrigo-Chaves-Robles-Presidente.jpg", quote: en ? "Costa Rica has a unique window to position itself as a leader in responsible AI in Latin America." : "Costa Rica tiene una ventana única para posicionarse como líder en AI responsable en América Latina.", src: "https://www.presidencia.go.cr/" },
+  { name: "Sundar Pichai", title: "CEO, Google / Alphabet", initials: "SP", gradient: "linear-gradient(135deg, #f59e0b, #ef4444)", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Sundar_Pichai_%2832164848963%29_%28cropped%29.jpg/440px-Sundar_Pichai_%2832164848963%29_%28cropped%29.jpg", quote: en ? "AI is probably the most important thing humanity has ever worked on. I think of it as something more profound than electricity or fire." : "AI es probablemente lo más importante en lo que la humanidad ha trabajado. La veo como algo más profundo que la electricidad o el fuego.", src: "https://abc.xyz" },
+  { name: "Sam Altman", title: "CEO, OpenAI", initials: "SA", gradient: "linear-gradient(135deg, #6366f1, #ec4899)", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Sam_Altman_CropEdit.jpg/440px-Sam_Altman_CropEdit.jpg", quote: en ? "AI will probably most change the world of any technology we've yet built." : "AI probablemente cambiará el mundo más que cualquier tecnología que hayamos construido.", src: "https://openai.com" },
+  { name: "Bill Gates", title: en ? "Co-founder, Microsoft" : "Co-fundador, Microsoft", initials: "BG", gradient: "linear-gradient(135deg, #2563eb, #10b981)", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Bill_Gates_2017_%28cropped%29.jpg/440px-Bill_Gates_2017_%28cropped%29.jpg", quote: en ? "AI is as revolutionary as mobile phones and the Internet." : "AI es tan revolucionaria como los teléfonos móviles e Internet.", src: "https://www.gatesnotes.com/" },
+  { name: "Daron Acemoglu", title: en ? "Nobel Laureate, MIT Economist" : "Nobel, Economista MIT", initials: "DA", gradient: "linear-gradient(135deg, #ef4444, #f59e0b)", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Daron_Acemoglu_in_2023.jpg/440px-Daron_Acemoglu_in_2023.jpg", quote: en ? "The real risk is not that AI becomes super-intelligent, but that we deploy it in ways that concentrate power and increase inequality." : "El riesgo real no es que la AI se vuelva super-inteligente, sino que la despleguemos de formas que concentren poder y aumenten desigualdad.", src: "https://economics.mit.edu/people/faculty/daron-acemoglu" },
+  // NEW quotes v15
+  { name: "Fei-Fei Li", title: en ? "Stanford HAI Co-Director, 'Godmother of AI'" : "Co-Directora Stanford HAI, 'Madrina de la AI'", initials: "FL", gradient: "linear-gradient(135deg, #8b5cf6, #ec4899)", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Fei-Fei_Li_at_AI_for_Good_2017.jpg/440px-Fei-Fei_Li_at_AI_for_Good_2017.jpg", quote: en ? "There's nothing artificial about AI. It's inspired by people, it's created by people, and most importantly, it impacts people." : "No hay nada artificial sobre la AI. Está inspirada en personas, creada por personas, y lo más importante, impacta a personas.", src: "https://hai.stanford.edu/" },
+  { name: "Jensen Huang", title: "CEO, NVIDIA", initials: "JH", gradient: "linear-gradient(135deg, #76b900, #1a1a2e)", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Jensen_Huang_-_Pair_%28cropped%29.jpg/440px-Jensen_Huang_-_Pair_%28cropped%29.jpg", quote: en ? "Every country needs to own the production of their own intelligence. It is the single most important infrastructure of every country." : "Cada país necesita ser dueño de la producción de su propia inteligencia. Es la infraestructura más importante de cada país.", src: "https://www.nvidia.com/" },
+  { name: "Satya Nadella", title: "CEO, Microsoft", initials: "SN", gradient: "linear-gradient(135deg, #00a4ef, #7fba00)", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Satya_smiling-print_%28cropped%29.jpg/440px-Satya_smiling-print_%28cropped%29.jpg", quote: en ? "AI is going to be the defining technology of our times. The question is, what are we going to do with it?" : "AI va a ser la tecnología definitoria de nuestros tiempos. La pregunta es, ¿qué vamos a hacer con ella?", src: "https://www.microsoft.com/" },
+  { name: "Mustafa Suleyman", title: en ? "CEO, Microsoft AI" : "CEO, Microsoft AI", initials: "MS", gradient: "linear-gradient(135deg, #2563eb, #f59e0b)", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Mustafa_Suleyman_at_TechCrunch_Disrupt_2023_%28cropped%29.jpg/440px-Mustafa_Suleyman_at_TechCrunch_Disrupt_2023_%28cropped%29.jpg", quote: en ? "AI is the most consequential technology since fire. We need new institutions, not just new technology." : "AI es la tecnología más consecuente desde el fuego. Necesitamos nuevas instituciones, no solo nueva tecnología.", src: "https://www.microsoft.com/en-us/ai" },
+  { name: "Carlos Alvarado", title: en ? "Ex-President of Costa Rica (2018-2022)" : "Ex-Presidente de Costa Rica (2018-2022)", initials: "CA", gradient: "linear-gradient(135deg, #10b981, #059669)", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Presidente_de_Costa_Rica%2C_Carlos_Alvarado_%28cropped%29.jpg/440px-Presidente_de_Costa_Rica%2C_Carlos_Alvarado_%28cropped%29.jpg", quote: en ? "Costa Rica's commitment to sustainability and innovation must extend to the digital frontier. We can be leaders in responsible technology." : "El compromiso de Costa Rica con la sostenibilidad e innovación debe extenderse a la frontera digital. Podemos ser líderes en tecnología responsable.", src: "https://www.presidencia.go.cr/" },
+  { name: "Alicia Bárcena", title: en ? "ECLAC Executive Secretary (2008-2022)" : "Secretaria Ejecutiva CEPAL (2008-2022)", initials: "AB", gradient: "linear-gradient(135deg, #2563eb, #8b5cf6)", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Alicia_Barcena_2016.jpg/440px-Alicia_Barcena_2016.jpg", quote: en ? "Latin America cannot afford to be a passive consumer of AI. The region must develop sovereign capabilities or risk permanent digital dependency." : "América Latina no puede permitirse ser consumidora pasiva de AI. La región debe desarrollar capacidades soberanas o arriesgar dependencia digital permanente.", src: "https://www.cepal.org/" },
+  { name: "Kai-Fu Lee", title: en ? "CEO Sinovation, AI Author" : "CEO Sinovation, Autor AI", initials: "KL", gradient: "linear-gradient(135deg, #ef4444, #f97316)", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Kai-Fu_Lee_at_TechCrunch.jpg/440px-Kai-Fu_Lee_at_TechCrunch.jpg", quote: en ? "AI will displace 40% of jobs in the next 15 years. Countries that prepare their workforce now will thrive; those that don't will suffer." : "AI desplazará el 40% de los empleos en los próximos 15 años. Los países que preparen su fuerza laboral ahora prosperarán; los que no, sufrirán.", src: "https://www.sinovationventures.com/" }
 ];
 
 // ── NEWS CATEGORIES (for thumbnail colors) ──
@@ -701,4 +943,275 @@ export const NEWS_CATEGORIES = {
   economy: { label: { en: "Economy", es: "Economía" }, color: "#f59e0b", icon: "📊" },
   education: { label: { en: "Education", es: "Educación" }, color: "#10b981", icon: "🎓" },
   general: { label: { en: "General", es: "General" }, color: "#94a3b8", icon: "◈" }
+};
+
+// ── FREE ZONES DEEP ANALYSIS ──
+export const FZ_DEEP = (en) => ({
+  projections: {
+    title: en ? "FDI Trajectory 2025-2030" : "Trayectoria IED 2025-2030",
+    data: [
+      { year: 2024, fdi: 4.3, source: "CINDE" },
+      { year: 2025, fdi: 4.6, source: en ? "Estimate (CINDE growth rate)" : "Estimado (tasa crecimiento CINDE)" },
+      { year: 2026, fdi: 5.0, source: en ? "Projected" : "Proyectado" },
+      { year: 2027, fdi: 5.4, source: en ? "Projected" : "Proyectado" },
+      { year: 2028, fdi: 5.8, source: en ? "Projected" : "Proyectado" },
+      { year: 2029, fdi: 6.2, source: en ? "Projected" : "Proyectado" },
+      { year: 2030, fdi: 6.8, source: en ? "Projected (AI compliance premium)" : "Proyectado (prima cumplimiento AI)" }
+    ],
+    narrative: en ? "Costa Rica's FDI has grown 12% CAGR since 2019. AI compliance readiness (binding law + GDPR adequacy) could accelerate to 15% CAGR by 2028." : "IED de Costa Rica ha crecido 12% CAGR desde 2019. Preparación cumplimiento AI (ley vinculante + adecuación GDPR) podría acelerar a 15% CAGR para 2028."
+  },
+  aiImpact: [
+    { title: en ? "Legal Framework Evolution" : "Evolución del Marco Legal", desc: en ? "EU AI Act enforcement (Aug 2026) means FZ companies exporting to EU must comply with 4-tier risk classification. Currently zero FZ companies have AI compliance officers." : "Aplicación EU AI Act (Ago 2026) significa que empresas ZF exportando a UE deben cumplir clasificación 4 niveles riesgo. Actualmente cero empresas ZF tienen oficiales cumplimiento AI." },
+    { title: en ? "Skill Requirements Shift" : "Cambio en Requisitos de Habilidades", desc: en ? "AI-augmented roles replacing traditional BPO: customer service AI supervisors, AI quality assurance, prompt engineers, AI ethics compliance. INA has zero tracks for these." : "Roles aumentados con AI reemplazando BPO tradicional: supervisores AI servicio al cliente, aseguramiento calidad AI, ingenieros de prompts, cumplimiento ética AI. INA tiene cero tracks para estos." },
+    { title: en ? "Competitive Advantage Window" : "Ventana de Ventaja Competitiva", desc: en ? "First LATAM FZ regime with AI governance framework = premium positioning for EU/US companies needing compliant nearshore operations." : "Primer régimen ZF LATAM con marco gobernanza AI = posicionamiento premium para empresas UE/EEUU necesitando operaciones nearshore compatibles." }
+  ],
+  laborProfile: {
+    current: [
+      en ? "BPO customer service agents: ~28,000" : "Agentes BPO servicio al cliente: ~28,000",
+      en ? "Software developers: ~15,000" : "Desarrolladores software: ~15,000",
+      en ? "Manufacturing technicians: ~22,000" : "Técnicos manufactura: ~22,000",
+      en ? "Shared services (finance/HR): ~18,000" : "Servicios compartidos (finanzas/RRHH): ~18,000",
+      en ? "Medical devices QA: ~12,000" : "Control calidad dispositivos médicos: ~12,000"
+    ],
+    expected2030: [
+      en ? "AI operations supervisors: +5,000 (NEW)" : "Supervisores operaciones AI: +5,000 (NUEVO)",
+      en ? "Data engineers/ML ops: +8,000 (NEW)" : "Ingenieros datos/ML ops: +8,000 (NUEVO)",
+      en ? "AI compliance officers: +2,000 (NEW)" : "Oficiales cumplimiento AI: +2,000 (NUEVO)",
+      en ? "Robotics technicians: +3,000 (NEW)" : "Técnicos robótica: +3,000 (NUEVO)",
+      en ? "Traditional BPO: -12,000 to -18,000 (AT RISK)" : "BPO tradicional: -12,000 a -18,000 (EN RIESGO)"
+    ]
+  },
+  competitiveness: [
+    { country: "Costa Rica", cost: en ? "Medium" : "Medio", talent: en ? "High (bilingual)" : "Alto (bilingüe)", infra: en ? "Good (99% renewable)" : "Buena (99% renovable)", stability: en ? "Excellent" : "Excelente", energy: en ? "99% renewable" : "99% renovable", aiReady: en ? "Low (no law)" : "Bajo (sin ley)" },
+    { country: "Vietnam", cost: en ? "Low" : "Bajo", talent: en ? "High (STEM)" : "Alto (STEM)", infra: en ? "Growing" : "Creciente", stability: en ? "Good" : "Buena", energy: en ? "40% coal" : "40% carbón", aiReady: en ? "Medium" : "Medio" },
+    { country: "Colombia", cost: en ? "Low-Medium" : "Bajo-Medio", talent: en ? "High" : "Alto", infra: en ? "Medium" : "Media", stability: en ? "Improving" : "Mejorando", energy: en ? "70% renewable" : "70% renovable", aiReady: en ? "Low" : "Bajo" },
+    { country: "Philippines", cost: en ? "Low" : "Bajo", talent: en ? "Very High (English)" : "Muy Alto (inglés)", infra: en ? "Medium" : "Media", stability: en ? "Medium" : "Media", energy: en ? "35% renewable" : "35% renovable", aiReady: en ? "Low" : "Bajo" },
+    { country: en ? "Dominican Rep." : "Rep. Dominicana", cost: en ? "Low" : "Bajo", talent: en ? "Medium" : "Medio", infra: en ? "Growing" : "Creciente", stability: en ? "Good" : "Buena", energy: en ? "15% renewable" : "15% renovable", aiReady: en ? "Low" : "Bajo" }
+  ],
+  risksAndOpps: {
+    risks: [
+      en ? "EU AI Act compliance gap: FZ companies unprepared for Aug 2026 enforcement" : "Brecha cumplimiento EU AI Act: empresas ZF no preparadas para aplicación Ago 2026",
+      en ? "BPO displacement: 12-18K jobs at risk from AI automation by 2028" : "Desplazamiento BPO: 12-18K empleos en riesgo por automatización AI para 2028",
+      en ? "Competitor countries investing heavily (Vietnam AI strategy, Colombia IT incentives)" : "Países competidores invirtiendo fuertemente (estrategia AI Vietnam, incentivos IT Colombia)",
+      en ? "No AI regulatory sandbox — companies can't test compliance before enforcement" : "Sin sandbox regulatorio AI — empresas no pueden probar cumplimiento antes de aplicación"
+    ],
+    opportunities: [
+      en ? "First Central American binding AI law = FDI magnet for compliance-conscious firms" : "Primera ley AI vinculante centroamericana = imán IED para firmas conscientes del cumplimiento",
+      en ? "GDPR adequacy determination = EU data flows for FZ → premium positioning" : "Determinación adecuación GDPR = flujos datos UE para ZF → posicionamiento premium",
+      en ? "Green AI advantage: 99% renewable makes CR ideal for carbon-conscious AI operations" : "Ventaja AI verde: 99% renovable hace CR ideal para operaciones AI conscientes del carbono",
+      en ? "Nearshore AI hub: same timezone + cultural affinity with US market" : "Hub AI nearshore: mismo huso horario + afinidad cultural con mercado EEUU"
+    ]
+  },
+  whyInvest: [
+    { reason: "CAFTA-DR", desc: en ? "Preferential trade access to US, Central America, Dominican Republic" : "Acceso comercial preferencial a EEUU, Centroamérica, República Dominicana" },
+    { reason: en ? "OECD Member" : "Miembro OCDE", desc: en ? "Regulatory credibility, institutional quality, anti-corruption standards" : "Credibilidad regulatoria, calidad institucional, estándares anti-corrupción" },
+    { reason: en ? "99% Renewable" : "99% Renovable", desc: en ? "Unique selling point for ESG-conscious investors and green AI deployments" : "Punto de venta único para inversionistas conscientes ESG y despliegues AI verde" },
+    { reason: en ? "US Timezone" : "Huso Horario EEUU", desc: en ? "Real-time collaboration with North American clients (no overnight shifts)" : "Colaboración en tiempo real con clientes norteamericanos (sin turnos nocturnos)" },
+    { reason: en ? "Bilingual Talent" : "Talento Bilingüe", desc: en ? "#1 English proficiency in Central America, 3rd in LATAM (EF EPI)" : "#1 dominio inglés en Centroamérica, 3ro en LATAM (EF EPI)" },
+    { reason: en ? "Political Stability" : "Estabilidad Política", desc: en ? "75+ years uninterrupted democracy, no army since 1948, Freedom House 91/100" : "75+ años democracia ininterrumpida, sin ejército desde 1948, Freedom House 91/100" },
+    { reason: en ? "Record FDI" : "IED Récord", desc: en ? "$4.3B in 2024 — #3 globally in Greenfield FDI Performance Index (fDi Markets)" : "$4.3B en 2024 — #3 globalmente en Índice Desempeño IED Greenfield (fDi Markets)" },
+    { reason: en ? "AI Overperformer" : "AI Overperformer", desc: en ? "World Bank: one of 7 upper-middle-income countries outperforming on AI readiness indicators" : "Banco Mundial: uno de 7 países de ingreso medio-alto superando en indicadores preparación AI" }
+  ],
+  challenges: [
+    { current: en ? "Zero AI compliance framework for FZ operations" : "Cero marco cumplimiento AI para operaciones ZF", future: en ? "EU AI Act full enforcement Aug 2026 — unprepared firms lose EU market access" : "Aplicación total EU AI Act Ago 2026 — firmas no preparadas pierden acceso mercado UE" },
+    { current: en ? "INA graduates 13K IT workers/yr with zero AI skills" : "INA gradúa 13K trabajadores IT/año con cero habilidades AI", future: en ? "AI operations roles require skills that don't exist in current training pipeline" : "Roles operaciones AI requieren habilidades que no existen en pipeline de formación actual" },
+    { current: en ? "BPO sector (~28K jobs) running on pre-AI service models" : "Sector BPO (~28K empleos) operando en modelos servicio pre-AI", future: en ? "40-60% of routine BPO tasks automatable by 2028 (McKinsey)" : "40-60% de tareas BPO rutinarias automatizables para 2028 (McKinsey)" }
+  ],
+  govPreparation: [
+    en ? "Establish AI regulatory sandbox under MICITT for FZ companies (priority: medical devices, digital services)" : "Establecer sandbox regulatorio AI bajo MICITT para empresas ZF (prioridad: dispositivos médicos, servicios digitales)",
+    en ? "Create INA AI Technician Track: 8-week certification co-designed with Intel, Amazon, HP" : "Crear Track Técnico AI INA: certificación 8 semanas co-diseñada con Intel, Amazon, HP",
+    en ? "Negotiate GDPR adequacy with EU Commission to unlock data flows for FZ" : "Negociar adecuación GDPR con Comisión UE para desbloquear flujos datos para ZF",
+    en ? "Launch FZ AI Compliance Readiness Program (60-day EU AI Act preparation)" : "Lanzar Programa Preparación Cumplimiento AI ZF (preparación 60 días EU AI Act)",
+    en ? "Create transition support for displaced BPO workers (reskilling stipend + placement)" : "Crear soporte transición para trabajadores BPO desplazados (estipendio recapacitación + colocación)"
+  ],
+  sources: [
+    { name: "CINDE Costa Rica", url: "https://www.cinde.org/" },
+    { name: "PROCOMER", url: "https://www.procomer.com/" },
+    { name: "EU AI Act", url: "https://eur-lex.europa.eu/eli/reg/2024/1689/oj" },
+    { name: "World Bank Digital Progress", url: "https://www.worldbank.org/" },
+    { name: "fDi Markets Greenfield FDI Performance Index", url: "https://www.fdimarkets.com/" },
+    { name: "McKinsey Global Institute", url: "https://www.mckinsey.com/mgi/" }
+  ]
+});
+
+// ── SECURITY DEEP ANALYSIS ──
+export const SEC_DEEP = (en) => ({
+  threats: [
+    { name: en ? "Prompt Injection" : "Inyección de Prompts", icon: "💉", severity: en ? "CRITICAL" : "CRÍTICO",
+      desc: en ? "An attack where malicious instructions are embedded in user inputs or external data to manipulate AI model behavior. The attacker crafts text that causes the AI to ignore its original instructions and follow the attacker's commands instead. Types include: Direct injection (user provides malicious prompt), Indirect injection (malicious content embedded in retrieved documents/websites), and Universal jailbreaks (prompts that work across multiple AI models)." : "Un ataque donde instrucciones maliciosas se embeben en entradas del usuario o datos externos para manipular el comportamiento del modelo AI. El atacante diseña texto que causa que la AI ignore sus instrucciones originales y siga los comandos del atacante. Tipos incluyen: Inyección directa (usuario provee prompt malicioso), Inyección indirecta (contenido malicioso embebido en documentos/sitios web recuperados), y Jailbreaks universales (prompts que funcionan en múltiples modelos AI).",
+      crImplication: en ? "Government AI deployments (chatbots, document processing) are vulnerable. No testing standards exist." : "Despliegues AI gubernamentales (chatbots, procesamiento documentos) son vulnerables. No existen estándares de pruebas.",
+      mitigation: en ? "OWASP LLM Top 10 compliance, input sanitization, output filtering, red team testing" : "Cumplimiento OWASP LLM Top 10, sanitización entradas, filtrado salidas, pruebas red team" },
+    { name: "Shadow AI", icon: "👻", severity: en ? "HIGH" : "ALTO",
+      desc: en ? "Unauthorized use of AI tools by employees without IT department knowledge or approval. Employees use ChatGPT, Copilot, or other AI tools to process sensitive company/government data, creating uncontrolled data exposure. Studies show 55-70% of knowledge workers use AI tools their employer hasn't approved." : "Uso no autorizado de herramientas AI por empleados sin conocimiento o aprobación del departamento IT. Empleados usan ChatGPT, Copilot u otras herramientas AI para procesar datos sensibles de empresa/gobierno, creando exposición de datos no controlada. Estudios muestran que 55-70% de trabajadores del conocimiento usan herramientas AI que su empleador no ha aprobado.",
+      crImplication: en ? "Government institutions lack AI usage policies. CCSS patient data, BCCR financial data potentially exposed." : "Instituciones gubernamentales carecen de políticas de uso AI. Datos pacientes CCSS, datos financieros BCCR potencialmente expuestos.",
+      mitigation: en ? "AI usage policies, approved tool lists, data classification, employee training" : "Políticas uso AI, listas herramientas aprobadas, clasificación datos, capacitación empleados" },
+    { name: en ? "MCP Protocol Risks" : "Riesgos Protocolo MCP", icon: "🔗", severity: en ? "HIGH" : "ALTO",
+      desc: en ? "Model Context Protocol (MCP) allows AI models to connect to external tools and data sources. While powerful, it creates new attack surfaces: tool poisoning (malicious tool descriptions), excessive permissions, data exfiltration via tool calls, and supply chain attacks through compromised MCP servers." : "Model Context Protocol (MCP) permite a modelos AI conectarse con herramientas y fuentes de datos externas. Aunque poderoso, crea nuevas superficies de ataque: envenenamiento de herramientas (descripciones maliciosas), permisos excesivos, exfiltración datos vía llamadas herramientas, y ataques cadena suministro a través de servidores MCP comprometidos.",
+      crImplication: en ? "FZ companies adopting AI agent architectures need security guidelines. No standards exist in CR." : "Empresas ZF adoptando arquitecturas agentes AI necesitan guías seguridad. No existen estándares en CR.",
+      mitigation: en ? "Least-privilege tool permissions, server authentication, input/output validation" : "Permisos herramientas mínimo privilegio, autenticación servidores, validación entrada/salida" },
+    { name: "Deepfakes", icon: "🎭", severity: en ? "HIGH" : "ALTO",
+      desc: en ? "AI-generated synthetic media (video, audio, images) that convincingly impersonate real people. Used for: electoral manipulation (fake candidate statements), financial fraud (CEO voice cloning for wire transfers), reputation attacks, and social engineering. Costa Rica's Feb 2026 elections were the first to face significant deepfake threats in Central America." : "Medios sintéticos generados por AI (video, audio, imágenes) que suplantan convincentemente a personas reales. Usados para: manipulación electoral (declaraciones falsas de candidatos), fraude financiero (clonación voz CEO para transferencias), ataques reputación e ingeniería social. Elecciones Feb 2026 de Costa Rica fueron las primeras en enfrentar amenazas significativas de deepfakes en Centroamérica.",
+      crImplication: en ? "TSE lacks deepfake detection capability. Post-election analysis shows several viral deepfakes circulated." : "TSE carece de capacidad detección deepfakes. Análisis post-electoral muestra varios deepfakes virales circularon.",
+      mitigation: en ? "TSE deepfake detection unit, mandatory AI content labeling, media literacy programs" : "Unidad detección deepfakes TSE, etiquetado obligatorio contenido AI, programas alfabetización mediática" },
+    { name: en ? "AI Supply Chain" : "Cadena Suministro AI", icon: "📦", severity: en ? "MEDIUM" : "MEDIO",
+      desc: en ? "Vulnerabilities in the AI development and deployment supply chain: poisoned training data, backdoored pre-trained models, compromised ML libraries, and malicious model weights. Most organizations use models from a few providers (OpenAI, Google, Meta, Anthropic), creating concentration risk." : "Vulnerabilidades en la cadena de suministro de desarrollo y despliegue AI: datos de entrenamiento envenenados, modelos pre-entrenados con backdoors, bibliotecas ML comprometidas y pesos de modelo maliciosos. La mayoría de organizaciones usan modelos de pocos proveedores (OpenAI, Google, Meta, Anthropic), creando riesgo de concentración.",
+      crImplication: en ? "CR has zero capability to audit AI models used by government or FZ companies." : "CR tiene cero capacidad para auditar modelos AI usados por gobierno o empresas ZF.",
+      mitigation: en ? "Model auditing requirements, approved model registries, AI bill of materials (AI-BOM)" : "Requisitos auditoría modelos, registros modelos aprobados, lista materiales AI (AI-BOM)" },
+    { name: en ? "AI-Enhanced Bioweapons" : "Bioarmas Potenciadas AI", icon: "🧬", severity: en ? "EMERGING" : "EMERGENTE",
+      desc: en ? "AI models can generate novel protein sequences, drug compounds, and biological agents. WEF 2026 rates this as emerging risk: AI lowers the barrier for designing dangerous pathogens. Dual-use concern: same tools that accelerate drug discovery can theoretically design bioweapons." : "Modelos AI pueden generar secuencias proteínicas novedosas, compuestos farmacéuticos y agentes biológicos. WEF 2026 califica esto como riesgo emergente: AI reduce la barrera para diseñar patógenos peligrosos. Preocupación dual-use: mismas herramientas que aceleran descubrimiento fármacos pueden teóricamente diseñar bioarmas.",
+      crImplication: en ? "CR's pharmaceutical and medical device FZ sector must implement biosecurity AI governance." : "Sector ZF farmacéutico y dispositivos médicos de CR debe implementar gobernanza AI de bioseguridad.",
+      mitigation: en ? "Biosecurity protocols in AI regulation, dual-use research oversight, international cooperation" : "Protocolos bioseguridad en regulación AI, supervisión investigación dual-use, cooperación internacional" }
+  ],
+  foodSecurity: {
+    title: en ? "AI & Food Security" : "AI y Seguridad Alimentaria",
+    useCases: [
+      { name: en ? "Precision Agriculture" : "Agricultura de Precisión", desc: en ? "AI-powered drone monitoring, soil analysis, crop health detection. Potential: 15-25% yield increase in CR coffee and banana sectors." : "Monitoreo drones potenciado AI, análisis suelo, detección salud cultivos. Potencial: 15-25% aumento rendimiento en sectores café y banano CR." },
+      { name: en ? "Water Management" : "Gestión del Agua", desc: en ? "AI optimization of irrigation in Guanacaste dry corridor. Predictive models for drought and flood events." : "Optimización AI del riego en corredor seco Guanacaste. Modelos predictivos para eventos sequía e inundación." },
+      { name: en ? "Disease Detection" : "Detección de Enfermedades", desc: en ? "Computer vision to identify coffee rust, banana TR4, and other crop diseases early. MAG could deploy mobile phone-based detection." : "Visión computacional para identificar roya café, TR4 banano y otras enfermedades cultivos tempranamente. MAG podría desplegar detección basada en teléfono móvil." }
+    ]
+  },
+  socialSecurity: {
+    title: en ? "AI & Social Security (CCSS)" : "AI y Seguridad Social (CCSS)",
+    opportunities: [
+      en ? "Predictive medicine: AI triage reducing EBAIS wait times by 30-40%" : "Medicina predictiva: triaje AI reduciendo tiempos espera EBAIS 30-40%",
+      en ? "EDUS electronic health records: AI analysis for population health patterns" : "Expediente electrónico EDUS: análisis AI para patrones salud poblacional",
+      en ? "Cost reduction: AI scheduling optimization saving CCSS estimated ₡15-20B/year" : "Reducción costos: optimización programación AI ahorrando CCSS estimados ₡15-20B/año",
+      en ? "Drug interaction detection: AI screening for dangerous medication combinations" : "Detección interacciones medicamentos: screening AI para combinaciones peligrosas"
+    ],
+    risks: [
+      en ? "Patient data privacy: CCSS holds health data for 5.2M citizens" : "Privacidad datos pacientes: CCSS tiene datos salud de 5.2M ciudadanos",
+      en ? "Algorithmic bias in diagnosis could disproportionately affect rural/indigenous populations" : "Sesgo algorítmico en diagnóstico podría afectar desproporcionadamente poblaciones rurales/indígenas"
+    ]
+  },
+  cyberSME: {
+    title: en ? "Cybersecurity for SMEs" : "Ciberseguridad para PYMES",
+    challenges: [
+      en ? "98% of CR businesses are SMEs — most have zero cybersecurity measures" : "98% de negocios CR son PYMES — mayoría tiene cero medidas ciberseguridad",
+      en ? "Post-Conti: awareness high but investment low (budget constraints)" : "Post-Conti: conciencia alta pero inversión baja (restricciones presupuesto)",
+      en ? "AI-powered phishing attacks increasingly target Spanish-speaking SMEs" : "Ataques phishing potenciados AI cada vez más apuntan a PYMES hispanohablantes"
+    ],
+    recommendations: [
+      en ? "MICITT free cybersecurity assessment tool for SMEs" : "Herramienta evaluación ciberseguridad gratuita MICITT para PYMES",
+      en ? "AI-powered threat detection as affordable SaaS for small businesses" : "Detección amenazas potenciada AI como SaaS asequible para pequeños negocios",
+      en ? "Mandatory basic cybersecurity certification for businesses processing personal data" : "Certificación básica ciberseguridad obligatoria para negocios procesando datos personales"
+    ]
+  },
+  useCases: [
+    { sector: en ? "Streets / Public Safety" : "Calles / Seguridad Pública", examples: [en ? "AI traffic management (San José congestion)" : "Gestión tráfico AI (congestión San José)", en ? "Smart surveillance with privacy safeguards" : "Vigilancia inteligente con salvaguardas privacidad", en ? "Emergency response optimization (Bomberos, Cruz Roja)" : "Optimización respuesta emergencias (Bomberos, Cruz Roja)"] },
+    { sector: en ? "National Security" : "Seguridad Nacional", examples: [en ? "Port security (AI container scanning at Limón/Caldera)" : "Seguridad portuaria (escaneo contenedores AI en Limón/Caldera)", en ? "Maritime surveillance (Pacific EEZ monitoring)" : "Vigilancia marítima (monitoreo ZEE Pacífico)", en ? "Anti-narcotics intelligence (pattern detection)" : "Inteligencia antinarcóticos (detección patrones)"] },
+    { sector: en ? "Medicine" : "Medicina", examples: [en ? "CCSS predictive diagnostics" : "Diagnósticos predictivos CCSS", en ? "Radiology AI (image analysis for Hospital México, CENARE)" : "AI radiología (análisis imágenes Hospital México, CENARE)", en ? "Mental health screening in EBAIS primary care" : "Screening salud mental en atención primaria EBAIS"] },
+    { sector: en ? "Cultural / Education" : "Cultural / Educación", examples: [en ? "UCR: NLP research for Costa Rican Spanish" : "UCR: investigación PLN para español costarricense", en ? "TEC: computer vision for biodiversity monitoring" : "TEC: visión computacional para monitoreo biodiversidad", en ? "MEP: adaptive learning platforms for K-12" : "MEP: plataformas aprendizaje adaptativo para K-12"] }
+  ],
+  priorityActions: [
+    { action: en ? "Establish AI Safety Testing Lab" : "Establecer Laboratorio Pruebas Seguridad AI", why: en ? "No entity in CR can currently test AI systems for vulnerabilities, bias, or compliance. Singapore's IMDA tests 200+ AI systems/year." : "Ninguna entidad en CR puede actualmente probar sistemas AI para vulnerabilidades, sesgo o cumplimiento. IMDA de Singapur prueba 200+ sistemas AI/año.", comparison: en ? "Singapore: IMDA AI testing since 2022. South Korea: AI Safety Institute (2025)." : "Singapur: pruebas AI IMDA desde 2022. Corea del Sur: Instituto Seguridad AI (2025)." },
+    { action: en ? "Mandate AI Incident Reporting" : "Mandatar Reporte de Incidentes AI", why: en ? "Currently no obligation to report AI failures, biases, or security breaches. Without data, no evidence-based policy possible." : "Actualmente sin obligación de reportar fallos AI, sesgos o brechas seguridad. Sin datos, no es posible política basada en evidencia.", comparison: en ? "EU AI Act: mandatory reporting for high-risk AI. US: voluntary NIST framework." : "EU AI Act: reporte obligatorio para AI alto riesgo. EEUU: marco voluntario NIST." },
+    { action: en ? "Create CSIRT-AI (AI-specific incident response)" : "Crear CSIRT-AI (respuesta incidentes AI específica)", why: en ? "The existing CSIRT-CR handles traditional cyber incidents but lacks AI-specific expertise (adversarial attacks, model theft, deepfakes)." : "El CSIRT-CR existente maneja incidentes cyber tradicionales pero carece de expertise AI específico (ataques adversariales, robo modelos, deepfakes).", comparison: en ? "UK: AI Safety Institute with £100M budget. Japan: AI Safety Center (AISC) launched 2024." : "UK: Instituto Seguridad AI con presupuesto £100M. Japón: Centro Seguridad AI (AISC) lanzado 2024." }
+  ],
+  futureOutlook: [
+    { year: "2026", event: en ? "EU AI Act full enforcement — FZ compliance deadline" : "Aplicación total EU AI Act — fecha límite cumplimiento ZF" },
+    { year: "2027", event: en ? "AI agents become standard in enterprise — new security paradigm needed" : "Agentes AI se vuelven estándar en empresa — nuevo paradigma seguridad necesario" },
+    { year: "2028", event: en ? "Quantum computing threatens current encryption — AI systems must adapt" : "Computación cuántica amenaza encriptación actual — sistemas AI deben adaptarse" },
+    { year: "2029", event: en ? "Autonomous AI systems in critical infrastructure (power, water, transport)" : "Sistemas AI autónomos en infraestructura crítica (energía, agua, transporte)" },
+    { year: "2030", event: en ? "Physical AI + humanoid robots create new security domains" : "AI Física + robots humanoides crean nuevos dominios de seguridad" }
+  ],
+  news: [
+    { headline: en ? "CONTI Ransomware Legacy: 30 CR Institutions Hit (2022)" : "Legado Ransomware CONTI: 30 Instituciones CR Atacadas (2022)", source: "BBC / MICITT", url: "https://www.bbc.com/news/technology-61323402", significance: en ? "Largest government cyberattack in LATAM history. Recovery still ongoing in 2026." : "Mayor ciberataque gubernamental en historia LATAM. Recuperación aún en curso en 2026." },
+    { headline: en ? "WEF 2026: AI Misinfo is #1 Risk for 3rd Consecutive Year" : "WEF 2026: Desinfo AI es Riesgo #1 por 3er Año Consecutivo", source: "WEF Global Risks 2026", url: "https://www.weforum.org/publications/global-risks-report-2026/", significance: en ? "Misinformation/disinformation remains top-ranked global risk across all time horizons." : "Desinformación/misinformación sigue como riesgo global #1 en todos los horizontes temporales." },
+    { headline: en ? "OWASP LLM Top 10 v2.0 Released (2025)" : "OWASP LLM Top 10 v2.0 Publicado (2025)", source: "OWASP", url: "https://owasp.org/www-project-top-10-for-large-language-model-applications/", significance: en ? "Updated security standard for LLM applications. CR has no equivalent guideline." : "Estándar seguridad actualizado para aplicaciones LLM. CR no tiene guía equivalente." },
+    { headline: en ? "AI-Generated Voice Scam Hits LATAM Banks ($2.3M losses)" : "Estafa Voz Generada AI Golpea Bancos LATAM ($2.3M pérdidas)", source: "Reuters", url: "https://www.reuters.com/", significance: en ? "CEO voice cloning used to authorize fraudulent wire transfers. Multiple LATAM banks affected." : "Clonación voz CEO usada para autorizar transferencias fraudulentas. Múltiples bancos LATAM afectados." }
+  ]
+});
+
+// ── LEGISLATION JARGON EXPLANATIONS ──
+export const LEG_JARGON = (en) => ({
+  ley_vinculante: {
+    term: en ? "Binding AI Law" : "Ley AI Vinculante",
+    what: en ? "A law with legal force that REQUIRES compliance — unlike a strategy document (like ENIA) which is voluntary. A binding law establishes: mandatory obligations for AI developers and deployers, penalties for non-compliance (fines, sanctions), designated enforcement authority, and citizen rights and recourse mechanisms. Without binding legislation, AI governance remains aspirational." : "Una ley con fuerza legal que REQUIERE cumplimiento — a diferencia de un documento estratégico (como ENIA) que es voluntario. Una ley vinculante establece: obligaciones mandatorias para desarrolladores y desplegadores de AI, penalidades por incumplimiento (multas, sanciones), autoridad de aplicación designada, y derechos ciudadanos y mecanismos de recurso. Sin legislación vinculante, la gobernanza AI permanece aspiracional.",
+    whoHasDone: [
+      { country: en ? "European Union" : "Unión Europea", law: "EU AI Act", year: 2024, detail: en ? "First comprehensive AI law. 4 risk tiers. Penalties up to €35M or 7% global turnover." : "Primera ley AI integral. 4 niveles de riesgo. Penalidades hasta €35M o 7% facturación global." },
+      { country: en ? "South Korea" : "Corea del Sur", law: "AI Framework Act", year: 2026, detail: en ? "Consolidated 19 bills into single law. National AI Committee chaired by president. Best model for CR." : "Consolidó 19 proyectos en una sola ley. Comité Nacional AI presidido por presidente. Mejor modelo para CR." },
+      { country: "Colorado (EEUU)", law: "SB 24-205", year: 2026, detail: en ? "First US state anti-AI-discrimination law. 'Reasonable care' standard. NIST AI RMF safe harbor." : "Primera ley estatal anti-discriminación AI de EEUU. Estándar 'cuidado razonable'. Protección NIST AI RMF." },
+      { country: "China", law: en ? "Interim Measures for AI" : "Medidas Interinas para AI", year: 2023, detail: en ? "Regulations on generative AI, algorithmic recommendations, and deep synthesis (deepfakes)." : "Regulaciones sobre AI generativa, recomendaciones algorítmicas y síntesis profunda (deepfakes)." }
+    ],
+    crRecommendation: en ? "CR should adopt South Korea's 'regulate + promote' model: a single law that both encourages AI innovation AND establishes enforceable guardrails. Target: first binding AI law in Central America within 12 months." : "CR debería adoptar el modelo 'regular + promover' de Corea del Sur: una sola ley que tanto fomente innovación AI COMO establezca guardarraíles aplicables. Meta: primera ley AI vinculante en Centroamérica en 12 meses."
+  },
+  marco_antidesinfo: {
+    term: en ? "Anti-Disinformation Framework" : "Marco Anti-Desinformación",
+    what: en ? "A comprehensive regulatory and institutional framework to combat AI-generated disinformation, deepfakes, and synthetic media. Includes: mandatory labeling of AI-generated content, platform responsibility for AI-generated disinformation, rapid-response fact-checking mechanisms, digital media literacy programs, and electoral protection measures against deepfakes." : "Un marco regulatorio e institucional integral para combatir desinformación generada por AI, deepfakes y medios sintéticos. Incluye: etiquetado obligatorio de contenido generado por AI, responsabilidad de plataformas por desinformación generada por AI, mecanismos de verificación de hechos de respuesta rápida, programas de alfabetización mediática digital y medidas de protección electoral contra deepfakes.",
+    examples: [
+      { country: "Taiwan", approach: en ? "G0v civic tech community + Cofacts fact-checking chatbot. Real-time crowdsourced disinformation detection during elections." : "Comunidad tech cívica G0v + chatbot verificador Cofacts. Detección de desinformación crowdsourced en tiempo real durante elecciones." },
+      { country: en ? "EU Digital Services Act" : "Ley de Servicios Digitales UE", approach: en ? "Platforms must remove illegal content, label AI-generated content, and provide transparency on algorithmic recommendations." : "Plataformas deben remover contenido ilegal, etiquetar contenido generado por AI y proveer transparencia sobre recomendaciones algorítmicas." },
+      { country: "Brasil", approach: en ? "TSE electoral tribunal actively detects and removes deepfakes during campaigns. AI-specific electoral rules since 2024." : "TSE tribunal electoral detecta y remueve deepfakes activamente durante campañas. Reglas electorales específicas de AI desde 2024." }
+    ],
+    crRecommendation: en ? "CR should establish: (1) TSE technical capacity for deepfake detection, (2) mandatory AI content labeling for media outlets, (3) rapid-response fact-checking partnership with universities, (4) digital literacy program in schools." : "CR debería establecer: (1) capacidad técnica TSE para detección deepfakes, (2) etiquetado obligatorio de contenido AI para medios, (3) asociación de verificación de hechos de respuesta rápida con universidades, (4) programa de alfabetización digital en escuelas."
+  },
+  sandbox_regulatorio: {
+    term: en ? "Regulatory Sandbox" : "Sandbox Regulatorio",
+    what: en ? "A controlled environment where companies can test AI innovations under regulatory supervision without full compliance burden. Like a 'laboratory' for regulations — companies get to experiment, regulators get to learn, and citizens are protected by supervision." : "Un entorno controlado donde empresas pueden probar innovaciones AI bajo supervisión regulatoria sin la carga total de cumplimiento. Como un 'laboratorio' para regulaciones — empresas experimentan, reguladores aprenden, y ciudadanos están protegidos por supervisión.",
+    whoHasDone: [
+      en ? "Singapore (IMDA): AI governance sandbox since 2022" : "Singapur (IMDA): sandbox de gobernanza AI desde 2022",
+      en ? "UK (FCA): financial AI sandbox, 10+ cohorts since 2016" : "UK (FCA): sandbox AI financiero, 10+ cohortes desde 2016",
+      en ? "Brazil: AI bill includes sandbox provisions" : "Brasil: proyecto de ley AI incluye provisiones de sandbox",
+      en ? "Spain: first EU AI Act regulatory sandbox" : "España: primer sandbox regulatorio del EU AI Act"
+    ],
+    crRecommendation: en ? "Establish sandbox under MICITT for FZ companies needing to test AI compliance before EU AI Act enforcement (Aug 2026). Priority sectors: medical devices (high-risk AI), digital services (employment AI)." : "Establecer sandbox bajo MICITT para empresas ZF que necesitan probar cumplimiento AI antes de aplicación EU AI Act (Ago 2026). Sectores prioritarios: dispositivos médicos (AI alto riesgo), servicios digitales (AI empleo)."
+  },
+  autoridad_ai: {
+    term: en ? "AI Authority" : "Autoridad AI",
+    what: en ? "A designated government body with the mandate, budget, and technical capacity to regulate AI. Responsibilities include: interpreting AI laws, issuing compliance guidelines, conducting audits, receiving complaints, imposing sanctions, coordinating international cooperation, and advising on policy. CR's candidate: PRODHAB (Data Protection Agency), which currently lacks AI mandate, budget, and technical staff." : "Un organismo gubernamental designado con mandato, presupuesto y capacidad técnica para regular AI. Responsabilidades incluyen: interpretar leyes AI, emitir guías de cumplimiento, realizar auditorías, recibir denuncias, imponer sanciones, coordinar cooperación internacional y asesorar en política. Candidato de CR: PRODHAB (Agencia de Protección de Datos), que actualmente carece de mandato AI, presupuesto y personal técnico.",
+    crRecommendation: en ? "Expand PRODHAB mandate to include AI oversight. Required: (1) legal mandate via legislation, (2) 15-20 additional technical staff, (3) annual budget of ~$2-3M, (4) AI safety testing laboratory, (5) international cooperation agreements with EU AI Office and Singapore IMDA." : "Expandir mandato de PRODHAB para incluir supervisión AI. Se requiere: (1) mandato legal vía legislación, (2) 15-20 personal técnico adicional, (3) presupuesto anual de ~$2-3M, (4) laboratorio de pruebas de seguridad AI, (5) acuerdos de cooperación internacional con Oficina AI UE e IMDA Singapur."
+  }
+});
+
+// ── ENIA GAP ANALYSIS ──
+export const ENIA_ANALYSIS = (en) => ({
+  strengths: [
+    { pillar: en ? "Vision & Ambition" : "Visión y Ambición", detail: en ? "Oxford Insights scored CR 100/100 on AI Vision. The 7-pillar framework is comprehensive and well-structured. Aligned with UNESCO AI Ethics Recommendation. First Central American country with national AI strategy." : "Oxford Insights dio a CR 100/100 en Visión AI. El marco de 7 pilares es integral y bien estructurado. Alineado con Recomendación UNESCO Ética AI. Primer país centroamericano con estrategia nacional AI." },
+    { pillar: en ? "Ethics Framework" : "Marco de Ética", detail: en ? "ENIA's ethics pillar references human rights, fairness, transparency, and accountability. Aligned with OECD AI Principles. Good foundation for binding legislation." : "El pilar de ética de ENIA referencia derechos humanos, equidad, transparencia y rendición de cuentas. Alineado con Principios AI OCDE. Buena base para legislación vinculante." },
+    { pillar: en ? "International Leadership Goal" : "Meta de Liderazgo Internacional", detail: en ? "ENIA positions CR as LATAM AI leader — realistic given OECD membership, democratic stability, and overperformer status. Ambitious but achievable." : "ENIA posiciona a CR como líder AI LATAM — realista dado membresía OCDE, estabilidad democrática y estatus de sobreperformante. Ambicioso pero alcanzable." },
+    { pillar: en ? "Multi-Stakeholder Approach" : "Enfoque Multi-Stakeholder", detail: en ? "ENIA was developed with input from government, academia, private sector, and civil society. This inclusive process builds legitimacy." : "ENIA fue desarrollada con aportes de gobierno, academia, sector privado y sociedad civil. Este proceso inclusivo construye legitimidad." }
+  ],
+  deficiencies: [
+    { pillar: en ? "No Binding Force" : "Sin Fuerza Vinculante", detail: en ? "ENIA is a strategy document, NOT a law. No enforcement mechanism, no penalties, no mandatory compliance. Score: 100/100 Vision vs 0.38/1.0 readiness — the widest strategy-execution gap in the 20-country peer set." : "ENIA es un documento estratégico, NO una ley. Sin mecanismo de aplicación, sin penalidades, sin cumplimiento obligatorio. Score: 100/100 Visión vs 0.38/1.0 preparación — la brecha más amplia entre estrategia y ejecución en el grupo de 20 países pares.", severity: "CRITICAL" },
+    { pillar: en ? "No AI Authority" : "Sin Autoridad AI", detail: en ? "ENIA does not designate a regulatory body. PRODHAB (data protection) lacks mandate, budget, and staff for AI oversight. No entity can enforce AI governance." : "ENIA no designa un organismo regulador. PRODHAB (protección de datos) carece de mandato, presupuesto y personal para supervisión AI. Ninguna entidad puede aplicar gobernanza AI.", severity: "CRITICAL" },
+    { pillar: en ? "Talent Pillar Gaps" : "Brechas Pilar de Talento", detail: en ? "Calls for AI literacy but: INA has zero AI certification tracks, university AI programs limited to UCR and TEC, no K-12 AI curriculum nationwide, no reskilling plan for 28K at-risk BPO workers." : "Pide alfabetización AI pero: INA tiene cero tracks de certificación AI, programas universitarios AI limitados a UCR y TEC, sin currículo AI K-12 nacional, sin plan de recapacitación para 28K trabajadores BPO en riesgo.", severity: en ? "HIGH" : "ALTO" },
+    { pillar: en ? "Infrastructure Without Strategy" : "Infraestructura Sin Estrategia", detail: en ? "Acknowledges 99% renewable advantage and broadband needs, but: no data center development strategy, no sovereign cloud policy, no GPU access plan, no edge computing deployment roadmap." : "Reconoce ventaja 99% renovable y necesidades de banda ancha, pero: sin estrategia de desarrollo de data centers, sin política de nube soberana, sin plan de acceso GPU, sin hoja de ruta de despliegue de computación de borde.", severity: en ? "HIGH" : "ALTO" },
+    { pillar: en ? "Innovation Without Mechanisms" : "Innovación Sin Mecanismos", detail: en ? "References free zone ecosystem but: no AI-specific investment incentives, no startup funding mechanism, no regulatory sandbox, no AI procurement standards for government." : "Referencia ecosistema de zonas francas pero: sin incentivos de inversión específicos AI, sin mecanismo de financiamiento de startups, sin sandbox regulatorio, sin estándares de adquisición AI para gobierno.", severity: en ? "MEDIUM" : "MEDIO" },
+    { pillar: en ? "No Measurable KPIs" : "Sin KPIs Medibles", detail: en ? "ENIA lacks specific, measurable targets with timelines. No annual progress tracking mechanism. No accountability framework for implementation." : "ENIA carece de metas específicas y medibles con plazos. Sin mecanismo de seguimiento anual de progreso. Sin marco de rendición de cuentas para implementación.", severity: en ? "HIGH" : "ALTO" }
+  ],
+  improvements: [
+    en ? "Convert ENIA pillars into binding legislation within 12 months (South Korea model)" : "Convertir pilares ENIA en legislación vinculante en 12 meses (modelo Corea del Sur)",
+    en ? "Establish PRODHAB as AI authority with expanded mandate, budget ($2-3M/yr), and 15-20 technical staff" : "Establecer PRODHAB como autoridad AI con mandato ampliado, presupuesto ($2-3M/año) y 15-20 personal técnico",
+    en ? "Create measurable KPIs for each pillar with quarterly reporting (e.g., 'INA AI certifications: 2,000 by 2027')" : "Crear KPIs medibles para cada pilar con reportes trimestrales (ej. 'certificaciones AI INA: 2,000 para 2027')",
+    en ? "Launch INA AI Technician Track: 8-week certification, co-designed with Intel/Amazon/HP" : "Lanzar Track Técnico AI INA: certificación de 8 semanas, co-diseñado con Intel/Amazon/HP",
+    en ? "Establish AI regulatory sandbox for FZ companies (priority: medical devices, digital services)" : "Establecer sandbox regulatorio AI para empresas ZF (prioridad: dispositivos médicos, servicios digitales)",
+    en ? "Complete UNESCO RAM (Readiness Assessment Methodology) like Chile did — builds evidence base" : "Completar RAM (Metodología de Evaluación de Preparación) UNESCO como lo hizo Chile — construye base de evidencia",
+    en ? "Create inter-institutional AI coordination committee with presidential mandate" : "Crear comité de coordinación AI interinstitucional con mandato presidencial"
+  ],
+  comparison: [
+    { country: en ? "Singapore" : "Singapur", status: en ? "Strategy + Governance Framework + $1B investment + AI Safety Institute" : "Estrategia + Marco de Gobernanza + $1B inversión + Instituto Seguridad AI", gap: en ? "CR lacks governance framework, investment commitment, and institutional capacity" : "CR carece de marco de gobernanza, compromiso de inversión y capacidad institucional" },
+    { country: en ? "South Korea" : "Corea del Sur", status: en ? "Binding AI Framework Act + National AI Committee + AI Safety Institute" : "Ley Marco AI Vinculante + Comité Nacional AI + Instituto Seguridad AI", gap: en ? "CR has strategy but no law, no committee, no safety institute" : "CR tiene estrategia pero sin ley, sin comité, sin instituto de seguridad" },
+    { country: "Chile", status: en ? "AI Bill in Senate + UNESCO RAM completed + Advisory Council" : "Proyecto AI en Senado + RAM UNESCO completada + Consejo Consultivo", gap: en ? "Chile is ahead in legislative process and evidence base. CR closest LATAM comparator." : "Chile va adelante en proceso legislativo y base de evidencia. Comparador LATAM más cercano de CR." },
+    { country: "Estonia", status: en ? "Kratt AI for government + e-Governance Academy + X-Road interoperability" : "Kratt AI para gobierno + Academia e-Governance + Interoperabilidad X-Road", gap: en ? "Estonia shows small country (1.3M) can lead in AI governance. CR (5.2M) has more resources but less digital government infrastructure." : "Estonia muestra que país pequeño (1.3M) puede liderar en gobernanza AI. CR (5.2M) tiene más recursos pero menos infraestructura de gobierno digital." }
+  ]
+});
+
+// ── PHYSICAL AI NEWS ──
+export const PAI_NEWS = (en) => [
+  { headline: en ? "Boston Dynamics Atlas Operates Autonomously in Hyundai Factory" : "Atlas de Boston Dynamics Opera Autónomamente en Fábrica Hyundai", date: "Jan 2026", source: "CBS 60 Minutes", url: "https://www.cbsnews.com/60minutes/", significance: en ? "First commercial autonomous deployment of humanoid robot in manufacturing. Performs tasks humans cannot do safely." : "Primer despliegue autónomo comercial de robot humanoide en manufactura. Realiza tareas que humanos no pueden hacer de forma segura.", icon: "🤖" },
+  { headline: en ? "Figure AI Opens BotQ Factory: 12,000-100,000 Humanoids/Year" : "Figure AI Abre Fábrica BotQ: 12,000-100,000 Humanoides/Año", date: "2026", source: "Figure AI", url: "https://www.figure.ai/", significance: en ? "Mass production of humanoid robots begins in Austin, Texas. Unit cost trajectory: $150K (2024) → $30-50K (2028) → $15K (2030+)." : "Producción masiva de robots humanoides comienza en Austin, Texas. Trayectoria costo unitario: $150K (2024) → $30-50K (2028) → $15K (2030+).", icon: "🏭" },
+  { headline: en ? "Tesla Optimus Begins External Sales" : "Tesla Optimus Comienza Ventas Externas", date: "2026", source: "Tesla", url: "https://www.tesla.com/optimus", significance: en ? "Tesla's humanoid robot available for purchase. Targets manufacturing, logistics, and household applications. Elon Musk projects $20,000-$25,000 price point." : "Robot humanoide de Tesla disponible para compra. Apunta a manufactura, logística y aplicaciones domésticas. Elon Musk proyecta precio de $20,000-$25,000.", icon: "⚡" },
+  { headline: en ? "Amazon Deploys 750,000+ Robots Across Fulfillment Centers" : "Amazon Despliega 750,000+ Robots en Centros de Distribución", date: "2025", source: "Amazon", url: "https://www.aboutamazon.com/", significance: en ? "Largest industrial robot deployment in history. Reduced warehouse jobs by 100,000 while creating 20,000 robotics technician roles. Net negative for entry-level workers." : "Mayor despliegue de robots industriales en la historia. Redujo empleos de almacén en 100,000 mientras creó 20,000 roles de técnico en robótica. Neto negativo para trabajadores de nivel inicial.", icon: "📦" },
+  { headline: en ? "Unitree G1: $16,000 Humanoid Robot" : "Unitree G1: Robot Humanoide de $16,000", date: "2025", source: "Unitree", url: "https://www.unitree.com/", significance: en ? "Chinese manufacturer breaks $20K humanoid price barrier. Already below average annual salary in several countries. CR manufacturing FZ cost crossover approaches." : "Fabricante chino rompe barrera de precio de $20K para humanoides. Ya por debajo del salario promedio anual en varios países. Se acerca el cruce de costos para ZF de manufactura CR.", icon: "🇨🇳" },
+  { headline: en ? "Goldman Sachs: $38B Humanoid Market by 2035" : "Goldman Sachs: Mercado Humanoides $38B para 2035", date: "2025", source: "Goldman Sachs Research", url: "https://www.goldmansachs.com/", significance: en ? "Investment bank projects massive humanoid adoption curve. Manufacturing and logistics first, then healthcare and domestic. Multi-shift advantage (20-22 hrs/day) makes economic case compelling." : "Banco de inversión proyecta curva masiva de adopción humanoides. Manufactura y logística primero, luego salud y doméstico. Ventaja multi-turno (20-22 hrs/día) hace caso económico convincente.", icon: "📊" },
+  { headline: en ? "NVIDIA Isaac Sim: Digital Twins for Robot Training" : "NVIDIA Isaac Sim: Gemelos Digitales para Entrenamiento de Robots", date: "2025", source: "NVIDIA", url: "https://developer.nvidia.com/isaac-sim", significance: en ? "NVIDIA's simulation platform enables training robots in virtual environments before physical deployment. 4,000+ digital twins used by Boston Dynamics. Accelerates development cycle 100x." : "Plataforma de simulación de NVIDIA permite entrenar robots en entornos virtuales antes de despliegue físico. 4,000+ gemelos digitales usados por Boston Dynamics. Acelera ciclo de desarrollo 100x.", icon: "🎮" },
+  { headline: en ? "IFR Report: 4.28M Industrial Robots Operating Globally" : "Reporte IFR: 4.28M Robots Industriales Operando Globalmente", date: "2025", source: "International Federation of Robotics", url: "https://ifr.org/", significance: en ? "Record number of industrial robots deployed. Growth rate: 7% annually. Asia leads with 70%+ of installations. LATAM represents <2% — opportunity and risk for CR." : "Número récord de robots industriales desplegados. Tasa crecimiento: 7% anual. Asia lidera con 70%+ de instalaciones. LATAM representa <2% — oportunidad y riesgo para CR.", icon: "🌏" }
+];
+
+// ── ISO COUNTRY CODE MAPPING (Alpha-3 to Alpha-2 for flag rendering) ──
+export const A3_TO_A2 = {
+  SGP: "SG", KOR: "KR", JPN: "JP", EST: "EE", FIN: "FI", IRL: "IE",
+  CHL: "CL", URY: "UY", CRI: "CR", PAN: "PA", BRA: "BR", COL: "CO",
+  MEX: "MX", ARG: "AR", PER: "PE", DOM: "DO", VNM: "VN", PHL: "PH",
+  MYS: "MY", IDN: "ID"
 };

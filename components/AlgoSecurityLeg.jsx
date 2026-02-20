@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { TH, ALGOS, LAWS, CHECKLIST } from "./data";
+import { TH, ALGOS, LAWS, CHECKLIST, SEC_DEEP, LEG_JARGON, ENIA_ANALYSIS } from "./data";
 import { Card, SH, Tag, Ci, Lnk, Grid, ProgressBar, ScrollReveal, MiniStat, fadeUp } from "./ui";
 import { FACTS } from "../data/facts";
 
@@ -71,7 +71,7 @@ export function SecTab({ en, t }) {
     { n: "Prompt Injection", r: en ? "CRITICAL" : "CRÍTICO", c: t.rd, d: "OWASP LLM #1" },
     { n: "Shadow AI", r: en ? "CRITICAL" : "CRÍTICO", c: t.rd, d: en ? "ChatGPT without policies" : "ChatGPT sin políticas" },
     { n: "MCP Exploits", r: en ? "EMERGING" : "EMERGENTE", c: t.or, d: "CVSS 10/10 · Feb 2026" },
-    { n: "Deepfakes", r: en ? "HIGH" : "ALTO", c: t.or, d: en ? "Elections 2026. Cost <$10" : "Elecciones 2026. Costo <$10" },
+    { n: "Deepfakes", r: en ? "HIGH" : "ALTO", c: t.or, d: en ? "Post-elections 2026. Cost <$10" : "Post-elecciones 2026. Costo <$10" },
     { n: "AI Supply Chain", r: en ? "HIGH" : "ALTO", c: t.am, d: en ? "Unverified models" : "Modelos sin verificar" },
     { n: "AI Bioweapons", r: en ? "EMERGING" : "EMERGENTE", c: t.pk, d: en ? "WEF: 40K compounds 6hrs" : "WEF: 40K compuestos 6hrs" }
   ];
@@ -128,6 +128,146 @@ export function SecTab({ en, t }) {
           <div key={i} style={{ fontSize: 13, color: t.tx2, padding: "6px 0 6px 14px", borderBottom: `1px solid ${t.bd}` }}>▸ {a}</div>
         ))}
         <Ci s="WEF 2025, US Embassy, OWASP, InSight Crime, Tico Times" />
+      </Card>
+
+      {/* ── A. Threat Deep Dives ── */}
+      <Card d={0.55} style={{ marginTop: 20 }}>
+        <div style={{ fontSize: 11, letterSpacing: 2, color: t.rd, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 12 }}>{en ? "THREAT DEEP DIVES" : "AMENAZAS EN PROFUNDIDAD"}</div>
+        {SEC_DEEP(en).threats.map((th, i) => (
+          <details key={i} style={{ marginBottom: 10, background: t.sf, borderRadius: 8, borderLeft: `3px solid ${th.severity === "CRITICAL" || th.severity === "CRÍTICO" ? t.rd : th.severity === "EMERGING" || th.severity === "EMERGENTE" ? t.pk : t.or}`, overflow: "hidden" }}>
+            <summary style={{ padding: "10px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600, color: t.tx, listStyle: "none" }}>
+              <span style={{ fontSize: 18 }}>{th.icon}</span>
+              <span style={{ flex: 1 }}>{th.name}</span>
+              <Tag color={th.severity === "CRITICAL" || th.severity === "CRÍTICO" ? t.rd : th.severity === "EMERGING" || th.severity === "EMERGENTE" ? t.pk : th.severity === "MEDIUM" || th.severity === "MEDIO" ? t.am : t.or}>{th.severity}</Tag>
+            </summary>
+            <div style={{ padding: "0 14px 12px" }}>
+              <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.7, marginBottom: 8 }}>{th.desc}</p>
+              <div style={{ padding: "6px 10px", background: `${t.rd}08`, borderRadius: 6, marginBottom: 6 }}>
+                <div style={{ fontSize: 9, color: t.rd, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 2 }}>{en ? "CR IMPLICATION" : "IMPLICACIÓN CR"}</div>
+                <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6 }}>{th.crImplication}</p>
+              </div>
+              <div style={{ padding: "6px 10px", background: `${t.gn}08`, borderRadius: 6 }}>
+                <div style={{ fontSize: 9, color: t.gn, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 2 }}>{en ? "MITIGATION" : "MITIGACIÓN"}</div>
+                <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6 }}>{th.mitigation}</p>
+              </div>
+            </div>
+          </details>
+        ))}
+      </Card>
+
+      {/* ── B. AI Use Cases by Sector ── */}
+      <Card d={0.6} style={{ marginTop: 20 }}>
+        <div style={{ fontSize: 11, letterSpacing: 2, color: t.cy, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 12 }}>{en ? "AI USE CASES BY SECTOR" : "CASOS DE USO AI POR SECTOR"}</div>
+        <Grid cols="repeat(auto-fit,minmax(240px,1fr))" gap={10}>
+          {SEC_DEEP(en).useCases.map((uc, i) => (
+            <div key={i} style={{ padding: 14, background: t.sf, borderRadius: 8, borderTop: `3px solid ${t.cy}` }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: t.tx, marginBottom: 8, fontFamily: "'Fraunces',serif" }}>{uc.sector}</div>
+              {uc.examples.map((ex, j) => (
+                <div key={j} style={{ fontSize: 12, color: t.tx2, padding: "4px 0 4px 12px", borderLeft: `2px solid ${t.bd}`, marginBottom: 4, lineHeight: 1.6 }}>{ex}</div>
+              ))}
+            </div>
+          ))}
+        </Grid>
+      </Card>
+
+      {/* ── C. Food Security AI ── */}
+      <Card d={0.65} accent={t.am} style={{ marginTop: 20 }}>
+        <div style={{ fontSize: 11, letterSpacing: 2, color: t.am, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 12 }}>{SEC_DEEP(en).foodSecurity.title}</div>
+        <Grid cols="repeat(auto-fit,minmax(220px,1fr))" gap={10}>
+          {SEC_DEEP(en).foodSecurity.useCases.map((fc, i) => (
+            <div key={i} style={{ padding: 12, background: t.sf, borderRadius: 8, borderLeft: `3px solid ${t.am}` }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: t.tx, marginBottom: 6 }}>{fc.name}</div>
+              <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6 }}>{fc.desc}</p>
+            </div>
+          ))}
+        </Grid>
+      </Card>
+
+      {/* ── D. Social Security AI ── */}
+      <Card d={0.7} accent={t.vi} style={{ marginTop: 20 }}>
+        <div style={{ fontSize: 11, letterSpacing: 2, color: t.vi, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 12 }}>{SEC_DEEP(en).socialSecurity.title}</div>
+        <div style={{ marginBottom: 12 }}>
+          <div style={{ fontSize: 10, color: t.gn, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 6 }}>{en ? "OPPORTUNITIES" : "OPORTUNIDADES"}</div>
+          {SEC_DEEP(en).socialSecurity.opportunities.map((op, i) => (
+            <div key={i} style={{ fontSize: 12, color: t.tx2, padding: "5px 0 5px 14px", borderBottom: `1px solid ${t.bd}`, lineHeight: 1.6 }}>▸ {op}</div>
+          ))}
+        </div>
+        <div>
+          <div style={{ fontSize: 10, color: t.rd, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 6 }}>{en ? "RISKS" : "RIESGOS"}</div>
+          {SEC_DEEP(en).socialSecurity.risks.map((rk, i) => (
+            <div key={i} style={{ fontSize: 12, color: t.tx2, padding: "5px 0 5px 14px", borderBottom: `1px solid ${t.bd}`, lineHeight: 1.6, background: `${t.rd}05`, borderRadius: 4, marginBottom: 4 }}>⚠ {rk}</div>
+          ))}
+        </div>
+      </Card>
+
+      {/* ── E. Cybersecurity for SMEs ── */}
+      <Card d={0.75} accent={t.or} style={{ marginTop: 20 }}>
+        <div style={{ fontSize: 11, letterSpacing: 2, color: t.or, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 12 }}>{SEC_DEEP(en).cyberSME.title}</div>
+        <div style={{ marginBottom: 12 }}>
+          <div style={{ fontSize: 10, color: t.or, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 6 }}>{en ? "CHALLENGES" : "DESAFÍOS"}</div>
+          {SEC_DEEP(en).cyberSME.challenges.map((ch, i) => (
+            <div key={i} style={{ fontSize: 12, color: t.tx2, padding: "5px 0 5px 14px", borderBottom: `1px solid ${t.bd}`, lineHeight: 1.6 }}>▸ {ch}</div>
+          ))}
+        </div>
+        <div>
+          <div style={{ fontSize: 10, color: t.gn, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 6 }}>{en ? "RECOMMENDATIONS" : "RECOMENDACIONES"}</div>
+          {SEC_DEEP(en).cyberSME.recommendations.map((rc, i) => (
+            <div key={i} style={{ fontSize: 12, color: t.tx2, padding: "5px 0 5px 14px", borderBottom: `1px solid ${t.bd}`, lineHeight: 1.6 }}>✓ {rc}</div>
+          ))}
+        </div>
+      </Card>
+
+      {/* ── F. Priority Actions (Expanded) ── */}
+      <Card d={0.8} accent={t.gn} style={{ marginTop: 20 }}>
+        <div style={{ fontSize: 11, letterSpacing: 2, color: t.gn, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 12 }}>{en ? "PRIORITY ACTIONS — EXPANDED" : "ACCIONES PRIORITARIAS — EXPANDIDO"}</div>
+        {SEC_DEEP(en).priorityActions.map((pa, i) => (
+          <details key={i} style={{ marginBottom: 10, background: t.sf, borderRadius: 8, borderLeft: `3px solid ${t.gn}`, overflow: "hidden" }}>
+            <summary style={{ padding: "10px 14px", cursor: "pointer", fontSize: 13, fontWeight: 600, color: t.tx, listStyle: "none" }}>
+              <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: t.gn, marginRight: 8 }}>{String(i + 1).padStart(2, "0")}</span>
+              {pa.action}
+            </summary>
+            <div style={{ padding: "0 14px 12px" }}>
+              <div style={{ padding: "6px 10px", background: `${t.cy}08`, borderRadius: 6, marginBottom: 6 }}>
+                <div style={{ fontSize: 9, color: t.cy, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 2 }}>{en ? "WHY" : "POR QUÉ"}</div>
+                <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6 }}>{pa.why}</p>
+              </div>
+              <div style={{ padding: "6px 10px", background: `${t.vi}08`, borderRadius: 6 }}>
+                <div style={{ fontSize: 9, color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 2 }}>{en ? "INTERNATIONAL COMPARISON" : "COMPARACIÓN INTERNACIONAL"}</div>
+                <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6 }}>{pa.comparison}</p>
+              </div>
+            </div>
+          </details>
+        ))}
+      </Card>
+
+      {/* ── G. Future Outlook ── */}
+      <Card d={0.85} style={{ marginTop: 20 }}>
+        <div style={{ fontSize: 11, letterSpacing: 2, color: t.vi, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 12 }}>{en ? "FUTURE OUTLOOK" : "PERSPECTIVA FUTURA"}</div>
+        <div style={{ position: "relative", paddingLeft: 20 }}>
+          <div style={{ position: "absolute", left: 6, top: 0, bottom: 0, width: 2, background: `${t.vi}30` }} />
+          {SEC_DEEP(en).futureOutlook.map((fo, i) => (
+            <div key={i} style={{ position: "relative", marginBottom: 14, paddingLeft: 16 }}>
+              <div style={{ position: "absolute", left: -17, top: 4, width: 10, height: 10, borderRadius: "50%", background: t.vi, border: `2px solid ${t.bg}` }} />
+              <div style={{ fontSize: 12, fontWeight: 700, fontFamily: "'IBM Plex Mono',monospace", color: t.vi, marginBottom: 2 }}>{fo.year}</div>
+              <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6 }}>{fo.event}</p>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* ── H. News & Cases ── */}
+      <Card d={0.9} style={{ marginTop: 20 }}>
+        <div style={{ fontSize: 11, letterSpacing: 2, color: t.or, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 12 }}>{en ? "NEWS & CASES" : "NOTICIAS Y CASOS"}</div>
+        {SEC_DEEP(en).news.map((nw, i) => (
+          <div key={i} style={{ padding: "10px 12px", background: t.sf, borderRadius: 8, marginBottom: 8, borderLeft: `3px solid ${t.or}` }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: t.tx, marginBottom: 4 }}>{nw.headline}</div>
+            <p style={{ fontSize: 11, color: t.tx3, lineHeight: 1.6, marginBottom: 6 }}>{nw.significance}</p>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: 10, fontFamily: "'IBM Plex Mono',monospace", color: t.tx3 }}>{nw.source}</span>
+              <Lnk href={nw.url}>{en ? "Source" : "Fuente"}</Lnk>
+            </div>
+          </div>
+        ))}
       </Card>
     </div>
   );
@@ -205,6 +345,57 @@ export function Leg({ en, t }) {
         </Card>
       ))}
 
+      {/* ── A. Key Terms Explained (LEG_JARGON) ── */}
+      <Card d={0.35} style={{ marginBottom: 20 }}>
+        <div style={{ fontSize: 11, letterSpacing: 2, color: t.vi, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 12 }}>{en ? "KEY TERMS EXPLAINED" : "TÉRMINOS CLAVE EXPLICADOS"}</div>
+        {(() => {
+          const jargon = LEG_JARGON(en);
+          const keys = ["ley_vinculante", "marco_antidesinfo", "sandbox_regulatorio", "autoridad_ai"];
+          return keys.map((k, i) => {
+            const j = jargon[k];
+            if (!j) return null;
+            return (
+              <details key={i} style={{ marginBottom: 10, background: t.sf, borderRadius: 8, borderLeft: `3px solid ${t.vi}`, overflow: "hidden" }}>
+                <summary style={{ padding: "10px 14px", cursor: "pointer", fontSize: 13, fontWeight: 600, color: t.tx, listStyle: "none" }}>{j.term}</summary>
+                <div style={{ padding: "0 14px 12px" }}>
+                  <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.7, marginBottom: 8 }}>{j.what}</p>
+                  {j.whoHasDone && (
+                    <div style={{ marginBottom: 8 }}>
+                      <div style={{ fontSize: 9, color: t.cy, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>{en ? "WHO HAS DONE IT" : "QUIÉN LO HA HECHO"}</div>
+                      {Array.isArray(j.whoHasDone) && typeof j.whoHasDone[0] === "object" ? (
+                        j.whoHasDone.map((w, wi) => (
+                          <div key={wi} style={{ fontSize: 11, color: t.tx2, padding: "4px 0 4px 12px", borderLeft: `2px solid ${t.cy}`, marginBottom: 4, lineHeight: 1.6 }}>
+                            <strong>{w.country}</strong> — {w.law} ({w.year}){w.detail ? `: ${w.detail}` : ""}
+                          </div>
+                        ))
+                      ) : Array.isArray(j.whoHasDone) ? (
+                        j.whoHasDone.map((w, wi) => (
+                          <div key={wi} style={{ fontSize: 11, color: t.tx2, padding: "3px 0 3px 12px", borderLeft: `2px solid ${t.cy}`, marginBottom: 3, lineHeight: 1.6 }}>{w}</div>
+                        ))
+                      ) : null}
+                    </div>
+                  )}
+                  {j.examples && (
+                    <div style={{ marginBottom: 8 }}>
+                      <div style={{ fontSize: 9, color: t.cy, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>{en ? "EXAMPLES" : "EJEMPLOS"}</div>
+                      {j.examples.map((ex, ei) => (
+                        <div key={ei} style={{ fontSize: 11, color: t.tx2, padding: "4px 0 4px 12px", borderLeft: `2px solid ${t.cy}`, marginBottom: 4, lineHeight: 1.6 }}>
+                          <strong>{ex.country}</strong>: {ex.approach}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div style={{ padding: "6px 10px", background: `${t.gn}08`, borderRadius: 6 }}>
+                    <div style={{ fontSize: 9, color: t.gn, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 2 }}>{en ? "CR RECOMMENDATION" : "RECOMENDACIÓN CR"}</div>
+                    <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6 }}>{j.crRecommendation}</p>
+                  </div>
+                </div>
+              </details>
+            );
+          });
+        })()}
+      </Card>
+
       {/* CR Checklist — 11 items */}
       <Card d={0.4} accent={t.rd}>
         <div style={{ fontSize: 11, letterSpacing: 2, color: t.rd, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>
@@ -221,6 +412,74 @@ export function Leg({ en, t }) {
         ))}
         <Ci s={en ? "Colibrii Labs analysis of legislative gaps" : "Análisis Colibrii Labs de brechas legislativas"} />
       </Card>
+
+      {/* ── B. ENIA Gap Analysis ── */}
+      {(() => {
+        const enia = ENIA_ANALYSIS(en);
+        return (
+          <>
+            <Card d={0.5} style={{ marginTop: 20 }}>
+              <div style={{ fontSize: 11, letterSpacing: 2, color: t.gn, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 12 }}>{en ? "ENIA GAP ANALYSIS — STRENGTHS" : "ANÁLISIS BRECHAS ENIA — FORTALEZAS"}</div>
+              <Grid cols="repeat(auto-fit,minmax(240px,1fr))" gap={10}>
+                {enia.strengths.map((s, i) => (
+                  <div key={i} style={{ padding: 12, background: t.sf, borderRadius: 8, borderLeft: `3px solid ${t.gn}` }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: t.gn, marginBottom: 6, fontFamily: "'Fraunces',serif" }}>{s.pillar}</div>
+                    <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6 }}>{s.detail}</p>
+                  </div>
+                ))}
+              </Grid>
+            </Card>
+
+            <Card d={0.55} style={{ marginTop: 14 }}>
+              <div style={{ fontSize: 11, letterSpacing: 2, color: t.rd, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 12 }}>{en ? "ENIA GAP ANALYSIS — DEFICIENCIES" : "ANÁLISIS BRECHAS ENIA — DEFICIENCIAS"}</div>
+              {enia.deficiencies.map((d, i) => (
+                <div key={i} style={{ padding: "10px 12px", background: t.sf, borderRadius: 8, borderLeft: `3px solid ${d.severity === "CRITICAL" || d.severity === "CRÍTICO" ? t.rd : d.severity === "HIGH" || d.severity === "ALTO" ? t.or : t.am}`, marginBottom: 8 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: t.tx, fontFamily: "'Fraunces',serif" }}>{d.pillar}</span>
+                    <Tag color={d.severity === "CRITICAL" || d.severity === "CRÍTICO" ? t.rd : d.severity === "HIGH" || d.severity === "ALTO" ? t.or : t.am}>{d.severity}</Tag>
+                  </div>
+                  <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6 }}>{d.detail}</p>
+                </div>
+              ))}
+            </Card>
+
+            <Card d={0.6} style={{ marginTop: 14 }}>
+              <div style={{ fontSize: 11, letterSpacing: 2, color: t.cy, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 12 }}>{en ? "RECOMMENDED IMPROVEMENTS" : "MEJORAS RECOMENDADAS"}</div>
+              {enia.improvements.map((imp, i) => (
+                <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "6px 0", borderBottom: `1px solid ${t.bd}` }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, fontFamily: "'IBM Plex Mono',monospace", color: t.cy, minWidth: 22, textAlign: "center", background: `${t.cy}10`, borderRadius: 4, padding: "2px 4px" }}>{i + 1}</span>
+                  <span style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6 }}>{imp}</span>
+                </div>
+              ))}
+            </Card>
+
+            <Card d={0.65} style={{ marginTop: 14 }}>
+              <div style={{ fontSize: 11, letterSpacing: 2, color: t.vi, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 12 }}>{en ? "COUNTRY COMPARISON" : "COMPARACIÓN POR PAÍS"}</div>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                  <thead>
+                    <tr>
+                      <th style={{ textAlign: "left", padding: "8px 10px", borderBottom: `2px solid ${t.vi}`, fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: t.vi }}>{en ? "COUNTRY" : "PAÍS"}</th>
+                      <th style={{ textAlign: "left", padding: "8px 10px", borderBottom: `2px solid ${t.vi}`, fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: t.vi }}>{en ? "STATUS" : "ESTADO"}</th>
+                      <th style={{ textAlign: "left", padding: "8px 10px", borderBottom: `2px solid ${t.vi}`, fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: t.vi }}>{en ? "CR GAP" : "BRECHA CR"}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {enia.comparison.map((row, i) => (
+                      <tr key={i} style={{ background: i % 2 === 0 ? "transparent" : t.sf }}>
+                        <td style={{ padding: "8px 10px", fontWeight: 600, color: t.tx, borderBottom: `1px solid ${t.bd}` }}>{row.country}</td>
+                        <td style={{ padding: "8px 10px", color: t.tx2, borderBottom: `1px solid ${t.bd}`, lineHeight: 1.5 }}>{row.status}</td>
+                        <td style={{ padding: "8px 10px", color: t.rd, borderBottom: `1px solid ${t.bd}`, lineHeight: 1.5 }}>{row.gap}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <Ci s={en ? "Colibrii Labs ENIA Gap Analysis 2026" : "Análisis Brechas ENIA Colibrii Labs 2026"} />
+            </Card>
+          </>
+        );
+      })()}
     </div>
   );
 }

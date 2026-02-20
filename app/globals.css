@@ -1799,11 +1799,14 @@ input[type="range"]::-moz-range-thumb {
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   padding: 8px 4px 16px;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }
 
-.vip-reel::-webkit-scrollbar { display: none; }
+.vip-reel::-webkit-scrollbar { height: 6px; }
+.vip-reel::-webkit-scrollbar-track { background: transparent; }
+.vip-reel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.vip-reel::-webkit-scrollbar-thumb:hover { background: var(--text3); }
 
 .vip-card {
   flex: 0 0 300px;
@@ -1857,6 +1860,17 @@ input[type="range"]::-moz-range-thumb {
   font-size: 11px;
   color: var(--text3);
   font-family: 'IBM Plex Mono', monospace;
+}
+
+.vip-avatar-img {
+  margin-bottom: 14px;
+  flex-shrink: 0;
+}
+
+.vip-nav-btn:hover {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--cyan) !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -2219,4 +2233,68 @@ input[type="range"]::-moz-range-thumb {
   align-items: center;
   justify-content: center;
   font-family: 'IBM Plex Mono', monospace;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   v15 — MOBILE FIXES (Phase 4A)
+   Comprehensive responsive overrides for 768px and 480px
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  /* Heatmap overflow fix */
+  .risk-heatmap-container { min-width: unset !important; }
+  .risk-heatmap-container table { font-size: 10px !important; }
+
+  /* VIP reel narrower on tablet */
+  .vip-card { flex: 0 0 260px !important; padding: 18px !important; }
+
+  /* World map container overflow */
+  .world-map-container { overflow: hidden !important; }
+
+  /* Landing credibility 2x2 on small */
+  .mkt-credibility { flex-wrap: wrap !important; justify-content: center !important; }
+  .mkt-cred-item { flex: 0 0 40% !important; }
+
+  /* Landing hero smaller */
+  .mkt-hero-title { font-size: 32px !important; }
+  .mkt-hero-desc { font-size: 14px !important; }
+
+  /* Data table scroll */
+  .data-table { min-width: 600px; }
+
+  /* EOS grid → stack on tablet */
+  .eos-grid-2col { grid-template-columns: 1fr !important; }
+
+  /* Flag selector scroll */
+  .flag-selector { max-height: 200px; overflow-y: auto; }
+
+  /* Expandable details elements */
+  details summary { font-size: 11px !important; }
+}
+
+@media (max-width: 480px) {
+  /* VIP cards even narrower on phone */
+  .vip-card { flex: 0 0 230px !important; padding: 14px !important; }
+  .vip-quote { font-size: 12px !important; }
+
+  /* Hero text smaller */
+  .hero-bg { padding: 28px 16px 24px !important; }
+  .hero-bg h1 { font-size: clamp(22px, 6vw, 32px) !important; }
+
+  /* Stat cards 2-col */
+  .portal-content { padding: 12px 10px 32px !important; }
+
+  /* Landing page 4-col → 2x2 on phone */
+  .mkt-cred-item { flex: 0 0 45% !important; }
+
+  /* Reduce comparison selectors to 1-col on phone */
+  .flag-selector { gap: 4px !important; }
+  .flag-btn { padding: 3px 6px !important; font-size: 10px !important; }
+
+  /* Navigation arrows smaller */
+  .vip-nav-btn { width: 28px !important; height: 28px !important; font-size: 14px !important; }
+
+  /* Timeline nodes tighter */
+  .timeline-node-header { gap: 6px !important; }
+  .timeline-node-header span:first-child { min-width: 55px !important; font-size: 9px !important; }
 }

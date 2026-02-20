@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip } from "recharts";
 import { CO, DM, TIMELINE, PARTNERS, WEF_2026_RISKS, EOS_RISKS, INDICATOR_META, VIP_QUOTES, NEWS_CATEGORIES } from "./data";
@@ -217,6 +217,56 @@ function WefDashboard({ en, t, dark }) {
   );
 }
 
+function VipQuotesReel({ en, t }) {
+  const reelRef = useRef(null);
+  const scroll = useCallback((dir) => {
+    const el = reelRef.current;
+    if (!el) return;
+    const amount = 300;
+    el.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
+  }, []);
+  const quotes = VIP_QUOTES(en);
+  return (
+    <Card style={{ marginBottom: 28, overflow: "visible" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+        <div>
+          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>
+            {en ? "VOICES ON AI" : "VOCES SOBRE AI"}
+          </div>
+          <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Fraunces',serif" }}>
+            {en ? "What Global Leaders Are Saying" : "Qué Dicen los Líderes Globales"}
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 6 }}>
+          <button onClick={() => scroll("left")} className="vip-nav-btn" aria-label="Previous quotes" style={{ width: 32, height: 32, borderRadius: "50%", border: `1px solid ${t.bd}`, background: t.sf, color: t.tx2, fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>←</button>
+          <button onClick={() => scroll("right")} className="vip-nav-btn" aria-label="Next quotes" style={{ width: 32, height: 32, borderRadius: "50%", border: `1px solid ${t.bd}`, background: t.sf, color: t.tx2, fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>→</button>
+        </div>
+      </div>
+      <div className="vip-reel" ref={reelRef}>
+        {quotes.map((q, i) => (
+          <div key={i} className="vip-card">
+            {q.photo ? (
+              <img src={q.photo} alt={q.name} className="vip-avatar-img" style={{ width: 48, height: 48, borderRadius: "50%", objectFit: "cover", border: `2px solid ${t.bd}`, flexShrink: 0 }} onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }} />
+            ) : null}
+            <div className="vip-avatar" style={{ background: q.gradient, display: q.photo ? "none" : "flex" }}>{q.initials}</div>
+            <div className="vip-quote">{q.quote}</div>
+            <div className="vip-name">{q.name}</div>
+            <div className="vip-title">{q.title}</div>
+            {q.src && (
+              <a href={q.src} target="_blank" rel="noopener noreferrer" style={{ fontSize: 10, color: t.cy, marginTop: 6, display: "inline-block" }}>
+                {en ? "Source" : "Fuente"} ↗
+              </a>
+            )}
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: 10, color: t.tx3, textAlign: "center", marginTop: 8, fontFamily: "'IBM Plex Mono',monospace" }}>
+        {quotes.length} {en ? "voices" : "voces"} · {en ? "scroll or use arrows" : "desplazar o usar flechas"}
+      </div>
+    </Card>
+  );
+}
+
 export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, setTab, onIndicatorClick }) {
   const TL = TIMELINE(en);
   const [tlOpen, setTlOpen] = useState(null);
@@ -341,31 +391,52 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
         </Card>
       </ScrollReveal>
 
+      {/* ═══════ WEF & COSTA RICA NARRATIVE ═══════ */}
+      <ScrollReveal delay={100}>
+        <Card accent={t.vi} style={{ marginBottom: 28 }}>
+          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>
+            {en ? "WEF & COSTA RICA" : "WEF Y COSTA RICA"}
+          </div>
+          <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Fraunces',serif", marginBottom: 14 }}>
+            {en ? "Costa Rica in the Global AI Context" : "Costa Rica en el Contexto AI Global"}
+          </div>
+          <Grid cols="1fr 1fr" gap={12}>
+            <div style={{ padding: 16, background: `${t.gn}06`, borderRadius: 10, borderLeft: `3px solid ${t.gn}` }}>
+              <div style={{ fontSize: 10, color: t.gn, fontFamily: "'IBM Plex Mono',monospace", letterSpacing: 1, marginBottom: 6 }}>{en ? "STRENGTHS RECOGNIZED" : "FORTALEZAS RECONOCIDAS"}</div>
+              <ul style={{ fontSize: 12, color: t.tx2, lineHeight: 1.8, paddingLeft: 16, margin: 0 }}>
+                <li>{en ? "World Bank: AI Overperformer (1 of 7 UMICs globally)" : "Banco Mundial: AI Overperformer (1 de 7 PIMA globalmente)"}</li>
+                <li>{en ? "Oxford Insights: 100/100 AI Vision score" : "Oxford Insights: 100/100 Visión AI"}</li>
+                <li>{en ? "OECD member — regulatory credibility, institutional quality" : "Miembro OCDE — credibilidad regulatoria, calidad institucional"}</li>
+                <li>{en ? "99% renewable energy — unique green AI advantage" : "99% energía renovable — ventaja AI verde única"}</li>
+                <li>{en ? "#3 global Greenfield FDI Performance (fDi Markets)" : "#3 global Desempeño IED Greenfield (fDi Markets)"}</li>
+              </ul>
+            </div>
+            <div style={{ padding: 16, background: `${t.rd}06`, borderRadius: 10, borderLeft: `3px solid ${t.rd}` }}>
+              <div style={{ fontSize: 10, color: t.rd, fontFamily: "'IBM Plex Mono',monospace", letterSpacing: 1, marginBottom: 6 }}>{en ? "EXECUTION GAPS" : "BRECHAS DE EJECUCIÓN"}</div>
+              <ul style={{ fontSize: 12, color: t.tx2, lineHeight: 1.8, paddingLeft: 16, margin: 0 }}>
+                <li>{en ? "Zero binding AI law (strategy-to-law gap = largest in peer set)" : "Cero ley AI vinculante (brecha estrategia-ley = mayor en grupo pares)"}</li>
+                <li>{en ? "No AI authority — PRODHAB lacks mandate and capacity" : "Sin autoridad AI — PRODHAB carece de mandato y capacidad"}</li>
+                <li>{en ? "Business leaders don't see AI risk (EOS blind spot)" : "Líderes empresariales no ven riesgo AI (punto ciego EOS)"}</li>
+                <li>{en ? "INA: 13K IT graduates/year, zero AI certification tracks" : "INA: 13K graduados IT/año, cero tracks certificación AI"}</li>
+                <li>{en ? "R&D: 0.4% GDP (vs 4.8% South Korea, 2.2% OECD avg)" : "I+D: 0.4% PIB (vs 4.8% Corea del Sur, 2.2% promedio OCDE)"}</li>
+              </ul>
+            </div>
+          </Grid>
+          <div style={{ marginTop: 14, padding: "12px 16px", background: `${t.vi}06`, borderRadius: 10, borderLeft: `3px solid ${t.vi}` }}>
+            <div style={{ fontSize: 10, color: t.vi, fontFamily: "'IBM Plex Mono',monospace", letterSpacing: 1, marginBottom: 6 }}>{en ? "THE AWARENESS OPPORTUNITY" : "LA OPORTUNIDAD DE CONCIENTIZACIÓN"}</div>
+            <p style={{ fontSize: 13, color: t.tx2, lineHeight: 1.7, margin: 0 }}>
+              {en
+                ? "WEF's Executive Opinion Survey shows Costa Rica's business leaders have not yet identified AI as a top-5 risk — while global experts rank it #5 long-term. This perception gap is not a failure but an awareness opportunity: Costa Rica has the institutional quality, democratic stability, and international credibility to close this gap faster than any other country in the region. The first Central American nation with binding AI legislation will capture a significant FDI premium."
+                : "La Encuesta de Opinión Ejecutiva del WEF muestra que líderes empresariales de Costa Rica aún no han identificado AI como riesgo top-5 — mientras expertos globales lo posicionan #5 largo plazo. Esta brecha de percepción no es un fracaso sino una oportunidad de concientización: Costa Rica tiene la calidad institucional, estabilidad democrática y credibilidad internacional para cerrar esta brecha más rápido que cualquier otro país de la región. La primera nación centroamericana con legislación AI vinculante capturará una prima significativa de IED."}
+            </p>
+          </div>
+          <Ci s="WEF Global Risks 2026, WEF EOS via INCAE, World Bank Digital Progress 2025, Oxford Insights AI Readiness 2024" />
+        </Card>
+      </ScrollReveal>
+
       {/* ═══════ VIP QUOTES REEL ═══════ */}
       <ScrollReveal delay={100}>
-        <Card style={{ marginBottom: 28, overflow: "visible" }}>
-          <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>
-            {en ? "VOICES ON AI" : "VOCES SOBRE AI"}
-          </div>
-          <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Fraunces',serif", marginBottom: 16 }}>
-            {en ? "What Global Leaders Are Saying" : "Qué Dicen los Líderes Globales"}
-          </div>
-          <div className="vip-reel">
-            {VIP_QUOTES(en).map((q, i) => (
-              <div key={i} className="vip-card">
-                <div className="vip-avatar" style={{ background: q.gradient }}>{q.initials}</div>
-                <div className="vip-quote">{q.quote}</div>
-                <div className="vip-name">{q.name}</div>
-                <div className="vip-title">{q.title}</div>
-                {q.src && (
-                  <a href={q.src} target="_blank" rel="noopener noreferrer" style={{ fontSize: 10, color: t.cy, marginTop: 6, display: "inline-block" }}>
-                    {en ? "Source" : "Fuente"} ↗
-                  </a>
-                )}
-              </div>
-            ))}
-          </div>
-        </Card>
+        <VipQuotesReel en={en} t={t} />
       </ScrollReveal>
 
       {/* ═══════ RADAR CHART ═══════ */}

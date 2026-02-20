@@ -238,6 +238,30 @@ export function ScorePill({ score, en }) {
   return <Tag color={color}>{label}</Tag>;
 }
 
+/* ── FLAG COMPONENT (Twemoji CDN + emoji fallback) ── */
+export function Flag({ code, size = 20, style }) {
+  const [err, setErr] = useState(false);
+  // Convert ISO Alpha-2 code to regional indicator Unicode for Twemoji
+  const cp = code && code.length === 2
+    ? [...code.toUpperCase()].map(c => (c.charCodeAt(0) + 0x1F1A5).toString(16)).join("-")
+    : null;
+  const emoji = code && code.length === 2
+    ? String.fromCodePoint(...[...code.toUpperCase()].map(c => c.charCodeAt(0) + 0x1F1A5))
+    : "🏳";
+  if (!cp || err) return <span style={{ fontSize: size * 0.85, lineHeight: 1, ...style }}>{emoji}</span>;
+  return (
+    <img
+      src={`https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/${cp}.svg`}
+      alt={code}
+      width={size}
+      height={size}
+      style={{ display: "inline-block", verticalAlign: "middle", ...style }}
+      onError={() => setErr(true)}
+      loading="lazy"
+    />
+  );
+}
+
 /* ── DOWNLOAD / EXPORT BUTTON ── */
 export function ExportBtn({ onClick, en, label }) {
   return (
