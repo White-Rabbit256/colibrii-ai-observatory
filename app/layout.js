@@ -70,7 +70,6 @@ export const metadata = {
     canonical: "https://colibriilabs.com",
     languages: { "es": "https://colibriilabs.com", "en": "https://colibriilabs.com" }
   },
-  other: { "google-site-verification": "" },
 };
 
 export const viewport = {

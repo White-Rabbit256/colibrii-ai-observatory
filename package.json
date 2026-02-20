@@ -1,7 +1,11 @@
 {
   "name": "colibrii-encrucijada",
-  "version": "13.1.0",
+  "version": "15.0.0",
   "private": true,
+  "description": "Colibrii Labs AI Observatory — Real-time strategic AI intelligence for Costa Rica",
+  "homepage": "https://colibriilabs.com",
+  "author": "Andrés Alpízar <andres@colibriilabs.com>",
+  "license": "CC-BY-NC-4.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
