@@ -211,6 +211,12 @@ const ICONS = {
       {P("M10 14L21 3")}
     </>
   ),
+  video: (
+    <>
+      {P("M23 7l-7 5 7 5V7z")}
+      {P("M14 5H3a2 2 0 00-2 2v10a2 2 0 002 2h11a2 2 0 002-2V7a2 2 0 00-2-2z")}
+    </>
+  ),
 };
 
 export function Icon({ name, size = 16, color = "currentColor", style = {} }) {

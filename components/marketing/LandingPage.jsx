@@ -2,8 +2,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import Particles, { initParticlesEngine } from "@tsparticles/react";
-import { loadSlim } from "@tsparticles/slim";
 import { FACTS } from "../../data/facts";
 import { MarketingHeader } from "./MarketingHeader";
 import { MarketingFooter } from "./MarketingFooter";
@@ -34,44 +32,7 @@ export function LandingPage() {
     localStorage.setItem("clb_lang", en ? "en" : "es");
   }, [en]);
 
-  const [particlesReady, setParticlesReady] = useState(false);
 
-  useEffect(() => {
-    initParticlesEngine(async (engine) => {
-      await loadSlim(engine);
-    }).then(() => setParticlesReady(true));
-  }, []);
-
-  const particlesOptions = {
-    fullScreen: false,
-    fpsLimit: 60,
-    particles: {
-      number: { value: 90, density: { enable: true, area: 900 } },
-      color: { value: ["#2563eb", "#8b5cf6", "#06b6d4", "#ec4899", "#10b981"] },
-      opacity: { value: { min: 0.2, max: 0.5 } },
-      size: { value: { min: 2, max: 5 } },
-      move: {
-        enable: true,
-        speed: 1.2,
-        direction: "none",
-        outModes: "bounce",
-      },
-      links: {
-        enable: true,
-        distance: 140,
-        color: "#2563eb",
-        opacity: 0.12,
-        width: 1,
-      },
-    },
-    interactivity: {
-      events: {
-        onHover: { enable: false },
-        onClick: { enable: false },
-      },
-    },
-    detectRetina: true,
-  };
 
   const pillars = [
     {
@@ -125,14 +86,20 @@ export function LandingPage() {
 
   return (
     <div className="mkt-page">
-      {/* tsParticles — fixed overlay across entire page */}
-      {particlesReady && (
-        <Particles
-          id="hero-particles"
-          options={particlesOptions}
-          style={{ position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none", width: "100vw", height: "100vh" }}
-        />
-      )}
+      {/* Floating ambient dots — pure CSS, non-blocking */}
+      <div className="mkt-ambient-dots" aria-hidden="true">
+        {Array.from({ length: 18 }).map((_, i) => (
+          <span key={i} className="mkt-dot" style={{
+            left: `${5 + (i * 37 + i * i * 7) % 90}%`,
+            top: `${3 + (i * 53 + i * 13) % 94}%`,
+            animationDelay: `${(i * 1.7) % 8}s`,
+            animationDuration: `${14 + (i % 5) * 4}s`,
+            width: `${3 + (i % 4) * 2}px`,
+            height: `${3 + (i % 4) * 2}px`,
+            background: ["#2563eb", "#8b5cf6", "#06b6d4", "#ec4899", "#10b981"][i % 5],
+          }} />
+        ))}
+      </div>
       <MarketingHeader en={en} setEn={setEn} />
 
       {/* ── HERO ── */}
@@ -189,7 +156,7 @@ export function LandingPage() {
       </motion.section>
 
       {/* ── What is an AI Observatory? ── */}
-      <section style={{ maxWidth: 900, margin: "0 auto", padding: "28px 24px 20px", position: "relative", zIndex: 2 }}>
+      <section style={{ maxWidth: 900, margin: "0 auto", padding: "28px 24px 20px", position: "relative", zIndex: 1 }}>
         <div className="mkt-section-title">{en ? "What is an AI Observatory?" : "¿Qué es un Observatorio AI?"}</div>
         <p style={{ textAlign: "center", fontSize: 15, color: "var(--mkt-text2)", lineHeight: 1.8, maxWidth: 640, margin: "0 auto 24px" }}>
           {en
@@ -213,7 +180,7 @@ export function LandingPage() {
       </section>
 
       {/* ── Referenced Institutions ── */}
-      <section style={{ borderTop: "1px solid var(--mkt-border)", borderBottom: "1px solid var(--mkt-border)", padding: "24px 24px", position: "relative", zIndex: 2 }}>
+      <section style={{ borderTop: "1px solid var(--mkt-border)", borderBottom: "1px solid var(--mkt-border)", padding: "24px 24px", position: "relative", zIndex: 1 }}>
         <div style={{ fontSize: 10, letterSpacing: 2, textTransform: "uppercase", color: "var(--mkt-text3)", fontFamily: "var(--font-mono, 'IBM Plex Mono', monospace)", textAlign: "center", marginBottom: 16 }}>
           {en ? "DATA REFERENCED FROM" : "DATOS REFERENCIADOS DE"}
         </div>
@@ -246,7 +213,7 @@ export function LandingPage() {
       </section>
 
       {/* ── Why Costa Rica Needs This Now ── */}
-      <section style={{ maxWidth: 900, margin: "0 auto", padding: "28px 24px 24px", position: "relative", zIndex: 2 }}>
+      <section style={{ maxWidth: 900, margin: "0 auto", padding: "28px 24px 24px", position: "relative", zIndex: 1 }}>
         <div className="mkt-section-title">{en ? "Why Costa Rica Needs This Now" : "Por Qué Costa Rica Necesita Esto Ahora"}</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
           {[

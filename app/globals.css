@@ -1059,11 +1059,32 @@ input[type="range"]::-moz-range-thumb {
   color: var(--mkt-text);
 }
 
-/* Particle overlay z-index layering */
+/* Content z-index layering (above ambient dots at z-index 0) */
 .mkt-hero, .mkt-credibility, .mkt-pillars, .mkt-audience,
 .mkt-highlight, .mkt-final-cta, .mkt-footer {
   position: relative;
-  z-index: 2;
+  z-index: 1;
+}
+
+/* Ambient floating dots — lightweight CSS-only particles */
+.mkt-ambient-dots {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.mkt-dot {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.18;
+  animation: mkt-float linear infinite;
+}
+@keyframes mkt-float {
+  0%, 100% { transform: translateY(0) translateX(0); opacity: 0.18; }
+  25% { transform: translateY(-30px) translateX(12px); opacity: 0.3; }
+  50% { transform: translateY(-15px) translateX(-8px); opacity: 0.12; }
+  75% { transform: translateY(-45px) translateX(6px); opacity: 0.25; }
 }
 
 /* ── Marketing Header ── */

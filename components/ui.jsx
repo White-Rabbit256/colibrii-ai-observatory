@@ -103,6 +103,7 @@ export function Stat({ value, label, sub, color, prefix = "", precision = 2, ico
           </div>
           <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", marginTop: 2 }}>{label}</div>
           {sub && <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 2 }}>{sub}</div>}
+          {onClick && <div style={{ fontSize: 9, color: "var(--text3)", marginTop: 4, fontFamily: "'IBM Plex Mono',monospace", opacity: 0.7, display: "flex", alignItems: "center", gap: 3 }}>▸ <span style={{ borderBottom: "1px dotted var(--text3)" }}>más info</span></div>}
         </div>
         {icon && <Icon name={icon} size={22} style={{ opacity: 0.5 }} />}
       </div>
