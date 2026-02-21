@@ -13,7 +13,7 @@ import { FACTS } from "../../data/facts";
    ═══════════════════════════════════════════════════════════════ */
 
 const GROUPS = [
-  { label: { es: "INTELIGENCIA", en: "INTELLIGENCE" }, ids: ["home", "zf", "pai", "pymes"] },
+  { label: { es: "INTELIGENCIA", en: "INTELLIGENCE" }, ids: ["home", "media", "zf", "pai", "pymes"] },
   { label: { es: "POLÍTICAS", en: "POLICY" }, ids: ["leg", "sec"] },
   { label: { es: "FORMACIÓN", en: "TRAINING" }, ids: ["edu", "glos"] },
   { label: { es: "HERRAMIENTAS", en: "TOOLS" }, ids: ["idx", "countries", "cmp", "algo", "sim"] },

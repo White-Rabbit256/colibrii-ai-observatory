@@ -46,7 +46,7 @@ export function LandingPage() {
     fullScreen: false,
     fpsLimit: 60,
     particles: {
-      number: { value: 45, density: { enable: true, area: 800 } },
+      number: { value: 90, density: { enable: true, area: 900 } },
       color: { value: ["#2563eb", "#8b5cf6", "#06b6d4", "#ec4899", "#10b981"] },
       opacity: { value: { min: 0.2, max: 0.5 } },
       size: { value: { min: 2, max: 5 } },
@@ -66,12 +66,8 @@ export function LandingPage() {
     },
     interactivity: {
       events: {
-        onHover: { enable: true, mode: "grab" },
-        onClick: { enable: true, mode: "push" },
-      },
-      modes: {
-        grab: { distance: 180, links: { opacity: 0.35 } },
-        push: { quantity: 3 },
+        onHover: { enable: false },
+        onClick: { enable: false },
       },
     },
     detectRetina: true,
@@ -129,18 +125,18 @@ export function LandingPage() {
 
   return (
     <div className="mkt-page">
+      {/* tsParticles — fixed overlay across entire page */}
+      {particlesReady && (
+        <Particles
+          id="hero-particles"
+          options={particlesOptions}
+          style={{ position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none", width: "100vw", height: "100vh" }}
+        />
+      )}
       <MarketingHeader en={en} setEn={setEn} />
 
       {/* ── HERO ── */}
-      <motion.section className="mkt-hero" initial="hidden" animate="visible" variants={stagger} style={{ position: "relative" }}>
-        {/* tsParticles background */}
-        {particlesReady && (
-          <Particles
-            id="hero-particles"
-            options={particlesOptions}
-            style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "auto" }}
-          />
-        )}
+      <motion.section className="mkt-hero" initial="hidden" animate="visible" variants={stagger}>
         <motion.div variants={fadeUp} style={{ marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "center", gap: 16 }}>
           <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 160, height: 160 }} />
           <img src="/costa-rica-hero.jpg" alt="Costa Rica" style={{ width: 80, height: 56, borderRadius: 8, objectFit: "cover", boxShadow: "0 2px 12px rgba(0,0,0,0.15)" }} />
@@ -193,7 +189,7 @@ export function LandingPage() {
       </motion.section>
 
       {/* ── What is an AI Observatory? ── */}
-      <section style={{ maxWidth: 900, margin: "0 auto", padding: "40px 24px" }}>
+      <section style={{ maxWidth: 900, margin: "0 auto", padding: "28px 24px 20px", position: "relative", zIndex: 2 }}>
         <div className="mkt-section-title">{en ? "What is an AI Observatory?" : "¿Qué es un Observatorio AI?"}</div>
         <p style={{ textAlign: "center", fontSize: 15, color: "var(--mkt-text2)", lineHeight: 1.8, maxWidth: 640, margin: "0 auto 24px" }}>
           {en
@@ -217,7 +213,7 @@ export function LandingPage() {
       </section>
 
       {/* ── Referenced Institutions ── */}
-      <section style={{ borderTop: "1px solid var(--mkt-border)", borderBottom: "1px solid var(--mkt-border)", padding: "32px 24px" }}>
+      <section style={{ borderTop: "1px solid var(--mkt-border)", borderBottom: "1px solid var(--mkt-border)", padding: "24px 24px", position: "relative", zIndex: 2 }}>
         <div style={{ fontSize: 10, letterSpacing: 2, textTransform: "uppercase", color: "var(--mkt-text3)", fontFamily: "var(--font-mono, 'IBM Plex Mono', monospace)", textAlign: "center", marginBottom: 16 }}>
           {en ? "DATA REFERENCED FROM" : "DATOS REFERENCIADOS DE"}
         </div>
@@ -250,7 +246,7 @@ export function LandingPage() {
       </section>
 
       {/* ── Why Costa Rica Needs This Now ── */}
-      <section style={{ maxWidth: 900, margin: "0 auto", padding: "48px 24px" }}>
+      <section style={{ maxWidth: 900, margin: "0 auto", padding: "28px 24px 24px", position: "relative", zIndex: 2 }}>
         <div className="mkt-section-title">{en ? "Why Costa Rica Needs This Now" : "Por Qué Costa Rica Necesita Esto Ahora"}</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
           {[

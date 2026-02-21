@@ -12,6 +12,7 @@ import { ZF, PAI } from "../FreeZonesPhysicalAI";
 import { Algo, SecTab, Leg } from "../AlgoSecurityLeg";
 import { Edu, Glos, Abt } from "../EduGlossaryAbout";
 import { Pymes } from "../PymesAI";
+import { MediaIntelligence } from "../MediaIntelligence";
 import { PortalSidebar } from "./PortalSidebar";
 import { BottomNav } from "./BottomNav";
 import { IndicatorDrawer } from "./IndicatorDrawer";
@@ -25,7 +26,7 @@ import { FACTS } from "../../data/facts";
    ═══════════════════════════════════════════════════════════════ */
 
 const WB = "https://api.worldbank.org/v2/country";
-const GDELT_URL = "https://api.gdeltproject.org/api/v2/doc/doc?query=%22artificial+intelligence%22+%22costa+rica%22&mode=artlist&maxrecords=12&format=json&sort=datedesc&timespan=72h";
+const GDELT_URL = "https://api.gdeltproject.org/api/v2/doc/doc?query=%22artificial+intelligence%22+%22costa+rica%22&mode=artlist&maxrecords=24&format=json&sort=datedesc&timespan=72h";
 const XR_URL = "https://open.er-api.com/v6/latest/USD";
 
 export default function PortalShell() {
@@ -121,7 +122,7 @@ export default function PortalShell() {
     try {
       const r = await fetch(GDELT_URL);
       const d = await r.json();
-      const articles = d.articles?.slice(0, 12) || [];
+      const articles = d.articles?.slice(0, 24) || [];
       cacheSet("gdelt", articles);
       return articles;
     } catch { return []; }
@@ -167,6 +168,7 @@ export default function PortalShell() {
   const renderTab = () => {
     switch (tab) {
       case "home": return <Home {...tp} />;
+      case "media": return <MediaIntelligence {...tp} />;
       case "idx": return <Idx {...tp} />;
       case "cmp": return <Compare {...tp} />;
       case "countries": return <Countries {...tp} />;

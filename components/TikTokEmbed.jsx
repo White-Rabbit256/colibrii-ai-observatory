@@ -13,6 +13,12 @@ const TIKTOK_VIDEOS = [
   { id: "7600087754709519649", user: "worldeconomicforum", label: "WEF: Future of Work" },
   { id: "7463218989410372896", user: "worldeconomicforum", label: "WEF: AI Governance" },
   { id: "7581910079994072342", user: "cnbci", label: "CNBC: AI Investment" },
+  { id: "7604092193418136865", user: "worldeconomicforum", label: "WEF: AI Economy" },
+  { id: "7586998162657709344", user: "worldeconomicforum", label: "WEF: AI Workforce" },
+  { id: "7602952346313821472", user: "worldeconomicforum", label: "WEF: AI Future" },
+  { id: "7608501347855404319", user: "bloombergbusiness", label: "Bloomberg: AI Markets" },
+  { id: "7608483684248718622", user: "bloombergbusiness", label: "Bloomberg: AI Business" },
+  { id: "7605924619823910166", user: "financialtimes", label: "FT: AI Analysis" },
 ];
 
 const COLIBRII_TIKTOK = "colibrii.labs";
