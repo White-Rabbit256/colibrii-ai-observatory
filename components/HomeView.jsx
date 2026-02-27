@@ -237,7 +237,7 @@ function WefDashboard({ en, t, dark }) {
   );
 }
 
-export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, setTab, onIndicatorClick }) {
+export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, setTab, onIndicatorClick, onExplore }) {
   const TL = useMemo(() => TIMELINE(en), [en]);
   const [tlOpen, setTlOpen] = useState(null);
 
@@ -267,21 +267,20 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
               </span>
             </div>
             <h1 style={{ fontSize: "clamp(28px, 5vw, 42px)", fontWeight: 900, fontFamily: "var(--font-display, 'Playfair Display', serif)", lineHeight: 1.15, marginBottom: 12 }}>
-              <span className="gradient-text">{en ? "AI Observatory" : "Observatorio AI"}</span>
-              <br />
-              <span style={{ color: t.tx }}>Costa Rica</span>
+              <span className="gradient-text">{en ? "AI Observatory | Costa Rica" : "Observatorio AI | Costa Rica"}</span>
             </h1>
             <p style={{ fontSize: 15, color: t.tx2, maxWidth: 540, lineHeight: 1.7, marginBottom: 16 }}>
               {en
                 ? "Real-time strategic intelligence for Costa Rica's positioning in the global AI transformation. 20-country composite index, 20+ data sources, 10 proprietary algorithms."
                 : "Inteligencia estratégica en tiempo real para el posicionamiento de Costa Rica en la transformación global de AI. Índice compuesto de 20 países, 20+ fuentes, 10 algoritmos propietarios."}
             </p>
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <button onClick={() => setTab("idx")} style={{ padding: "10px 20px", border: "none", borderRadius: 8, background: t.grad1, color: "#fff", fontWeight: 700, fontSize: 14 }}>
-                {en ? "Explore Index" : "Explorar Índice"} →
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setTab("idx")} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "10px 20px", border: "none", borderRadius: 8, background: "linear-gradient(135deg, #06b6d4, #a855f7, #ec4899)", backgroundSize: "250% 250%", animation: "coolGlow 5s ease-in-out infinite", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
+                {en ? "Colibrii Index" : "Índice Colibrii"}
               </button>
-              <button onClick={() => setTab("sim")} style={{ padding: "10px 20px", border: `1px solid ${t.bd}`, borderRadius: 8, background: t.cardBg, color: t.tx2, fontWeight: 600, fontSize: 14 }}>
-                {en ? "Policy Simulator" : "Simulador"} 🎯
+              <button className="btn-warm-glow" onClick={onExplore} style={{ flex: 1, display: "flex", alignItems: "center", gap: 6, padding: "10px 16px", border: "none", borderRadius: 8, color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
+                <img src="/colibrii-icon.webp" alt="" style={{ height: 30, width: 30, borderRadius: "50%", objectFit: "cover", mixBlendMode: "multiply", filter: "contrast(1.4)", boxShadow: "0 0 0 5px rgba(255,255,255,0.4)" }} />
+                {en ? "Explore" : "Explorar"}
               </button>
             </div>
           </motion.div>
@@ -289,8 +288,15 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
       </section>
 
       {/* ═══════ KEY STATS ═══════ */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+        <div style={{ height: 2, flex: 1, background: t.grad1, borderRadius: 1, opacity: 0.3 }} />
+        <span style={{ fontSize: 10, letterSpacing: 2, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", whiteSpace: "nowrap" }}>
+          {en ? "AT A GLANCE" : "DE UN VISTAZO"}
+        </span>
+        <div style={{ height: 2, flex: 1, background: t.grad1, borderRadius: 1, opacity: 0.3 }} />
+      </div>
       <motion.div variants={stagger} initial="hidden" animate="visible">
-        <Grid cols="repeat(auto-fit,minmax(155px,1fr))" gap={12} style={{ marginBottom: 20 }}>
+        <Grid cols="repeat(auto-fit,minmax(155px,1fr))" gap={12} className="mobile-stat-grid" style={{ marginBottom: 20 }}>
           <Stat value={crS} label={en ? "Colibrii Index" : "Índice Colibrii"} sub="CAPI-CR" color={t.cy} icon="diamond" onClick={() => onIndicatorClick({...INDICATOR_META.colibrii_index, value: crS != null ? (crS * 100).toFixed(1) : null, color: t.cy})} />
           <Stat value={crR} label={en ? "Global Rank" : "Ranking Global"} sub={en ? "of 20 countries" : "de 20 países"} color={t.vi} precision={0} prefix="#" icon="chart" onClick={() => onIndicatorClick({...INDICATOR_META.global_rank, value: crR != null ? `#${crR}` : null, color: t.vi})} />
           <Stat value={40} label={en ? "AI Job Exposure" : "Exposición Laboral AI"} sub="IMF 2024" color={t.or} precision={0} prefix="" icon="lightning" onClick={() => onIndicatorClick({...INDICATOR_META.ai_exposure, value: "40%", color: t.or})} />
@@ -319,7 +325,7 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
               EOS × INCAE
             </span>
           </div>
-          <div className="eos-grid-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div className="eos-grid-2col" style={{ display: "grid", gap: 16 }}>
             {/* CR EOS Top 5 */}
             <div>
               <div style={{ fontSize: 10, color: t.or, marginBottom: 6, fontFamily: "'IBM Plex Mono',monospace", letterSpacing: 1 }}>
@@ -371,7 +377,7 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
           <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "var(--font-display, 'Playfair Display', serif)", marginBottom: 14 }}>
             {en ? "Costa Rica in the Global AI Context" : "Costa Rica en el Contexto AI Global"}
           </div>
-          <Grid cols="1fr 1fr" gap={12}>
+          <Grid cols="1fr 1fr" gap={12} className="wef-grid-2col">
             <div style={{ padding: 16, background: `${t.gn}06`, borderRadius: 10, borderLeft: `3px solid ${t.gn}` }}>
               <div style={{ fontSize: 10, color: t.gn, fontFamily: "'IBM Plex Mono',monospace", letterSpacing: 1, marginBottom: 6 }}>{en ? "STRENGTHS RECOGNIZED" : "FORTALEZAS RECONOCIDAS"}</div>
               <ul style={{ fontSize: 12, color: t.tx2, lineHeight: 1.8, paddingLeft: 16, margin: 0 }}>

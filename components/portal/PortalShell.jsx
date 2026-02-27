@@ -194,7 +194,8 @@ export default function PortalShell() {
   const tp = useMemo(() => ({
     en, t, idx, crS, crR, board, news, loading, xr, govData, dark, setTab,
     selectedCountry, setSelectedCountry,
-    onIndicatorClick: (indicator) => { setDrawerIndicator(indicator); setDrawerOpen(true); }
+    onIndicatorClick: (indicator) => { setDrawerIndicator(indicator); setDrawerOpen(true); },
+    onExplore: () => setMobileNav(true)
   }), [en, t, idx, crS, crR, board, news, loading, xr, govData, dark, selectedCountry]);
 
   /* ── RENDER TAB ── */

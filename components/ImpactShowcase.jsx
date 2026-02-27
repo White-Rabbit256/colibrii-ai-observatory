@@ -92,7 +92,7 @@ export function Showcase({ en, t }) {
             {en ? "AI FOR GOOD IMPACT AWARDS" : "PREMIOS DE IMPACTO AI FOR GOOD"}
           </div>
           <h3 style={{ fontSize: 18, fontWeight: 700, color: t.tx, marginBottom: 8 }}>
-            {en ? "Why This Observatory Qualifies" : "Por Qué Este Observatorio Califica"}
+            {en ? "Impact Criteria Aligned with AI for Good" : "Criterios de Impacto Alineados con AI for Good"}
           </h3>
           <p style={{ fontSize: 13, color: t.tx2, lineHeight: 1.7, marginBottom: 16 }}>
             {en
@@ -151,23 +151,29 @@ export function Showcase({ en, t }) {
               return (
                 <div
                   key={i}
+                  className={isExpanded ? "card-expandable expanded" : "card-expandable"}
                   onClick={() => setExpandedWinner(isExpanded ? null : i)}
                   role="button"
                   tabIndex={0}
                   style={{
-                    padding: 16, borderRadius: 10,
+                    padding: 16, borderRadius: 10, position: "relative",
                     border: `2px solid ${isExpanded ? w.color : t.bd}`,
                     background: isExpanded ? `${w.color}06` : t.sf,
                     cursor: "pointer", transition: "all 0.2s ease",
                   }}
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8, paddingRight: 20 }}>
                     <div>
                       <div style={{ fontSize: 15, fontWeight: 700, color: t.tx }}>{w.name}</div>
                       <Tag color={w.color}>{w.category}</Tag>
                     </div>
                     <span style={{ fontSize: 20 }}>{i === 0 ? "🏆" : i === 1 ? "🌾" : "🐟"}</span>
                   </div>
+                  {!isExpanded && (
+                    <div style={{ fontSize: 10, color: "var(--text3)", marginTop: 6, fontStyle: "italic" }}>
+                      {en ? "Tap to explore" : "Toca para explorar"}
+                    </div>
+                  )}
                   {isExpanded && (
                     <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
                       <div style={{ padding: 10, borderRadius: 6, background: t.cardBg }}>

@@ -873,6 +873,17 @@ input[type="range"]::-moz-range-thumb {
   .hide-xs {
     display: none !important;
   }
+
+  /* v21 — Tighter card padding on small phones */
+  .card {
+    padding: 14px !important;
+  }
+
+  /* v21 — Word-break for card content */
+  .card, .portal-content, .news-body, .vip-quote, .law-detail {
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
 }
 
 /* ── Selection ── */
@@ -2407,7 +2418,63 @@ input[type="range"]::-moz-range-thumb {
 
   /* Expandable details elements */
   details summary { font-size: 11px !important; }
+
+  /* ── v21 — Mobile UX Overhaul ── */
+
+  /* 1a. Text justification for body paragraphs on mobile */
+  .portal-content p,
+  .portal-content .card p,
+  .portal-content .card > div > p {
+    text-align: justify;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+  }
+
+  /* 1b. Hide flow arrows on mobile (trajectory, pipeline, data flow) */
+  .flow-arrow { display: none !important; }
+
+  /* 1c. Tame Tag visual weight inside data tables */
+  .data-table .tag {
+    font-size: 9px;
+    padding: 2px 6px;
+    font-weight: 500;
+  }
+
+  /* 1e. Show/hide utilities for mobile card layouts */
+  .hide-mobile { display: none !important; }
+  .show-mobile { display: block !important; }
 }
+
+/* ── v21 — Expandable card affordance (all viewports) ── */
+.card-expandable {
+  border-left: 3px solid var(--cyan);
+  transition: border-color 0.2s ease;
+  cursor: pointer;
+}
+.card-expandable:hover {
+  border-left-color: var(--violet);
+}
+.card-expandable::after {
+  content: '▾';
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  font-size: 14px;
+  color: var(--text3);
+  transition: transform 0.2s ease;
+}
+.card-expandable.expanded {
+  border-left-color: var(--violet);
+}
+.card-expandable.expanded::after {
+  transform: rotate(180deg);
+}
+
+/* ── v21 — Show-mobile (hidden by default, shown at 768px via rule above) ── */
+.show-mobile { display: none; }
+
+/* ── v22 — Round 2: EOS grid base rule (was inline, moved to CSS for media override) ── */
+.eos-grid-2col { grid-template-columns: 1fr 1fr; }
 
 @media (max-width: 640px) {
   /* Earlier sidebar collapse */
@@ -2437,6 +2504,34 @@ input[type="range"]::-moz-range-thumb {
   .eos-grid-2col {
     grid-template-columns: 1fr !important;
   }
+}
+
+/* v22 — Warm glow animation for Explore CTA */
+@keyframes warmGlow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes coolGlow {
+  0%   { background-position: 0% 50%; }
+  20%  { background-position: 80% 10%; }
+  40%  { background-position: 100% 80%; }
+  60%  { background-position: 20% 100%; }
+  80%  { background-position: 50% 20%; }
+  100% { background-position: 0% 50%; }
+}
+.btn-warm-glow {
+  background: linear-gradient(135deg, #f59e0b, #ef4444, #ec4899);
+  background-size: 200% 200%;
+  animation: warmGlow 3s ease infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-warm-glow { animation: none; }
+}
+
+@media (max-width: 768px) {
+  /* v22 — WEF Strengths/Gaps grid stacks on mobile */
+  .wef-grid-2col { grid-template-columns: 1fr !important; }
 }
 
 @media (max-width: 380px) {

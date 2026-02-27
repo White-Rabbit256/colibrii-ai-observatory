@@ -65,7 +65,7 @@ export function HealthAI({ en, t }) {
       <SH
         color={t.pk}
         label={en ? "AI FOR GOOD · SECTORAL" : "AI FOR GOOD · SECTORIAL"}
-        title={en ? "Health & Healthcare AI" : "Salud & AI en Salud"}
+        title={en ? "AI in Healthcare" : "AI en Salud"}
         desc={en
           ? "How AI is transforming diagnostics, drug discovery, and healthcare delivery — from the ITU AI for Good Impact Report."
           : "Cómo AI está transformando diagnósticos, descubrimiento de medicamentos y prestación de salud — del Reporte de Impacto AI for Good de la UIT."
@@ -151,17 +151,23 @@ export function HealthAI({ en, t }) {
             }
           </p>
           <Grid cols="repeat(auto-fit,minmax(100px,1fr))" gap={8}>
-            <Bx style={{ textAlign: "center", padding: 10 }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: t.rd }}>90%</div>
-              <div style={{ fontSize: 11, color: t.tx2 }}>{en ? "Drug candidate failure rate" : "Tasa de fallo candidatos"}</div>
+            <Bx style={{ padding: 10 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 18, fontWeight: 700, color: t.rd }}>90%</span>
+                <span style={{ fontSize: 11, color: t.tx2 }}>{en ? "Drug candidate failure" : "Fallo de candidatos"}</span>
+              </div>
             </Bx>
-            <Bx style={{ textAlign: "center", padding: 10 }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: t.vi }}>50%</div>
-              <div style={{ fontSize: 11, color: t.tx2 }}>{en ? "Faster screening (C2itech)" : "Screening más rápido (C2itech)"}</div>
+            <Bx style={{ padding: 10 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 18, fontWeight: 700, color: t.vi }}>50%</span>
+                <span style={{ fontSize: 11, color: t.tx2 }}>{en ? "Faster screening (C2itech)" : "Screening más rápido"}</span>
+              </div>
             </Bx>
-            <Bx style={{ textAlign: "center", padding: 10 }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: t.gn }}>$2.6B</div>
-              <div style={{ fontSize: 11, color: t.tx2 }}>{en ? "Avg. cost per new drug" : "Costo promedio por nuevo fármaco"}</div>
+            <Bx style={{ padding: 10 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 18, fontWeight: 700, color: t.gn }}>$2.6B</span>
+                <span style={{ fontSize: 11, color: t.tx2 }}>{en ? "Avg. cost per drug" : "Costo promedio/fármaco"}</span>
+              </div>
             </Bx>
           </Grid>
         </Card>
@@ -176,18 +182,22 @@ export function HealthAI({ en, t }) {
           </h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {cases.map((cs, i) => (
-              <Card key={i} style={{ cursor: "pointer", border: expandedCase === i ? `1px solid ${cs.color}40` : undefined }} onClick={() => setExpandedCase(expandedCase === i ? null : i)}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+              <Card key={i} className={expandedCase === i ? "card-expandable expanded" : "card-expandable"} style={{ cursor: "pointer", position: "relative", border: expandedCase === i ? `1px solid ${cs.color}40` : undefined }} onClick={() => setExpandedCase(expandedCase === i ? null : i)}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8, paddingRight: 20 }}>
                   <div>
                     <h4 style={{ fontSize: 14, fontWeight: 700, color: t.tx, margin: 0 }}>{cs.title}</h4>
                     <span style={{ fontSize: 11, color: t.tx2 }}>{cs.org}</span>
                   </div>
                   <Tag color={cs.color}>{cs.stat}</Tag>
                 </div>
-                {expandedCase === i && (
+                {expandedCase === i ? (
                   <p style={{ fontSize: 12.5, color: t.tx2, lineHeight: 1.7, marginTop: 8, marginBottom: 0 }}>
                     {cs.desc}
                   </p>
+                ) : (
+                  <div style={{ fontSize: 10, color: "var(--text3)", marginTop: 6, fontStyle: "italic" }}>
+                    {en ? "Tap to explore" : "Toca para explorar"}
+                  </div>
                 )}
               </Card>
             ))}

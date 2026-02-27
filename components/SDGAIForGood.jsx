@@ -231,7 +231,7 @@ export function SDG({ en, t }) {
                 }}>{i + 1}</div>
                 <Icon name={p.icon} size={20} color={p.color} style={{ marginTop: 4, marginBottom: 4 }} />
                 <div style={{ fontSize: 12, fontWeight: 700, color: t.tx, marginBottom: 4 }}>{p.name}</div>
-                {expandedPathway === p.id && (
+                {expandedPathway === p.id ? (
                   <div style={{ marginTop: 6, textAlign: "left" }}>
                     <p style={{ fontSize: 11, color: t.tx2, lineHeight: 1.5, marginBottom: 6 }}>{p.desc}</p>
                     <div style={{ fontSize: 10, padding: "4px 8px", borderRadius: 6, background: `${p.color}15`, color: p.color, fontFamily: "'IBM Plex Mono',monospace" }}>
@@ -240,6 +240,10 @@ export function SDG({ en, t }) {
                     <div style={{ fontSize: 10, color: t.tx3, marginTop: 4, fontFamily: "'IBM Plex Mono',monospace" }}>
                       🌐 {p.global}
                     </div>
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 9, color: t.tx3, marginTop: 2, fontStyle: "italic" }}>
+                    {en ? "Tap to explore" : "Toca para explorar"}
                   </div>
                 )}
               </div>

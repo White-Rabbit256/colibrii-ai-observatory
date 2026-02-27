@@ -190,8 +190,8 @@ export function Readiness({ en, t }) {
             </ResponsiveContainer>
           </div>
 
-          {/* Dimension detail table */}
-          <div className="table-scroll-wrapper" style={{ marginTop: 10 }}>
+          {/* Dimension detail table — Desktop */}
+          <div className="table-scroll-wrapper hide-mobile" style={{ marginTop: 10 }}>
             <table className="data-table" style={{ width: "100%" }}>
               <thead>
                 <tr>
@@ -227,6 +227,27 @@ export function Readiness({ en, t }) {
               </tbody>
             </table>
           </div>
+
+          {/* Dimension cards — Mobile */}
+          <div className="show-mobile" style={{ marginTop: 10 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {dims.map((d) => {
+                const gap = d.crScore - d.globalAvg;
+                const gapColor = gap >= 0 ? t.gn : t.rd;
+                return (
+                  <div key={d.id} style={{ padding: 10, borderRadius: 8, border: `1px solid ${t.bd}`, background: t.sf }}>
+                    <Tag color={FACTOR_COLORS[d.factor] || t.cy}>{d.factor}</Tag>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: t.tx, marginTop: 4 }}>{d.dimension}</div>
+                    <div style={{ display: "flex", gap: 12, marginTop: 4, fontSize: 12, fontFamily: "'IBM Plex Mono',monospace" }}>
+                      <span>🇨🇷 <strong style={{ color: t.tx }}>{(d.crScore * 100).toFixed(0)}%</strong></span>
+                      <span style={{ color: t.tx3 }}>🌐 {(d.globalAvg * 100).toFixed(0)}%</span>
+                      <span style={{ color: gapColor, fontWeight: 600 }}>{gap >= 0 ? "+" : ""}{(gap * 100).toFixed(0)}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
           <Ci s="ITU — 'AI Ready: Standardized Framework 2.0' (Jan 2026) · Scores estimated from available indicators" />
         </Card>
       </ScrollReveal>
@@ -239,10 +260,10 @@ export function Readiness({ en, t }) {
               {en ? "CR STRENGTHS" : "FORTALEZAS CR"} ▲
             </div>
             {dims.filter(d => d.crScore >= d.globalAvg).map(d => (
-              <div key={d.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: `1px solid ${t.bd}` }}>
-                <span style={{ fontSize: 12, color: t.tx }}>{d.short}</span>
-                <span style={{ fontSize: 12, fontFamily: "'IBM Plex Mono',monospace", color: t.gn, fontWeight: 600 }}>
-                  {(d.crScore * 100).toFixed(0)}% <span style={{ fontSize: 9, color: t.tx3 }}>vs {(d.globalAvg * 100).toFixed(0)}%</span>
+              <div key={d.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: `1px solid ${t.bd}`, gap: 8 }}>
+                <span style={{ fontSize: 12, color: t.tx }}>{d.dimension}</span>
+                <span style={{ fontSize: 11, fontFamily: "'IBM Plex Mono',monospace", color: t.gn, fontWeight: 600, whiteSpace: "nowrap" }}>
+                  CR {(d.crScore * 100).toFixed(0)}% <span style={{ fontSize: 9, color: t.tx3 }}>vs {en ? "Global" : "Global"} {(d.globalAvg * 100).toFixed(0)}%</span>
                 </span>
               </div>
             ))}
@@ -252,10 +273,10 @@ export function Readiness({ en, t }) {
               {en ? "CR GAPS" : "BRECHAS CR"} ▼
             </div>
             {dims.filter(d => d.crScore < d.globalAvg).map(d => (
-              <div key={d.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: `1px solid ${t.bd}` }}>
-                <span style={{ fontSize: 12, color: t.tx }}>{d.short}</span>
-                <span style={{ fontSize: 12, fontFamily: "'IBM Plex Mono',monospace", color: t.rd, fontWeight: 600 }}>
-                  {(d.crScore * 100).toFixed(0)}% <span style={{ fontSize: 9, color: t.tx3 }}>vs {(d.globalAvg * 100).toFixed(0)}%</span>
+              <div key={d.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: `1px solid ${t.bd}`, gap: 8 }}>
+                <span style={{ fontSize: 12, color: t.tx }}>{d.dimension}</span>
+                <span style={{ fontSize: 11, fontFamily: "'IBM Plex Mono',monospace", color: t.rd, fontWeight: 600, whiteSpace: "nowrap" }}>
+                  CR {(d.crScore * 100).toFixed(0)}% <span style={{ fontSize: 9, color: t.tx3 }}>vs {en ? "Global" : "Global"} {(d.globalAvg * 100).toFixed(0)}%</span>
                 </span>
               </div>
             ))}
@@ -278,7 +299,8 @@ export function Readiness({ en, t }) {
               : "Nuestro índice CAPI-CR (Índice de Preparación AI Colibrii, extendiendo metodología AIPI del FMI) mapea al marco de 13 dimensiones de la UIT, validando nuestro enfoque contra el estándar ONU."
             }
           </p>
-          <div className="table-scroll-wrapper">
+          {/* Mapping table — Desktop */}
+          <div className="table-scroll-wrapper hide-mobile">
             <table className="data-table" style={{ width: "100%" }}>
               <thead>
                 <tr>
@@ -304,6 +326,24 @@ export function Readiness({ en, t }) {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Mapping cards — Mobile */}
+          <div className="show-mobile">
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {mapping.map((m, i) => (
+                <div key={i} style={{ padding: 10, borderRadius: 8, border: `1px solid ${t.bd}`, background: t.sf }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: t.vi, marginBottom: 4 }}>{m.capiDim}</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 4 }}>
+                    {m.ituDims.map(id => {
+                      const dim = dims.find(d => d.id === id);
+                      return dim ? <Tag key={id} color={FACTOR_COLORS[dim.factor] || t.cy}>{dim.short}</Tag> : null;
+                    })}
+                  </div>
+                  <div style={{ fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>{m.coverage}</div>
+                </div>
+              ))}
+            </div>
           </div>
           <div style={{ marginTop: 10, padding: 8, background: `${t.gn}08`, borderRadius: 8, fontSize: 12, color: t.gn }}>
             ✓ {en ? "CAPI-CR covers 12 of 13 ITU dimensions through 6 aggregated factors" : "CAPI-CR cubre 12 de 13 dimensiones UIT mediante 6 factores agregados"}
@@ -343,20 +383,24 @@ export function Readiness({ en, t }) {
                   <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
                     <span style={{
                       minWidth: 22, height: 22, borderRadius: "50%",
-                      background: isOpen ? t.pk : t.bd2,
-                      color: isOpen ? "#fff" : t.tx2,
+                      background: isOpen ? t.pk : t.cy,
+                      color: "#fff",
                       fontSize: 10, fontWeight: 700,
                       display: "flex", alignItems: "center", justifyContent: "center",
                       fontFamily: "'IBM Plex Mono',monospace"
                     }}>{f.id}</span>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 12, fontWeight: 600, color: t.tx, lineHeight: 1.5 }}>{f.finding}</div>
-                      {isOpen && (
+                      {isOpen ? (
                         <div style={{ marginTop: 6, padding: 8, borderRadius: 6, background: t.sf, border: `1px solid ${t.bd}` }}>
                           <div style={{ fontSize: 10, fontFamily: "'IBM Plex Mono',monospace", color: t.cy, marginBottom: 3 }}>
                             🇨🇷 {en ? "COSTA RICA IMPLICATION" : "IMPLICACIÓN COSTA RICA"}
                           </div>
                           <div style={{ fontSize: 11, color: t.tx2, lineHeight: 1.6 }}>{f.crNote}</div>
+                        </div>
+                      ) : (
+                        <div style={{ fontSize: 10, color: t.tx3, marginTop: 2, fontStyle: "italic" }}>
+                          {en ? "Tap to see CR implication" : "Toca para ver implicación CR"}
                         </div>
                       )}
                     </div>
@@ -423,7 +467,7 @@ export function Readiness({ en, t }) {
                 }}>{s.stage}</div>
                 <div style={{ fontSize: 12, fontWeight: 700, color: s.color, marginTop: 8 }}>{s.name}</div>
                 <div style={{ fontSize: 10, color: t.tx3, marginTop: 3, lineHeight: 1.4 }}>{s.desc}</div>
-                {i < stages.length - 1 && <div style={{ position: "absolute", right: -12, top: "50%", fontSize: 14, color: t.tx3 }}>→</div>}
+                {i < stages.length - 1 && <div className="flow-arrow" style={{ position: "absolute", right: -12, top: "50%", fontSize: 14, color: t.tx3 }}>→</div>}
               </div>
             ))}
           </div>

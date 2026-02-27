@@ -96,7 +96,7 @@ export function InfraSmartCities({ en, t }) {
               { v: "56%", l: en ? "Cities Using AI" : "Ciudades Usando AI", s: en ? "35% more piloting (2024)" : "35% más piloteando (2024)", c: t.cy, ic: "globe" },
               { v: "48%", l: en ? "Widespread AI by 3 Yrs" : "AI Generalizada en 3 Años", s: en ? "Cities expect wide adoption" : "Ciudades esperan adopción amplia", c: t.vi, ic: "chart" },
               { v: "$460B", l: en ? "Disaster Losses 2050" : "Pérdidas por Desastres 2050", s: en ? "Projected annual losses" : "Pérdidas anuales proyectadas", c: t.rd, ic: "lightning" },
-              { v: "20%+", l: en ? "Digital Twin Savings" : "Ahorros Gemelo Digital", s: en ? "Waste management costs" : "Costos gestión de residuos", c: t.gn, ic: "coins" },
+              { v: "20%+", l: en ? "Waste Cost Savings" : "Ahorro en Residuos", s: en ? "Via digital twin optimization" : "Vía optimización con gemelos digitales", c: t.gn, ic: "coins" },
               { v: "70%", l: en ? "Urban by 2050" : "Urbano para 2050", s: en ? "Global population in cities" : "Población global en ciudades", c: t.am, ic: "target" }
             ].map((d, i) => (
               <Card key={i} d={0.05}>
@@ -128,17 +128,23 @@ export function InfraSmartCities({ en, t }) {
             }
           </p>
           <Grid cols="repeat(auto-fit,minmax(100px,1fr))" gap={8}>
-            <Bx style={{ textAlign: "center", padding: 10 }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: t.cy }}>36</div>
-              <div style={{ fontSize: 11, color: t.tx2 }}>{en ? "tCO₂ reduced/city/year" : "tCO₂ reducidas/ciudad/año"}</div>
+            <Bx style={{ padding: 10 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 18, fontWeight: 700, color: t.cy }}>36</span>
+                <span style={{ fontSize: 11, color: t.tx2 }}>{en ? "tons CO₂ reduced/city/yr" : "toneladas CO₂/ciudad/año"}</span>
+              </div>
             </Bx>
-            <Bx style={{ textAlign: "center", padding: 10 }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: t.gn }}>20%+</div>
-              <div style={{ fontSize: 11, color: t.tx2 }}>{en ? "Fuel savings achieved" : "Ahorro combustible logrado"}</div>
+            <Bx style={{ padding: 10 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 18, fontWeight: 700, color: t.gn }}>20%+</span>
+                <span style={{ fontSize: 11, color: t.tx2 }}>{en ? "Fuel savings achieved" : "Ahorro combustible logrado"}</span>
+              </div>
             </Bx>
-            <Bx style={{ textAlign: "center", padding: 10 }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: t.vi }}>$70B</div>
-              <div style={{ fontSize: 11, color: t.tx2 }}>{en ? "AI hazard mitigation savings" : "Ahorros mitigación riesgos AI"}</div>
+            <Bx style={{ padding: 10 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 18, fontWeight: 700, color: t.vi }}>$70B</span>
+                <span style={{ fontSize: 11, color: t.tx2 }}>{en ? "Annual hazard savings by 2050" : "Ahorro anual riesgos para 2050"}</span>
+              </div>
             </Bx>
           </Grid>
         </Card>
@@ -176,18 +182,22 @@ export function InfraSmartCities({ en, t }) {
           </h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {cases.map((cs, i) => (
-              <Card key={i} style={{ cursor: "pointer", border: expandedCase === i ? `1px solid ${cs.color}40` : undefined }} onClick={() => setExpandedCase(expandedCase === i ? null : i)}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+              <Card key={i} className={expandedCase === i ? "card-expandable expanded" : "card-expandable"} style={{ cursor: "pointer", position: "relative", border: expandedCase === i ? `1px solid ${cs.color}40` : undefined }} onClick={() => setExpandedCase(expandedCase === i ? null : i)}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8, paddingRight: 20 }}>
                   <div>
                     <h4 style={{ fontSize: 14, fontWeight: 700, color: t.tx, margin: 0 }}>{cs.title}</h4>
                     <span style={{ fontSize: 11, color: t.tx2 }}>{cs.org}</span>
                   </div>
                   <Tag color={cs.color}>{cs.stat}</Tag>
                 </div>
-                {expandedCase === i && (
+                {expandedCase === i ? (
                   <p style={{ fontSize: 12.5, color: t.tx2, lineHeight: 1.7, marginTop: 8, marginBottom: 0 }}>
                     {cs.desc}
                   </p>
+                ) : (
+                  <div style={{ fontSize: 10, color: "var(--text3)", marginTop: 6, fontStyle: "italic" }}>
+                    {en ? "Tap to explore" : "Toca para explorar"}
+                  </div>
                 )}
               </Card>
             ))}

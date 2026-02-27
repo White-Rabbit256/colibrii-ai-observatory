@@ -151,17 +151,23 @@ export function FoodSecurity({ en, t }) {
             }
           </p>
           <Grid cols="repeat(auto-fit,minmax(100px,1fr))" gap={8}>
-            <Bx style={{ textAlign: "center", padding: 10 }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: t.gn }}>14.5%</div>
-              <div style={{ fontSize: 11, color: t.tx2 }}>{en ? "Global GHG from livestock" : "GEI global de ganadería"}</div>
+            <Bx style={{ padding: 10 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 18, fontWeight: 700, color: t.gn }}>14.5%</span>
+                <span style={{ fontSize: 11, color: t.tx2 }}>{en ? "Global GHG from livestock" : "GEI global ganadería"}</span>
+              </div>
             </Bx>
-            <Bx style={{ textAlign: "center", padding: 10 }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: t.am }}>$1.4T</div>
-              <div style={{ fontSize: 11, color: t.tx2 }}>{en ? "Global livestock sector" : "Sector ganadero global"}</div>
+            <Bx style={{ padding: 10 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 18, fontWeight: 700, color: t.am }}>$1.4T</span>
+                <span style={{ fontSize: 11, color: t.tx2 }}>{en ? "Global livestock sector" : "Sector ganadero global"}</span>
+              </div>
             </Bx>
-            <Bx style={{ textAlign: "center", padding: 10 }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: t.cy }}>1B+</div>
-              <div style={{ fontSize: 11, color: t.tx2 }}>{en ? "Livelihoods depend on it" : "Medios de vida dependen"}</div>
+            <Bx style={{ padding: 10 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 18, fontWeight: 700, color: t.cy }}>1B+</span>
+                <span style={{ fontSize: 11, color: t.tx2 }}>{en ? "Livelihoods depend on it" : "Medios de vida dependen"}</span>
+              </div>
             </Bx>
           </Grid>
         </Card>
@@ -176,18 +182,22 @@ export function FoodSecurity({ en, t }) {
           </h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {cases.map((cs, i) => (
-              <Card key={i} style={{ cursor: "pointer", border: expandedCase === i ? `1px solid ${cs.color}40` : undefined }} onClick={() => setExpandedCase(expandedCase === i ? null : i)}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <Card key={i} className={expandedCase === i ? "card-expandable expanded" : "card-expandable"} style={{ cursor: "pointer", position: "relative", border: expandedCase === i ? `1px solid ${cs.color}40` : undefined }} onClick={() => setExpandedCase(expandedCase === i ? null : i)}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingRight: 20 }}>
                   <div>
                     <h4 style={{ fontSize: 14, fontWeight: 700, color: t.tx, margin: 0 }}>{cs.title}</h4>
                     <span style={{ fontSize: 11, color: t.tx2 }}>{cs.org}</span>
                   </div>
                   <Tag color={cs.color}>{cs.stat}</Tag>
                 </div>
-                {expandedCase === i && (
+                {expandedCase === i ? (
                   <p style={{ fontSize: 12.5, color: t.tx2, lineHeight: 1.7, marginTop: 8, marginBottom: 0 }}>
                     {cs.desc}
                   </p>
+                ) : (
+                  <div style={{ fontSize: 10, color: "var(--text3)", marginTop: 6, fontStyle: "italic" }}>
+                    {en ? "Tap to explore" : "Toca para explorar"}
+                  </div>
                 )}
               </Card>
             ))}

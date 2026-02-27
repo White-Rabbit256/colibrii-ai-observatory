@@ -126,8 +126,8 @@ export function Governance({ en, t }) {
             ))}
           </div>
 
-          {/* Country table */}
-          <div className="table-scroll-wrapper">
+          {/* Country table — Desktop */}
+          <div className="table-scroll-wrapper hide-mobile">
             <table className="data-table data-table-gov" style={{ width: "100%" }}>
               <thead>
                 <tr>
@@ -163,6 +163,34 @@ export function Governance({ en, t }) {
                 })}
               </tbody>
             </table>
+          </div>
+
+          {/* Country cards — Mobile */}
+          <div className="show-mobile">
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {filtered.map((g, i) => {
+                const cat = catConfig[g.category] || { color: t.tx3, label: g.category };
+                const isCR = g.code === "CR";
+                return (
+                  <div key={i} style={{
+                    padding: 10, borderRadius: 8,
+                    border: isCR ? `2px solid ${t.rd}` : `1px solid ${t.bd}`,
+                    background: isCR ? `${t.rd}06` : t.sf,
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                      <Flag code={g.code} size={24} />
+                      <span style={{ fontSize: 13, fontWeight: isCR ? 700 : 600, color: isCR ? t.rd : t.tx, flex: 1 }}>{g.country}</span>
+                      <Tag color={cat.color}>{cat.label}</Tag>
+                    </div>
+                    <div style={{ fontSize: 11, color: t.tx2, marginBottom: 4 }}>{g.status}</div>
+                    <div style={{ display: "flex", gap: 12, fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>
+                      <span>{g.year}</span>
+                      <span style={{ color: g.investment !== "—" && g.investment !== "Minimal" ? t.gn : t.tx3, fontWeight: 600 }}>{g.investment}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
           <Ci s="ITU — 'AI for Good Impact Report' (Jan 2026) · National AI Strategies Database" />
         </Card>
@@ -303,7 +331,7 @@ export function Governance({ en, t }) {
                 <div style={{ fontSize: 10, fontFamily: "'IBM Plex Mono',monospace", color: phase.color, marginBottom: 4 }}>{phase.year}</div>
                 <div style={{ fontSize: 11, color: t.tx2, lineHeight: 1.5 }}>{phase.desc}</div>
                 {i < trajectory.length - 1 && (
-                  <div style={{ position: "absolute", right: -10, top: "50%", fontSize: 14, color: t.tx3 }}>→</div>
+                  <div className="flow-arrow" style={{ position: "absolute", right: -10, top: "50%", fontSize: 14, color: t.tx3 }}>→</div>
                 )}
               </div>
             ))}

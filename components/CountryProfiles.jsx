@@ -151,7 +151,7 @@ export function Countries({ en, t, idx, board, govData, dark, selectedCountry, s
           </Card>
 
           {/* Dimension scores */}
-          <Grid cols="repeat(auto-fit,minmax(150px,1fr))" gap={10} style={{ marginBottom: 16 }}>
+          <Grid cols="repeat(auto-fit,minmax(150px,1fr))" gap={10} className="mobile-grid-2" style={{ marginBottom: 16 }}>
             {Object.entries(DM).map(([dk, d]) => (
               <Card key={dk} d={0.02}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>

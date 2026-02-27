@@ -260,7 +260,7 @@ export function Abt({ en, t }) {
               <div style={{ fontSize: 22, fontWeight: 800, fontFamily: "'IBM Plex Mono',monospace", color: step.color, marginBottom: 2 }}>{step.num}</div>
               <div style={{ fontSize: 11, color: t.tx2, fontWeight: 600 }}>{step.label}</div>
               {i < 3 && (
-                <div style={{ position: "absolute", right: -12, top: "50%", transform: "translateY(-50%)", fontSize: 14, color: t.tx3, zIndex: 1 }}>→</div>
+                <div className="flow-arrow" style={{ position: "absolute", right: -12, top: "50%", transform: "translateY(-50%)", fontSize: 14, color: t.tx3, zIndex: 1 }}>→</div>
               )}
             </div>
           ))}
@@ -369,6 +369,7 @@ export function Abt({ en, t }) {
           {A.map((a, i) => (
             <div key={i} style={{ padding: "10px 12px", background: t.sf, borderRadius: 8, borderLeft: `3px solid ${a.c}` }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: a.c, fontFamily: "'IBM Plex Mono',monospace" }}>{a.nm}</div>
+              <div style={{ fontSize: 11, color: t.tx2, marginTop: 2, lineHeight: 1.4 }}>{a.full}</div>
               <div style={{ fontSize: 10, color: t.tx3, marginTop: 2 }}>{a.st}</div>
             </div>
           ))}

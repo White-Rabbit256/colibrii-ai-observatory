@@ -94,11 +94,11 @@ export function EnvironmentalAI({ en, t }) {
           <Grid cols="repeat(auto-fit,minmax(140px,1fr))" gap={10}>
             {[
               { v: "$4T", l: en ? "Needed Annually" : "Necesarios Anualmente", s: en ? "Climate investment by 2030" : "Inversión climática para 2030", c: t.gn, ic: "coins" },
-              { v: "1.8", l: en ? "GtCO₂ Reducible" : "GtCO₂ Reducibles", s: en ? "Via AI in renewable energy" : "Via AI en energía renovable", c: t.cy, ic: "lightning" },
-              { v: "5.4", l: en ? "GtCO₂ by 2035" : "GtCO₂ para 2035", s: en ? "AI in power+food+mobility" : "AI en energía+comida+movilidad", c: t.vi, ic: "chart" },
-              { v: "$70B", l: en ? "AI Hazard Savings" : "Ahorros Mitigación AI", s: en ? "Annual by 2050" : "Anuales para 2050", c: t.am, ic: "shield" },
+              { v: "1.8", l: en ? "Gt CO₂ Reducible" : "Gt CO₂ Reducibles", s: en ? "Gigatons of CO₂ via AI in renewables" : "Gigatoneladas de CO₂ vía AI renovable", c: t.cy, ic: "lightning" },
+              { v: "5.4", l: en ? "Gt CO₂ by 2035" : "Gt CO₂ para 2035", s: en ? "Gigatons via power+food+mobility" : "Gigatoneladas vía energía+comida+movilidad", c: t.vi, ic: "chart" },
+              { v: "$70B", l: en ? "AI Hazard Savings" : "Ahorros Mitigación AI", s: en ? "Projected annual savings by 2050" : "Ahorro anual proyectado para 2050", c: t.am, ic: "shield" },
               { v: "1M", l: en ? "Species at Risk" : "Especies en Riesgo", s: en ? "Facing extinction globally" : "Enfrentando extinción global", c: t.rd, ic: "globe" },
-              { v: "1%", l: en ? "Energy Patents + AI" : "Patentes Energía + AI", s: en ? "Vast untapped potential" : "Potencial inexplorado", c: t.pk, ic: "target" }
+              { v: "1%", l: en ? "Energy Patents + AI" : "Patentes Energía + AI", s: en ? "Only 1% of energy patents reference AI" : "Solo 1% de patentes energéticas referencian AI", c: t.pk, ic: "target" }
             ].map((d, i) => (
               <Card key={i} d={0.05}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -152,17 +152,23 @@ export function EnvironmentalAI({ en, t }) {
             }
           </p>
           <Grid cols="repeat(auto-fit,minmax(100px,1fr))" gap={8}>
-            <Bx style={{ textAlign: "center", padding: 10 }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: t.gn }}>20%</div>
-              <div style={{ fontSize: 11, color: t.tx2 }}>{en ? "Load factor improvement" : "Mejora factor de carga"}</div>
+            <Bx style={{ padding: 10 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 18, fontWeight: 700, color: t.gn }}>20%</span>
+                <span style={{ fontSize: 11, color: t.tx2 }}>{en ? "Load factor improvement" : "Mejora factor de carga"}</span>
+              </div>
             </Bx>
-            <Bx style={{ textAlign: "center", padding: 10 }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: t.am }}>$110B</div>
-              <div style={{ fontSize: 11, color: t.tx2 }}>{en ? "Potential savings" : "Ahorros potenciales"}</div>
+            <Bx style={{ padding: 10 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 18, fontWeight: 700, color: t.am }}>$110B</span>
+                <span style={{ fontSize: 11, color: t.tx2 }}>{en ? "Potential savings" : "Ahorros potenciales"}</span>
+              </div>
             </Bx>
-            <Bx style={{ textAlign: "center", padding: 10 }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: t.cy }}>175 GW</div>
-              <div style={{ fontSize: 11, color: t.tx2 }}>{en ? "Unlockable capacity" : "Capacidad desbloqueable"}</div>
+            <Bx style={{ padding: 10 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 18, fontWeight: 700, color: t.cy }}>175 GW</span>
+                <span style={{ fontSize: 11, color: t.tx2 }}>{en ? "Unlockable capacity" : "Capacidad desbloqueable"}</span>
+              </div>
             </Bx>
           </Grid>
         </Card>
@@ -193,18 +199,22 @@ export function EnvironmentalAI({ en, t }) {
           </h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {cases.map((cs, i) => (
-              <Card key={i} style={{ cursor: "pointer", border: expandedCase === i ? `1px solid ${cs.color}40` : undefined }} onClick={() => setExpandedCase(expandedCase === i ? null : i)}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+              <Card key={i} className={expandedCase === i ? "card-expandable expanded" : "card-expandable"} style={{ cursor: "pointer", position: "relative", border: expandedCase === i ? `1px solid ${cs.color}40` : undefined }} onClick={() => setExpandedCase(expandedCase === i ? null : i)}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8, paddingRight: 20 }}>
                   <div>
                     <h4 style={{ fontSize: 14, fontWeight: 700, color: t.tx, margin: 0 }}>{cs.title}</h4>
                     <span style={{ fontSize: 11, color: t.tx2 }}>{cs.org}</span>
                   </div>
                   <Tag color={cs.color}>{cs.stat}</Tag>
                 </div>
-                {expandedCase === i && (
+                {expandedCase === i ? (
                   <p style={{ fontSize: 12.5, color: t.tx2, lineHeight: 1.7, marginTop: 8, marginBottom: 0 }}>
                     {cs.desc}
                   </p>
+                ) : (
+                  <div style={{ fontSize: 10, color: "var(--text3)", marginTop: 6, fontStyle: "italic" }}>
+                    {en ? "Tap to explore" : "Toca para explorar"}
+                  </div>
                 )}
               </Card>
             ))}

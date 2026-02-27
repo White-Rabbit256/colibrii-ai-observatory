@@ -35,7 +35,7 @@ export function Idx({ en, t, idx, board, dark, setTab, setSelectedCountry }) {
       <SH color={t.cy} label="CAPI-CR" title={en ? "Colibrii AI Preparedness Index" : "Índice de Preparación AI Colibrii"} desc={en ? "Extends IMF AIPI from 4→6 dimensions. 20 countries, 11 live World Bank indicators + 2 curated dimensions. Min-max normalization." : "Extiende AIPI del FMI de 4→6 dimensiones. 20 países, 11 indicadores BM en vivo + 2 dimensiones curadas. Normalización min-max."} />
 
       {/* Dimension cards with expandable descriptions */}
-      <Grid cols="repeat(auto-fit,minmax(160px,1fr))" gap={10} style={{ marginBottom: 24 }}>
+      <Grid cols="repeat(auto-fit,minmax(160px,1fr))" gap={10} className="mobile-grid-2" style={{ marginBottom: 24 }}>
         {Object.entries(DM).map(([dk, d]) => (
           <Card key={dk} d={0.02} accent={d.co}>
             <div style={{ fontSize: 20, marginBottom: 4 }}>{d.ic}</div>
@@ -256,7 +256,7 @@ export function Compare({ en, t, idx, board, dark }) {
             <thead>
               <tr>
                 <th>{en ? "Dimension" : "Dimensión"}</th>
-                {sel.map((c, i) => <th key={c} style={{ color: colors[i], textAlign: "center", whiteSpace: "nowrap" }}><Flag code={A3_TO_A2[c]} size={16} style={{ marginRight: 3, verticalAlign: "middle" }} />{en ? CO[c].e : CO[c].n}</th>)}
+                {sel.map((c, i) => <th key={c} style={{ color: colors[i], textAlign: "center", whiteSpace: "nowrap" }} aria-label={en ? CO[c].e : CO[c].n}><Flag code={A3_TO_A2[c]} size={16} style={{ verticalAlign: "middle" }} /><span className="hide-mobile" style={{ marginLeft: 3 }}>{en ? CO[c].e : CO[c].n}</span></th>)}
               </tr>
             </thead>
             <tbody>
