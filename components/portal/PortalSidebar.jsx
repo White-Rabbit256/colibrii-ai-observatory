@@ -16,6 +16,7 @@ const GROUPS = [
   { label: { es: "INTELIGENCIA", en: "INTELLIGENCE" }, ids: ["home", "zf", "pai", "pymes", "media"] },
   { label: { es: "POLÍTICAS", en: "POLICY" }, ids: ["leg", "sec"] },
   { label: { es: "FORMACIÓN", en: "TRAINING" }, ids: ["edu", "glos"] },
+  { label: { es: "IMPACTO", en: "IMPACT" }, ids: ["health", "food", "governance", "climate", "infra", "readiness", "showcase", "sdg"] },
   { label: { es: "HERRAMIENTAS", en: "TOOLS" }, ids: ["idx", "countries", "cmp", "algo", "sim"] },
   { label: { es: "ACERCA", en: "ABOUT" }, ids: ["about"] },
 ];

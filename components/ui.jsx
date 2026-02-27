@@ -278,6 +278,7 @@ export function Flag({ code, size = 20, style }) {
       style={{ display: "inline-block", verticalAlign: "middle", ...style }}
       onError={() => setErr(true)}
       loading="lazy"
+      decoding="async"
     />
   );
 }

@@ -145,27 +145,27 @@ export function Idx({ en, t, idx, board, dark, setTab, setSelectedCountry }) {
       {/* Leaderboard table */}
       <Card>
         <div style={{ overflowX: "auto" }}>
-          <table className="data-table">
+          <table className="data-table data-table-idx">
             <thead>
               <tr>
                 <th>#</th>
-                <th>{en ? "Country" : "País"}</th>
-                {Object.entries(DM).map(([dk, d]) => <th key={dk} style={{ color: d.co }}>{dk}</th>)}
-                <th>CAPI</th>
+                <th></th>
+                {Object.entries(DM).map(([dk, d]) => <th key={dk} style={{ color: d.co, textAlign: "center" }}>{dk}</th>)}
+                <th style={{ textAlign: "center" }}>CAPI</th>
                 <th>{en ? "Status" : "Estado"}</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((c, i) => (
                 <tr key={c.code} className={c.code === "CRI" ? "highlight" : ""}>
-                  <td style={{ fontFamily: "'IBM Plex Mono',monospace", fontWeight: 700, fontSize: 12, color: t.tx3 }}>{board.indexOf(c) + 1}</td>
-                  <td><Flag code={A3_TO_A2[c.code]} size={14} style={{ marginRight: 6 }} /><span style={{ fontWeight: c.code === "CRI" ? 700 : 400 }}>{en ? c.e : c.n}</span></td>
+                  <td style={{ fontFamily: "'IBM Plex Mono',monospace", fontWeight: 700, fontSize: 11, color: t.tx3, textAlign: "center" }}>{board.indexOf(c) + 1}</td>
+                  <td style={{ whiteSpace: "nowrap" }} title={en ? c.e : c.n}><Flag code={A3_TO_A2[c.code]} size={16} /></td>
                   {Object.keys(DM).map(dk => (
-                    <td key={dk} style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 12, color: idx[c.code]?.[dk] >= 0.65 ? t.gn : idx[c.code]?.[dk] >= 0.40 ? t.am : t.rd }}>
+                    <td key={dk} style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 11, textAlign: "center", color: idx[c.code]?.[dk] >= 0.65 ? t.gn : idx[c.code]?.[dk] >= 0.40 ? t.am : t.rd }}>
                       {idx[c.code]?.[dk] != null ? (idx[c.code][dk] * 100).toFixed(1) : "—"}
                     </td>
                   ))}
-                  <td style={{ fontFamily: "'IBM Plex Mono',monospace", fontWeight: 700, fontSize: 14 }}>
+                  <td style={{ fontFamily: "'IBM Plex Mono',monospace", fontWeight: 700, fontSize: 13, textAlign: "center" }}>
                     {c.composite != null ? (c.composite * 100).toFixed(1) : "—"}
                   </td>
                   <td><ScorePill score={c.composite} en={en} /></td>
@@ -218,9 +218,8 @@ export function Compare({ en, t, idx, board, dark }) {
             </div>
             <div className="flag-selector">
               {CC.map(c => (
-                <button key={c} className={`flag-btn ${s === c ? "selected" : ""}`} onClick={() => handleChange(i, c)} style={s === c ? { borderColor: colors[i], color: colors[i], background: `${colors[i]}10` } : {}}>
-                  <Flag code={A3_TO_A2[c]} size={16} />
-                  <span style={{ fontSize: 11 }}>{(en ? CO[c].e : CO[c].n).slice(0, 8)}</span>
+                <button key={c} className={`flag-btn ${s === c ? "selected" : ""}`} onClick={() => handleChange(i, c)} title={en ? CO[c].e : CO[c].n} style={s === c ? { borderColor: colors[i], color: colors[i], background: `${colors[i]}10` } : {}}>
+                  <Flag code={A3_TO_A2[c]} size={18} />
                 </button>
               ))}
             </div>
@@ -248,29 +247,36 @@ export function Compare({ en, t, idx, board, dark }) {
 
       {/* Dimension comparison table */}
       <Card>
-        <div style={{ overflowX: "auto" }}>
-          <table className="data-table">
+        <div className="scroll-hint">
+          <span>{en ? "Swipe to see full table" : "Desliza para ver tabla completa"}</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+        </div>
+        <div className="table-scroll-wrapper">
+          <table className="data-table data-table-compare">
             <thead>
               <tr>
                 <th>{en ? "Dimension" : "Dimensión"}</th>
-                {sel.map((c, i) => <th key={c} style={{ color: colors[i] }}><Flag code={A3_TO_A2[c]} size={16} style={{ marginRight: 4 }} /> {en ? CO[c].e : CO[c].n}</th>)}
+                {sel.map((c, i) => <th key={c} style={{ color: colors[i], textAlign: "center", whiteSpace: "nowrap" }}><Flag code={A3_TO_A2[c]} size={16} style={{ marginRight: 3, verticalAlign: "middle" }} />{en ? CO[c].e : CO[c].n}</th>)}
               </tr>
             </thead>
             <tbody>
               {Object.entries(DM).map(([dk, d]) => (
                 <tr key={dk}>
-                  <td><DimBadge dim={d} en={en} /></td>
+                  <td style={{ whiteSpace: "nowrap" }}>
+                    <span style={{ fontSize: 13, marginRight: 4 }}>{d.ic}</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: d.co }}>{en ? d.e : d.l}</span>
+                  </td>
                   {sel.map((c, i) => (
-                    <td key={c} style={{ fontFamily: "'IBM Plex Mono',monospace", fontWeight: 700, color: idx[c]?.[dk] >= 0.65 ? t.gn : idx[c]?.[dk] >= 0.40 ? t.am : t.rd }}>
+                    <td key={c} style={{ fontFamily: "'IBM Plex Mono',monospace", fontWeight: 700, textAlign: "center", color: idx[c]?.[dk] >= 0.65 ? t.gn : idx[c]?.[dk] >= 0.40 ? t.am : t.rd }}>
                       {idx[c]?.[dk] != null ? (idx[c][dk] * 100).toFixed(1) : "—"}
                     </td>
                   ))}
                 </tr>
               ))}
               <tr style={{ fontWeight: 700, borderTop: `2px solid ${t.bd}` }}>
-                <td style={{ fontWeight: 700 }}>CAPI-CR</td>
+                <td style={{ whiteSpace: "nowrap", fontWeight: 700, fontSize: 11 }}>CAPI-CR Index</td>
                 {sel.map((c, i) => (
-                  <td key={c} style={{ fontFamily: "'IBM Plex Mono',monospace", fontWeight: 800, fontSize: 16, color: colors[i] }}>
+                  <td key={c} style={{ fontFamily: "'IBM Plex Mono',monospace", fontWeight: 800, fontSize: 13, textAlign: "center", color: colors[i] }}>
                     {idx[c]?.composite != null ? (idx[c].composite * 100).toFixed(1) : "—"}
                   </td>
                 ))}

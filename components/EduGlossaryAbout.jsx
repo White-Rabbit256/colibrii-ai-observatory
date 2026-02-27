@@ -288,20 +288,18 @@ export function Abt({ en, t }) {
         </div>
         {/* Contact & Social */}
         <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
-          <a href="mailto:andres@colibriilabs.com" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: t.cy, textDecoration: "none", fontFamily: "'IBM Plex Mono',monospace" }}>
+          <a href={`mailto:${FACTS.email}`} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: t.cy, textDecoration: "none", fontFamily: "'IBM Plex Mono',monospace" }}>
             <Icon name="mail" size={14} color={t.cy} />
-            andres@colibriilabs.com
+            {FACTS.email}
           </a>
-          <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>
-            <Icon name="twitter" size={14} color={t.tx3} />
-            @ColibriilLabs
-            <Tag color={t.tx3}>{en ? "Coming Soon" : "Próximamente"}</Tag>
-          </span>
-          <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>
-            <Icon name="instagram" size={14} color={t.tx3} />
-            @colibriilabs
-            <Tag color={t.tx3}>{en ? "Coming Soon" : "Próximamente"}</Tag>
-          </span>
+          <a href={FACTS.founderX} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: t.cy, textDecoration: "none", fontFamily: "'IBM Plex Mono',monospace" }}>
+            <Icon name="twitter" size={14} color={t.cy} />
+            @ColibriiLabs
+          </a>
+          <a href={FACTS.founderLinkedin} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: t.cy, textDecoration: "none", fontFamily: "'IBM Plex Mono',monospace" }}>
+            <Icon name="linkedin" size={14} color={t.cy} />
+            LinkedIn
+          </a>
         </div>
       </Card>
 

@@ -44,7 +44,7 @@ export const CO = {
   IRL: { n: "Irlanda", e: "Ireland", f: "🇮🇪", r: "eu", w: "Hub tech europeo, modelo FDI", pop: "5.1M", gdp: "$529B", cont: "Europe" },
   CHL: { n: "Chile", e: "Chile", f: "🇨🇱", r: "latam", w: "Líder AI Latam, ley en trámite", pop: "19.5M", gdp: "$301B", cont: "LATAM" },
   URY: { n: "Uruguay", e: "Uruguay", f: "🇺🇾", r: "latam", w: "Plan Ceibal, alta digitalización", pop: "3.4M", gdp: "$71B", cont: "LATAM" },
-  CRI: { n: "Costa Rica", e: "Costa Rica", f: "🇨🇷", r: "latam", w: "AI Overperformer (Banco Mundial)", pop: "5.2M", gdp: "$69B", cont: "LATAM" },
+  CRI: { n: "Costa Rica", e: "Costa Rica", f: "🇨🇷", r: "latam", w: "AI Overperformer — World Bank AIPI classification", pop: "5.2M", gdp: "$69B", cont: "LATAM" },
   PAN: { n: "Panamá", e: "Panama", f: "🇵🇦", r: "latam", w: "Hub logístico, dolarizado", pop: "4.4M", gdp: "$77B", cont: "LATAM" },
   BRA: { n: "Brasil", e: "Brazil", f: "🇧🇷", r: "latam", w: "Mayor economía Latam, PL 2338", pop: "216M", gdp: "$1.92T", cont: "LATAM" },
   COL: { n: "Colombia", e: "Colombia", f: "🇨🇴", r: "latam", w: "Competidor nearshoring directo", pop: "52M", gdp: "$343B", cont: "LATAM" },
@@ -223,7 +223,7 @@ export const TABS = [
   { id: "cmp", l: "Comparar", le: "Compare", ic: "compare", c: TH.pk },
   { id: "countries", l: "Países", le: "Countries", ic: "globe", c: TH.gn },
   { id: "sim", l: "Simulador", le: "Simulator", ic: "target", c: TH.am },
-  { id: "zf", l: "Zonas Francas", le: "Free Zones", ic: "factory", c: TH.am },
+  { id: "zf", l: "Zonas Francas", le: "Free Trade Zones", ic: "factory", c: TH.am },
   { id: "pai", l: "Physical AI", le: "Physical AI", ic: "robot", c: TH.pk },
   { id: "algo", l: "Algoritmos", le: "Algorithms", ic: "algo", c: TH.vi },
   { id: "sec", l: "Seguridad", le: "Security", ic: "shield", c: TH.rd },
@@ -232,6 +232,16 @@ export const TABS = [
   { id: "glos", l: "Glosario", le: "Glossary", ic: "book", c: TH.cy },
   { id: "about", l: "Info", le: "About", ic: "info", c: TH.vi },
   { id: "pymes", l: "PYMES", le: "SMEs", ic: "store", c: TH.or },
+  /* ── IMPACT SECTORAL (AI for Good Report) ── */
+  { id: "health", l: "Salud & AI", le: "Health & AI", ic: "heart", c: TH.pk },
+  { id: "food", l: "Seguridad Alimentaria", le: "Food Security", ic: "wheat", c: TH.gn },
+  /* ── IMPACT GROUP (UN/ITU/SDG) ── */
+  { id: "governance", l: "Gobernanza Global", le: "Global Regulation", ic: "legal", c: TH.or },
+  { id: "climate", l: "Medio Ambiente", le: "Environment", ic: "leaf", c: TH.gn },
+  { id: "infra", l: "Infraestructura", le: "Infrastructure", ic: "city", c: TH.cy },
+  { id: "readiness", l: "Preparación AI", le: "AI Readiness", ic: "chart", c: TH.cy },
+  { id: "showcase", l: "Vitrina Impacto", le: "Impact Showcase", ic: "star", c: TH.gd },
+  { id: "sdg", l: "Objetivos ONU", le: "UN Goals (SDGs)", ic: "globe", c: TH.gn },
 ];
 
 // ── PARTNERS / DATA SOURCES ──
@@ -628,7 +638,40 @@ export const GLOSSARY = (en) => [
   { t: en ? "Structural Force" : "Fuerza Estructural", c: en ? "Geopolitical" : "Geopolítica", def: en ? "WEF term: long-term shifts in global landscape arrangement — geostrategic shifts, technological acceleration, climate change, demographic bifurcation — that influence the speed, spread and scope of global risks." : "Término WEF: cambios de largo plazo en la disposición del panorama global — cambios geoestratégicos, aceleración tecnológica, cambio climático, bifurcación demográfica — que influyen en velocidad, alcance y ámbito de riesgos globales.", ctx: en ? "CR is shaped by all four structural forces: US-China geostrategic shift (nearshoring), tech acceleration (AI/BPO disruption), climate (extreme weather), demographics (aging workforce)." : "CR es moldeado por las cuatro fuerzas estructurales: cambio geoestratégico EEUU-China (nearshoring), aceleración tech (disrupción AI/BPO), clima (eventos extremos), demografía (envejecimiento)." },
   // 2 NEW glossary terms from WEF 2026 OCR analysis (terms 54-55)
   { t: "EOS", c: "WEF", def: en ? "Executive Opinion Survey. WEF's annual survey of 11,000+ business leaders across 116 economies identifying each country's top 5 perceived risks. Conducted via partner institutes." : "Encuesta de Opinión Ejecutiva. Encuesta anual del WEF a 11,000+ líderes empresariales en 116 economías identificando los 5 principales riesgos percibidos por país. Realizada vía institutos asociados.", ctx: en ? "CR's EOS (via INCAE Business School) shows crime #1, weak public services #2 — zero AI/technology risks in top 5. This perception gap means CR business leaders may be underestimating AI disruption." : "EOS de CR (vía INCAE Business School) muestra crimen #1, servicios públicos débiles #2 — cero riesgos AI/tecnología en top 5. Esta brecha de percepción significa que líderes empresariales CR podrían subestimar disrupción AI." },
-  { t: "GRPS", c: "WEF", def: en ? "Global Risks Perception Survey. WEF's 1,300-expert survey feeding the Global Risks Report. Respondents: 38% business, 24% academia, 13% civil society, 10% government, 10% international organizations." : "Encuesta de Percepción de Riesgos Globales. Encuesta de 1,300 expertos del WEF que alimenta el Reporte de Riesgos Globales. Respondentes: 38% empresa, 24% academia, 13% sociedad civil, 10% gobierno, 10% organizaciones internacionales.", ctx: en ? "Understanding GRPS vs EOS matters: GRPS experts rank AI #5 long-term, but CR's EOS business leaders don't list AI at all. The expert-practitioner perception gap is a key observatory finding." : "Entender GRPS vs EOS importa: expertos GRPS ranquean AI #5 largo plazo, pero líderes empresariales EOS de CR ni lo listan. La brecha de percepción experto-practicante es hallazgo clave del observatorio." }
+  { t: "GRPS", c: "WEF", def: en ? "Global Risks Perception Survey. WEF's 1,300-expert survey feeding the Global Risks Report. Respondents: 38% business, 24% academia, 13% civil society, 10% government, 10% international organizations." : "Encuesta de Percepción de Riesgos Globales. Encuesta de 1,300 expertos del WEF que alimenta el Reporte de Riesgos Globales. Respondentes: 38% empresa, 24% academia, 13% sociedad civil, 10% gobierno, 10% organizaciones internacionales.", ctx: en ? "Understanding GRPS vs EOS matters: GRPS experts rank AI #5 long-term, but CR's EOS business leaders don't list AI at all. The expert-practitioner perception gap is a key observatory finding." : "Entender GRPS vs EOS importa: expertos GRPS ranquean AI #5 largo plazo, pero líderes empresariales EOS de CR ni lo listan. La brecha de percepción experto-practicante es hallazgo clave del observatorio." },
+  // ── 30 NEW glossary terms from AI for Good Impact Report integration (terms 56-85) ──
+  // FOUNDATIONAL (9 terms)
+  { t: en ? "Algorithm" : "Algoritmo", c: en ? "Technical" : "Técnico", def: en ? "A step-by-step set of instructions for solving a problem or performing a computation. The foundation of all AI systems." : "Conjunto de instrucciones paso a paso para resolver un problema o realizar un cálculo. La base de todos los sistemas AI.", ctx: en ? "Every AI system CR deploys — from CCSS patient triage to customs risk scoring — executes algorithms. Understanding this is step one for AI literacy." : "Todo sistema AI que CR despliega — desde triaje CCSS hasta scoring de riesgo aduanero — ejecuta algoritmos. Entender esto es paso uno para la alfabetización AI." },
+  { t: "Machine Learning (ML)", c: en ? "Technical" : "Técnico", def: en ? "A subset of AI where systems learn patterns from data without being explicitly programmed for each task. The most practical AI approach today." : "Subconjunto de AI donde sistemas aprenden patrones de datos sin ser programados explícitamente. El enfoque AI más práctico hoy.", ctx: en ? "ML is the most deployable AI approach for CR government and SMEs: predictive maintenance (ICE), crop yield forecasting (MAG), fraud detection (Hacienda)." : "ML es el enfoque AI más desplegable para gobierno y PYMES de CR: mantenimiento predictivo (ICE), pronóstico cosechas (MAG), detección fraude (Hacienda)." },
+  { t: "Deep Learning", c: en ? "Technical" : "Técnico", def: en ? "A subset of machine learning using multi-layered neural networks to learn complex patterns. Powers image recognition, speech processing, and language models." : "Subconjunto de machine learning que usa redes neuronales multicapa para aprender patrones complejos. Impulsa reconocimiento de imágenes, voz y modelos de lenguaje.", ctx: en ? "Deep learning powers medical imaging (CCSS radiology), agricultural pest detection (MAG), and speech recognition for bilingual government chatbots." : "Deep learning impulsa imagenología médica (radiología CCSS), detección plagas agrícolas (MAG) y reconocimiento de voz para chatbots gubernamentales bilingües." },
+  { t: en ? "Neural Network" : "Red Neuronal", c: en ? "Technical" : "Técnico", def: en ? "Computing architecture inspired by the human brain, using interconnected nodes (neurons) organized in layers to process information." : "Arquitectura de computación inspirada en el cerebro humano, usando nodos interconectados (neuronas) organizados en capas para procesar información.", ctx: en ? "Neural networks are the basis of AI systems transforming CR free zones — from quality control in medical device manufacturing to automated customer service." : "Las redes neuronales son la base de sistemas AI que transforman zonas francas CR — desde control de calidad en manufactura de dispositivos médicos hasta servicio al cliente automatizado." },
+  { t: en ? "Natural Language Processing (NLP)" : "Procesamiento de Lenguaje Natural (PLN)", c: en ? "Technical" : "Técnico", def: en ? "AI field enabling computers to understand, interpret, and generate human language. Powers chatbots, translation, sentiment analysis, and document processing." : "Campo AI que permite a computadoras entender, interpretar y generar lenguaje humano. Impulsa chatbots, traducción, análisis de sentimiento y procesamiento de documentos.", ctx: en ? "NLP enables bilingual (ES/EN) government chatbots, automatic legislative analysis, and citizen sentiment monitoring — all critical for CR's smart government vision." : "PLN permite chatbots gubernamentales bilingües (ES/EN), análisis legislativo automático y monitoreo de sentimiento ciudadano — críticos para la visión de gobierno inteligente de CR." },
+  { t: en ? "Generative AI (GenAI)" : "AI Generativa (GenAI)", c: en ? "Technical" : "Técnico", def: en ? "AI systems that create new content — text, images, code, audio, video — rather than just analyzing existing data. Includes GPT, Claude, DALL-E, Midjourney." : "Sistemas AI que crean nuevo contenido — texto, imágenes, código, audio, video — en lugar de solo analizar datos existentes. Incluye GPT, Claude, DALL-E, Midjourney.", ctx: en ? "41% of code is now AI-generated. GenAI directly impacts CR's developer workforce in free zones and could either amplify or displace 28K BPO workers." : "41% del código ahora es generado por AI. GenAI impacta directamente la fuerza laboral desarrolladora de CR en zonas francas y podría amplificar o desplazar 28K trabajadores BPO." },
+  { t: "GPU", c: en ? "Technical" : "Técnico", def: en ? "Graphics Processing Unit. Specialized chip essential for AI training and inference. NVIDIA dominates with 80%+ market share. A single H100 costs ~$30K." : "Unidad de Procesamiento Gráfico. Chip especializado esencial para entrenamiento e inferencia AI. NVIDIA domina con 80%+ de cuota de mercado. Un H100 cuesta ~$30K.", ctx: en ? "CR has zero domestic GPU infrastructure — 100% dependent on US cloud providers (AWS, Azure, GCP). This is a sovereignty vulnerability highlighted by the AI for Good report." : "CR tiene cero infraestructura GPU doméstica — 100% dependiente de proveedores cloud de EEUU (AWS, Azure, GCP). Vulnerabilidad de soberanía destacada por el reporte AI for Good." },
+  { t: en ? "Model" : "Modelo", c: en ? "Technical" : "Técnico", def: en ? "A trained AI system that has learned patterns from data and can make predictions or generate outputs. Models range from simple classifiers to large language models." : "Sistema AI entrenado que ha aprendido patrones de datos y puede hacer predicciones o generar resultados. Los modelos van desde clasificadores simples hasta grandes modelos de lenguaje.", ctx: en ? "87% of AI models come from high-income countries. CR should focus on deploying and fine-tuning existing models, not building foundation models from scratch." : "87% de modelos AI vienen de países de ingreso alto. CR debería enfocarse en desplegar y ajustar modelos existentes, no construir modelos fundacionales desde cero." },
+  { t: en ? "Training Data" : "Datos de Entrenamiento", c: en ? "Technical" : "Técnico", def: en ? "The datasets used to teach AI models patterns, relationships, and behaviors. Data quality directly determines AI quality — garbage in, garbage out." : "Los datasets usados para enseñar a modelos AI patrones, relaciones y comportamientos. La calidad de datos determina directamente la calidad AI.", ctx: en ? "CR's EDUS health records (8+ years, entire population) + CCSS operational data = the largest structured dataset in Central America. A strategic AI asset if properly governed." : "Los registros EDUS de CR (8+ años, toda la población) + datos operativos CCSS = el mayor dataset estructurado de Centroamérica. Activo estratégico AI si se gobierna adecuadamente." },
+  // ADVANCED / POLICY-RELEVANT (21 terms)
+  { t: en ? "AI Literacy" : "Alfabetización AI", c: en ? "Ethics" : "Ética", def: en ? "The knowledge and skills needed to understand, evaluate, and critically engage with AI systems. Essential for citizens, policymakers, and workers." : "Conocimientos y habilidades necesarios para entender, evaluar e interactuar críticamente con sistemas AI. Esencial para ciudadanos, formuladores de políticas y trabajadores.", ctx: en ? "INA (National Learning Institute) has zero AI certification tracks. Only UCR and TEC offer AI programs. 250M children globally are out of school — AI literacy is an equity issue." : "INA no tiene tracks de certificación AI. Solo UCR y TEC ofrecen programas AI. 250M niños globalmente fuera de la escuela — alfabetización AI es tema de equidad." },
+  { t: en ? "AI Life Cycle" : "Ciclo de Vida AI", c: en ? "Standards" : "Estándares", def: en ? "The complete process from AI system conception through design, development, deployment, monitoring, and eventual retirement. ISO/IEC 22989 defines the standard." : "Proceso completo desde la concepción del sistema AI a través de diseño, desarrollo, despliegue, monitoreo y eventual retiro. ISO/IEC 22989 define el estándar.", ctx: en ? "ENIA lacks a lifecycle governance framework. Without mandatory lifecycle management, CR government AI deployments risk becoming unmaintained liabilities." : "ENIA carece de marco de gobernanza del ciclo de vida. Sin gestión obligatoria del ciclo de vida, despliegues AI de gobierno CR arriesgan volverse pasivos sin mantenimiento." },
+  { t: en ? "Artificial General Intelligence (AGI)" : "Inteligencia Artificial General (AGI)", c: en ? "Technical" : "Técnico", def: en ? "Theoretical AI with human-level cognitive abilities across all domains — reasoning, learning, creativity, social intelligence. Does not yet exist." : "AI teórica con capacidades cognitivas a nivel humano en todos los dominios — razonamiento, aprendizaje, creatividad, inteligencia social. Aún no existe.", ctx: en ? "AGI is not imminent, but CR policy must prepare for rapid capability jumps. Each new model generation (GPT-3→4→5) shows unpredictable emergent abilities." : "AGI no es inminente, pero la política CR debe prepararse para saltos rápidos de capacidad. Cada nueva generación de modelos muestra habilidades emergentes impredecibles." },
+  { t: en ? "Bias in AI" : "Sesgo en AI", c: en ? "Ethics" : "Ética", def: en ? "Systematic errors in AI outputs that unfairly advantage or disadvantage specific groups. Arises from biased training data, flawed design, or unrepresentative samples." : "Errores sistemáticos en resultados AI que favorecen o perjudican injustamente a grupos específicos. Surge de datos sesgados, diseño defectuoso o muestras no representativas.", ctx: en ? "CR census and health data gaps (indigenous communities, rural areas) risk producing biased government AI. The AI for Good report emphasizes co-design with affected communities." : "Brechas en datos censales y de salud de CR (comunidades indígenas, áreas rurales) arriesgan producir AI gubernamental sesgada. El reporte enfatiza co-diseño con comunidades afectadas." },
+  { t: "Compute", c: en ? "Technical" : "Técnico", def: en ? "The computing power (processing capacity, memory, energy) required to train and run AI systems. Measured in FLOPs. AI compute doubles every 6-10 months." : "Poder de cómputo (capacidad procesamiento, memoria, energía) requerido para entrenar y ejecutar sistemas AI. Medido en FLOPs. Compute AI se duplica cada 6-10 meses.", ctx: en ? "CR has zero domestic AI compute infrastructure. 100% cloud-dependent on US hyperscalers. The AI for Good report identifies compute access as a critical divide between nations." : "CR tiene cero infraestructura compute AI doméstica. 100% dependiente de hyperscalers EEUU. El reporte identifica acceso a compute como una brecha crítica entre naciones." },
+  { t: en ? "Conformity Assessment" : "Evaluación de Conformidad", c: en ? "Standards" : "Estándares", def: en ? "The process of verifying that an AI system meets regulatory and technical standards before deployment. Required under the EU AI Act for high-risk AI." : "Proceso de verificar que un sistema AI cumple estándares regulatorios y técnicos antes del despliegue. Requerido bajo EU AI Act para AI de alto riesgo.", ctx: en ? "CR companies exporting AI services to Europe must prepare for conformity assessments. ECA (Ente Costarricense de Acreditación) could develop AI assessment capacity." : "Empresas CR exportando servicios AI a Europa deben prepararse para evaluaciones de conformidad. ECA podría desarrollar capacidad de evaluación AI." },
+  { t: "Constitutional AI", c: en ? "Technical" : "Técnico", def: en ? "An AI training approach (Anthropic, 2022) where the model is guided by a written set of principles rather than relying solely on human feedback. An alternative to RLHF." : "Enfoque de entrenamiento AI (Anthropic, 2022) donde el modelo es guiado por un conjunto escrito de principios en lugar de depender solo de retroalimentación humana. Alternativa a RLHF.", ctx: en ? "Constitutional AI demonstrates that safety can be built into AI training. Relevant for CR policymakers evaluating which AI systems to procure for government use." : "Constitutional AI demuestra que la seguridad puede integrarse en el entrenamiento AI. Relevante para formuladores CR evaluando qué sistemas AI adquirir para uso gubernamental." },
+  { t: en ? "Content Authenticity" : "Autenticidad de Contenido", c: en ? "Security" : "Seguridad", def: en ? "Technologies (watermarks, metadata, cryptographic signatures) that prove content origin and detect AI-generated media. C2PA is the leading standard." : "Tecnologías (marcas de agua, metadatos, firmas criptográficas) que prueban origen de contenido y detectan medios generados por AI. C2PA es el estándar líder.", ctx: en ? "Critical for CR's 2026 elections — deepfake detection capability is urgent. TSE (Supreme Electoral Tribunal) needs content authenticity verification tools." : "Crítico para elecciones CR 2026 — capacidad de detección deepfake es urgente. TSE necesita herramientas de verificación de autenticidad de contenido." },
+  { t: en ? "Data Privacy" : "Privacidad de Datos", c: en ? "Ethics" : "Ética", def: en ? "The right to control how personal information is collected, used, and shared. AI systems process massive personal data, creating new privacy challenges." : "Derecho a controlar cómo se recopila, usa y comparte información personal. Sistemas AI procesan datos personales masivos, creando nuevos desafíos de privacidad.", ctx: en ? "PRODHAB (CR Data Protection Agency) has a data protection mandate but no AI-specific regulatory capacity. As AI scales, the privacy-utility tension intensifies." : "PRODHAB tiene mandato de protección de datos pero no capacidad regulatoria AI específica. A medida que AI escala, la tensión privacidad-utilidad se intensifica." },
+  { t: en ? "Differential Privacy" : "Privacidad Diferencial", c: en ? "Technical" : "Técnico", def: en ? "A mathematical technique that adds calibrated noise to data analysis results, protecting individual identity while preserving aggregate statistical accuracy." : "Técnica matemática que añade ruido calibrado a resultados de análisis de datos, protegiendo identidad individual mientras preserva precisión estadística agregada.", ctx: en ? "Enables CCSS/EDUS AI research without exposing individual patient data. Apple, Google, and the US Census use differential privacy — CR should adopt it for health AI." : "Permite investigación AI CCSS/EDUS sin exponer datos individuales de pacientes. Apple, Google y el Censo de EEUU usan privacidad diferencial — CR debería adoptarla para AI en salud." },
+  { t: en ? "Digital Public Infrastructure (DPI)" : "Infraestructura Pública Digital (DPI)", c: en ? "Policy" : "Política", def: en ? "Shared digital systems and platforms that serve as public goods — digital identity, payments, data exchange. India's Aadhaar and UPI are leading examples." : "Sistemas y plataformas digitales compartidas que sirven como bienes públicos — identidad digital, pagos, intercambio de datos. Aadhaar y UPI de India son ejemplos líderes.", ctx: en ? "CR's SINPE payment system is a successful DPI (interbank transfers, SINPE Móvil). The next step is an AI-enabled DPI layer for smart government services." : "El sistema SINPE de CR es una DPI exitosa (transferencias interbancarias, SINPE Móvil). El siguiente paso es una capa DPI habilitada por AI para servicios de gobierno inteligente." },
+  { t: en ? "Emergent Capabilities" : "Capacidades Emergentes", c: en ? "Technical" : "Técnico", def: en ? "Unexpected abilities that appear in AI models at certain scales of training — not explicitly programmed. GPT-4 passed the bar exam without being trained for it." : "Habilidades inesperadas que aparecen en modelos AI a ciertas escalas de entrenamiento — no programadas explícitamente. GPT-4 aprobó el examen legal sin ser entrenado para ello.", ctx: en ? "Emergent capabilities make AI governance challenging — regulators cannot predict what the next model will be able to do. CR legal professionals should assess implications." : "Las capacidades emergentes hacen desafiante la gobernanza AI — reguladores no pueden predecir qué podrá hacer el próximo modelo. Profesionales legales CR deben evaluar implicaciones." },
+  { t: en ? "Ethical AI" : "AI Ética", c: en ? "Ethics" : "Ética", def: en ? "AI development and deployment that respects human rights, fairness, transparency, accountability, and environmental sustainability. UNESCO adopted recommendations in 2021." : "Desarrollo y despliegue de AI que respeta derechos humanos, equidad, transparencia, rendición de cuentas y sostenibilidad ambiental. UNESCO adoptó recomendaciones en 2021.", ctx: en ? "ENIA pillar 1 covers ethics aligned with UNESCO, but has no enforcement mechanism. Without binding obligations, ethical AI in CR remains aspirational." : "El pilar 1 de ENIA cubre ética alineada con UNESCO, pero no tiene mecanismo de cumplimiento. Sin obligaciones vinculantes, AI ética en CR permanece aspiracional." },
+  { t: "Guardrails", c: en ? "Security" : "Seguridad", def: en ? "Safety mechanisms that constrain AI system behavior within acceptable boundaries — input validation, output filtering, content policies, and behavioral limits." : "Mecanismos de seguridad que restringen el comportamiento de sistemas AI dentro de límites aceptables — validación de entrada, filtrado de salida, políticas de contenido y límites conductuales.", ctx: en ? "Every CR government AI deployment needs input/output guardrails. Without them, chatbots can be manipulated to reveal sensitive data or generate harmful content." : "Todo despliegue AI de gobierno CR necesita guardarraíles de entrada/salida. Sin ellos, chatbots pueden ser manipulados para revelar datos sensibles o generar contenido dañino." },
+  { t: "Human-in-the-Loop", c: en ? "Ethics" : "Ética", def: en ? "A design pattern ensuring humans oversee, validate, or approve AI decisions before they take effect. Critical for high-stakes applications." : "Patrón de diseño que asegura que humanos supervisen, validen o aprueben decisiones AI antes de que surtan efecto. Crítico para aplicaciones de alto impacto.", ctx: en ? "Mandatory for CR healthcare (CCSS diagnostics), judicial assistance, and social benefit allocation. The EU AI Act requires it for all high-risk AI systems." : "Obligatorio para salud CR (diagnósticos CCSS), asistencia judicial y asignación de beneficios sociales. EU AI Act lo requiere para todos los sistemas AI de alto riesgo." },
+  { t: en ? "Interoperability" : "Interoperabilidad", c: en ? "Standards" : "Estándares", def: en ? "The ability of different AI systems, databases, and platforms to exchange and use information seamlessly. Requires common standards and APIs." : "Capacidad de diferentes sistemas AI, bases de datos y plataformas para intercambiar y usar información sin problemas. Requiere estándares y APIs comunes.", ctx: en ? "CR government data silos (CCSS, AyA, ICE, MEP) need interoperable standards. Without them, AI cannot deliver cross-institutional insights for smart governance." : "Silos de datos del gobierno CR (CCSS, AyA, ICE, MEP) necesitan estándares interoperables. Sin ellos, AI no puede entregar insights inter-institucionales para gobernanza inteligente." },
+  { t: en ? "Open-weight Models" : "Modelos de Pesos Abiertos", c: en ? "Technical" : "Técnico", def: en ? "AI models whose trained parameters (weights) are publicly released, allowing anyone to use, fine-tune, and deploy them. Examples: Llama, Mistral, Falcon." : "Modelos AI cuyos parámetros entrenados (pesos) se publican, permitiendo a cualquiera usarlos, ajustarlos y desplegarlos. Ejemplos: Llama, Mistral, Falcon.", ctx: en ? "Open-weight models allow CR to fine-tune without licensing fees — critical for a country that cannot afford proprietary model contracts at government scale." : "Los modelos de pesos abiertos permiten a CR ajustar sin costos de licencia — crítico para un país que no puede pagar contratos de modelos propietarios a escala gubernamental." },
+  { t: "Quantum AI", c: en ? "Technical" : "Técnico", def: en ? "The intersection of quantum computing and AI. Quantum computers could exponentially accelerate certain AI computations but also break current encryption." : "La intersección de computación cuántica y AI. Computadoras cuánticas podrían acelerar exponencialmente ciertos cálculos AI pero también romper cifrado actual.", ctx: en ? "Long-term opportunity, but the immediate threat is real: 'Harvest Now, Decrypt Later' attacks mean adversaries may already be collecting CR government encrypted data." : "Oportunidad a largo plazo, pero la amenaza inmediata es real: ataques 'Cosechar Ahora, Descifrar Después' significan que adversarios podrían ya estar recolectando datos cifrados del gobierno CR." },
+  { t: "Red Teaming", c: en ? "Security" : "Seguridad", def: en ? "Systematically testing AI systems for vulnerabilities, dangerous behaviors, and failure modes through adversarial simulation. OWASP recommends for all production AI." : "Prueba sistemática de sistemas AI para vulnerabilidades, comportamientos peligrosos y modos de fallo mediante simulación adversaria. OWASP recomienda para toda AI en producción.", ctx: en ? "CR has no AI red team capacity. OWASP recommends red teaming for all government AI deployments. UCR/TEC cybersecurity programs should add AI red teaming tracks." : "CR no tiene capacidad de red teaming AI. OWASP recomienda red teaming para todos los despliegues AI de gobierno. Programas de ciberseguridad UCR/TEC deberían añadir tracks de red teaming AI." },
+  { t: en ? "Sovereign AI" : "AI Soberana", c: en ? "Policy" : "Política", def: en ? "A nation's ability to develop, deploy, and govern AI systems using domestically controlled infrastructure, data, and talent — without foreign dependency." : "Capacidad de una nación de desarrollar, desplegar y gobernar sistemas AI usando infraestructura, datos y talento controlados domésticamente — sin dependencia extranjera.", ctx: en ? "CR is 100% dependent on US hyperscalers (AWS, Azure, GCP) for AI compute. No domestic GPU clusters, no sovereign cloud, no local foundation models. A strategic vulnerability." : "CR es 100% dependiente de hyperscalers EEUU (AWS, Azure, GCP) para compute AI. Sin clusters GPU domésticos, sin nube soberana, sin modelos fundacionales locales. Vulnerabilidad estratégica." },
+  { t: en ? "Watermarking" : "Marca de Agua", c: en ? "Security" : "Seguridad", def: en ? "Invisible signals embedded in AI-generated content (text, images, audio, video) enabling detection and attribution. C2PA is the leading technical standard." : "Señales invisibles incrustadas en contenido generado por AI (texto, imágenes, audio, video) que permiten detección y atribución. C2PA es el estándar técnico líder.", ctx: en ? "Essential for combating election deepfakes in CR 2026. The EU AI Act mandates watermarking for AI-generated content. TSE should require it for campaign media." : "Esencial para combatir deepfakes electorales en CR 2026. EU AI Act exige marca de agua para contenido generado por AI. TSE debería requerirla para medios de campaña." }
 ];
 
 // ── AI GLOBAL TIMELINE MILESTONES ──
@@ -901,11 +944,13 @@ export function cacheGet(k) { try { const c = sessionStorage.getItem(`clb_${k}`)
 export function cacheSet(k, v) { try { sessionStorage.setItem(`clb_${k}`, JSON.stringify({ ts: Date.now(), data: v })); } catch { } }
 
 // ── POLICY SIMULATOR PRESETS ──
+// changes: absolute values (set dimension to this value)
+// deltas: relative values (add this to current dimension value)
 export const SIM_PRESETS = (en) => [
   { nm: en ? "Pass AI Law" : "Aprobar Ley AI", desc: en ? "Enact binding AI legislation like South Korea's framework" : "Promulgar legislación AI vinculante como el marco de Corea del Sur", changes: { D4: 0.65 } },
   { nm: en ? "Complete SOC-CR" : "Completar SOC-CR", desc: en ? "Fully operational national cybersecurity operations center" : "Centro de operaciones ciberseguridad nacional plenamente operativo", changes: { D6: 0.60 } },
-  { nm: en ? "INA AI Track" : "Track AI INA", desc: en ? "Launch AI technician certification at INA" : "Lanzar certificación técnico AI en INA", changes: { D2: 0.05 } },
-  { nm: en ? "Double R&D" : "Duplicar I+D", desc: en ? "Increase R&D spending from 0.4% to 0.8% GDP" : "Aumentar gasto I+D de 0.4% a 0.8% PIB", changes: { D3: 0.10 } }
+  { nm: en ? "INA AI Track" : "Track AI INA", desc: en ? "Launch AI technician certification at INA" : "Lanzar certificación técnico AI en INA", deltas: { D2: 0.05 } },
+  { nm: en ? "Double R&D" : "Duplicar I+D", desc: en ? "Increase R&D spending from 0.4% to 0.8% GDP" : "Aumentar gasto I+D de 0.4% a 0.8% PIB", deltas: { D3: 0.10 } }
 ];
 
 // ── LEGISLATION DATA (7 laws — 5 from v12 + 2 NEW from v9.5 spec) ──
@@ -980,8 +1025,7 @@ export const ANNUAL_SOURCES = [
 
 // ── SOCIAL MEDIA ──
 export const SOCIAL = {
-  x: { url: "https://x.com/ColibriilLabs", handle: "@ColibriilLabs", active: false },
-  instagram: { url: "https://instagram.com/colibriilabs", handle: "@colibriilabs", active: false },
+  x: { url: "https://x.com/ColibriiLabs", handle: "@ColibriiLabs", active: true },
   email: "andres@colibriilabs.com"
 };
 
@@ -1024,10 +1068,10 @@ export const CURATED_NEWS = [
 
 // ── COSTA RICA AI FALLBACK NEWS (shown when GDELT CR filter is empty) ──
 export const CR_FALLBACK_NEWS = [
-  { title: "Costa Rica lanza Estrategia Nacional de Inteligencia Artificial", url: "https://www.micitt.go.cr/", domain: "micitt.go.cr", date: "2024-05-15", category: "policy" },
-  { title: "CINDE: Costa Rica atrae inversión récord en servicios digitales y AI", url: "https://www.cinde.org/", domain: "cinde.org", date: "2025-03-01", category: "economy" },
-  { title: "INA anuncia nuevos programas de capacitación en inteligencia artificial", url: "https://www.ina.ac.cr/", domain: "ina.ac.cr", date: "2025-01-20", category: "education" },
-  { title: "Proyecto de Ley: Marco regulatorio para inteligencia artificial en CR", url: "https://www.asamblea.go.cr/", domain: "asamblea.go.cr", date: "2025-08-01", category: "policy" },
+  { title: "Costa Rica lanza Estrategia Nacional de Inteligencia Artificial", url: "https://www.micitt.go.cr/", domain: "micitt.go.cr", date: "2026-01-15", category: "policy" },
+  { title: "CINDE: Costa Rica atrae inversión récord en servicios digitales y AI", url: "https://www.cinde.org/", domain: "cinde.org", date: "2026-02-01", category: "economy" },
+  { title: "INA anuncia nuevos programas de capacitación en inteligencia artificial", url: "https://www.ina.ac.cr/", domain: "ina.ac.cr", date: "2026-01-20", category: "education" },
+  { title: "Proyecto de Ley: Marco regulatorio para inteligencia artificial en CR", url: "https://www.asamblea.go.cr/", domain: "asamblea.go.cr", date: "2026-02-10", category: "policy" },
 ];
 
 // ── FREE ZONES DEEP ANALYSIS ──
@@ -1067,11 +1111,11 @@ export const FZ_DEEP = (en) => ({
     ]
   },
   competitiveness: [
-    { country: "Costa Rica", cost: en ? "Medium" : "Medio", talent: en ? "High (bilingual)" : "Alto (bilingüe)", infra: en ? "Good (99% renewable)" : "Buena (99% renovable)", stability: en ? "Excellent" : "Excelente", energy: en ? "99% renewable" : "99% renovable", aiReady: en ? "Low (no law)" : "Bajo (sin ley)" },
-    { country: "Vietnam", cost: en ? "Low" : "Bajo", talent: en ? "High (STEM)" : "Alto (STEM)", infra: en ? "Growing" : "Creciente", stability: en ? "Good" : "Buena", energy: en ? "40% coal" : "40% carbón", aiReady: en ? "Medium" : "Medio" },
-    { country: "Colombia", cost: en ? "Low-Medium" : "Bajo-Medio", talent: en ? "High" : "Alto", infra: en ? "Medium" : "Media", stability: en ? "Improving" : "Mejorando", energy: en ? "70% renewable" : "70% renovable", aiReady: en ? "Low" : "Bajo" },
-    { country: "Philippines", cost: en ? "Low" : "Bajo", talent: en ? "Very High (English)" : "Muy Alto (inglés)", infra: en ? "Medium" : "Media", stability: en ? "Medium" : "Media", energy: en ? "35% renewable" : "35% renovable", aiReady: en ? "Low" : "Bajo" },
-    { country: en ? "Dominican Rep." : "Rep. Dominicana", cost: en ? "Low" : "Bajo", talent: en ? "Medium" : "Medio", infra: en ? "Growing" : "Creciente", stability: en ? "Good" : "Buena", energy: en ? "15% renewable" : "15% renovable", aiReady: en ? "Low" : "Bajo" }
+    { flag: "CR", country: "Costa Rica", cost: en ? "Medium" : "Medio", talent: en ? "High (bilingual)" : "Alto (bilingüe)", infra: en ? "Good" : "Buena", stability: en ? "Excellent" : "Excelente", energy: "99%", aiReady: en ? "Low" : "Bajo" },
+    { flag: "VN", country: "Vietnam", cost: en ? "Low" : "Bajo", talent: en ? "High (STEM)" : "Alto (STEM)", infra: en ? "Moderate" : "Moderada", stability: en ? "Good" : "Buena", energy: "40%", aiReady: en ? "Medium" : "Medio" },
+    { flag: "CO", country: "Colombia", cost: en ? "Low-Med" : "Bajo-Med", talent: en ? "High (bilingual)" : "Alto (bilingüe)", infra: en ? "Moderate" : "Moderada", stability: en ? "Moderate" : "Moderada", energy: "70%", aiReady: en ? "Low" : "Bajo" },
+    { flag: "PH", country: en ? "Philippines" : "Filipinas", cost: en ? "Low" : "Bajo", talent: en ? "Very High (English)" : "Muy Alto (inglés)", infra: en ? "Moderate" : "Moderada", stability: en ? "Moderate" : "Moderada", energy: "35%", aiReady: en ? "Low" : "Bajo" },
+    { flag: "DO", country: en ? "Dom. Rep." : "Rep. Dom.", cost: en ? "Low" : "Bajo", talent: en ? "Moderate" : "Moderado", infra: en ? "Basic" : "Básica", stability: en ? "Good" : "Buena", energy: "15%", aiReady: en ? "Low" : "Bajo" }
   ],
   risksAndOpps: {
     risks: [
@@ -1124,12 +1168,12 @@ export const PYMES_DEEP = (en) => ({
   landscape: {
     title: en ? "Costa Rica's SME Landscape" : "Panorama PYMES Costa Rica",
     stats: [
-      { value: "97%", label: en ? "Businesses are SMEs" : "Negocios son PYMES", source: "MEIC 2024" },
-      { value: "33%", label: en ? "GDP Contribution" : "Contribución al PIB", source: "MEIC" },
-      { value: "47%", label: en ? "Formal Employment" : "Empleo Formal", source: "MTSS" },
-      { value: "~106K", label: en ? "Registered PYMES" : "PYMES Registradas", source: "DIGEPYME" },
-      { value: "18%", label: en ? "Export-active" : "Exportadoras activas", source: "PROCOMER" },
-      { value: "<5%", label: en ? "Use AI Tools" : "Usan Herramientas AI", source: en ? "Estimate 2025" : "Estimado 2025" }
+      { value: "97%", label: en ? "Businesses are SMEs" : "Negocios son PYMES", source: "MEIC 2025" },
+      { value: "~140K", label: en ? "Registered PYMES" : "PYMES Registradas", source: "INEC / MEIC" },
+      { value: "70%+", label: en ? "Employment Share" : "Empleo Generado", source: "MEIC 2025" },
+      { value: "50%", label: en ? "Use Some AI" : "Usan Algún AI", source: "Microsoft 2025" },
+      { value: "40%", label: en ? "PYME Growth YoY" : "Crecimiento Anual", source: "MEIC 2025" },
+      { value: "69%", label: en ? "Plan AI Investment" : "Planean Invertir AI", source: "Microsoft 2025" }
     ]
   },
   risks: [
@@ -1231,10 +1275,12 @@ export const PYMES_DEEP = (en) => ({
   sources: [
     { name: "MEIC — Estado PYMES CR", url: "https://www.meic.go.cr/" },
     { name: "PROCOMER — Exportaciones PYMES", url: "https://www.procomer.com/" },
+    { name: "Microsoft/Ipsos — PYMES AI Survey 2025", url: "https://news.microsoft.com/es-xl/50-de-las-pymes-en-costa-rica-utilizan-algun-tipo-de-ia/" },
+    { name: "MICITT — ENIA 2024-2027", url: "https://www.micitt.go.cr/" },
+    { name: "CEPAL — ILIA 2025", url: "https://www.cepal.org/" },
     { name: "ILO — AI and SMEs", url: "https://www.ilo.org/" },
     { name: "OECD — SMEs in the AI Economy", url: "https://www.oecd.org/" },
-    { name: "WEF Future of Jobs 2025", url: "https://www.weforum.org/" },
-    { name: "McKinsey — AI for Small Business", url: "https://www.mckinsey.com/" }
+    { name: "WEF Future of Jobs 2025", url: "https://www.weforum.org/" }
   ]
 });
 
@@ -1505,3 +1551,189 @@ export const AI_OVERPERFORMER_CONTEXT = (en) => ({
         "Salud y educación universal — base sólida de capital humano",
       ],
 });
+
+/* ═══════════════════════════════════════════════════════════════
+   UN / ITU / SDG DATA — AI for Good Impact Awards 2026
+   Sources: ITU Reports (Jan 2026), CC BY-NC-SA 3.0 IGO
+   ═══════════════════════════════════════════════════════════════ */
+
+// ── SDG ALIGNMENT ──
+export const SDG_ALIGNMENT = (en) => [
+  { id: 4, name: en ? "Quality Education" : "Educación de Calidad", color: "#C5192D",
+    icon: "edu",
+    contribution: en ? "AI literacy metrics across 20 countries, education dimension in CAPI-CR, glossary of 55+ AI terms for public understanding" : "Métricas de alfabetización AI en 20 países, dimensión educación en CAPI-CR, glosario de 55+ términos AI para comprensión pública",
+    metric: en ? "20 countries' education indicators tracked" : "Indicadores educativos de 20 países rastreados" },
+  { id: 8, name: en ? "Decent Work & Economic Growth" : "Trabajo Decente y Crecimiento", color: "#A21942",
+    icon: "store",
+    contribution: en ? "Labor transition scenarios, job displacement analysis, SME AI readiness assessment, Free Trade Zone workforce intelligence" : "Escenarios transición laboral, análisis desplazamiento empleo, evaluación preparación AI PYMES, inteligencia fuerza laboral Zonas Francas",
+    metric: en ? "170M new AI jobs projected (WEF)" : "170M empleos AI nuevos proyectados (WEF)" },
+  { id: 9, name: en ? "Industry, Innovation & Infrastructure" : "Industria, Innovación e Infraestructura", color: "#FD6925",
+    icon: "factory",
+    contribution: en ? "CAPI-CR innovation dimension, Free Trade Zone competitiveness analysis, digital infrastructure scoring, 4 live APIs" : "Dimensión innovación CAPI-CR, análisis competitividad Zonas Francas, puntuación infraestructura digital, 4 APIs en vivo",
+    metric: en ? "10 proprietary algorithms deployed" : "10 algoritmos propietarios desplegados" },
+  { id: 10, name: en ? "Reduced Inequalities" : "Reducción de Desigualdades", color: "#DD1367",
+    icon: "chart",
+    contribution: en ? "Digital divide tracking, 5G coverage disparities (84% high-income vs 4% low-income), 2.6B offline population monitoring" : "Seguimiento brecha digital, disparidades cobertura 5G (84% altos ingresos vs 4% bajos), monitoreo 2.6B población sin conexión",
+    metric: en ? "2.6B people still offline globally" : "2.6B personas aún sin conexión global" },
+  { id: 11, name: en ? "Sustainable Cities" : "Ciudades Sostenibles", color: "#FD9D24",
+    icon: "home",
+    contribution: en ? "Smart city AI applications tracking, digital twins for urban planning intelligence, infrastructure resilience analysis" : "Seguimiento aplicaciones AI ciudades inteligentes, gemelos digitales para planificación urbana, análisis resiliencia infraestructura",
+    metric: en ? "AI-driven urban optimization insights" : "Análisis optimización urbana impulsada por AI" },
+  { id: 13, name: en ? "Climate Action" : "Acción por el Clima", color: "#3F7E44",
+    icon: "shield",
+    contribution: en ? "Energy sustainability dimension in CAPI-CR, CR's 99% renewable grid tracking, AI energy consumption monitoring, data centre impact analysis" : "Dimensión sostenibilidad energética en CAPI-CR, seguimiento red 99% renovable CR, monitoreo consumo energético AI, análisis impacto centros de datos",
+    metric: en ? "37.4B tons global emissions tracked" : "37.4B toneladas emisiones globales rastreadas" },
+  { id: 16, name: en ? "Peace, Justice & Strong Institutions" : "Paz, Justicia e Instituciones Sólidas", color: "#00689D",
+    icon: "legal",
+    contribution: en ? "AI legislation tracking across 20+ countries, regulatory gap analysis, governance framework comparisons, digital security scoring" : "Seguimiento legislación AI en 20+ países, análisis brechas regulatorias, comparación marcos gobernanza, puntuación seguridad digital",
+    metric: en ? "0 binding AI laws in Costa Rica" : "0 leyes AI vinculantes en Costa Rica" },
+  { id: 17, name: en ? "Partnerships for the Goals" : "Alianzas para los Objetivos", color: "#19486A",
+    icon: "globe",
+    contribution: en ? "Integration of 25+ international data sources, 6+ UN agency data, open methodology, CC BY-NC 4.0 license enabling reuse" : "Integración de 25+ fuentes internacionales, datos de 6+ agencias ONU, metodología abierta, licencia CC BY-NC 4.0 permitiendo reuso",
+    metric: en ? "25+ international data sources" : "25+ fuentes de datos internacionales" },
+];
+
+// ── FIVE PATHWAYS (ITU Report 1) ──
+export const FIVE_PATHWAYS = (en) => [
+  { id: "data", name: en ? "Data Quality & Access" : "Calidad y Acceso a Datos",
+    icon: "chart", color: "#2563eb",
+    desc: en ? "Accessibility, quality, and governance of datasets for AI applications" : "Accesibilidad, calidad y gobernanza de conjuntos de datos para aplicaciones AI",
+    crStatus: en ? "Moderate — limited open data infrastructure, no national data strategy" : "Moderado — infraestructura datos abiertos limitada, sin estrategia nacional de datos",
+    global: en ? "55.56% global internet usage; nearly half of countries below 50% penetration" : "55.56% uso internet global; casi la mitad de países bajo 50% penetración" },
+  { id: "infra", name: en ? "Digital Infrastructure" : "Infraestructura Digital",
+    icon: "factory", color: "#6366f1",
+    desc: en ? "Network coverage, computing capacity, edge devices, energy supply" : "Cobertura de red, capacidad computacional, dispositivos edge, suministro energético",
+    crStatus: en ? "Strong mobile broadband, weak 5G deployment, 99% renewable energy grid" : "Banda ancha móvil fuerte, despliegue 5G débil, red energética 99% renovable",
+    global: en ? "5G: 84% high-income vs 4% low-income coverage" : "5G: 84% cobertura altos ingresos vs 4% bajos ingresos" },
+  { id: "talent", name: en ? "AI Literacy & Talent" : "Alfabetización AI y Talento",
+    icon: "edu", color: "#10b981",
+    desc: en ? "Education, digital literacy, skill development, talent retention" : "Educación, alfabetización digital, desarrollo habilidades, retención talento",
+    crStatus: en ? "Strong university system, growing tech workforce, brain drain risk" : "Sistema universitario fuerte, fuerza laboral tech creciente, riesgo fuga de cerebros",
+    global: en ? "250M children out of school; 170M new AI jobs projected" : "250M niños sin escuela; 170M empleos AI nuevos proyectados" },
+  { id: "policy", name: en ? "Responsible AI Policy" : "Política AI Responsable",
+    icon: "legal", color: "#f97316",
+    desc: en ? "Governance frameworks, standards implementation, regulatory approaches" : "Marcos de gobernanza, implementación estándares, enfoques regulatorios",
+    crStatus: en ? "Zero binding AI laws — significant gap vs regional peers (Peru, El Salvador)" : "Cero leyes AI vinculantes — brecha significativa vs pares regionales (Perú, El Salvador)",
+    global: en ? "EU AI Act effective Aug 2024; Peru first LATAM AI law Jul 2023" : "Ley AI UE vigente ago 2024; Perú primera ley AI LATAM jul 2023" },
+  { id: "ecosystem", name: en ? "Digital Ecosystem" : "Ecosistema Digital",
+    icon: "algo", color: "#ec4899",
+    desc: en ? "Innovation capacity, open-source engagement, R&D investment, partnerships" : "Capacidad innovación, participación open-source, inversión I+D, alianzas",
+    crStatus: en ? "Growing FTZ tech ecosystem, limited open-source contribution, strong FDI ($4.3B)" : "Ecosistema tech ZF creciente, contribución open-source limitada, IED fuerte ($4.3B)",
+    global: en ? "Open-source engagement correlates strongly with overall AI readiness" : "Participación open-source correlaciona fuertemente con preparación AI general" },
+];
+
+// ── ITU 13 READINESS DIMENSIONS (Report 3) ──
+export const ITU_DIMENSIONS = (en) => [
+  { id: 1, factor: en ? "Data" : "Datos", dimension: en ? "Data Accessibility & Quality" : "Accesibilidad y Calidad de Datos", crScore: 0.48, globalAvg: 0.55, short: en ? "Access" : "Acceso" },
+  { id: 2, factor: en ? "Data" : "Datos", dimension: en ? "Data Service Capability & Labeling" : "Capacidad de Servicio y Etiquetado", crScore: 0.35, globalAvg: 0.45, short: en ? "Service" : "Servicio" },
+  { id: 3, factor: en ? "Data" : "Datos", dimension: en ? "Data Governance, Bias & Fairness" : "Gobernanza, Sesgo y Equidad", crScore: 0.30, globalAvg: 0.42, short: en ? "Govern." : "Gob." },
+  { id: 4, factor: en ? "Infrastructure" : "Infraestructura", dimension: en ? "Digital Infrastructure" : "Infraestructura Digital", crScore: 0.62, globalAvg: 0.58, short: en ? "Infra" : "Infra" },
+  { id: 5, factor: en ? "Skills" : "Habilidades", dimension: en ? "Skills & Education" : "Habilidades y Educación", crScore: 0.58, globalAvg: 0.50, short: en ? "Skills" : "Hab." },
+  { id: 6, factor: en ? "Innovation" : "Innovación", dimension: en ? "R&D Capacity & Innovation" : "Capacidad I+D e Innovación", crScore: 0.40, globalAvg: 0.48, short: en ? "R&D" : "I+D" },
+  { id: 7, factor: en ? "Innovation" : "Innovación", dimension: en ? "Investment Patterns" : "Patrones de Inversión", crScore: 0.32, globalAvg: 0.50, short: en ? "Invest." : "Inv." },
+  { id: 8, factor: en ? "Policy" : "Política", dimension: en ? "Policy & Governance" : "Política y Gobernanza", crScore: 0.25, globalAvg: 0.45, short: en ? "Policy" : "Política" },
+  { id: 9, factor: en ? "Ecosystem" : "Ecosistema", dimension: en ? "Ecosystem Maturity" : "Madurez del Ecosistema", crScore: 0.55, globalAvg: 0.52, short: en ? "Ecosys." : "Ecos." },
+  { id: 10, factor: en ? "Ecosystem" : "Ecosistema", dimension: en ? "Integration Capabilities" : "Capacidades de Integración", crScore: 0.45, globalAvg: 0.48, short: en ? "Integ." : "Integ." },
+  { id: 11, factor: en ? "Ecosystem" : "Ecosistema", dimension: en ? "Cross-domain Correlation" : "Correlación Inter-dominio", crScore: 0.38, globalAvg: 0.42, short: en ? "Cross" : "Inter" },
+  { id: 12, factor: en ? "Sustainability" : "Sostenibilidad", dimension: en ? "Energy Efficiency & Sustainability" : "Eficiencia Energética y Sostenibilidad", crScore: 0.82, globalAvg: 0.45, short: en ? "Energy" : "Energía" },
+  { id: 13, factor: en ? "Inclusion" : "Inclusión", dimension: en ? "Inclusion & Accessibility" : "Inclusión y Accesibilidad", crScore: 0.60, globalAvg: 0.48, short: en ? "Incl." : "Incl." },
+];
+
+// ── ITU 13 KEY FINDINGS (Report 3) ──
+export const ITU_FINDINGS = (en) => [
+  { id: 1, finding: en ? "ICT education, open-source ecosystems, and international engagement are critical for AI readiness" : "Educación TIC, ecosistemas open-source y participación internacional son críticos para preparación AI",
+    crNote: en ? "CR has strong university system but limited open-source contribution globally" : "CR tiene sistema universitario fuerte pero contribución open-source global limitada" },
+  { id: 2, finding: en ? "Strong positive correlation between national income levels and digital readiness" : "Fuerte correlación positiva entre nivel de ingresos nacional y preparación digital",
+    crNote: en ? "CR is upper-middle income — positioned to leapfrog if policy gaps are addressed" : "CR es ingreso medio-alto — posicionado para avanzar si se abordan brechas de política" },
+  { id: 3, finding: en ? "Data readiness is a critical determinant of effective, trustworthy AI" : "La preparación de datos es determinante crítico de AI efectiva y confiable",
+    crNote: en ? "CR lacks a national data strategy — key area for policy intervention" : "CR carece de estrategia nacional de datos — área clave para intervención de política" },
+  { id: 4, finding: en ? "Insufficient data quality and biased datasets risk reinforcing discrimination" : "Calidad insuficiente de datos y conjuntos sesgados arriesgan reforzar discriminación",
+    crNote: en ? "No bias audit requirements exist in CR — regulatory vacuum" : "No existen requisitos de auditoría de sesgo en CR — vacío regulatorio" },
+  { id: 5, finding: en ? "AI readiness globally is constrained by limited data scale and uneven internet penetration" : "Preparación AI global limitada por escala de datos reducida y penetración internet desigual",
+    crNote: en ? "CR has ~83% internet penetration — above LATAM average, below OECD peers" : "CR tiene ~83% penetración internet — sobre promedio LATAM, bajo pares OCDE" },
+  { id: 6, finding: en ? "Data readiness gaps are driven by service capability and governance, not access alone" : "Brechas de preparación de datos impulsadas por capacidad de servicio y gobernanza, no solo acceso",
+    crNote: en ? "Access is not CR's main issue — governance and capability are the bottlenecks" : "El acceso no es el problema principal de CR — gobernanza y capacidad son los cuellos de botella" },
+  { id: 7, finding: en ? "Basic network coverage supports entry-level AI; advanced network readiness remains uneven" : "Cobertura de red básica soporta AI inicial; preparación de red avanzada sigue desigual",
+    crNote: en ? "CR has strong 4G but limited 5G deployment — constrains advanced AI applications" : "CR tiene fuerte 4G pero despliegue 5G limitado — restringe aplicaciones AI avanzadas" },
+  { id: 8, finding: en ? "Shortfalls in computing infrastructure, energy supply, and edge devices constrain AI" : "Déficits en infraestructura computacional, suministro energético y dispositivos edge limitan AI",
+    crNote: en ? "CR's 99% renewable grid is a unique strength; computing capacity is the gap" : "Red 99% renovable de CR es fortaleza única; capacidad computacional es la brecha" },
+  { id: 9, finding: en ? "Open-source technologies lower entry barriers for AI adoption worldwide" : "Tecnologías open-source reducen barreras de entrada para adopción AI mundial",
+    crNote: en ? "Opportunity: CR can leverage open-source to offset investment limitations" : "Oportunidad: CR puede aprovechar open-source para compensar limitaciones de inversión" },
+  { id: 10, finding: en ? "Open-source engagement correlates strongly with overall readiness dimensions" : "Participación open-source correlaciona fuertemente con todas las dimensiones de preparación",
+    crNote: en ? "Increasing open-source contribution could improve multiple readiness scores" : "Aumentar contribución open-source podría mejorar múltiples puntajes de preparación" },
+  { id: 11, finding: en ? "Public investment in AI influences readiness levels significantly" : "Inversión pública en AI influye significativamente en niveles de preparación",
+    crNote: en ? "CR has minimal dedicated public AI investment — contrast with India €1.25B, UK £500M" : "CR tiene inversión pública AI mínima — contraste con India €1.25B, UK £500M" },
+  { id: 12, finding: en ? "Regional evaluation of AI readiness links to strong performance across all dimensions" : "Evaluación regional de preparación AI vinculada a buen desempeño en todas las dimensiones",
+    crNote: en ? "ILIA index positions CR below Brazil, Chile, Uruguay in regional readiness" : "Índice ILIA posiciona CR debajo de Brasil, Chile, Uruguay en preparación regional" },
+  { id: 13, finding: en ? "AI readiness encompasses technology capacity, governance, sustainability, and inclusion" : "Preparación AI abarca capacidad tecnológica, gobernanza, sostenibilidad e inclusión",
+    crNote: en ? "This observatory tracks all four pillars — positioning CR for holistic readiness" : "Este observatorio rastrea los cuatro pilares — posicionando CR para preparación holística" },
+];
+
+// ── GLOBAL AI GOVERNANCE (Report 2) ──
+export const GLOBAL_AI_GOVERNANCE = (en) => [
+  { region: en ? "Europe" : "Europa", country: en ? "European Union" : "Unión Europea", code: "EU", status: en ? "AI Act effective August 2024 — most comprehensive global framework" : "Ley AI vigente agosto 2024 — marco global más completo", category: "comprehensive", year: 2024, investment: "€200B" },
+  { region: en ? "Europe" : "Europa", country: en ? "United Kingdom" : "Reino Unido", code: "GB", status: en ? "AI Safety Institute + AI Unit with £500M funding" : "Instituto Seguridad AI + Unidad AI con £500M", category: "framework", year: 2024, investment: "£500M" },
+  { region: en ? "Europe" : "Europa", country: en ? "Germany" : "Alemania", code: "DE", status: en ? "€5B national AI investment by 2025" : "€5B inversión nacional AI para 2025", category: "investment", year: 2025, investment: "€5B" },
+  { region: en ? "Europe" : "Europa", country: en ? "France" : "Francia", code: "FR", status: en ? "CNIL updated AI recommendations; Franco-Chilean AI Center" : "CNIL actualizó recomendaciones AI; Centro AI Franco-Chileno", category: "framework", year: 2025, investment: "—" },
+  { region: en ? "Europe" : "Europa", country: en ? "Spain" : "España", code: "ES", status: en ? "AI regulatory sandbox for testing (SME focus)" : "Sandbox regulatorio AI para pruebas (enfoque PYMES)", category: "sandbox", year: 2024, investment: "—" },
+  { region: "Asia-Pacific", country: en ? "South Korea" : "Corea del Sur", code: "KR", status: en ? "AI Basic Act incorporating cybersecurity & privacy" : "Ley Básica AI incorporando ciberseguridad y privacidad", category: "enacted", year: 2025, investment: "—" },
+  { region: "Asia-Pacific", country: "India", code: "IN", status: en ? "IndiaAI Mission — sovereign AI push" : "Misión IndiaAI — impulso AI soberana", category: "mission", year: 2024, investment: "€1.25B" },
+  { region: "Asia-Pacific", country: "China", code: "CN", status: en ? "Comprehensive AI governance + massive state investment" : "Gobernanza AI integral + inversión estatal masiva", category: "comprehensive", year: 2023, investment: ">$15B" },
+  { region: en ? "Americas" : "Américas", country: en ? "Peru" : "Perú", code: "PE", status: en ? "First LATAM AI law — Ley N.° 31814 (July 2023)" : "Primera ley AI LATAM — Ley N.° 31814 (julio 2023)", category: "enacted", year: 2023, investment: "—" },
+  { region: en ? "Americas" : "Américas", country: en ? "El Salvador" : "El Salvador", code: "SV", status: en ? "National AI law passed February 2025" : "Ley nacional AI aprobada febrero 2025", category: "enacted", year: 2025, investment: "—" },
+  { region: en ? "Americas" : "Américas", country: en ? "Mexico" : "México", code: "MX", status: en ? "Developing broad AI governance framework" : "Desarrollando marco amplio de gobernanza AI", category: "developing", year: 2025, investment: "—" },
+  { region: en ? "Americas" : "Américas", country: "Chile", code: "CL", status: en ? "Updating national AI strategy; $1B+ data centre in Patagonia" : "Actualizando estrategia AI nacional; centro datos $1B+ en Patagonia", category: "updating", year: 2025, investment: "$1B+" },
+  { region: en ? "Americas" : "Américas", country: "Brasil/Brazil", code: "BR", status: en ? "Highest-ranking in LATAM; identified AI hubs" : "Mayor clasificación LATAM; hubs AI identificados", category: "advancing", year: 2025, investment: "—" },
+  { region: en ? "Americas" : "Américas", country: "Argentina", code: "AR", status: en ? "9 pending AI regulation initiatives in Congress" : "9 iniciativas regulación AI pendientes en Congreso", category: "pending", year: 2025, investment: "—" },
+  { region: en ? "Americas" : "Américas", country: "Colombia", code: "CO", status: en ? "Working toward AI law development" : "Trabajando hacia desarrollo ley AI", category: "developing", year: 2025, investment: "—" },
+  { region: en ? "Americas" : "Américas", country: "Uruguay", code: "UY", status: en ? "AI governance guidance published; regional dialogue contributor" : "Guía gobernanza AI publicada; contribuyente diálogo regional", category: "guidance", year: 2025, investment: "—" },
+  { region: en ? "Americas" : "Américas", country: "Costa Rica", code: "CR", status: en ? "No binding AI legislation — Vision 100/100 but Readiness 0.38" : "Sin legislación AI vinculante — Visión 100/100 pero Preparación 0.38", category: "none", year: 2025, investment: "Minimal" },
+];
+
+// ── AI FOR GOOD IMPACT AWARD WINNERS 2025 ──
+export const AWARD_WINNERS_2025 = (en) => [
+  { name: "CareNX — Fetosense", category: en ? "AI for People" : "AI para Personas", color: "#2563eb",
+    metric: en ? "500K+ pregnancies monitored across 6 countries, 30% reduction in NICU admissions" : "500K+ embarazos monitoreados en 6 países, 30% reducción admisiones UCIN",
+    what: en ? "AI-powered portable fetal monitoring for rural/low-resource areas" : "Monitoreo fetal portátil con AI para áreas rurales/bajos recursos",
+    partners: "UNICEF, MIT Solve" },
+  { name: "Farmer.Chat — Digital Green", category: en ? "AI for Prosperity" : "AI para Prosperidad", color: "#10b981",
+    metric: en ? "250K+ farmers in 4 countries, 24% profit increase, cost $35→$0.35 per farmer" : "250K+ agricultores en 4 países, 24% aumento ganancias, costo $35→$0.35 por agricultor",
+    what: en ? "AI chatbot delivering climate-smart agricultural advice via WhatsApp" : "Chatbot AI entregando asesoría agrícola inteligente vía WhatsApp",
+    partners: "Bill & Melinda Gates Foundation" },
+  { name: "SmartCatch — WorldFish", category: en ? "AI for Planet" : "AI para el Planeta", color: "#f59e0b",
+    metric: en ? "Deployed since 2017 across Asia & Africa, works offline on basic phones" : "Desplegado desde 2017 en Asia y África, funciona offline en teléfonos básicos",
+    what: en ? "AI image recognition for fish species/size/weight from phone photos" : "Reconocimiento de imagen AI para especie/tamaño/peso de peces desde fotos",
+    partners: "CGIAR, FAO" },
+];
+
+// ── OBSERVATORY IMPACT METRICS ──
+export const OBSERVATORY_IMPACT = {
+  countries: 20, algorithms: 10, dataSources: 25, glossaryTerms: 55,
+  liveApis: 4, languages: 2, uptime: "24/7",
+  sdgsAligned: 8, unAgencies: 6, riskDimensions: 3,
+  analysisViews: 19, wefRiskHorizons: 3,
+};
+
+// ── AI TRAJECTORY (Report 2) ──
+export const AI_TRAJECTORY = (en) => [
+  { phase: en ? "Generative AI" : "AI Generativa", status: en ? "Current" : "Actual", year: "2022-now", color: "#2563eb",
+    desc: en ? "Text, image, code generation. ChatGPT, Claude, Midjourney. Transforming content creation and knowledge work." : "Generación de texto, imagen, código. ChatGPT, Claude, Midjourney. Transformando creación de contenido y trabajo del conocimiento." },
+  { phase: en ? "Agentic AI" : "AI Agéntica", status: en ? "Emerging" : "Emergente", year: "2025-27", color: "#6366f1",
+    desc: en ? "Autonomous AI agents that plan, execute, and adapt. Multi-step reasoning, tool use, self-correction." : "Agentes AI autónomos que planifican, ejecutan y adaptan. Razonamiento multi-paso, uso de herramientas, auto-corrección." },
+  { phase: en ? "Sovereign AI" : "AI Soberana", status: en ? "Growing" : "Creciente", year: "2024-30", color: "#f97316",
+    desc: en ? "Nations building domestic AI infrastructure and capabilities. Data sovereignty, local compute, national strategies." : "Naciones construyendo infraestructura y capacidades AI domésticas. Soberanía de datos, cómputo local, estrategias nacionales." },
+  { phase: "Quantum AI", status: en ? "Frontier" : "Frontera", year: "2027+", color: "#ec4899",
+    desc: en ? "Quantum computing accelerating AI training and inference. Could solve currently intractable optimization problems." : "Computación cuántica acelerando entrenamiento e inferencia AI. Podría resolver problemas de optimización actualmente intratables." },
+  { phase: en ? "Artificial General Intelligence" : "Inteligencia General Artificial", status: en ? "Theoretical" : "Teórico", year: "2030+?", color: "#ef4444",
+    desc: en ? "AI matching human-level reasoning across all domains. Timeline debated; governance frameworks needed before arrival." : "AI igualando razonamiento humano en todos los dominios. Cronología debatida; marcos de gobernanza necesarios antes de su llegada." },
+];
+
+// ── CAPI-CR TO ITU MAPPING ──
+export const CAPI_ITU_MAPPING = (en) => [
+  { capiDim: en ? "Digital Infrastructure" : "Infraestructura Digital", ituDims: [4], coverage: en ? "Direct match" : "Coincidencia directa" },
+  { capiDim: en ? "Human Capital" : "Capital Humano", ituDims: [5], coverage: en ? "Direct match" : "Coincidencia directa" },
+  { capiDim: en ? "Innovation" : "Innovación", ituDims: [6, 7, 9], coverage: en ? "Maps to R&D, Investment, Ecosystem" : "Mapea a I+D, Inversión, Ecosistema" },
+  { capiDim: en ? "AI Regulation" : "Regulación AI", ituDims: [3, 8], coverage: en ? "Maps to Data Governance + Policy" : "Mapea a Gobernanza Datos + Política" },
+  { capiDim: en ? "Sustainable Energy" : "Energía Sostenible", ituDims: [12], coverage: en ? "Direct match" : "Coincidencia directa" },
+  { capiDim: en ? "Digital Security" : "Seguridad Digital", ituDims: [10, 11], coverage: en ? "Maps to Integration + Cross-domain" : "Mapea a Integración + Inter-dominio" },
+];

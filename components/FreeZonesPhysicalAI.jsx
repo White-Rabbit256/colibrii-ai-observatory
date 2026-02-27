@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LineChart, Line, Treemap } from "recharts";
-import { Card, SH, Tag, Ci, Lnk, Grid, AN, ScrollReveal, Stat, MiniStat, fadeUp, stagger } from "./ui";
+import { Card, SH, Tag, Ci, Lnk, Grid, AN, ScrollReveal, Stat, MiniStat, Flag, fadeUp, stagger } from "./ui";
 import { FZ_DEEP, PAI_NEWS } from "./data";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -40,7 +40,7 @@ export function ZF({ en, t, dark }) {
       <ScrollReveal>
         <Card accent={t.rd} style={{ marginBottom: 20, background: `${t.rd}06` }}>
           <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-            <span style={{ fontSize: 20 }}>⚠️</span>
+            <span style={{ fontSize: 20, lineHeight: 1, marginTop: 2, flexShrink: 0 }}>⚠️</span>
             <div>
               <div style={{ fontSize: 14, fontWeight: 700, color: t.rd, marginBottom: 4 }}>
                 {en ? "WEF: 41% of Employers Plan Workforce Reductions by 2030" : "WEF: 41% de Empleadores Planean Reducir Fuerza Laboral para 2030"}
@@ -99,18 +99,19 @@ export function ZF({ en, t, dark }) {
       <Card>
         <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.gn, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 10 }}>{en ? "INVESTMENT SIGNALS" : "SEÑALES DE INVERSIÓN"}</div>
         {[
-          { s: en ? "Intel $1.2B back-end semiconductor expansion" : "Intel $1.2B expansión semiconductores back-end", y: "2024", c: t.cy },
+          { s: en ? "CINDE: 67 FDI projects in 2025 (19 new + 48 reinvestments)" : "CINDE: 67 proyectos IED en 2025 (19 nuevos + 48 reinversiones)", y: "2025", c: t.cy },
           { s: en ? "IBM 24/7 security center from CR (320+ staff, 130 countries)" : "Centro seguridad IBM 24/7 desde CR (320+ personas, 130 países)", y: "2024", c: t.vi },
-          { s: en ? "Establishment Labs: AI-powered breast implant quality control" : "Establishment Labs: control calidad implantes con AI", y: "2025", c: t.gn },
-          { s: en ? "Microsoft $1B LATAM AI investment (potential CR benefit)" : "Microsoft $1B inversión AI LATAM (beneficio potencial CR)", y: "2025", c: t.pk },
-          { s: en ? "Amazon AWS CR data center expansion" : "Amazon AWS expansión data center CR", y: "2024-25", c: t.am }
+          { s: en ? "3M Global Service Center: 1,400 employees, AI & automation hub" : "3M Centro Servicios Global: 1,400 empleados, hub AI y automatización", y: "2025", c: t.gn },
+          { s: en ? "HPE: 40 patents developed in CR — global innovation hub" : "HPE: 40 patentes desarrolladas en CR — hub innovación global", y: "2025", c: t.pk },
+          { s: en ? "Microsoft $1B LATAM AI investment (potential CR benefit)" : "Microsoft $1B inversión AI LATAM (beneficio potencial CR)", y: "2025", c: t.am },
+          { s: en ? "Establishment Labs: AI-powered medical device quality control" : "Establishment Labs: control calidad dispositivos médicos con AI", y: "2025", c: t.gn }
         ].map((sig, i) => (
-          <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: i < 4 ? `1px solid ${t.bd}` : "none" }}>
-            <span style={{ fontSize: 13, color: t.tx }}>{sig.s}</span>
+          <div key={i} style={{ display: "flex", gap: 10, alignItems: "center", padding: "8px 0", borderBottom: i < 5 ? `1px solid ${t.bd}` : "none" }}>
+            <span style={{ fontSize: 13, color: t.tx, flex: 1 }}>{sig.s}</span>
             <Tag color={sig.c}>{sig.y}</Tag>
           </div>
         ))}
-        <Ci s="CINDE, PROCOMER, Company Reports" />
+        <Ci s="CINDE 2025, PROCOMER, HPE, 3M, Company Reports" />
       </Card>
 
       {/* ── FDI Projections Chart ── */}
@@ -194,29 +195,35 @@ export function ZF({ en, t, dark }) {
             <summary style={{ cursor: "pointer", fontWeight: 600, fontSize: 13, color: t.tx2, marginBottom: 10 }}>
               {en ? "Expand comparison table" : "Expandir tabla comparativa"}
             </summary>
-            <div style={{ overflowX: "auto" }}>
-              <table className="data-table">
+            <div className="scroll-hint">
+              <span>{en ? "Swipe to see full table" : "Desliza para ver tabla completa"}</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+            </div>
+            <div className="table-scroll-wrapper">
+              <table className="data-table data-table-fz">
                 <thead>
                   <tr>
-                    <th>{en ? "Country" : "Pais"}</th>
+                    <th>{en ? "Country" : "País"}</th>
                     <th>{en ? "Cost" : "Costo"}</th>
                     <th>{en ? "Talent" : "Talento"}</th>
-                    <th>{en ? "Infra" : "Infra"}</th>
+                    <th>Infra</th>
                     <th>{en ? "Stability" : "Estabilidad"}</th>
-                    <th>{en ? "Energy" : "Energia"}</th>
+                    <th>{en ? "Green Energy" : "Energía Verde"}</th>
                     <th>{en ? "AI Ready" : "AI Listo"}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {FZ_DEEP(en).competitiveness.map((row, i) => (
                     <tr key={i} style={i === 0 ? { background: `${t.cy}10` } : {}}>
-                      <td style={{ fontWeight: i === 0 ? 700 : 400, color: i === 0 ? t.cy : t.tx }}>{row.country}</td>
-                      <td style={{ fontSize: 12 }}>{row.cost}</td>
-                      <td style={{ fontSize: 12 }}>{row.talent}</td>
-                      <td style={{ fontSize: 12 }}>{row.infra}</td>
-                      <td style={{ fontSize: 12 }}>{row.stability}</td>
-                      <td style={{ fontSize: 12 }}>{row.energy}</td>
-                      <td style={{ fontSize: 12 }}><Tag color={row.aiReady.includes("Low") || row.aiReady.includes("Bajo") ? t.rd : t.am}>{row.aiReady}</Tag></td>
+                      <td style={{ whiteSpace: "nowrap", fontWeight: i === 0 ? 700 : 400, color: i === 0 ? t.cy : t.tx }}>
+                        <Flag code={row.flag} size={16} style={{ marginRight: 4, verticalAlign: "middle" }} />{row.country}
+                      </td>
+                      <td style={{ whiteSpace: "nowrap" }}>{row.cost}</td>
+                      <td style={{ whiteSpace: "nowrap" }}>{row.talent}</td>
+                      <td style={{ whiteSpace: "nowrap" }}>{row.infra}</td>
+                      <td style={{ whiteSpace: "nowrap" }}>{row.stability}</td>
+                      <td style={{ whiteSpace: "nowrap", fontFamily: "'IBM Plex Mono',monospace", fontWeight: 600 }}>{row.energy}</td>
+                      <td style={{ whiteSpace: "nowrap", fontWeight: 700, color: row.aiReady.includes("Low") || row.aiReady.includes("Bajo") ? t.rd : row.aiReady.includes("Med") || row.aiReady.includes("Medio") ? t.am : t.gn }}>{row.aiReady}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -269,8 +276,8 @@ export function ZF({ en, t, dark }) {
               {en ? "8 competitive advantages" : "8 ventajas competitivas"}
             </summary>
             {FZ_DEEP(en).whyInvest.map((item, i) => (
-              <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "8px 0", borderBottom: i < FZ_DEEP(en).whyInvest.length - 1 ? `1px solid ${t.bd}` : "none" }}>
-                <Tag color={t.gn}>{item.reason}</Tag>
+              <div key={i} style={{ padding: "8px 0", borderBottom: i < FZ_DEEP(en).whyInvest.length - 1 ? `1px solid ${t.bd}` : "none" }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: t.gn, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 2 }}>{item.reason}</div>
                 <span style={{ fontSize: 13, color: t.tx2, lineHeight: 1.6 }}>{item.desc}</span>
               </div>
             ))}
@@ -428,7 +435,7 @@ export function PAI({ en, t, dark }) {
           {en ? "REAL HUMANOID DEPLOYMENTS" : "DESPLIEGUES HUMANOIDES REALES"}
         </div>
         <div style={{ overflowX: "auto" }}>
-          <table className="data-table">
+          <table className="data-table data-table-humanoid">
             <thead>
               <tr>
                 <th>{en ? "Robot" : "Robot"}</th>
@@ -439,18 +446,18 @@ export function PAI({ en, t, dark }) {
             </thead>
             <tbody>
               {[
-                { r: "Optimus", co: "Tesla", s: en ? "Manufacturing" : "Manufactura", sc: en ? "12 at Fremont" : "12 en Fremont" },
+                { r: "Optimus", co: "Tesla", s: en ? "Manuf." : "Manuf.", sc: en ? "12 at Fremont" : "12 en Fremont" },
                 { r: "Figure 02", co: "Figure AI", s: en ? "Warehouse" : "Almacén", sc: "BMW" },
-                { r: "Atlas", co: "Boston Dynamics", s: en ? "Industrial" : "Industrial", sc: "Hyundai" },
+                { r: "Atlas", co: "Boston D.", s: en ? "Industrial" : "Industrial", sc: "Hyundai" },
                 { r: "Digit", co: "Agility", s: en ? "Logistics" : "Logística", sc: "Amazon" },
-                { r: "1X NEO", co: "1X Technologies", s: en ? "Home/Office" : "Hogar/Oficina", sc: en ? "2026 pilot" : "Piloto 2026" },
-                { r: "Phoenix", co: "Sanctuary AI", s: en ? "Retail" : "Retail", sc: "Magna" },
+                { r: "1X NEO", co: "1X Tech", s: en ? "Home" : "Hogar", sc: en ? "2026 pilot" : "Piloto 2026" },
+                { r: "Phoenix", co: "Sanctuary", s: "Retail", sc: "Magna" },
               ].map((d, i) => (
                 <tr key={i}>
-                  <td style={{ fontWeight: 600 }}>{d.r}</td>
-                  <td style={{ color: t.tx2 }}>{d.co}</td>
-                  <td>{d.s}</td>
-                  <td><Tag color={t.vi}>{d.sc}</Tag></td>
+                  <td style={{ fontWeight: 600, whiteSpace: "nowrap" }}>{d.r}</td>
+                  <td style={{ color: t.tx2, whiteSpace: "nowrap" }}>{d.co}</td>
+                  <td style={{ whiteSpace: "nowrap" }}>{d.s}</td>
+                  <td style={{ whiteSpace: "nowrap", color: t.vi, fontWeight: 600 }}>{d.sc}</td>
                 </tr>
               ))}
             </tbody>
@@ -465,30 +472,30 @@ export function PAI({ en, t, dark }) {
           {en ? "LABOR TRANSITION SCENARIOS (CR)" : "ESCENARIOS TRANSICIÓN LABORAL (CR)"}
         </div>
         <div style={{ overflowX: "auto" }}>
-          <table className="data-table">
+          <table className="data-table data-table-labor">
             <thead>
               <tr>
                 <th>{en ? "Sector" : "Sector"}</th>
                 <th>IVAS</th>
-                <th>{en ? "Jobs at Risk" : "Empleos en Riesgo"}</th>
-                <th>{en ? "Timeline" : "Horizonte"}</th>
+                <th>{en ? "Risk" : "Riesgo"}</th>
+                <th>{en ? "When" : "Cuándo"}</th>
                 <th>{en ? "Transition" : "Transición"}</th>
               </tr>
             </thead>
             <tbody>
               {[
-                { s: "Call centers", v: "85/100", j: "~12K", tl: "2025-27", tr: en ? "AI-augmented agents, QA roles" : "Agentes AI-aumentados, roles QA" },
-                { s: en ? "Digital services" : "Servicios digitales", v: "78/100", j: "~16K", tl: "2025-28", tr: en ? "AI + human hybrid services" : "Servicios híbridos AI + humano" },
-                { s: en ? "Back office" : "Back office", v: "72/100", j: "~8K", tl: "2026-29", tr: en ? "Process automation supervisors" : "Supervisores automatización procesos" },
-                { s: en ? "Electronics" : "Electrónica", v: "62/100", j: "~5K", tl: "2027-30", tr: en ? "Robot-human collaboration" : "Colaboración robot-humano" },
-                { s: en ? "Medical devices" : "Disp. médicos", v: "45/100", j: "~3K", tl: "2028-32", tr: en ? "AI quality, regulatory AI" : "AI calidad, AI regulatorio" }
+                { s: "Call centers", v: "85", j: "~12K", tl: "25-27", tr: en ? "AI-augmented agents" : "Agentes AI-aumentados" },
+                { s: en ? "Digital svcs" : "Svcs digitales", v: "78", j: "~16K", tl: "25-28", tr: en ? "AI+human hybrid" : "Híbrido AI+humano" },
+                { s: "Back office", v: "72", j: "~8K", tl: "26-29", tr: en ? "Automation supervisors" : "Supervisores autom." },
+                { s: en ? "Electronics" : "Electrónica", v: "62", j: "~5K", tl: "27-30", tr: en ? "Robot-human collab" : "Colab. robot-humano" },
+                { s: en ? "Med. devices" : "Disp. médicos", v: "45", j: "~3K", tl: "28-32", tr: en ? "AI quality/regulatory" : "AI calidad/regulat." }
               ].map((r, i) => (
                 <tr key={i}>
-                  <td style={{ fontWeight: 600 }}>{r.s}</td>
+                  <td style={{ fontWeight: 600, whiteSpace: "nowrap" }}>{r.s}</td>
                   <td style={{ fontFamily: "'IBM Plex Mono',monospace", color: parseInt(r.v) >= 70 ? t.rd : parseInt(r.v) >= 50 ? t.am : t.gn, fontWeight: 700 }}>{r.v}</td>
-                  <td style={{ color: t.rd }}>{r.j}</td>
-                  <td style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 12 }}>{r.tl}</td>
-                  <td style={{ fontSize: 12, color: t.tx2 }}>{r.tr}</td>
+                  <td style={{ color: t.rd, whiteSpace: "nowrap" }}>{r.j}</td>
+                  <td style={{ fontFamily: "'IBM Plex Mono',monospace", whiteSpace: "nowrap" }}>{r.tl}</td>
+                  <td style={{ color: t.tx2, whiteSpace: "nowrap" }}>{r.tr}</td>
                 </tr>
               ))}
             </tbody>

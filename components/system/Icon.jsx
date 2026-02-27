@@ -193,6 +193,11 @@ const ICONS = {
       <circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none" />
     </>
   ),
+  linkedin: (
+    <>
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" fill="currentColor" stroke="none" />
+    </>
+  ),
   mail: (
     <>
       <rect x="2" y="4" width="20" height="16" rx="2" fill="none" stroke="currentColor" strokeWidth={1.8} />
@@ -215,6 +220,59 @@ const ICONS = {
     <>
       {P("M23 7l-7 5 7 5V7z")}
       {P("M14 5H3a2 2 0 00-2 2v10a2 2 0 002 2h11a2 2 0 002-2V7a2 2 0 00-2-2z")}
+    </>
+  ),
+  star: (
+    <>
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.27 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2z" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinejoin="round" />
+    </>
+  ),
+  radar: (
+    <>
+      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth={1.2} opacity={0.3} />
+      <circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" strokeWidth={1.2} opacity={0.3} />
+      {P("M12 3v18")}
+      {P("M3 12h18")}
+      {P("M5.64 5.64l12.73 12.73")}
+      {P("M18.36 5.64L5.64 18.36")}
+    </>
+  ),
+  /* ── Sectoral IMPACT icons (AI for Good) ── */
+  leaf: (
+    <>
+      {P("M17 8C8 10 5.9 16.09 3.82 21.18")}
+      {P("M3.82 21.18L12 13")}
+      <path d="M17 8c4-1 6-4 6-4s-3-1-6 1-7.5 5.5-9.18 13.18" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+    </>
+  ),
+  heart: (
+    <>
+      <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinejoin="round" />
+    </>
+  ),
+  city: (
+    <>
+      {P("M3 21h18")}
+      <rect x="5" y="7" width="6" height="14" rx="1" fill="none" stroke="currentColor" strokeWidth={1.8} />
+      <rect x="13" y="3" width="6" height="18" rx="1" fill="none" stroke="currentColor" strokeWidth={1.8} />
+      {P("M7 10h2")}
+      {P("M7 13h2")}
+      {P("M7 16h2")}
+      {P("M15 6h2")}
+      {P("M15 9h2")}
+      {P("M15 12h2")}
+      {P("M15 15h2")}
+    </>
+  ),
+  wheat: (
+    <>
+      {P("M12 21V10")}
+      {P("M12 10C9 7 4 6 4 6s2 4 5 6")}
+      {P("M12 10c3-3 8-4 8-4s-2 4-5 6")}
+      {P("M12 14C9 11 4 10 4 10s2 4 5 6")}
+      {P("M12 14c3-3 8-4 8-4s-2 4-5 6")}
+      {P("M12 18C9 15 4 14 4 14s2 4 5 6")}
+      {P("M12 18c3-3 8-4 8-4s-2 4-5 6")}
     </>
   ),
 };

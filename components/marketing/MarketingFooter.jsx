@@ -20,19 +20,28 @@ export function MarketingFooter({ en }) {
           </div>
           <div className="mkt-footer-tagline">{FACTS.tagline}</div>
           <div className="mkt-footer-founder">
-            {en ? "Founded by" : "Fundado por"} {FACTS.founder}
+            <a href={FACTS.founderLinkedin} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "none", borderBottom: "1px dotted var(--mkt-text3)" }}>
+              {FACTS.founder}
+            </a>
+            {" — "}{en ? FACTS.founderRole : "Fundador"}
+          </div>
+          <div className="mkt-footer-founder">
+            <a href={FACTS.cofounderLinkedin} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "none", borderBottom: "1px dotted var(--mkt-text3)" }}>
+              {FACTS.cofounder}
+            </a>
+            {" — "}{en ? FACTS.cofounderRole : "CEO & Cofundadora"}
           </div>
           <a href={`mailto:${FACTS.email}`} className="mkt-footer-email">{FACTS.email}</a>
           {/* Social Media */}
           <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
-            <a href="https://x.com/ColibriilLabs" target="_blank" rel="noopener noreferrer" style={{ color: "var(--mkt-text3)", transition: "color 0.2s" }} title="X (Twitter) — Coming Soon">
+            <a href={FACTS.founderX} target="_blank" rel="noopener noreferrer" style={{ color: "var(--mkt-text3)", transition: "color 0.2s" }} title="X — @ColibriiLabs">
               <Icon name="twitter" size={16} />
-            </a>
-            <a href="https://instagram.com/colibriilabs" target="_blank" rel="noopener noreferrer" style={{ color: "var(--mkt-text3)", transition: "color 0.2s" }} title="Instagram — Coming Soon">
-              <Icon name="instagram" size={16} />
             </a>
             <a href="https://www.tiktok.com/@colibrii.labs" target="_blank" rel="noopener noreferrer" style={{ color: "var(--mkt-text3)", transition: "color 0.2s" }} title="TikTok — @colibrii.labs">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.11V9.02a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V8.75a8.18 8.18 0 004.76 1.51V6.82a4.83 4.83 0 01-1-.13z"/></svg>
+            </a>
+            <a href={FACTS.founderLinkedin} target="_blank" rel="noopener noreferrer" style={{ color: "var(--mkt-text3)", transition: "color 0.2s" }} title="LinkedIn">
+              <Icon name="linkedin" size={16} />
             </a>
             <a href={`mailto:${FACTS.email}`} style={{ color: "var(--mkt-text3)", transition: "color 0.2s" }} title={FACTS.email}>
               <Icon name="mail" size={16} />
@@ -55,9 +64,9 @@ export function MarketingFooter({ en }) {
           </div>
           <div className="mkt-footer-col">
             <div className="mkt-footer-col-title">{en ? "Connect" : "Conectar"}</div>
-            <a href="https://x.com/ColibriilLabs" target="_blank" rel="noopener noreferrer">X / Twitter</a>
-            <a href="https://instagram.com/colibriilabs" target="_blank" rel="noopener noreferrer">Instagram</a>
+            <a href={FACTS.founderX} target="_blank" rel="noopener noreferrer">X / Twitter</a>
             <a href="https://www.tiktok.com/@colibrii.labs" target="_blank" rel="noopener noreferrer">TikTok</a>
+            <a href={FACTS.founderLinkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
             <a href={`mailto:${FACTS.email}`}>{FACTS.email}</a>
           </div>
         </div>

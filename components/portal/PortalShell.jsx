@@ -1,23 +1,45 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { AnimatePresence } from "framer-motion";
 import { TH, TH_DARK, CO, CC, IND_MAP, CUR, GOV, DM, TABS, PARTNERS, cacheGet, cacheSet, mm, av, sco, sla } from "../data";
 import { LoadCard, Grid, TabContent } from "../ui";
-import { Home } from "../HomeView";
-import { Idx, Compare } from "../IndexCompareViews";
-import { Countries } from "../CountryProfiles";
-import { Simulator } from "../PolicySimulator";
-import { ZF, PAI } from "../FreeZonesPhysicalAI";
-import { Algo, SecTab, Leg } from "../AlgoSecurityLeg";
-import { Edu, Glos, Abt } from "../EduGlossaryAbout";
-import { Pymes } from "../PymesAI";
-import { MediaIntelligence } from "../MediaIntelligence";
+/* ── Lazy-loaded tab views (reduces initial JS bundle) ── */
+const Home = dynamic(() => import("../HomeView").then(m => ({ default: m.Home })), { loading: () => <LoadCard d={0.02} /> });
+const Algo = dynamic(() => import("../AlgoSecurityLeg").then(m => ({ default: m.Algo })), { loading: () => <LoadCard d={0.02} /> });
+const SecTab = dynamic(() => import("../AlgoSecurityLeg").then(m => ({ default: m.SecTab })), { loading: () => <LoadCard d={0.02} /> });
+const Leg = dynamic(() => import("../AlgoSecurityLeg").then(m => ({ default: m.Leg })), { loading: () => <LoadCard d={0.02} /> });
+const Edu = dynamic(() => import("../EduGlossaryAbout").then(m => ({ default: m.Edu })), { loading: () => <LoadCard d={0.02} /> });
+const Glos = dynamic(() => import("../EduGlossaryAbout").then(m => ({ default: m.Glos })), { loading: () => <LoadCard d={0.02} /> });
+const Abt = dynamic(() => import("../EduGlossaryAbout").then(m => ({ default: m.Abt })), { loading: () => <LoadCard d={0.02} /> });
+const Pymes = dynamic(() => import("../PymesAI").then(m => ({ default: m.Pymes })), { loading: () => <LoadCard d={0.02} /> });
+const MediaView = dynamic(() => import("../MediaIntelligence").then(m => ({ default: m.MediaIntelligence })), { loading: () => <LoadCard d={0.02} /> });
 import { PortalSidebar } from "./PortalSidebar";
 import { BottomNav } from "./BottomNav";
-import { IndicatorDrawer } from "./IndicatorDrawer";
+const IndicatorDrawer = dynamic(() => import("./IndicatorDrawer").then(m => ({ default: m.IndicatorDrawer })), { ssr: false });
 import { Icon } from "../system/Icon";
 import { FACTS } from "../../data/facts";
+
+/* ── Lazy-loaded heavy components (recharts / react-simple-maps) ── */
+const IdxCompare = dynamic(() => import("../IndexCompareViews").then(m => ({ default: m.Idx })), { loading: () => <LoadCard d={0.02} /> });
+const CompareView = dynamic(() => import("../IndexCompareViews").then(m => ({ default: m.Compare })), { loading: () => <LoadCard d={0.02} /> });
+const Countries = dynamic(() => import("../CountryProfiles").then(m => ({ default: m.Countries })), { loading: () => <LoadCard d={0.02} /> });
+const Simulator = dynamic(() => import("../PolicySimulator").then(m => ({ default: m.Simulator })), { loading: () => <LoadCard d={0.02} /> });
+const ZF = dynamic(() => import("../FreeZonesPhysicalAI").then(m => ({ default: m.ZF })), { loading: () => <LoadCard d={0.02} /> });
+const PAI = dynamic(() => import("../FreeZonesPhysicalAI").then(m => ({ default: m.PAI })), { loading: () => <LoadCard d={0.02} /> });
+
+/* ── Lazy-loaded IMPACT tabs (UN/ITU/SDG) ── */
+const SDGView = dynamic(() => import("../SDGAIForGood").then(m => ({ default: m.SDG })), { loading: () => <LoadCard d={0.02} /> });
+const ReadinessView = dynamic(() => import("../ITUReadiness").then(m => ({ default: m.Readiness })), { loading: () => <LoadCard d={0.02} /> });
+const GovernanceView = dynamic(() => import("../GlobalGovernance").then(m => ({ default: m.Governance })), { loading: () => <LoadCard d={0.02} /> });
+const ShowcaseView = dynamic(() => import("../ImpactShowcase").then(m => ({ default: m.Showcase })), { loading: () => <LoadCard d={0.02} /> });
+
+/* ── Lazy-loaded SECTORAL IMPACT tabs (AI for Good Report) ── */
+const FoodView = dynamic(() => import("../FoodSecurity").then(m => ({ default: m.FoodSecurity })), { loading: () => <LoadCard d={0.02} /> });
+const HealthView = dynamic(() => import("../HealthAI").then(m => ({ default: m.HealthAI })), { loading: () => <LoadCard d={0.02} /> });
+const InfraView = dynamic(() => import("../InfraSmartCities").then(m => ({ default: m.InfraSmartCities })), { loading: () => <LoadCard d={0.02} /> });
+const ClimateView = dynamic(() => import("../EnvironmentalAI").then(m => ({ default: m.EnvironmentalAI })), { loading: () => <LoadCard d={0.02} /> });
 
 /* ═══════════════════════════════════════════════════════════════
    COLIBRII LABS — Portal Shell v17
@@ -26,7 +48,7 @@ import { FACTS } from "../../data/facts";
    ═══════════════════════════════════════════════════════════════ */
 
 const WB = "https://api.worldbank.org/v2/country";
-const GDELT_URL = "https://api.gdeltproject.org/api/v2/doc/doc?query=%22artificial+intelligence%22+%22costa+rica%22&mode=artlist&maxrecords=24&format=json&sort=datedesc&timespan=72h";
+const GDELT_URL = "https://api.gdeltproject.org/api/v2/doc/doc?query=%22artificial+intelligence%22+%22costa+rica%22&mode=artlist&maxrecords=24&format=json&sort=datedesc&timespan=7d";
 const XR_URL = "https://open.er-api.com/v6/latest/USD";
 
 export default function PortalShell() {
@@ -41,33 +63,38 @@ export default function PortalShell() {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [xr, setXr] = useState(null);
-  const [govData] = useState(GOV);
+  const govData = GOV;
   const [mobileNav, setMobileNav] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerIndicator, setDrawerIndicator] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState(null);
+  const [dataWarning, setDataWarning] = useState(null);
 
   /* ── THEME TOKENS ── */
   const t = dark ? TH_DARK : TH;
 
-  /* ── DARK MODE ── */
+  /* ── INIT (single mount effect: language + theme + scroll listener) ── */
   useEffect(() => {
-    const saved = typeof window !== "undefined" && localStorage.getItem("clb_theme");
-    if (saved === "dark") setDark(true);
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
-    localStorage.setItem("clb_theme", dark ? "dark" : "light");
-  }, [dark]);
-
-  /* ── SCROLL-TO-TOP ── */
-  useEffect(() => {
+    const sLang = typeof window !== "undefined" && localStorage.getItem("clb_lang");
+    if (sLang === "en") setEn(true);
+    const sTheme = typeof window !== "undefined" && localStorage.getItem("clb_theme");
+    if (sTheme === "dark") setDark(true);
     const onScroll = () => setShowScrollTop(window.scrollY > 300);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  /* ── LANGUAGE PERSISTENCE ── */
+  useEffect(() => {
+    localStorage.setItem("clb_lang", en ? "en" : "es");
+  }, [en]);
+
+  /* ── DARK MODE PERSISTENCE ── */
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+    localStorage.setItem("clb_theme", dark ? "dark" : "light");
+  }, [dark]);
 
   /* ── SCROLL RESET ON TAB CHANGE ── */
   useEffect(() => {
@@ -153,6 +180,12 @@ export default function PortalShell() {
       setCrR(crIdx >= 0 ? crIdx + 1 : null);
       setNews(gdeltRes.status === "fulfilled" ? gdeltRes.value : []);
       setXr(xrRes.status === "fulfilled" ? xrRes.value : null);
+      const failures = [
+        wbRes.status !== "fulfilled" || !wbRes.value || Object.keys(wbRes.value).length === 0 ? "World Bank" : null,
+        gdeltRes.status !== "fulfilled" ? "GDELT News" : null,
+        xrRes.status !== "fulfilled" ? "Exchange Rate" : null,
+      ].filter(Boolean);
+      if (failures.length > 0) setDataWarning(failures);
       setLoading(false);
     })();
   }, [fetchWB, fetchGDELT, fetchXR]);
@@ -166,11 +199,28 @@ export default function PortalShell() {
 
   /* ── RENDER TAB ── */
   const renderTab = () => {
+    if (loading) return (
+      <div>
+        <div style={{ marginBottom: 24 }}>
+          <div className="skeleton" style={{ width: 120, height: 10, marginBottom: 8 }} />
+          <div className="skeleton" style={{ width: "70%", height: 24, marginBottom: 8 }} />
+          <div className="skeleton" style={{ width: "90%", height: 14, marginBottom: 4 }} />
+          <div className="skeleton" style={{ width: "60%", height: 14 }} />
+        </div>
+        <Grid cols="repeat(auto-fit,minmax(200px,1fr))" gap={16}>
+          {[1, 2, 3, 4, 5, 6].map(i => <LoadCard key={i} />)}
+        </Grid>
+        <div style={{ marginTop: 24 }}>
+          <div className="skeleton" style={{ width: 100, height: 10, marginBottom: 8 }} />
+          <div className="skeleton" style={{ width: "100%", height: 200, borderRadius: 12 }} />
+        </div>
+      </div>
+    );
     switch (tab) {
       case "home": return <Home {...tp} />;
-      case "media": return <MediaIntelligence {...tp} />;
-      case "idx": return <Idx {...tp} />;
-      case "cmp": return <Compare {...tp} />;
+      case "media": return <MediaView {...tp} />;
+      case "idx": return <IdxCompare {...tp} />;
+      case "cmp": return <CompareView {...tp} />;
       case "countries": return <Countries {...tp} />;
       case "sim": return <Simulator {...tp} />;
       case "zf": return <ZF {...tp} />;
@@ -182,22 +232,19 @@ export default function PortalShell() {
       case "edu": return <Edu {...tp} />;
       case "glos": return <Glos {...tp} />;
       case "about": return <Abt {...tp} />;
+      /* ── IMPACT tabs (UN/ITU/SDG) ── */
+      case "sdg": return <SDGView {...tp} />;
+      case "readiness": return <ReadinessView {...tp} />;
+      case "governance": return <GovernanceView {...tp} />;
+      case "showcase": return <ShowcaseView {...tp} />;
+      /* ── SECTORAL IMPACT tabs (AI for Good Report) ── */
+      case "food": return <FoodView {...tp} />;
+      case "health": return <HealthView {...tp} />;
+      case "infra": return <InfraView {...tp} />;
+      case "climate": return <ClimateView {...tp} />;
       default: return <Home {...tp} />;
     }
   };
-
-  /* ── LOADING STATE ── */
-  if (loading) return (
-    <div style={{ maxWidth: 900, margin: "0 auto", padding: "80px 20px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 40 }}>
-        <div className="skeleton" style={{ width: 32, height: 32, borderRadius: "50%" }} />
-        <div className="skeleton" style={{ width: 200, height: 20 }} />
-      </div>
-      <Grid cols="repeat(auto-fit,minmax(200px,1fr))" gap={16}>
-        {[1, 2, 3, 4, 5, 6].map(i => <LoadCard key={i} />)}
-      </Grid>
-    </div>
-  );
 
   return (
     <div className="portal-layout">
@@ -255,6 +302,15 @@ export default function PortalShell() {
           </div>
         </div>
 
+        {/* ── DATA WARNING BANNER ── */}
+        {dataWarning && (
+          <div style={{ padding: "8px 16px", background: dark ? "#422006" : "#fffbeb", borderBottom: `1px solid ${dark ? "#854d0e" : "#fde68a"}`, display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: dark ? "#fbbf24" : "#92400e" }}>
+            <span>⚠️</span>
+            <span>{en ? `Some data sources are temporarily unavailable (${dataWarning.join(", ")}). Showing cached or partial data.` : `Algunas fuentes de datos no disponibles temporalmente (${dataWarning.join(", ")}). Mostrando datos en caché o parciales.`}</span>
+            <button onClick={() => setDataWarning(null)} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", fontSize: 14, color: "inherit", padding: 4 }}>×</button>
+          </div>
+        )}
+
         {/* ── MAIN CONTENT ── */}
         <main id="main-content" className="portal-content">
           <AnimatePresence mode="wait">
@@ -267,7 +323,7 @@ export default function PortalShell() {
         {/* ── FOOTER ── */}
         <footer className="portal-footer no-print">
           <p style={{ fontSize: 12, color: t.tx3, marginBottom: 4 }}>
-            © 2026 {FACTS.org} · {en ? `Built by ${FACTS.founder} for Costa Rica` : `Construido por ${FACTS.founder} para Costa Rica`}
+            © 2026 {FACTS.org} · {en ? `Built by ${FACTS.founder} & ${FACTS.cofounder} for Costa Rica` : `Construido por ${FACTS.founder} & ${FACTS.cofounder} para Costa Rica`}
           </p>
           <p style={{ fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>
             {en ? "Data from public international sources · Observatory analysis © 2026 Colibrii Labs · CC BY-NC 4.0" : "Datos de fuentes internacionales públicas · Análisis observatorio © 2026 Colibrii Labs · CC BY-NC 4.0"}
@@ -275,7 +331,7 @@ export default function PortalShell() {
         </footer>
 
         {/* ── MOBILE BOTTOM NAV ── */}
-        <BottomNav tab={tab} setTab={setTab} en={en} t={t} onMoreClick={() => setMobileNav(true)} />
+        <BottomNav tab={tab} setTab={setTab} en={en} setEn={setEn} t={t} dark={dark} setDark={setDark} onMoreClick={() => setMobileNav(true)} />
       </div>
 
       {/* ── INDICATOR DRAWER ── */}

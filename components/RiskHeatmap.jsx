@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
-import { CO, DM } from "./data";
-import { Card } from "./ui";
+import { CO, DM, A3_TO_A2 } from "./data";
+import { Card, Flag } from "./ui";
 
 /* =================================================================
    COLIBRII LABS — Risk Heatmap Grid v14
@@ -67,7 +67,7 @@ export function RiskHeatmap({ idx, board, en, t }) {
                   <div key={`r-${c.code}`} style={{ fontSize: 11, fontWeight: 700, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", display: "flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</div>,
                   <div key={`n-${c.code}`} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: isCR ? 700 : 400, color: isCR ? t.cy : t.tx, padding: "4px 0" }}
                     onMouseEnter={() => setHover(c.code)} onMouseLeave={() => setHover(null)}>
-                    <span style={{ fontSize: 14 }}>{c.f}</span>
+                    <Flag code={A3_TO_A2[c.code]} size={16} />
                     <span className="truncate">{en ? c.e : c.n}</span>
                   </div>
                 );

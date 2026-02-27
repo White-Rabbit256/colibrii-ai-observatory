@@ -31,11 +31,18 @@ export function Simulator({ en, t, idx, dark }) {
   /* Apply a preset */
   const applyPreset = (preset) => {
     const next = { ...overrides };
-    Object.entries(preset.changes).forEach(([dk, val]) => {
-      // val can be absolute value or delta
-      if (val <= 1 && val >= 0) next[dk] = val;
-      else next[dk] = Math.min(1, Math.max(0, (next[dk] || 0) + val));
-    });
+    // Absolute changes: set dimension to exact value
+    if (preset.changes) {
+      Object.entries(preset.changes).forEach(([dk, val]) => {
+        next[dk] = Math.min(1, Math.max(0, val));
+      });
+    }
+    // Relative deltas: add to current dimension value
+    if (preset.deltas) {
+      Object.entries(preset.deltas).forEach(([dk, val]) => {
+        next[dk] = Math.min(1, Math.max(0, (next[dk] || 0) + val));
+      });
+    }
     setOverrides(next);
   };
 

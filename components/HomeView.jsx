@@ -1,18 +1,38 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
-import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip } from "recharts";
 import { CO, DM, TIMELINE, PARTNERS, WEF_2026_RISKS, EOS_RISKS, INDICATOR_META, COUNTRY_RATIONALE, A3_TO_A2, RADAR_RATIONALE } from "./data";
 import { Card, SH, Stat, Tag, Ci, Lnk, Grid, AN, ScrollReveal, PartnerBar, MiniStat, Flag, fadeUp, stagger } from "./ui";
+
+/* ── Lazy-loaded Recharts (below the fold, ~200KB deferred) ── */
+const LazyRadar = dynamic(() => import("recharts").then(mod => {
+  const { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip } = mod;
+  return function ChartWrap({ data, dark, t }) {
+    return (
+      <ResponsiveContainer width="100%" height={300}>
+        <RadarChart data={data} cx="50%" cy="50%" outerRadius="70%">
+          <PolarGrid stroke={dark ? "#1e293b" : "#d1d5e0"} />
+          <PolarAngleAxis dataKey="dim" tick={{ fontSize: 10, fill: dark ? "#94a3b8" : "#475569" }} />
+          <PolarRadiusAxis tick={false} axisLine={false} domain={[0, 100]} />
+          <Radar name="Costa Rica" dataKey="CR" stroke={t.cy} fill={t.cy} fillOpacity={0.15} strokeWidth={2} />
+          <Radar name="Chile" dataKey="CHL" stroke={t.am} fill={t.am} fillOpacity={0.08} strokeWidth={1.5} strokeDasharray="4 2" />
+          <Radar name="Singapore" dataKey="SGP" stroke={t.vi} fill={t.vi} fillOpacity={0.08} strokeWidth={1.5} strokeDasharray="4 2" />
+          <Tooltip contentStyle={{ background: dark ? "#111827" : "#fff", border: `1px solid ${dark ? "#1e293b" : "#d1d5e0"}`, borderRadius: 8, fontSize: 12 }} />
+        </RadarChart>
+      </ResponsiveContainer>
+    );
+  };
+}), { ssr: false, loading: () => <div style={{ height: 300, display: "flex", alignItems: "center", justifyContent: "center" }}><div className="skeleton" style={{ width: "80%", height: 240, borderRadius: 12 }} /></div> });
 
 /* ═══════════════════════════════════════════════════════════════
    HOME VIEW v13 — Hero + Stats + Timeline + Radar + News
    ═══════════════════════════════════════════════════════════════ */
 
 const WEF_HORIZONS = [
-  { id: "imm", label: { en: "2026 Immediate", es: "2026 Inmediato" }, sub: { en: "2-year crisis likelihood", es: "Probabilidad crisis 2 años" } },
-  { id: "short", label: { en: "2028 Short-term", es: "2028 Corto plazo" }, sub: { en: "Severity ranking by 2028", es: "Ranking severidad para 2028" } },
-  { id: "long", label: { en: "2036 Long-term", es: "2036 Largo plazo" }, sub: { en: "Severity ranking by 2036", es: "Ranking severidad para 2036" } }
+  { id: "imm", label: { en: "2026", es: "2026" }, sub: { en: "Immediate — 2-year crisis likelihood", es: "Inmediato — Probabilidad crisis 2 años" } },
+  { id: "short", label: { en: "2028", es: "2028" }, sub: { en: "Short-term — Severity ranking by 2028", es: "Corto plazo — Ranking severidad para 2028" } },
+  { id: "long", label: { en: "2036", es: "2036" }, sub: { en: "Long-term — Severity ranking by 2036", es: "Largo plazo — Ranking severidad para 2036" } }
 ];
 
 function WefDashboard({ en, t, dark }) {
@@ -218,16 +238,18 @@ function WefDashboard({ en, t, dark }) {
 }
 
 export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, setTab, onIndicatorClick }) {
-  const TL = TIMELINE(en);
+  const TL = useMemo(() => TIMELINE(en), [en]);
   const [tlOpen, setTlOpen] = useState(null);
 
-  /* Radar data: CR vs Chile vs Singapore */
-  const radarData = Object.entries(DM).map(([dk, d]) => ({
+  /* Radar data: CR vs Chile vs Singapore (memoized) */
+  const radarData = useMemo(() => Object.entries(DM).map(([dk, d]) => ({
     dim: en ? d.e : d.l,
     CR: idx?.CRI?.[dk] != null ? +(idx.CRI[dk] * 100).toFixed(1) : 0,
     CHL: idx?.CHL?.[dk] != null ? +(idx.CHL[dk] * 100).toFixed(1) : 0,
     SGP: idx?.SGP?.[dk] != null ? +(idx.SGP[dk] * 100).toFixed(1) : 0
-  }));
+  })), [en, idx]);
+  const countryRat = useMemo(() => COUNTRY_RATIONALE(en), [en]);
+  const radarRat = useMemo(() => RADAR_RATIONALE(en), [en]);
 
   return (
     <div>
@@ -388,9 +410,9 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
         {/* ═══════ WHY THESE THREE COUNTRIES? ═══════ */}
         <Card style={{ marginBottom: 12, padding: "14px 18px", background: `${t.vi}04` }}>
           <div style={{ fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: t.vi, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 8 }}>
-            {RADAR_RATIONALE(en).title}
+            {radarRat.title}
           </div>
-          {RADAR_RATIONALE(en).countries.map((c, i) => (
+          {radarRat.countries.map((c, i) => (
             <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: i < 2 ? 10 : 0 }}>
               <Flag code={A3_TO_A2[c.code]} size={18} style={{ marginTop: 2, flexShrink: 0 }} />
               <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6, margin: 0 }}>{c.why}</p>
@@ -405,17 +427,9 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
           <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "var(--font-display, 'Playfair Display', serif)", marginBottom: 16, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
             <Flag code="CR" size={18} /> Costa Rica vs <Flag code="CL" size={18} /> Chile vs <Flag code="SG" size={18} /> Singapore
           </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="70%">
-              <PolarGrid stroke={dark ? "#1e293b" : "#d1d5e0"} />
-              <PolarAngleAxis dataKey="dim" tick={{ fontSize: 10, fill: dark ? "#94a3b8" : "#475569" }} />
-              <PolarRadiusAxis tick={false} axisLine={false} domain={[0, 100]} />
-              <Radar name="Costa Rica" dataKey="CR" stroke={t.cy} fill={t.cy} fillOpacity={0.15} strokeWidth={2} />
-              <Radar name="Chile" dataKey="CHL" stroke={t.am} fill={t.am} fillOpacity={0.08} strokeWidth={1.5} strokeDasharray="4 2" />
-              <Radar name="Singapore" dataKey="SGP" stroke={t.vi} fill={t.vi} fillOpacity={0.08} strokeWidth={1.5} strokeDasharray="4 2" />
-              <Tooltip contentStyle={{ background: dark ? "#111827" : "#fff", border: `1px solid ${dark ? "#1e293b" : "#d1d5e0"}`, borderRadius: 8, fontSize: 12 }} />
-            </RadarChart>
-          </ResponsiveContainer>
+          <div className="chart-container">
+            <LazyRadar data={radarData} dark={dark} t={t} />
+          </div>
           <div style={{ display: "flex", gap: 16, justifyContent: "center", marginTop: 8, fontSize: 12 }}>
             <span><span style={{ color: t.cy }}>●</span> Costa Rica</span>
             <span><span style={{ color: t.am }}>●</span> Chile</span>
@@ -431,13 +445,13 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
             {en ? "METHODOLOGY" : "METODOLOGÍA"}
           </div>
           <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "var(--font-display, 'Playfair Display', serif)", marginBottom: 6, color: t.tx }}>
-            {COUNTRY_RATIONALE(en).title}
+            {countryRat.title}
           </div>
           <p style={{ fontSize: 13, color: t.tx2, lineHeight: 1.7, marginBottom: 16 }}>
-            {COUNTRY_RATIONALE(en).desc}
+            {countryRat.desc}
           </p>
           <Grid cols="repeat(auto-fit,minmax(200px,1fr))" gap={10}>
-            {COUNTRY_RATIONALE(en).groups.map((g, i) => (
+            {countryRat.groups.map((g, i) => (
               <div key={i} style={{ padding: 14, borderRadius: 10, border: `1px solid ${t.bd}`, borderLeft: `3px solid ${g.color}` }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: g.color, marginBottom: 6, fontFamily: "'IBM Plex Mono',monospace" }}>{g.label}</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 8 }}>

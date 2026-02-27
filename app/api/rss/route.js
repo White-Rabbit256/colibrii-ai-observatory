@@ -1,7 +1,7 @@
 import { PAI_NEWS } from "../../../components/data";
 
-const BASE = "https://colibriilabs.com";
-const GDELT_URL = "https://api.gdeltproject.org/api/v2/doc/doc?query=%22artificial+intelligence%22+%22costa+rica%22&mode=artlist&maxrecords=5&format=json&sort=datedesc&timespan=72h";
+const BASE = "https://colibriilabs.ai";
+const GDELT_URL = "https://api.gdeltproject.org/api/v2/doc/doc?query=%22artificial+intelligence%22+%22costa+rica%22&mode=artlist&maxrecords=5&format=json&sort=datedesc&timespan=7d";
 
 function esc(s) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");

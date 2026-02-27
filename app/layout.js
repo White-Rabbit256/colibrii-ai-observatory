@@ -2,6 +2,8 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import { Playfair_Display } from "next/font/google";
 import { IBM_Plex_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -11,23 +13,23 @@ const inter = Inter({
 const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-display",
-  weight: ["400", "500", "600", "700", "800", "900"],
+  weight: ["700", "800"],
   display: "swap",
 });
 const ibmPlexMono = IBM_Plex_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "700"],
   display: "swap",
 });
 
 export const metadata = {
-  metadataBase: new URL("https://colibriilabs.com"),
+  metadataBase: new URL("https://colibriilabs.ai"),
   title: {
     default: "Colibrii Labs — AI Observatory Costa Rica | Agile Intelligence",
     template: "%s | Colibrii Labs"
   },
-  description: "Real-time strategic AI intelligence for Costa Rica. 20-country composite index (CAPI-CR), 25+ international data sources, 10 proprietary algorithms, 55-term glossary, WEF 2026 risk data with EOS per-country analysis, policy simulator. By Andrés Alpízar / Colibrii Labs.",
+  description: "Real-time strategic AI intelligence for Costa Rica. 20-country composite index (CAPI-CR), 25+ international data sources, 10 proprietary algorithms, 55-term glossary, WEF 2026 risk data with EOS per-country analysis, policy simulator. By Andrés Alpízar & Mariam Rodríguez Rojas / Colibrii Labs.",
   keywords: [
     "AI Observatory", "Costa Rica", "artificial intelligence", "AI readiness", "CAPI-CR",
     "nearshoring", "free zones", "Colibrii Labs", "physical AI", "humanoid robots",
@@ -44,9 +46,14 @@ export const metadata = {
     "quantum computing risks", "QVRI", "SIRI", "GERI",
     "WEF Executive Opinion Survey", "INCAE Business School", "EOS risks",
     "AI blind spot", "country risk profiles",
-    "Andrés Alpízar", "Agile Intelligence"
+    "Andrés Alpízar", "M.Sc. Mariam Rodríguez Rojas", "Agile Intelligence",
+    "Sustainable Development Goals", "SDG", "ITU AI Readiness", "AI for Good",
+    "AI governance", "Latin America AI regulation", "UN AI framework"
   ],
-  authors: [{ name: "Andrés Alpízar", url: "https://colibriilabs.com" }],
+  authors: [
+    { name: "Andrés Alpízar", url: "https://www.linkedin.com/in/andresalpizar/" },
+    { name: "M.Sc. Mariam Rodríguez Rojas", url: "https://www.linkedin.com/in/mariam-rodr%C3%ADguez-rojas-15353b140/" }
+  ],
   creator: "Colibrii Labs",
   publisher: "Colibrii Labs",
   robots: { index: true, follow: true },
@@ -54,7 +61,7 @@ export const metadata = {
     type: "website",
     locale: "es_CR",
     alternateLocale: "en_US",
-    url: "https://colibriilabs.com",
+    url: "https://colibriilabs.ai",
     title: "Colibrii Labs — AI Observatory Costa Rica | Agile Intelligence",
     description: "Real-time strategic AI intelligence. 20-country composite index, 25+ data sources, WEF 2026 risk data with EOS per-country analysis, 10 proprietary algorithms. Policy simulator, country profiles, 55-term glossary.",
     siteName: "Colibrii Labs",
@@ -67,8 +74,8 @@ export const metadata = {
     images: ["/og-image.svg"]
   },
   alternates: {
-    canonical: "https://colibriilabs.com",
-    languages: { "es": "https://colibriilabs.com", "en": "https://colibriilabs.com" }
+    canonical: "https://colibriilabs.ai",
+    languages: { "es": "https://colibriilabs.ai", "en": "https://colibriilabs.ai" }
   },
 };
 
@@ -86,29 +93,32 @@ export default function RootLayout({ children }) {
         "@type": "WebApplication",
         name: "Colibrii Labs — AI Observatory Costa Rica",
         description: "Real-time strategic AI intelligence platform for Costa Rica. 20-country CAPI-CR index, 10 proprietary algorithms, policy simulator.",
-        url: "https://colibriilabs.com",
+        url: "https://colibriilabs.ai",
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
-        author: { "@type": "Organization", "@id": "https://colibriilabs.com/#org" },
+        author: { "@type": "Organization", "@id": "https://colibriilabs.ai/#org" },
         offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }
       },
       {
         "@type": "ResearchOrganization",
-        "@id": "https://colibriilabs.com/#org",
+        "@id": "https://colibriilabs.ai/#org",
         name: "Colibrii Labs",
-        url: "https://colibriilabs.com",
+        url: "https://colibriilabs.ai",
         email: "andres@colibriilabs.com",
         description: "Strategic AI intelligence research for Costa Rica and Latin America. Agile Intelligence.",
-        founder: { "@type": "Person", name: "Andrés Alpízar" },
+        founder: [
+          { "@type": "Person", name: "Andrés Alpízar", sameAs: "https://www.linkedin.com/in/andresalpizar/" },
+          { "@type": "Person", name: "M.Sc. Mariam Rodríguez Rojas", jobTitle: "CEO & Co-founder", sameAs: "https://www.linkedin.com/in/mariam-rodr%C3%ADguez-rojas-15353b140/" }
+        ],
         areaServed: { "@type": "Country", name: "Costa Rica" },
-        knowsAbout: ["Artificial Intelligence", "AI Policy", "Nearshoring", "Free Zones", "Digital Security"]
+        knowsAbout: ["Artificial Intelligence", "AI Policy", "Nearshoring", "Free Zones", "Digital Security", "Sustainable Development Goals", "ITU AI Readiness", "AI Governance", "AI for Good", "UN SDGs"]
       },
       {
         "@type": "Dataset",
         name: "CAPI-CR — Colibrii AI Preparedness Index",
         description: "Composite index measuring AI readiness across 6 dimensions for 20 countries. Extends IMF AIPI methodology.",
-        url: "https://colibriilabs.com/app",
-        creator: { "@type": "Organization", "@id": "https://colibriilabs.com/#org" },
+        url: "https://colibriilabs.ai/app",
+        creator: { "@type": "Organization", "@id": "https://colibriilabs.ai/#org" },
         license: "https://creativecommons.org/licenses/by-nc/4.0/",
         temporalCoverage: "2018/2026",
         spatialCoverage: "Global (20 countries)",
@@ -139,6 +149,11 @@ export default function RootLayout({ children }) {
             "@type": "Question",
             name: "What does the WEF Executive Opinion Survey (EOS) reveal about Costa Rica?",
             acceptedAnswer: { "@type": "Answer", text: "The WEF EOS surveys 11,000+ business leaders across 116 economies. Costa Rica's EOS (conducted via INCAE Business School) identifies crime, insufficient public services, societal polarization, unemployment, and debt as the top 5 risks — with zero AI/technology risks in the list. This perception gap is significant: global experts rank AI adverse outcomes as #5 long-term, and Vietnam's business leaders rank it #1." }
+          },
+          {
+            "@type": "Question",
+            name: "How does this observatory align with UN AI for Good?",
+            acceptedAnswer: { "@type": "Answer", text: "Colibrii Labs integrates data from ITU, UNDP, UNESCO, ILO, FAO, and other UN agencies. The CAPI-CR index maps to the ITU AI Readiness Framework's 13 dimensions, and the observatory advances 8 Sustainable Development Goals including Quality Education, Decent Work, Industry & Innovation, and Partnerships for the Goals." }
           }
         ]
       }
@@ -148,6 +163,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://api.worldbank.org" />
+        <link rel="preconnect" href="https://api.gdeltproject.org" />
+        <link rel="preconnect" href="https://open.er-api.com" />
+        <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+        <link rel="dns-prefetch" href="https://logo.clearbit.com" />
         <link rel="icon" href="/colibrii-logo.png" type="image/png" />
         <link rel="apple-touch-icon" href="/colibrii-logo.png" />
         <link rel="manifest" href="/manifest.json" />
@@ -156,6 +176,8 @@ export default function RootLayout({ children }) {
       </head>
       <body className={`${inter.variable} ${playfair.variable} ${ibmPlexMono.variable}`}>
         {children}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

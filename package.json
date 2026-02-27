@@ -3,7 +3,7 @@
   "version": "20.0.0",
   "private": true,
   "description": "Colibrii Labs AI Observatory — Real-time strategic AI intelligence for Costa Rica",
-  "homepage": "https://colibriilabs.com",
+  "homepage": "https://colibriilabs.ai",
   "author": "Andrés Alpízar <andres@colibriilabs.com>",
   "license": "CC-BY-NC-4.0",
   "scripts": {
@@ -13,9 +13,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@react-spring/web": "^10.0.3",
-    "@tsparticles/react": "^3.0.0",
-    "@tsparticles/slim": "^3.9.1",
+    "@vercel/analytics": "^1.6.1",
+    "@vercel/speed-insights": "^1.3.1",
     "framer-motion": "^12.34.2",
     "next": "^14.2.21",
     "react": "^18.3.1",

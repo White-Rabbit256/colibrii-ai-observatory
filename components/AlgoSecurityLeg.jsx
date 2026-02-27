@@ -498,21 +498,25 @@ export function Leg({ en, t }) {
 
             <Card d={0.65} style={{ marginTop: 14 }}>
               <div style={{ fontSize: 11, letterSpacing: 2, color: t.vi, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 12 }}>{en ? "COUNTRY COMPARISON" : "COMPARACIÓN POR PAÍS"}</div>
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+              <div className="scroll-hint">
+                <span>{en ? "Swipe to see full table" : "Desliza para ver tabla completa"}</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+              </div>
+              <div className="table-scroll-wrapper">
+                <table className="data-table data-table-leg">
                   <thead>
                     <tr>
-                      <th style={{ textAlign: "left", padding: "8px 10px", borderBottom: `2px solid ${t.vi}`, fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: t.vi }}>{en ? "COUNTRY" : "PAÍS"}</th>
-                      <th style={{ textAlign: "left", padding: "8px 10px", borderBottom: `2px solid ${t.vi}`, fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: t.vi }}>{en ? "STATUS" : "ESTADO"}</th>
-                      <th style={{ textAlign: "left", padding: "8px 10px", borderBottom: `2px solid ${t.vi}`, fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: t.vi }}>{en ? "CR GAP" : "BRECHA CR"}</th>
+                      <th style={{ color: t.vi }}>{en ? "Country" : "País"}</th>
+                      <th style={{ color: t.vi }}>{en ? "Status" : "Estado"}</th>
+                      <th style={{ color: t.vi }}>{en ? "CR Gap" : "Brecha CR"}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {enia.comparison.map((row, i) => (
                       <tr key={i} style={{ background: i % 2 === 0 ? "transparent" : t.sf }}>
-                        <td style={{ padding: "8px 10px", fontWeight: 600, color: t.tx, borderBottom: `1px solid ${t.bd}` }}>{row.country}</td>
-                        <td style={{ padding: "8px 10px", color: t.tx2, borderBottom: `1px solid ${t.bd}`, lineHeight: 1.5 }}>{row.status}</td>
-                        <td style={{ padding: "8px 10px", color: t.rd, borderBottom: `1px solid ${t.bd}`, lineHeight: 1.5 }}>{row.gap}</td>
+                        <td style={{ whiteSpace: "nowrap", fontWeight: 600, color: t.tx }}>{row.country}</td>
+                        <td style={{ color: t.tx2, lineHeight: 1.6, minWidth: 220 }}>{row.status}</td>
+                        <td style={{ color: t.rd, lineHeight: 1.6, minWidth: 200 }}>{row.gap}</td>
                       </tr>
                     ))}
                   </tbody>
