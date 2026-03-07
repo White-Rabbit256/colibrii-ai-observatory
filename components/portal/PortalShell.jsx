@@ -35,6 +35,9 @@ const ReadinessView = dynamic(() => import("../ITUReadiness").then(m => ({ defau
 const GovernanceView = dynamic(() => import("../GlobalGovernance").then(m => ({ default: m.Governance })), { loading: () => <LoadCard d={0.02} /> });
 const ShowcaseView = dynamic(() => import("../ImpactShowcase").then(m => ({ default: m.Showcase })), { loading: () => <LoadCard d={0.02} /> });
 
+/* ── Lazy-loaded BANCA & AI tab ── */
+const BancaView = dynamic(() => import("../BancaAI").then(m => ({ default: m.BancaAI })), { loading: () => <LoadCard d={0.02} /> });
+
 /* ── Lazy-loaded SECTORAL IMPACT tabs (AI for Good Report) ── */
 const FoodView = dynamic(() => import("../FoodSecurity").then(m => ({ default: m.FoodSecurity })), { loading: () => <LoadCard d={0.02} /> });
 const HealthView = dynamic(() => import("../HealthAI").then(m => ({ default: m.HealthAI })), { loading: () => <LoadCard d={0.02} /> });
@@ -227,6 +230,7 @@ export default function PortalShell() {
       case "zf": return <ZF {...tp} />;
       case "pai": return <PAI {...tp} />;
       case "pymes": return <Pymes {...tp} />;
+      case "banca": return <BancaView {...tp} />;
       case "algo": return <Algo {...tp} />;
       case "sec": return <SecTab {...tp} />;
       case "leg": return <Leg {...tp} />;

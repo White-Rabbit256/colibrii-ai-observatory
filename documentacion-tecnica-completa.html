@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Documentaci&oacute;n T&eacute;cnica Completa — Colibrii Labs AI Observatory</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+  :root{--bg:#fafbfe;--text:#0f172a;--text2:#334155;--text3:#64748b;--cyan:#2563eb;--violet:#6366f1;--pink:#ec4899;--amber:#f59e0b;--red:#ef4444;--green:#10b981;--border:#e2e8f0;--card:#fff;--surface:#f1f5f9}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;color:var(--text);background:var(--bg);line-height:1.7;font-size:13px;-webkit-font-smoothing:antialiased}
+  .page{max-width:850px;margin:0 auto;padding:32px 40px}
+  .cover{min-height:60vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:linear-gradient(135deg,#0a0f1e,#0f1629 30%,#151024 60%,#0d1220);padding:60px 48px;position:relative;overflow:hidden}
+  .cover::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 600px 600px at 20% 30%,rgba(37,99,235,.12),transparent),radial-gradient(ellipse 500px 500px at 70% 60%,rgba(99,102,241,.08),transparent),radial-gradient(ellipse 400px 400px at 40% 80%,rgba(236,72,153,.06),transparent);pointer-events:none}
+  .cover h1{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:12px;position:relative;z-index:2}
+  .cover h1 span{background:linear-gradient(135deg,#2563eb,#6366f1,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .cover .sub{font-size:15px;color:rgba(255,255,255,.6);margin-bottom:32px;position:relative;z-index:2}
+  .cover .meta{position:relative;z-index:2;font-size:12px;color:rgba(255,255,255,.4);font-family:'IBM Plex Mono',monospace;display:flex;gap:24px}
+  h2{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--text);margin:40px 0 16px;padding-bottom:10px;border-bottom:2px solid var(--border)}
+  h2 .num{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--cyan);letter-spacing:3px;text-transform:uppercase;display:block;margin-bottom:4px;font-weight:600}
+  h3{font-size:15px;font-weight:700;color:var(--text);margin:24px 0 10px}
+  h4{font-size:13px;font-weight:700;color:var(--violet);margin:16px 0 8px;font-family:'IBM Plex Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+  p{margin-bottom:12px;color:var(--text2);font-size:13px;line-height:1.8}
+  strong{color:var(--text);font-weight:600}
+  code{font-family:'IBM Plex Mono',monospace;font-size:12px;background:var(--surface);padding:2px 6px;border-radius:4px;color:var(--violet)}
+  pre{background:#0f172a;color:#e2e8f0;padding:16px 20px;border-radius:10px;overflow-x:auto;font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.6;margin:16px 0}
+  pre .comment{color:#64748b}
+  pre .keyword{color:#ec4899}
+  pre .number{color:#f59e0b}
+  pre .string{color:#10b981}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:12px}
+  th{background:var(--surface);font-weight:600;text-align:left;padding:8px 12px;border-bottom:2px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3)}
+  td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text2)}
+  tr:last-child td{border-bottom:none}
+  .tag{display:inline-block;padding:1px 7px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:.5px}
+  .tag-red{background:rgba(239,68,68,.12);color:var(--red)}
+  .tag-amber{background:rgba(245,158,11,.12);color:var(--amber)}
+  .tag-green{background:rgba(16,185,129,.12);color:var(--green)}
+  .tag-cyan{background:rgba(37,99,235,.12);color:var(--cyan)}
+  .tag-violet{background:rgba(99,102,241,.12);color:var(--violet)}
+  .formula{background:linear-gradient(135deg,rgba(37,99,235,.05),rgba(99,102,241,.05));border-left:3px solid var(--cyan);border-radius:0 8px 8px 0;padding:14px 18px;margin:14px 0;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text)}
+  .alert{background:rgba(239,68,68,.05);border-left:3px solid var(--red);border-radius:0 8px 8px 0;padding:14px 18px;margin:14px 0}
+  .note{background:rgba(16,185,129,.05);border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:14px 18px;margin:14px 0}
+  .toc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin:24px 0}
+  .toc h3{margin-top:0;color:var(--cyan)}
+  .toc ol{padding-left:20px;columns:2;column-gap:32px}
+  .toc li{font-size:12px;color:var(--text2);padding:3px 0;break-inside:avoid}
+  .toc a{color:var(--cyan);text-decoration:none}
+  .footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--border);font-size:11px;color:var(--text3);display:flex;justify-content:space-between}
+  .footer a{color:var(--cyan);text-decoration:none}
+  @media print{body{font-size:11px;background:#fff}.page{padding:16px 24px}.cover{min-height:auto;padding:40px 24px;break-after:page}h2{break-before:auto}pre,.formula,.alert,.note,.tag{-webkit-print-color-adjust:exact;print-color-adjust:exact}table{page-break-inside:avoid;font-size:10px}}
+  @page{margin:.5in;size:letter}
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>Documentaci&oacute;n T&eacute;cnica <span>Completa</span></h1>
+  <p class="sub">Todos los datos, algoritmos, f&oacute;rmulas, fuentes y constantes del Observatorio de IA</p>
+  <div class="meta">
+    <span>Colibrii Labs &mdash; colibriilabs.ai</span>
+    <span>Versi&oacute;n 21.1</span>
+    <span>Marzo 2026</span>
+  </div>
+</div>
+
+<div class="page">
+
+<div class="toc">
+  <h3>&Iacute;ndice de Contenidos</h3>
+  <ol>
+    <li><a href="#s1">CAPI-CR &mdash; Algoritmo Compuesto (6 Dimensiones)</a></li>
+    <li><a href="#s2">Indicadores del Banco Mundial (11 Variables)</a></li>
+    <li><a href="#s3">Datos de Gobernanza (6 &Iacute;ndices)</a></li>
+    <li><a href="#s4">20 Pa&iacute;ses del Peer Set</a></li>
+    <li><a href="#s5">10 Algoritmos Propietarios</a></li>
+    <li><a href="#s6">WEF Global Risks 2026 (3 Horizontes)</a></li>
+    <li><a href="#s7">IFRABA &mdash; &Iacute;ndice de Fraude Bancario</a></li>
+    <li><a href="#s8">8 Vectores de Amenaza</a></li>
+    <li><a href="#s9">Serie Temporal de Fraude (2020-2030)</a></li>
+    <li><a href="#s10">Brecha Regulatoria (8 Dimensiones &times; 4 Pa&iacute;ses)</a></li>
+    <li><a href="#s11">Proyecciones de Costo (3 Escenarios)</a></li>
+    <li><a href="#s12">Modelo Erlang-C &mdash; Capacidad OIJ</a></li>
+    <li><a href="#s13">Estr&eacute;s Test PYME</a></li>
+    <li><a href="#s14">Marco Legal (Expediente 23.908)</a></li>
+    <li><a href="#s15">ENIA Gap Analysis (Checklist 11 Items)</a></li>
+    <li><a href="#s16">Legislaci&oacute;n Internacional (7 Leyes)</a></li>
+    <li><a href="#s17">Simulador de Pol&iacute;ticas (4 Presets)</a></li>
+    <li><a href="#s18">Fuentes de Datos y APIs (13 Sources)</a></li>
+    <li><a href="#s19">25+ Partners Internacionales</a></li>
+    <li><a href="#s20">Alineaci&oacute;n ODS (8 de 17)</a></li>
+    <li><a href="#s21">Sistema de Cach&eacute; (SessionStorage)</a></li>
+    <li><a href="#s22">Sistema de Temas (Light/Dark)</a></li>
+  </ol>
+</div>
+
+<!-- ═══ 1. CAPI-CR ═══ -->
+<h2 id="s1"><span class="num">Secci&oacute;n 01</span>CAPI-CR &mdash; Algoritmo de &Iacute;ndice Compuesto</h2>
+
+<p>El <strong>Colibrii AI Preparedness Index for Costa Rica (CAPI-CR)</strong> extiende el AI Preparedness Index (AIPI) del FMI de 4 a 6 dimensiones, a&ntilde;adiendo Energ&iacute;a Sostenible y Seguridad Digital.</p>
+
+<h3>Paso 1: Normalizaci&oacute;n Min-Max</h3>
+<div class="formula">
+  norm(x) = (x &minus; min) / (max &minus; min)<br>
+  <small>Donde min y max se calculan sobre los 20 pa&iacute;ses del peer set. Si max = min, todos obtienen 0.5.</small>
+</div>
+
+<pre>
+<span class="keyword">const</span> mm = v => {
+  <span class="keyword">const</span> n = v.filter(x => x != <span class="keyword">null</span> && !isNaN(x));
+  <span class="keyword">if</span> (!n.length) <span class="keyword">return</span> v.map(() => <span class="keyword">null</span>);
+  <span class="keyword">const</span> lo = Math.min(...n), hi = Math.max(...n);
+  <span class="keyword">return</span> hi === lo
+    ? v.map(x => x == <span class="keyword">null</span> ? <span class="keyword">null</span> : <span class="number">0.5</span>)
+    : v.map(x => x == <span class="keyword">null</span> ? <span class="keyword">null</span> : (x - lo) / (hi - lo));
+};
+</pre>
+
+<h3>Paso 2: Inversi&oacute;n de Indicadores Negativos</h3>
+<p>El desempleo (<code>SL.UEM.TOTL.ZS</code>) tiene <code>inv: true</code>: valores m&aacute;s altos = peor &rarr; se invierte: <code>1 - norm(x)</code></p>
+
+<h3>Paso 3: Promedio por Dimensi&oacute;n</h3>
+<div class="formula">
+  D_k = avg(indicadores normalizados de la dimensi&oacute;n k)
+</div>
+
+<h3>Paso 4: Override con Puntuaciones Curadas (D4 y D6)</h3>
+<p>Las dimensiones D4 (Regulaci&oacute;n) y D6 (Seguridad) usan puntuaciones curadas manualmente (objeto <code>CUR</code>) porque no tienen datos autom&aacute;ticos del Banco Mundial.</p>
+
+<h3>Paso 5: Composite Score</h3>
+<div class="formula">
+  CAPI-CR = &Sigma;(D_k &times; W_k) para k = 1..6
+</div>
+
+<h3>Pesos por Dimensi&oacute;n</h3>
+<table>
+  <tr><th>Dim</th><th>Nombre</th><th>Peso</th><th>Indicadores</th></tr>
+  <tr><td><span class="tag tag-cyan">D1</span></td><td>Infraestructura Digital</td><td><strong>0.20</strong></td><td>Internet %, Banda ancha fija/100</td></tr>
+  <tr><td><span class="tag tag-violet">D2</span></td><td>Capital Humano</td><td><strong>0.20</strong></td><td>Matr&iacute;cula terciaria, Gasto educaci&oacute;n, Desempleo (inv)</td></tr>
+  <tr><td style="color:var(--amber)"><span class="tag tag-amber">D3</span></td><td>Innovaci&oacute;n</td><td><strong>0.15</strong></td><td>Gasto I+D, Hi-tech exports, IED</td></tr>
+  <tr><td><span class="tag tag-red">D4</span></td><td>Regulaci&oacute;n de IA</td><td><strong>0.15</strong></td><td>Curada (CUR)</td></tr>
+  <tr><td><span class="tag tag-green">D5</span></td><td>Energ&iacute;a Sostenible</td><td><strong>0.15</strong></td><td>Acceso electricidad, Renovable %, Consumo kWh</td></tr>
+  <tr><td style="color:var(--pink)"><span class="tag" style="background:rgba(236,72,153,.12);color:var(--pink)">D6</span></td><td>Seguridad Digital</td><td><strong>0.15</strong></td><td>Curada (CUR)</td></tr>
+</table>
+
+<h3>Umbrales de Clasificaci&oacute;n</h3>
+<table>
+  <tr><th>Score</th><th>Clasificaci&oacute;n</th><th>Color</th></tr>
+  <tr><td>&ge; 0.65</td><td><span class="tag tag-green">PREPARADO / READY</span></td><td>#10b981</td></tr>
+  <tr><td>0.40 &ndash; 0.64</td><td><span class="tag tag-amber">EN RIESGO / AT RISK</span></td><td>#f59e0b</td></tr>
+  <tr><td>&lt; 0.40</td><td><span class="tag tag-red">D&Eacute;FICIT / DEFICIT</span></td><td>#ef4444</td></tr>
+</table>
+
+<!-- ═══ 2. INDICADORES ═══ -->
+<h2 id="s2"><span class="num">Secci&oacute;n 02</span>Indicadores del Banco Mundial (11 Variables)</h2>
+<table>
+  <tr><th>C&oacute;digo WB</th><th>Dim</th><th>Indicador</th><th>Inv.</th></tr>
+  <tr><td><code>IT.NET.USER.ZS</code></td><td>D1</td><td>Usuarios de Internet (%)</td><td>No</td></tr>
+  <tr><td><code>IT.NET.BBND.P2</code></td><td>D1</td><td>Suscripciones banda ancha fija/100 hab.</td><td>No</td></tr>
+  <tr><td><code>SE.TER.ENRR</code></td><td>D2</td><td>Matr&iacute;cula educaci&oacute;n terciaria (%)</td><td>No</td></tr>
+  <tr><td><code>SE.XPD.TOTL.GD.ZS</code></td><td>D2</td><td>Gasto en educaci&oacute;n (% PIB)</td><td>No</td></tr>
+  <tr><td><code>SL.UEM.TOTL.ZS</code></td><td>D2</td><td>Desempleo (%)</td><td><strong>S&iacute;</strong></td></tr>
+  <tr><td><code>GB.XPD.RSDV.GD.ZS</code></td><td>D3</td><td>Gasto I+D (% PIB)</td><td>No</td></tr>
+  <tr><td><code>TX.VAL.TECH.MF.ZS</code></td><td>D3</td><td>Exportaciones hi-tech (% manufactura)</td><td>No</td></tr>
+  <tr><td><code>BX.KLT.DINV.WD.GD.ZS</code></td><td>D3</td><td>IED (% PIB)</td><td>No</td></tr>
+  <tr><td><code>EG.ELC.ACCS.ZS</code></td><td>D5</td><td>Acceso a electricidad (%)</td><td>No</td></tr>
+  <tr><td><code>EG.ELC.RNWX.ZS</code></td><td>D5</td><td>Electricidad renovable (%)</td><td>No</td></tr>
+  <tr><td><code>EG.USE.ELEC.KH.PC</code></td><td>D5</td><td>Consumo el&eacute;ctrico kWh/c&aacute;pita</td><td>No</td></tr>
+</table>
+<p><strong>API:</strong> <code>https://api.worldbank.org/v2/country/{codes}/indicator/{ind}?date=2018:2024&format=json&per_page=500</code></p>
+
+<!-- ═══ 3. GOBERNANZA ═══ -->
+<h2 id="s3"><span class="num">Secci&oacute;n 03</span>Datos de Gobernanza (6 &Iacute;ndices &times; 20 Pa&iacute;ses)</h2>
+<table>
+  <tr><th>&Iacute;ndice</th><th>Fuente</th><th>Escala</th><th>CR</th><th>SGP</th><th>CHL</th><th>URY</th></tr>
+  <tr><td>CPI (Corrupci&oacute;n)</td><td>Transparency Int'l</td><td>0-100</td><td>55</td><td>83</td><td>67</td><td>73</td></tr>
+  <tr><td>Freedom House</td><td>Freedom House</td><td>0-100</td><td>91</td><td>47</td><td>93</td><td>97</td></tr>
+  <tr><td>GPI (Paz Global)</td><td>IEP</td><td>1-3.5</td><td>1.44</td><td>1.33</td><td>1.83</td><td>1.80</td></tr>
+  <tr><td>Oxford AI Readiness</td><td>Oxford Insights</td><td>0-10</td><td>5.88</td><td>8.11</td><td>6.38</td><td>5.87</td></tr>
+  <tr><td>HDI</td><td>UNDP</td><td>0-1</td><td>0.806</td><td>0.949</td><td>0.860</td><td>0.830</td></tr>
+  <tr><td>V-Dem Democracia</td><td>V-Dem</td><td>0-1</td><td>0.88</td><td>0.35</td><td>0.87</td><td>0.89</td></tr>
+</table>
+
+<!-- ═══ 4. 20 PAÍSES ═══ -->
+<h2 id="s4"><span class="num">Secci&oacute;n 04</span>20 Pa&iacute;ses del Peer Set</h2>
+<table>
+  <tr><th>C&oacute;d.</th><th>Pa&iacute;s</th><th>Regi&oacute;n</th><th>Pob.</th><th>PIB</th><th>Contexto</th></tr>
+  <tr><td>SGP</td><td>Singapur</td><td>Asia</td><td>5.9M</td><td>$397B</td><td>#1 AI readiness global</td></tr>
+  <tr><td>KOR</td><td>Corea del Sur</td><td>Asia</td><td>51.7M</td><td>$1.67T</td><td>AI Framework Act 2026</td></tr>
+  <tr><td>JPN</td><td>Jap&oacute;n</td><td>Asia</td><td>125M</td><td>$4.23T</td><td>AI overperformer, rob&oacute;tica</td></tr>
+  <tr><td>EST</td><td>Estonia</td><td>Europa</td><td>1.3M</td><td>$38B</td><td>#1 gobierno digital</td></tr>
+  <tr><td>FIN</td><td>Finlandia</td><td>Europa</td><td>5.5M</td><td>$282B</td><td>1% poblaci&oacute;n educada en IA</td></tr>
+  <tr><td>IRL</td><td>Irlanda</td><td>Europa</td><td>5.1M</td><td>$529B</td><td>Hub tech FDI model</td></tr>
+  <tr><td>CHL</td><td>Chile</td><td>LATAM</td><td>19.5M</td><td>$301B</td><td>#1 LATAM AI l&iacute;der</td></tr>
+  <tr><td>URY</td><td>Uruguay</td><td>LATAM</td><td>3.4M</td><td>$71B</td><td>Plan Ceibal</td></tr>
+  <tr><td>CRI</td><td>Costa Rica</td><td>LATAM</td><td>5.2M</td><td>$69B</td><td>AI Overperformer (Banco Mundial)</td></tr>
+  <tr><td>PAN</td><td>Panam&aacute;</td><td>LATAM</td><td>4.4M</td><td>$77B</td><td>Hub log&iacute;stico, dolarizado</td></tr>
+  <tr><td>BRA</td><td>Brasil</td><td>LATAM</td><td>216M</td><td>$1.92T</td><td>Mayor econom&iacute;a LATAM</td></tr>
+  <tr><td>COL</td><td>Colombia</td><td>LATAM</td><td>52M</td><td>$343B</td><td>Competidor nearshoring</td></tr>
+  <tr><td>MEX</td><td>M&eacute;xico</td><td>LATAM</td><td>130M</td><td>$1.32T</td><td>L&iacute;der nearshoring</td></tr>
+  <tr><td>ARG</td><td>Argentina</td><td>LATAM</td><td>46M</td><td>$641B</td><td>Talento tech, startups IA</td></tr>
+  <tr><td>PER</td><td>Per&uacute;</td><td>LATAM</td><td>34M</td><td>$242B</td><td>Primera ley IA LATAM (jul 2023)</td></tr>
+  <tr><td>DOM</td><td>Rep. Dominicana</td><td>LATAM</td><td>11M</td><td>$114B</td><td>Competidor IED directo</td></tr>
+  <tr><td>VNM</td><td>Vietnam</td><td>Asia</td><td>100M</td><td>$409B</td><td>#1 riesgo IA global (WEF EOS)</td></tr>
+  <tr><td>PHL</td><td>Filipinas</td><td>Asia</td><td>115M</td><td>$404B</td><td>$38B IT-BPM, 1.82M BPO</td></tr>
+  <tr><td>MYS</td><td>Malasia</td><td>Asia</td><td>33M</td><td>$399B</td><td>AI overperformer, semiconductores</td></tr>
+  <tr><td>IDN</td><td>Indonesia</td><td>Asia</td><td>277M</td><td>$1.32T</td><td>AI overperformer, 270M mercado</td></tr>
+</table>
+
+<!-- ═══ 5. 10 ALGORITMOS ═══ -->
+<h2 id="s5"><span class="num">Secci&oacute;n 05</span>10 Algoritmos Propietarios</h2>
+<table>
+  <tr><th>#</th><th>Algoritmo</th><th>Estado</th><th>Descripci&oacute;n</th></tr>
+  <tr><td>1</td><td><strong>CAPI-CR</strong></td><td><span class="tag tag-green">ACTIVO</span></td><td>6D AI Preparedness Index (ext. FMI AIPI 4&rarr;6D)</td></tr>
+  <tr><td>2</td><td><strong>IVAS</strong></td><td><span class="tag tag-amber">DEV</span></td><td>Vulnerabilidad sectorial: task decomp &times; AI speed &times; reg &times; labor cost</td></tr>
+  <tr><td>3</td><td><strong>TIPAI</strong></td><td><span class="tag tag-amber">DEV</span></td><td>Timeline IA f&iacute;sica: costo robot vs. salario &times; multi-turno (2-3&times;)</td></tr>
+  <tr><td>4</td><td><strong>MBR</strong></td><td><span class="tag tag-violet">PLAN</span></td><td>Gap regulatorio: velocidad tech / velocidad legislativa &times; adopci&oacute;n</td></tr>
+  <tr><td>5</td><td><strong>IPDM</strong></td><td><span class="tag tag-violet">PLAN</span></td><td>Desplazamiento: LinkedIn + PROCOMER + INA vs. velocidad IA</td></tr>
+  <tr><td>6</td><td><strong>CRES</strong></td><td><span class="tag tag-violet">PLAN</span></td><td>Nexo energ&iacute;a-seguridad: renovable &times; confiabilidad &times; data center</td></tr>
+  <tr><td>7</td><td><strong>FDIA</strong></td><td><span class="tag tag-violet">PLAN</span></td><td>Alineaci&oacute;n IED-IA por sector ZF</td></tr>
+  <tr><td>8</td><td><strong>QVRI</strong></td><td><span class="tag tag-violet">PLAN</span></td><td>Vulnerabilidad cu&aacute;ntica: superficie cripto / adopci&oacute;n PQC</td></tr>
+  <tr><td>9</td><td><strong>SIRI</strong></td><td><span class="tag tag-violet">PLAN</span></td><td>Resiliencia social: desplazamiento / (reskilling + red social)</td></tr>
+  <tr><td>10</td><td><strong>GERI</strong></td><td><span class="tag tag-violet">PLAN</span></td><td>Exposici&oacute;n geoecon&oacute;mica: concentraci&oacute;n comercial &times; IED &times; supply chain</td></tr>
+</table>
+
+<!-- ═══ 6. WEF ═══ -->
+<h2 id="s6"><span class="num">Secci&oacute;n 06</span>WEF Global Risks 2026 (3 Horizontes)</h2>
+
+<h3>Horizonte Inmediato 2026 (Probabilidad de Crisis Material)</h3>
+<table>
+  <tr><th>#</th><th>Riesgo</th><th>%</th><th>Color</th></tr>
+  <tr><td>1</td><td>Confrontaci&oacute;n geoecon&oacute;mica</td><td>18%</td><td style="color:var(--red)">&bull;</td></tr>
+  <tr><td>2</td><td>Conflicto armado</td><td>14%</td><td style="color:var(--red)">&bull;</td></tr>
+  <tr><td>3</td><td>Eventos clim&aacute;ticos extremos</td><td>8%</td><td style="color:var(--green)">&bull;</td></tr>
+  <tr><td>4</td><td>Polarizaci&oacute;n social</td><td>7%</td><td style="color:var(--amber)">&bull;</td></tr>
+  <tr><td>5</td><td>Desinformaci&oacute;n</td><td>7%</td><td style="color:var(--violet)">&bull;</td></tr>
+  <tr><td>6</td><td>Desaceleraci&oacute;n econ&oacute;mica</td><td>5%</td><td style="color:var(--amber)">&bull;</td></tr>
+  <tr><td>7</td><td>Erosi&oacute;n DDHH</td><td>4%</td><td style="color:var(--pink)">&bull;</td></tr>
+  <tr><td>8</td><td><strong>Resultados adversos de IA</strong></td><td>4%</td><td style="color:var(--cyan)">&bull;</td></tr>
+  <tr><td>9</td><td>Ciber inseguridad</td><td>3%</td><td style="color:var(--cyan)">&bull;</td></tr>
+  <tr><td>10</td><td>Desigualdad</td><td>3%</td><td style="color:var(--amber)">&bull;</td></tr>
+</table>
+
+<h3>Largo Plazo 2036 &mdash; IA: Mayor Ascenso en la Historia WEF</h3>
+<div class="alert">
+  <p><strong>Resultados adversos de IA:</strong> Subi&oacute; de la posici&oacute;n #30 &rarr; #5 &mdash; el mayor ascenso en la historia de la encuesta WEF. Severidad 2 a&ntilde;os: 3.50 &rarr; 10 a&ntilde;os: 5.28 (la brecha m&aacute;s grande de cualquier riesgo).</p>
+</div>
+
+<h3>Datos Clave WEF</h3>
+<table>
+  <tr><th>M&eacute;trica</th><th>Valor</th><th>Fuente</th></tr>
+  <tr><td>Mercado IA 2024</td><td>$280B</td><td>Grand View Research/WEF</td></tr>
+  <tr><td>Mercado IA 2033</td><td>$3,500B</td><td>Grand View Research/WEF</td></tr>
+  <tr><td>Empleos creados IA</td><td>170M</td><td>WEF Future of Jobs 2025</td></tr>
+  <tr><td>Empleos desplazados</td><td>92M</td><td>WEF Future of Jobs 2025</td></tr>
+  <tr><td>Neto positivo</td><td>+78M</td><td>WEF Future of Jobs 2025</td></tr>
+  <tr><td>Consumo energ&iacute;a IA vs. software</td><td>4,600&times;</td><td>WEF/IEA</td></tr>
+  <tr><td>Deuda global</td><td>$251T (235% PIB)</td><td>WEF/IIF</td></tr>
+  <tr><td>Conflictos activos</td><td>61 (36 pa&iacute;ses)</td><td>WEF/UCDP</td></tr>
+  <tr><td>Encuestados GRPS</td><td>1,300</td><td>WEF</td></tr>
+  <tr><td>Encuestados EOS</td><td>11,000</td><td>WEF</td></tr>
+  <tr><td>Econom&iacute;as cubiertas</td><td>121 (GRPS), 116 (EOS)</td><td>WEF</td></tr>
+</table>
+
+<!-- ═══ 7. IFRABA ═══ -->
+<h2 id="s7"><span class="num">Secci&oacute;n 07</span>IFRABA &mdash; &Iacute;ndice de Fraude Bancario por IA</h2>
+
+<div class="formula">IFRABA = Volumen (25) + Sofisticaci&oacute;n (25) + Brecha Regulatoria (25) + Capacidad Institucional (25) = 100 puntos m&aacute;x.</div>
+
+<table>
+  <tr><th>Componente</th><th>M&aacute;x</th><th>Score</th><th>Interpretaci&oacute;n</th></tr>
+  <tr><td>Volumen de Fraude</td><td>25</td><td style="color:var(--red);font-weight:700">22</td><td>CR cerca de saturaci&oacute;n (10,027 casos/a&ntilde;o, CAGR 47.3%)</td></tr>
+  <tr><td>Sofisticaci&oacute;n de Amenaza</td><td>25</td><td style="color:var(--red);font-weight:700">20</td><td>Deepfakes, agentes IA, phishing aut&oacute;nomo ya activos</td></tr>
+  <tr><td>Brecha Regulatoria</td><td>25</td><td style="color:var(--red);font-weight:700">20</td><td>Zero regulaci&oacute;n IA bancaria vs. EU/UK/SG</td></tr>
+  <tr><td>Capacidad Institucional</td><td>25</td><td style="color:var(--amber);font-weight:700">16</td><td>OIJ al 14% capacidad (285/2,028 investigadores)</td></tr>
+  <tr><td><strong>TOTAL</strong></td><td><strong>100</strong></td><td style="color:var(--red);font-weight:700"><strong>78</strong></td><td><span class="tag tag-red">CR&Iacute;TICO</span></td></tr>
+</table>
+
+<!-- ═══ 8. VECTORES ═══ -->
+<h2 id="s8"><span class="num">Secci&oacute;n 08</span>8 Vectores de Amenaza de IA</h2>
+<table>
+  <tr><th>#</th><th>Vector</th><th>Severidad</th><th>Crecimiento</th><th>CVE</th></tr>
+  <tr><td>1</td><td>AI Agent Account Takeover</td><td style="color:var(--red);font-weight:700">95/100</td><td>+340%</td><td>CVE-2025-6514 (CVSS 9.6)</td></tr>
+  <tr><td>2</td><td>Deepfake Voice Authorization</td><td style="color:var(--red);font-weight:700">92/100</td><td>+1,265%</td><td>$10/clon, 3s muestra</td></tr>
+  <tr><td>3</td><td>Autonomous Phishing</td><td style="color:var(--red);font-weight:700">90/100</td><td>+4,151%</td><td>60-70% open rate</td></tr>
+  <tr><td>4</td><td>AI-Powered SINPE Manipulation</td><td style="color:var(--red);font-weight:700">88/100</td><td>+285%</td><td>Tiempo real, irreversible</td></tr>
+  <tr><td>5</td><td>Synthetic Identity Creation</td><td style="color:var(--amber);font-weight:700">85/100</td><td>+700%</td><td>Bob Finance P2P case</td></tr>
+  <tr><td>6</td><td>Multi-Agent Coordinated</td><td style="color:var(--amber);font-weight:700">82/100</td><td>NUEVO</td><td>CVE-2025-43563</td></tr>
+  <tr><td>7</td><td>AI Regulatory Arbitrage</td><td style="color:var(--amber);font-weight:700">80/100</td><td>+180%</td><td>CR: 0/100 gov multi-agente</td></tr>
+  <tr><td>8</td><td>Automated Money Laundering</td><td style="color:var(--amber);font-weight:700">78/100</td><td>+320%</td><td>GAFILAT flag</td></tr>
+</table>
+
+<!-- ═══ 9. SERIE TEMPORAL ═══ -->
+<h2 id="s9"><span class="num">Secci&oacute;n 09</span>Serie Temporal de Fraude (2020-2030)</h2>
+<p><strong>CAGR: 47.3%</strong> | Fuentes: OIJ, SUGEF, BCCR, LexisNexis</p>
+<table>
+  <tr><th>A&ntilde;o</th><th>Casos</th><th>P&eacute;rdidas (&#8353;MM)</th><th>Tipo</th></tr>
+  <tr><td>2020</td><td>1,303</td><td>607</td><td>Hist&oacute;rico</td></tr>
+  <tr><td>2021</td><td>2,103</td><td>1,200</td><td>Hist&oacute;rico</td></tr>
+  <tr><td>2022</td><td>3,136</td><td>1,800</td><td>Hist&oacute;rico</td></tr>
+  <tr><td>2023</td><td>4,613</td><td>2,800</td><td>Hist&oacute;rico</td></tr>
+  <tr><td>2024</td><td>6,783</td><td>4,200</td><td>Hist&oacute;rico</td></tr>
+  <tr><td>2025</td><td>10,027</td><td>6,000</td><td>Hist&oacute;rico</td></tr>
+  <tr><td>2026</td><td>14,790</td><td>8,850</td><td><span class="tag tag-amber">Proyecci&oacute;n</span></td></tr>
+  <tr><td>2027</td><td>21,786</td><td>13,037</td><td><span class="tag tag-amber">Proyecci&oacute;n</span></td></tr>
+  <tr><td>2028</td><td>32,100</td><td>19,200</td><td><span class="tag tag-amber">Proyecci&oacute;n</span></td></tr>
+  <tr><td>2029</td><td>47,300</td><td>28,300</td><td><span class="tag tag-red">Proyecci&oacute;n</span></td></tr>
+  <tr><td>2030</td><td>69,700</td><td>41,700</td><td><span class="tag tag-red">Proyecci&oacute;n</span></td></tr>
+</table>
+
+<!-- ═══ 10. BRECHA ═══ -->
+<h2 id="s10"><span class="num">Secci&oacute;n 10</span>Brecha Regulatoria (8 Dimensiones &times; 4 Pa&iacute;ses)</h2>
+<table>
+  <tr><th>Dimensi&oacute;n</th><th>CR</th><th>UK</th><th>EU</th><th>Singapur</th></tr>
+  <tr><td>Rendici&oacute;n Algor&iacute;tmica</td><td style="color:var(--red);font-weight:700">15</td><td>75</td><td>85</td><td>70</td></tr>
+  <tr><td>Protecci&oacute;n al Consumidor</td><td style="color:var(--red);font-weight:700">25</td><td>80</td><td>75</td><td>65</td></tr>
+  <tr><td>Supervisi&oacute;n Institucional</td><td style="color:var(--red);font-weight:700">30</td><td>70</td><td>80</td><td>75</td></tr>
+  <tr><td>Cooperaci&oacute;n Transfronteriza</td><td style="color:var(--red);font-weight:700">20</td><td>65</td><td>70</td><td>80</td></tr>
+  <tr><td>Regulaci&oacute;n Bancaria IA</td><td style="color:var(--red);font-weight:700">10</td><td>60</td><td>65</td><td>70</td></tr>
+  <tr><td>Respuesta a Incidentes</td><td style="color:var(--amber);font-weight:700">35</td><td>75</td><td>70</td><td>80</td></tr>
+  <tr><td>Gobernanza Multi-Agente</td><td style="color:var(--red);font-weight:700">0</td><td>25</td><td>30</td><td>35</td></tr>
+  <tr><td>Protecci&oacute;n de Datos en IA</td><td style="color:var(--red);font-weight:700">20</td><td>70</td><td>90</td><td>75</td></tr>
+</table>
+<p><strong>Promedio CR: 19.4/100</strong> vs. UK 65.0 | EU 70.6 | SG 68.8</p>
+
+<!-- ═══ 11. COSTOS ═══ -->
+<h2 id="s11"><span class="num">Secci&oacute;n 11</span>Proyecciones de Costo (3 Escenarios, &#8353; Millones)</h2>
+<p>Multiplicador LexisNexis: Conservador = 1&times; directo, Base = 4.5&times;, Agresivo = 9&times;</p>
+<table>
+  <tr><th>A&ntilde;o</th><th>Conservador</th><th>Base (4.5&times;)</th><th>Agresivo (9&times;)</th></tr>
+  <tr><td>2025</td><td>6,000</td><td>27,000</td><td>54,000</td></tr>
+  <tr><td>2026</td><td>8,850</td><td>39,825</td><td>79,650</td></tr>
+  <tr><td>2027</td><td>13,037</td><td>58,666</td><td>117,333</td></tr>
+  <tr><td>2028</td><td>19,200</td><td>86,400</td><td>172,800</td></tr>
+  <tr><td>2029</td><td>28,300</td><td>127,350</td><td>254,700</td></tr>
+  <tr><td>2030</td><td>41,700</td><td>187,650</td><td>375,300</td></tr>
+</table>
+
+<!-- ═══ 12. ERLANG-C ═══ -->
+<h2 id="s12"><span class="num">Secci&oacute;n 12</span>Modelo Erlang-C &mdash; Capacidad Investigativa OIJ</h2>
+
+<div class="formula">
+  c = &lambda; / (&mu; &times; &rho;<sub>target</sub>)<br>
+  Donde: &lambda; = tasa de llegada (casos/a&ntilde;o), &mu; = productividad (casos/investigador/a&ntilde;o), &rho; = 0.85 (utilizaci&oacute;n objetivo)
+</div>
+
+<table>
+  <tr><th>Escenario</th><th>&mu; (productividad)</th><th>2026</th><th>2027</th></tr>
+  <tr><td>Simple</td><td>20 casos/inv/a&ntilde;o</td><td>~73 investigadores</td><td>~107</td></tr>
+  <tr><td>Mixto (base)</td><td>10</td><td>~145</td><td>~213</td></tr>
+  <tr><td>Complejo (IA/forense)</td><td>5</td><td>~289</td><td>~426</td></tr>
+</table>
+
+<div class="alert">
+  <p><strong>Estado actual:</strong> 285 investigadores. <strong>Necesario:</strong> 2,028. <strong>Capacidad:</strong> 14%. <strong>Colapso matem&aacute;tico:</strong> 2026-2028.</p>
+</div>
+
+<!-- ═══ 13. PYME ═══ -->
+<h2 id="s13"><span class="num">Secci&oacute;n 13</span>Estr&eacute;s Test PYME</h2>
+<table>
+  <tr><th>Par&aacute;metro</th><th>Valor</th></tr>
+  <tr><td>Escenario</td><td>1% compromiso de cartera PYME</td></tr>
+  <tr><td>Costo directo</td><td>&#8353;13,500 MM</td></tr>
+  <tr><td>Shock OIJ</td><td>~1,400 quejas simult&aacute;neas = 2 meses de carga normal en 1 d&iacute;a</td></tr>
+  <tr><td>Cascada</td><td>Defaults, provisionamiento, congelamiento de l&iacute;neas de cr&eacute;dito</td></tr>
+</table>
+
+<!-- ═══ 14. LEGAL ═══ -->
+<h2 id="s14"><span class="num">Secci&oacute;n 14</span>Marco Legal &mdash; Expediente 23.908</h2>
+<p>Establece <strong>responsabilidad objetiva solidaria</strong> para bancos. Invierte la carga de la prueba.</p>
+<table>
+  <tr><th>Defensa del Banco</th><th>&iquest;Aplica?</th><th>Raz&oacute;n</th></tr>
+  <tr><td>Auto-estafa</td><td><span class="tag tag-red">NO</span></td><td>Atacante externo</td></tr>
+  <tr><td>Dolo del cliente</td><td><span class="tag tag-red">NO</span></td><td>Sin intenci&oacute;n maliciosa</td></tr>
+  <tr><td>Transferencia familiar</td><td><span class="tag tag-amber">N/A</span></td><td>Tercero desconocido</td></tr>
+  <tr><td>Negligencia grave</td><td><span class="tag tag-red">EXCLUIDA</span></td><td>No est&aacute; en el proyecto de ley</td></tr>
+</table>
+
+<!-- ═══ 15. ENIA ═══ -->
+<h2 id="s15"><span class="num">Secci&oacute;n 15</span>ENIA Gap Analysis &mdash; Checklist (11 Items)</h2>
+<table>
+  <tr><th>Item</th><th>Estado</th><th>Prioridad</th></tr>
+  <tr><td>Ley vinculante de IA</td><td><span class="tag tag-red">&#10008;</span></td><td><span class="tag tag-red">CR&Iacute;TICO</span></td></tr>
+  <tr><td>Reforma protecci&oacute;n de datos</td><td><span class="tag tag-red">&#10008;</span></td><td><span class="tag tag-red">CR&Iacute;TICO</span></td></tr>
+  <tr><td>Autoridad de IA (PRODHAB)</td><td><span class="tag tag-red">&#10008;</span></td><td><span class="tag tag-red">CR&Iacute;TICO</span></td></tr>
+  <tr><td>Evaluaciones de impacto algor&iacute;tmico</td><td><span class="tag tag-red">&#10008;</span></td><td><span class="tag tag-amber">ALTO</span></td></tr>
+  <tr><td>Marco anti-desinformaci&oacute;n</td><td><span class="tag tag-red">&#10008;</span></td><td><span class="tag tag-amber">URGENTE</span></td></tr>
+  <tr><td>Estrategia Nacional IA (ENIA)</td><td><span class="tag tag-green">&#10004;</span></td><td><span class="tag tag-green">COMPLETO</span></td></tr>
+  <tr><td>UNESCO RAM completion</td><td><span class="tag tag-red">&#10008;</span></td><td><span class="tag tag-amber">MEDIO</span></td></tr>
+  <tr><td>Sandbox regulatorio</td><td><span class="tag tag-red">&#10008;</span></td><td><span class="tag tag-amber">MEDIO</span></td></tr>
+  <tr><td>Expediente 23771</td><td><span class="tag tag-red">&#10008;</span></td><td><span class="tag tag-cyan">EN COMISI&Oacute;N</span></td></tr>
+  <tr><td>OECD AI Policy indexado</td><td><span class="tag tag-green">&#10004;</span></td><td><span class="tag tag-green">COMPLETO</span></td></tr>
+  <tr><td>Centro de Excelencia IA</td><td><span class="tag tag-red">&#10008;</span></td><td><span class="tag tag-violet">PLANEADO</span></td></tr>
+</table>
+<div class="alert"><p><strong>La paradoja:</strong> Visi&oacute;n ENIA = 100/100 (Oxford Insights) | Ejecuci&oacute;n D4 = 0.38 (CAPI-CR) &mdash; la brecha estrategia-ejecuci&oacute;n m&aacute;s amplia del peer set.</p></div>
+
+<!-- ═══ 16. LEGISLACIÓN ═══ -->
+<h2 id="s16"><span class="num">Secci&oacute;n 16</span>Legislaci&oacute;n Internacional (7 Leyes Analizadas)</h2>
+<table>
+  <tr><th>Ley</th><th>Pa&iacute;s</th><th>Estado</th><th>Nota</th></tr>
+  <tr><td>EU AI Act</td><td>UE</td><td><span class="tag tag-green">VIGENTE</span></td><td>4 niveles riesgo, multas &euro;35M/7% turnover</td></tr>
+  <tr><td>AI Framework Act</td><td>Corea del Sur</td><td><span class="tag tag-green">VIGENTE 2026</span></td><td>Modelo principal para CR</td></tr>
+  <tr><td>SB 24-205</td><td>Colorado, EE.UU.</td><td><span class="tag tag-green">VIGENTE 2026</span></td><td>Evaluaciones de impacto obligatorias</td></tr>
+  <tr><td>AI Bill</td><td>Chile</td><td><span class="tag tag-amber">EN SENADO</span></td><td>Consejo Asesor + UNESCO RAM completo</td></tr>
+  <tr><td>ENIA</td><td>Costa Rica</td><td><span class="tag tag-red">SOLO ESTRATEGIA</span></td><td>Score: 0.38/1.0 &mdash; sin fuerza vinculante</td></tr>
+  <tr><td>Exp. 23771</td><td>Costa Rica</td><td><span class="tag tag-amber">EN COMISI&Oacute;N</span></td><td>Proyecto de ley de IA</td></tr>
+  <tr><td>Exp. 23097</td><td>Costa Rica</td><td><span class="tag tag-amber">EN REVISI&Oacute;N</span></td><td>Protecci&oacute;n de datos</td></tr>
+</table>
+
+<!-- ═══ 17. SIMULADOR ═══ -->
+<h2 id="s17"><span class="num">Secci&oacute;n 17</span>Simulador de Pol&iacute;ticas (4 Presets)</h2>
+<table>
+  <tr><th>Preset</th><th>Cambio</th><th>Efecto</th></tr>
+  <tr><td>Aprobar Ley de IA</td><td>D4 &rarr; 0.65</td><td>Regulaci&oacute;n pasa de D&Eacute;FICIT a PREPARADO</td></tr>
+  <tr><td>Completar SOC-CR</td><td>D6 &rarr; 0.60</td><td>Seguridad mejora a EN RIESGO (alto)</td></tr>
+  <tr><td>Track IA en INA</td><td>D2 + 0.05</td><td>Capital Humano mejora incrementalmente</td></tr>
+  <tr><td>Duplicar I+D</td><td>D3 + 0.10</td><td>Innovaci&oacute;n mejora significativamente</td></tr>
+</table>
+
+<!-- ═══ 18. APIs ═══ -->
+<h2 id="s18"><span class="num">Secci&oacute;n 18</span>Fuentes de Datos y APIs (13 Fuentes)</h2>
+<table>
+  <tr><th>Fuente</th><th>Estado</th><th>Endpoint / Uso</th></tr>
+  <tr><td>World Bank Open Data</td><td><span class="tag tag-green">ACTIVO</span></td><td><code>api.worldbank.org/v2/country/</code></td></tr>
+  <tr><td>GDELT Project</td><td><span class="tag tag-green">ACTIVO</span></td><td>Noticias IA en tiempo real</td></tr>
+  <tr><td>Exchange Rates API</td><td><span class="tag tag-green">ACTIVO</span></td><td><code>open.er-api.com/v6/latest/USD</code></td></tr>
+  <tr><td>REST Countries</td><td><span class="tag tag-green">ACTIVO</span></td><td>Datos b&aacute;sicos de pa&iacute;ses</td></tr>
+  <tr><td>WHO GHO</td><td><span class="tag tag-amber">PLANEADO</span></td><td>Indicadores de salud</td></tr>
+  <tr><td>GitHub Search</td><td><span class="tag tag-amber">PLANEADO</span></td><td>Open source por pa&iacute;s</td></tr>
+  <tr><td>OECD SDMX</td><td><span class="tag tag-violet">DISPONIBLE</span></td><td>Indicadores econ&oacute;micos</td></tr>
+  <tr><td>UNDP Human Development</td><td><span class="tag tag-amber">PLANEADO</span></td><td>HDI datos</td></tr>
+  <tr><td>UNESCO UIS</td><td><span class="tag tag-amber">PLANEADO</span></td><td>Educaci&oacute;n</td></tr>
+  <tr><td>FAO FAOSTAT</td><td><span class="tag tag-violet">DISPONIBLE</span></td><td>Seguridad alimentaria</td></tr>
+  <tr><td>OECD.AI Observatory</td><td><span class="tag tag-violet">DISPONIBLE</span></td><td>Pol&iacute;ticas IA</td></tr>
+  <tr><td>ITU ICT Eye</td><td><span class="tag tag-violet">DISPONIBLE</span></td><td>Indicadores TIC</td></tr>
+  <tr><td>ILO ILOSTAT</td><td><span class="tag tag-violet">DISPONIBLE</span></td><td>Mercado laboral</td></tr>
+</table>
+<p><strong>Cach&eacute;:</strong> SessionStorage con TTL de 30 minutos. Claves: <code>clb_wb</code>, <code>clb_gdelt</code>, <code>clb_xr</code>.</p>
+
+<!-- ═══ 19. PARTNERS ═══ -->
+<h2 id="s19"><span class="num">Secci&oacute;n 19</span>25+ Partners Internacionales</h2>
+<p>World Bank, OECD, WEF, UNESCO, GDELT, PROCOMER, CINDE, IMF, ILO, Oxford Insights, Stanford HAI, Transparency International, Freedom House, IEP, OWASP, Goldman Sachs, IFR, UNDP, FAO, WHO, UNCTAD, IDB, Deloitte, McKinsey, Bank of America, OIJ, SUGEF, BCCR, LexisNexis, ITU, GAFILAT, Sumsub, ACFE, Anthropic MCP, Google A2A Protocol.</p>
+
+<!-- ═══ 20. ODS ═══ -->
+<h2 id="s20"><span class="num">Secci&oacute;n 20</span>Alineaci&oacute;n con ODS (8 de 17)</h2>
+<table>
+  <tr><th>ODS</th><th>Nombre</th><th>Contribuci&oacute;n del Portal</th></tr>
+  <tr><td>4</td><td>Educaci&oacute;n de Calidad</td><td>M&eacute;tricas de alfabetizaci&oacute;n IA, glosario 55+ t&eacute;rminos, dimensi&oacute;n D2</td></tr>
+  <tr><td>8</td><td>Trabajo Decente</td><td>An&aacute;lisis desplazamiento laboral, IVAS, BPO risk, ZF workforce</td></tr>
+  <tr><td>9</td><td>Industria e Innovaci&oacute;n</td><td>Dimensi&oacute;n D3, an&aacute;lisis ZF, 4 APIs en vivo</td></tr>
+  <tr><td>10</td><td>Reducci&oacute;n Desigualdades</td><td>Brecha digital, 5G disparidades (84% vs 4%), 2.6B offline</td></tr>
+  <tr><td>11</td><td>Ciudades Sostenibles</td><td>IA en ciudades inteligentes, digital twins</td></tr>
+  <tr><td>13</td><td>Acci&oacute;n Clim&aacute;tica</td><td>Dimensi&oacute;n D5, 99% renovable, impacto data centers</td></tr>
+  <tr><td>16</td><td>Paz e Instituciones</td><td>Legislaci&oacute;n IA (20+ pa&iacute;ses), brecha regulatoria, gobernanza</td></tr>
+  <tr><td>17</td><td>Alianzas</td><td>25+ fuentes internacionales, 6+ agencias ONU, CC BY-NC 4.0</td></tr>
+</table>
+
+<!-- ═══ 21. CACHÉ ═══ -->
+<h2 id="s21"><span class="num">Secci&oacute;n 21</span>Sistema de Cach&eacute; (SessionStorage)</h2>
+<pre>
+<span class="comment">// TTL: 30 minutos</span>
+<span class="keyword">function</span> cacheGet(k) {
+  <span class="keyword">const</span> c = sessionStorage.getItem(<span class="string">`clb_${k}`</span>);
+  <span class="keyword">if</span> (!c) <span class="keyword">return null</span>;
+  <span class="keyword">const</span> d = JSON.parse(c);
+  <span class="keyword">if</span> (Date.now() - d.ts > <span class="number">30</span> * <span class="number">60</span> * <span class="number">1000</span>) <span class="keyword">return null</span>;
+  <span class="keyword">return</span> d.data;
+}
+
+<span class="keyword">function</span> cacheSet(k, v) {
+  sessionStorage.setItem(<span class="string">`clb_${k}`</span>, JSON.stringify({
+    ts: Date.now(), data: v
+  }));
+}
+</pre>
+
+<!-- ═══ 22. TEMAS ═══ -->
+<h2 id="s22"><span class="num">Secci&oacute;n 22</span>Sistema de Temas (Light / Dark)</h2>
+<table>
+  <tr><th>Variable</th><th>Light</th><th>Dark</th><th>Uso</th></tr>
+  <tr><td><code>--bg</code></td><td>#f8f9fc</td><td>#0a0f1e</td><td>Fondo principal</td></tr>
+  <tr><td><code>--surface</code></td><td>#eef1f8</td><td>#111827</td><td>Superficie cards</td></tr>
+  <tr><td><code>--text</code></td><td>#0f172a</td><td>#f1f5f9</td><td>Texto primario</td></tr>
+  <tr><td><code>--cyan</code></td><td>#2563eb</td><td>#2563eb</td><td>D1, acentos</td></tr>
+  <tr><td><code>--violet</code></td><td>#6366f1</td><td>#6366f1</td><td>D2, algoritmos</td></tr>
+  <tr><td><code>--pink</code></td><td>#ec4899</td><td>#ec4899</td><td>D6, seguridad</td></tr>
+  <tr><td><code>--amber</code></td><td>#f59e0b</td><td>#f59e0b</td><td>En Riesgo, alertas</td></tr>
+  <tr><td><code>--red</code></td><td>#ef4444</td><td>#ef4444</td><td>D&eacute;ficit, cr&iacute;tico</td></tr>
+  <tr><td><code>--green</code></td><td>#10b981</td><td>#10b981</td><td>Preparado, &eacute;xito</td></tr>
+</table>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div>
+    <strong>Colibrii Labs</strong> &mdash; <a href="https://colibriilabs.ai">colibriilabs.ai</a><br>
+    Andr&eacute;s Alp&iacute;zar | Fundador &amp; Investigador Principal
+  </div>
+  <div style="text-align:right">
+    Versi&oacute;n 21.1 | Marzo 2026<br>
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:10px">CC BY-NC 4.0</span>
+  </div>
+</div>
+
+</div><!-- /page -->
+</body>
+</html>

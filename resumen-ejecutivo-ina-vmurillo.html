@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nota Ejecutiva — Colibrii Labs AI Observatory | INA</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #fafbfe;
+    --text: #0f172a;
+    --text2: #334155;
+    --text3: #64748b;
+    --cyan: #2563eb;
+    --violet: #6366f1;
+    --pink: #ec4899;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --green: #10b981;
+    --border: #e2e8f0;
+    --card: #ffffff;
+    --surface: #f1f5f9;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.7;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 48px;
+  }
+
+  /* ── COVER (SOLID BG — renders everywhere) ── */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: #0f172a;
+    padding: 60px 48px;
+    position: relative;
+  }
+
+  .cover-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.6);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+  }
+
+  .cover-label .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+
+  .cover h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 40px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+
+  .cover h1 em {
+    font-style: normal;
+    color: #60a5fa;
+  }
+
+  .cover .subtitle {
+    font-size: 16px;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 48px;
+    max-width: 480px;
+  }
+
+  .cover-meta {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 32px;
+    width: 100%;
+    max-width: 520px;
+  }
+
+  .cover-meta .recipient {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .cover-meta .name {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: #ffffff;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .cover-meta .role {
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 24px;
+  }
+
+  .cover-info {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    font-size: 12px;
+    color: rgba(255,255,255,0.35);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* ── SECTION HEADERS ── */
+  .block-header {
+    margin: 48px 0 28px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .block-header .num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--cyan);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .block-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 23px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  /* ── SYNTHESIS BOX ── */
+  .synthesis {
+    background: #0f172a;
+    border-radius: 14px;
+    padding: 28px 28px;
+    margin: 28px 0;
+    color: #ffffff;
+  }
+
+  .synthesis h3 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #60a5fa;
+    margin-bottom: 12px;
+  }
+
+  .synthesis p {
+    font-size: 14px;
+    line-height: 1.8;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 12px;
+  }
+
+  .synthesis p:last-child { margin-bottom: 0; }
+  .synthesis strong { color: var(--amber); }
+  .synthesis em { color: rgba(255,255,255,0.6); font-style: normal; font-size: 13px; }
+
+  /* ── STAT CARDS ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 24px 0;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 14px;
+    text-align: center;
+  }
+
+  .stat-card .value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+
+  .stat-card .label {
+    font-size: 11px;
+    color: var(--text3);
+    line-height: 1.4;
+  }
+
+  /* ── CONTENT ── */
+  .content p {
+    margin-bottom: 14px;
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.8;
+  }
+
+  .content p strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .highlight {
+    background: linear-gradient(135deg, rgba(37,99,235,0.06), rgba(99,102,241,0.06));
+    border-left: 3px solid var(--cyan);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin: 18px 0;
+    font-size: 14px;
+    color: var(--text2);
+  }
+
+  .highlight strong { color: var(--cyan); }
+
+  .ina-ack {
+    background: rgba(16, 185, 129, 0.06);
+    border-left: 3px solid var(--green);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin: 18px 0;
+    font-size: 14px;
+    color: var(--text2);
+  }
+
+  .ina-ack strong { color: #059669; }
+
+  .warning {
+    background: rgba(239, 68, 68, 0.05);
+    border-left: 3px solid var(--amber);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin: 18px 0;
+  }
+
+  .warning strong { color: var(--amber); }
+
+  .fact-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin: 12px 0;
+  }
+
+  .fact-card .fact-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--cyan);
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .fact-card p {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  .fact-card .source {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 6px;
+    font-style: italic;
+  }
+
+  /* ── TABLES ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 13px;
+  }
+
+  th {
+    background: var(--surface);
+    font-weight: 600;
+    text-align: left;
+    padding: 9px 12px;
+    border-bottom: 2px solid var(--border);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text3);
+  }
+
+  td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .tag-red { background: rgba(239,68,68,0.12); color: var(--red); }
+  .tag-amber { background: rgba(245,158,11,0.12); color: var(--amber); }
+  .tag-green { background: rgba(16,185,129,0.12); color: var(--green); }
+  .tag-cyan { background: rgba(37,99,235,0.12); color: var(--cyan); }
+
+  /* ── CTA ── */
+  .cta-single {
+    background: #0f172a;
+    border-radius: 14px;
+    padding: 36px 32px;
+    text-align: center;
+    margin: 36px 0;
+    color: #ffffff;
+  }
+
+  .cta-single h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    margin-bottom: 14px;
+  }
+
+  .cta-single p {
+    color: rgba(255,255,255,0.6);
+    font-size: 14px;
+    line-height: 1.7;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  .cta-single .cta-email {
+    margin-top: 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: #60a5fa;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  .footer a {
+    color: var(--cyan);
+    text-decoration: none;
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    body { background: white; font-size: 12px; }
+    .page { padding: 16px 28px; }
+    .cover { min-height: auto; padding: 44px 28px; page-break-after: always; }
+    .block-header { page-break-before: auto; }
+    .synthesis, .cta-single { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .stat-card { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .tag { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .highlight, .warning, .ina-ack, .fact-card { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    table { page-break-inside: avoid; }
+    .stats-grid { page-break-inside: avoid; }
+    .fact-card { page-break-inside: avoid; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  @page {
+    margin: 0.6in;
+    size: letter;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ COVER ═══════════════════ -->
+<div class="cover">
+  <div class="cover-label">
+    <span class="dot"></span>
+    Observatorio en Vivo
+  </div>
+
+  <h1>Observatorio de<br><em>Inteligencia Artificial</em></h1>
+  <p class="subtitle">Nota Ejecutiva: Oportunidades para Fortalecer<br>la Asesor&iacute;a Empresarial</p>
+
+  <div class="cover-meta">
+    <div class="recipient">Preparado para</div>
+    <div class="name">Lic. V&iacute;ctor Murillo Hern&aacute;ndez</div>
+    <div class="role">Asesor de Empresas &mdash; Instituto Nacional de Aprendizaje (INA)</div>
+
+    <div class="cover-info">
+      <span>Marzo 2026</span>
+      <span>colibriilabs.ai</span>
+      <span>v21.2</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ BODY ═══════════════════ -->
+<div class="page">
+
+  <!-- ═══ SYNTHESIS ═══ -->
+  <div class="synthesis">
+    <h3>S&iacute;ntesis</h3>
+    <p>Colibrii Labs es un observatorio abierto e independiente que integra datos econ&oacute;micos, regulatorios, sectoriales y tecnol&oacute;gicos para generar inteligencia estrat&eacute;gica sobre inteligencia artificial, competitividad y transformaci&oacute;n productiva en Costa Rica y Am&eacute;rica Latina.</p>
+    <p>El proyecto aborda una brecha concreta: hoy existe abundante informaci&oacute;n sobre empleo, capacidades digitales, regulaci&oacute;n, productividad y adopci&oacute;n tecnol&oacute;gica, pero suele estar dispersa entre m&uacute;ltiples fuentes y rara vez se traduce en <strong>indicadores comparables y accionables</strong> para la toma de decisiones.</p>
+    <p>El INA ya cuenta con iniciativas valiosas en digitalizaci&oacute;n y capacitaci&oacute;n tecnol&oacute;gica. Esta nota propone un recurso complementario que puede fortalecer la labor de asesor&iacute;a empresarial con datos estructurados, benchmarking internacional y an&aacute;lisis sectorial.</p>
+  </div>
+
+  <!-- ═══ KEY STATS ═══ -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="value" style="color: var(--amber);">0.42</div>
+      <div class="label">CAPI-CR: &Iacute;ndice Compuesto<br>Preparaci&oacute;n AI &mdash; Costa Rica<br><span class="tag tag-amber">EN RIESGO</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="value" style="color: var(--cyan);">20</div>
+      <div class="label">Econom&iacute;as comparadas<br>en 6 dimensiones (FMI AIPI extendido)</div>
+    </div>
+    <div class="stat-card">
+      <div class="value" style="color: var(--green);">0.82</div>
+      <div class="label">D5 Energ&iacute;a: 99% renovable<br><span class="tag tag-green">FORTALEZA</span></div>
+    </div>
+  </div>
+
+  <!-- ═══ BLOQUE 1 ═══ -->
+  <div class="block-header">
+    <div class="num">Bloque 01</div>
+    <h2>Competitividad Empresarial y Zonas Francas</h2>
+  </div>
+
+  <div class="content">
+    <p>La econom&iacute;a de zona franca de Costa Rica representa un motor estrat&eacute;gico: <strong>626 empresas, $4.3B en inversi&oacute;n extranjera directa, 265,000 empleos</strong> (directos e indirectos) y aproximadamente el <strong>15% del PIB</strong>. Sus exportaciones alcanzan $8.9B anuales, equivalentes al 49% de las exportaciones totales del pa&iacute;s.</p>
+
+    <p>Seg&uacute;n nuestro an&aacute;lisis, esta econom&iacute;a enfrenta dos transiciones simult&aacute;neas:</p>
+
+    <div class="highlight">
+      <p><strong>Transici&oacute;n regulatoria:</strong> La enforcement del EU AI Act inicia en agosto 2026. Toda empresa de zona franca que exporte hacia la Uni&oacute;n Europea deber&aacute; demostrar cumplimiento con marcos de gobernanza de IA. Actualmente, seg&uacute;n nuestro mapeo, no hay programas formales de compliance de IA en el r&eacute;gimen de zona franca costarricense.</p>
+    </div>
+
+    <div class="highlight">
+      <p><strong>Transici&oacute;n laboral:</strong> Estimaciones de exposici&oacute;n laboral a IA/automatizaci&oacute;n en determinados marcos de an&aacute;lisis sugieren que un 37-38% de la fuerza laboral en zonas francas enfrenta transformaci&oacute;n. El segmento de BPO (28,000 empleos) concentra el mayor riesgo de desplazamiento, en parte porque el costo operativo de agentes de IA ($0.50-5/hora) crea un diferencial de 10-30&times; frente al costo de un operador humano.</p>
+    </div>
+
+    <table>
+      <tr><th>M&eacute;trica</th><th>Valor</th><th>Fuente</th></tr>
+      <tr><td>Empresas en Zona Franca</td><td><strong>626</strong></td><td>PROCOMER / CINDE</td></tr>
+      <tr><td>IED concentrada en ZF</td><td><strong>$4.3B</strong> (2024)</td><td>CINDE</td></tr>
+      <tr><td>Empleos directos + indirectos</td><td><strong>265,000</strong></td><td>An&aacute;lisis Colibrii Labs</td></tr>
+      <tr><td>Exportaciones ZF</td><td><strong>$8.9B</strong> (49% del total)</td><td>PROCOMER</td></tr>
+      <tr><td>Empleos BPO con exposici&oacute;n</td><td><strong>28,000</strong></td><td>Estimaci&oacute;n propia</td></tr>
+      <tr><td>EU AI Act enforcement</td><td><strong>Agosto 2026</strong></td><td>Parlamento Europeo</td></tr>
+    </table>
+
+    <p><strong>Utilidad del portal para asesor&iacute;a empresarial:</strong> El observatorio ofrece diagn&oacute;sticos sectoriales comparativos (Costa Rica vs. 19 econom&iacute;as pares), an&aacute;lisis de exposici&oacute;n por segmento y seguimiento de marcos regulatorios internacionales. Para un asesor de empresas, esto reduce semanas de investigaci&oacute;n a minutos de consulta estructurada.</p>
+
+    <p>Desde una perspectiva de pol&iacute;tica p&uacute;blica, el Banco Mundial clasific&oacute; a Costa Rica como uno de 7 pa&iacute;ses de ingreso medio-alto con desempe&ntilde;o superior en preparaci&oacute;n para IA (AI Overperformer en el marco AIPI). Esa posici&oacute;n es una ventaja competitiva para atracci&oacute;n de IED, pero requiere evidencia estructurada para mantenerse &mdash; especialmente cuando econom&iacute;as competidoras como Vietnam, Indonesia y Filipinas est&aacute;n avanzando aceleradamente.</p>
+  </div>
+
+  <!-- ═══ BLOQUE 2 ═══ -->
+  <div class="block-header">
+    <div class="num">Bloque 02</div>
+    <h2>Talento, Reconversi&oacute;n y Capacidades</h2>
+  </div>
+
+  <div class="content">
+    <div class="ina-ack">
+      <p><strong>Reconocimiento de capacidades existentes:</strong> El INA ha demostrado capacidad de adaptaci&oacute;n ante la transformaci&oacute;n digital: los bootcamps con Google Cloud, las alianzas con Ericsson en IA, IoT y 5G, los programas de digitalizaci&oacute;n MYPE v&iacute;a OIT/Cinterfor, y la infraestructura de UFODE y los CDE representan pasos concretos hacia una oferta formativa alineada con las necesidades del mercado.</p>
+    </div>
+
+    <p>La oportunidad que identificamos no es comenzar de cero, sino <strong>pasar de iniciativas puntuales a una capa de inteligencia estrat&eacute;gica continua</strong> que ayude a priorizar sectores, perfiles ocupacionales y competencias donde la inversi&oacute;n formativa tenga mayor impacto.</p>
+
+    <p>El contexto global lo justifica: el WEF Future of Jobs 2025 proyecta <strong>170 millones de empleos nuevos vinculados a IA</strong> y 92 millones desplazados, con un saldo neto positivo de 78 millones. La pregunta estrat&eacute;gica para instituciones de formaci&oacute;n es: &iquest;c&oacute;mo priorizar la reconversi&oacute;n con datos, no solo con intuici&oacute;n?</p>
+
+    <table>
+      <tr><th>Indicador</th><th>Costa Rica</th><th>Contexto</th></tr>
+      <tr><td>D2 Capital Humano (CAPI-CR)</td><td><strong>~0.58</strong></td><td><span class="tag tag-green">Fortaleza relativa en LATAM</span></td></tr>
+      <tr><td>Gasto educativo (% PIB)</td><td><strong>~6.7%</strong></td><td>Superior al promedio OECD</td></tr>
+      <tr><td>T&eacute;cnicos TI graduados / a&ntilde;o</td><td><strong>13,000</strong></td><td>Capacidad instalada aprovechable</td></tr>
+      <tr><td>D3 Innovaci&oacute;n (CAPI-CR)</td><td><strong>0.40</strong></td><td><span class="tag tag-amber">I+D solo 0.4% PIB</span></td></tr>
+      <tr><td>Riesgos IA en top 5 ejecutivos (WEF EOS)</td><td><strong>0</strong></td><td><span class="tag tag-amber">Punto ciego vs. Vietnam #1</span></td></tr>
+    </table>
+
+    <div class="warning">
+      <p><strong>Se&ntilde;al de contexto:</strong> La Encuesta de Opini&oacute;n Ejecutiva del WEF 2026 muestra que los ejecutivos costarricenses no incluyen ning&uacute;n riesgo de IA/tecnolog&iacute;a en su top 5 de preocupaciones. En contraste, Vietnam ubica la IA como riesgo #1, Corea del Sur en #5, Indonesia en #3. Este diferencial de percepci&oacute;n es relevante para la planificaci&oacute;n de formaci&oacute;n t&eacute;cnica.</p>
+    </div>
+
+    <p><strong>Utilidad del portal para el INA:</strong> El observatorio ofrece una base de evidencia para informar decisiones de dise&ntilde;o curricular: &iquest;qu&eacute; competencias en IA demanda cada sector? &iquest;Cu&aacute;les de los 28,000 trabajadores de BPO necesitan qu&eacute; tipo de reconversi&oacute;n primero? &iquest;Qu&eacute; est&aacute;n haciendo pa&iacute;ses comparables (el AI Framework Act de Corea, el NAIS de Singapur)? Estos insumos pueden complementar la experiencia institucional que el INA ya tiene en acompa&ntilde;amiento empresarial.</p>
+  </div>
+
+  <!-- ═══ BLOQUE 3 ═══ -->
+  <div class="block-header">
+    <div class="num">Bloque 03</div>
+    <h2>Gesti&oacute;n de Riesgo y Protecci&oacute;n del Ecosistema PYME</h2>
+  </div>
+
+  <div class="content">
+    <p>El observatorio incluye un m&oacute;dulo especializado en fraude bancario potenciado por IA, con datos que son directamente relevantes para la asesor&iacute;a a PYMES:</p>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="value" style="color: var(--red);">78<span style="font-size:16px;color:var(--text3);">/100</span></div>
+        <div class="label">IFRABA &mdash; &Iacute;ndice de<br>Fraude Bancario por IA</div>
+      </div>
+      <div class="stat-card">
+        <div class="value" style="color: var(--amber);">668%</div>
+        <div class="label">Crecimiento fraude<br>digital 2020&ndash;2024</div>
+      </div>
+      <div class="stat-card">
+        <div class="value" style="color: var(--violet);">10,027</div>
+        <div class="label">Familias afectadas<br>en 2025</div>
+      </div>
+    </div>
+
+    <p>Las p&eacute;rdidas directas estimadas alcanzan <strong>&#8353;6,000 millones en 2025</strong>, con una tasa de crecimiento anual compuesta (CAGR) de 47.3%. El observatorio utiliza un modelo Erlang-C para estimar capacidad investigativa: el OIJ cuenta con <strong>285 investigadores frente a 2,028 necesarios</strong> (14% de capacidad), con proyecciones de colapso matem&aacute;tico entre 2026-2028 bajo cualquier supuesto realista de productividad.</p>
+
+    <div class="warning">
+      <p><strong>Riesgo para PYMES:</strong> Seg&uacute;n nuestro modelo de estr&eacute;s, un compromiso del 1% de la cartera PYME generar&iacute;a &#8353;13,500 millones en costos reales por cascada de incumplimiento, aumento de provisiones y congelamiento de l&iacute;neas de cr&eacute;dito. Aproximadamente 1,400 denuncias simult&aacute;neas por fraude equivaldr&iacute;an a 2 meses de carga normal del OIJ en un solo d&iacute;a.</p>
+    </div>
+
+    <p>La dimensi&oacute;n regulatoria agrava el problema. Costa Rica presenta brechas significativas frente a marcos internacionales de gobernanza de IA:</p>
+
+    <table>
+      <tr><th>Dimensi&oacute;n</th><th>CR</th><th>UK</th><th>UE</th><th>Singapur</th></tr>
+      <tr><td>Regulaci&oacute;n Bancaria IA</td><td style="color:var(--red);font-weight:700;">10</td><td>60</td><td>65</td><td>70</td></tr>
+      <tr><td>Rendici&oacute;n Algor&iacute;tmica</td><td style="color:var(--red);font-weight:700;">15</td><td>75</td><td>85</td><td>70</td></tr>
+      <tr><td>Protecci&oacute;n al Consumidor</td><td style="color:var(--amber);font-weight:700;">25</td><td>80</td><td>75</td><td>65</td></tr>
+      <tr><td>Protecci&oacute;n de Datos en IA</td><td style="color:var(--amber);font-weight:700;">20</td><td>70</td><td>90</td><td>75</td></tr>
+      <tr><td>Gobernanza Multi-Agente</td><td style="color:var(--red);font-weight:700;">0</td><td>25</td><td>30</td><td>35</td></tr>
+    </table>
+
+    <p><em>Escala 0-100. Fuente: An&aacute;lisis comparativo Colibrii Labs basado en marcos regulatorios p&uacute;blicos (2025-2026).</em></p>
+
+    <p>Adicionalmente, el <strong>Expediente 23.908</strong> establece responsabilidad objetiva solidaria para entidades bancarias, cambiando la carga de la prueba en casos de fraude. Esto genera una necesidad concreta de talento capacitado en detecci&oacute;n y prevenci&oacute;n de fraude potenciado por IA &mdash; un &aacute;rea donde el INA podr&iacute;a ampliar su oferta formativa.</p>
+
+    <p>La <strong>Estrategia Nacional de IA (ENIA)</strong> obtuvo 100/100 en visi&oacute;n (Oxford Insights), pero la ejecuci&oacute;n regulatoria medida por nuestro &iacute;ndice CAPI-CR arroja D4 = 0.38. Para comparaci&oacute;n: Singapur = 0.85, Corea del Sur = 0.75.</p>
+
+    <p><strong>Utilidad del portal:</strong> El m&oacute;dulo de Banca &amp; IA ofrece herramientas de evaluaci&oacute;n de riesgo (IFRABA), proyecciones temporales, 8 vectores de amenaza documentados y el estr&eacute;s test PYME. Para un asesor de empresas, estos insumos permiten ilustrar riesgos concretos en sesiones de acompa&ntilde;amiento.</p>
+  </div>
+
+  <!-- ═══ HALLAZGOS ILUSTRATIVOS ═══ -->
+  <div class="block-header">
+    <div class="num">Hallazgos Ilustrativos</div>
+    <h2>Se&ntilde;ales Relevantes del Observatorio</h2>
+  </div>
+
+  <div class="fact-card">
+    <div class="fact-num">Hallazgo 01</div>
+    <p>Los resultados adversos de la IA saltaron de la posici&oacute;n <strong>#30 a #5</strong> en el ranking de severidad a largo plazo del WEF Global Risks 2026 &mdash; el mayor ascenso en la historia de esta encuesta. Severidad proyectada: 5.28/7.0.</p>
+    <div class="source">Fuente: WEF Global Risks Report 2026</div>
+  </div>
+
+  <div class="fact-card">
+    <div class="fact-num">Hallazgo 02</div>
+    <p>Los ejecutivos costarricenses no incluyen ning&uacute;n riesgo de IA o tecnolog&iacute;a en su top 5 de preocupaciones (WEF Executive Opinion Survey). Vietnam ubica IA como riesgo #1, Corea del Sur en #5, Filipinas en #4. Esta asimetr&iacute;a de percepci&oacute;n es una se&ntilde;al estrat&eacute;gica.</p>
+    <div class="source">Fuente: WEF Executive Opinion Survey 2026 v&iacute;a data.js del observatorio</div>
+  </div>
+
+  <div class="fact-card">
+    <div class="fact-num">Hallazgo 03</div>
+    <p>Costa Rica obtiene <strong>D5 Energ&iacute;a = 0.82</strong> (99% renovable) en nuestro &iacute;ndice CAPI-CR. Esto representa una ventaja competitiva genuina para atracci&oacute;n de centros de datos e infraestructura de IA, considerando que la IA consume aproximadamente 4,600 veces m&aacute;s energ&iacute;a que el software tradicional.</p>
+    <div class="source">Fuente: IEA, an&aacute;lisis CAPI-CR Colibrii Labs</div>
+  </div>
+
+  <div class="fact-card">
+    <div class="fact-num">Hallazgo 04</div>
+    <p>La ENIA obtiene <strong>100/100 en visi&oacute;n</strong> (Oxford Insights), pero la ejecuci&oacute;n regulatoria medida por CAPI-CR D4 = 0.38. La brecha visi&oacute;n-ejecuci&oacute;n de Costa Rica es la m&aacute;s amplia de las 20 econom&iacute;as analizadas.</p>
+    <div class="source">Fuente: Oxford Insights AI Readiness, an&aacute;lisis CAPI-CR Colibrii Labs</div>
+  </div>
+
+  <div class="fact-card">
+    <div class="fact-num">Hallazgo 05</div>
+    <p>Seg&uacute;n an&aacute;lisis de fuentes p&uacute;blicas, cada $1 en exenciones de zona franca genera <strong>$2.90 en valor</strong>. Las 626 empresas operan sobre $4.3B en IED acumulada. Esta base econ&oacute;mica est&aacute; expuesta a transformaci&oacute;n por IA, lo cual requiere inteligencia estrat&eacute;gica para decisiones de acompa&ntilde;amiento.</p>
+    <div class="source">Fuente: PROCOMER, CINDE, an&aacute;lisis Colibrii Labs</div>
+  </div>
+
+  <!-- ═══ PROPUESTA DE VALOR ═══ -->
+  <div class="block-header">
+    <div class="num">Propuesta de Valor</div>
+    <h2>Qu&eacute; Ofrece el Observatorio</h2>
+  </div>
+
+  <div class="content">
+    <p>El observatorio transforma datos fragmentados de m&uacute;ltiples fuentes internacionales (Banco Mundial, WEF, OECD, FMI, OIT, Oxford Insights, entre otras) en <strong>se&ntilde;ales comparables y accionables</strong> a trav&eacute;s del &iacute;ndice CAPI-CR: 6 dimensiones, 20 econom&iacute;as, 25+ fuentes integradas, 10 marcos anal&iacute;ticos propios.</p>
+
+    <p>El observatorio <strong>no reemplaza</strong> el conocimiento institucional del INA ni sus programas existentes. Es una capa anal&iacute;tica complementaria que reduce el tiempo de investigaci&oacute;n de semanas a minutos, ofreciendo benchmarking internacional, an&aacute;lisis sectorial y herramientas de diagn&oacute;stico para asesor&iacute;a empresarial.</p>
+
+    <p>Es un esfuerzo de acceso abierto, independiente y sin fines de lucro, desarrollado desde Costa Rica. Extiende el marco AIPI del FMI de 4 a 6 dimensiones (incorporando Energ&iacute;a Sostenible y Seguridad Digital), y ofrece contenido biling&uuml;e (espa&ntilde;ol/ingl&eacute;s) orientado a p&uacute;blicos t&eacute;cnicos y no t&eacute;cnicos.</p>
+  </div>
+
+  <!-- ═══ CTA ═══ -->
+  <div class="cta-single">
+    <h3>Siguiente Paso</h3>
+    <p>&iquest;Le har&iacute;a sentido una conversaci&oacute;n breve de 20 minutos para mostrarle 3 casos de uso concretos del observatorio aplicados a asesor&iacute;a empresarial y capacitaci&oacute;n?</p>
+    <p>No requiere adopci&oacute;n institucional inmediata. Puede verse primero como insumo exploratorio para evaluar utilidad pr&aacute;ctica.</p>
+    <div class="cta-email">colibriilabs.ai</div>
+  </div>
+
+  <!-- ═══ FUENTES ═══ -->
+  <div class="block-header">
+    <div class="num">Fuentes y Metodolog&iacute;a</div>
+    <h2>Base Anal&iacute;tica</h2>
+  </div>
+
+  <div class="content">
+    <p><strong>25+ Fuentes Internacionales:</strong> Banco Mundial, OECD, WEF, UNESCO, FMI, OIT, Oxford Insights, Stanford HAI, Transparency International, Freedom House, IEP, Goldman Sachs, IFR, UNDP, FAO, WHO, UNCTAD, BID, Deloitte, McKinsey, LexisNexis, ITU, GDELT, IEA.</p>
+    <p><strong>Fuentes Nacionales:</strong> OIJ, SUGEF, BCCR, PROCOMER, CINDE, MICITT.</p>
+    <p><strong>Metodolog&iacute;as:</strong> CAPI-CR (extensi&oacute;n a 6 dimensiones del &iacute;ndice AIPI del FMI, normalizaci&oacute;n min-max sobre 11 indicadores del Banco Mundial), IFRABA (4 componentes &times; 25 puntos), Erlang-C (modelo de colas para capacidad investigativa del OIJ).</p>
+    <p><strong>Cobertura:</strong> 20 pa&iacute;ses, 4 APIs en vivo, 24+ informes anuales integrados.</p>
+    <p style="font-size:12px;color:var(--text3);margin-top:12px;"><em>Las estimaciones, proyecciones y an&aacute;lisis presentados en este documento est&aacute;n basados en fuentes p&uacute;blicas y marcos anal&iacute;ticos propios. Est&aacute;n sujetos a validaci&oacute;n independiente y no constituyen asesor&iacute;a profesional.</em></p>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div>
+      <strong>Colibrii Labs</strong> &mdash; <a href="https://colibriilabs.ai">colibriilabs.ai</a><br>
+      Andr&eacute;s Alp&iacute;zar | Fundador &amp; Investigador Principal
+    </div>
+    <div style="text-align:right;">
+      Datos actualizados: marzo 2026<br>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;">CC BY-NC 4.0</span>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+</body>
+</html>

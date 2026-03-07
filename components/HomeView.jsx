@@ -105,16 +105,21 @@ function WefDashboard({ en, t, dark }) {
           {hz === "short" && (
             <motion.div key="short" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.25 }}>
               {WEF_2026_RISKS.shortTerm2028.map((r, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 7 }}>
-                  <span style={{ width: 18, fontSize: 11, fontWeight: 700, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", textAlign: "center" }}>{r.rank}</span>
-                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: r.c, flexShrink: 0 }} />
-                  <span style={{ flex: 1, fontSize: 12, color: t.tx, fontWeight: r.risk.includes("AI") || r.risk.includes("Cyber") ? 700 : 400 }}>
-                    {r.risk}{r.risk.includes("AI") ? " ⚡" : ""}
-                  </span>
-                  <span style={{ fontSize: 10, fontFamily: "'IBM Plex Mono',monospace", color: r.delta.startsWith("+") ? t.rd : r.delta.startsWith("-") ? t.gn : t.tx3, fontWeight: 600 }}>
-                    {r.delta !== "—" ? r.delta : ""}
-                  </span>
-                  <span style={{ fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", minWidth: 58, textAlign: "right" }}>{catLabel[r.cat]}</span>
+                <div key={i} style={{ marginBottom: 6 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 2 }}>
+                    <span style={{ width: 18, fontSize: 11, fontWeight: 700, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", textAlign: "center" }}>{r.rank}</span>
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: r.c, flexShrink: 0 }} />
+                    <span style={{ flex: 1, fontSize: 12, color: t.tx, fontWeight: r.risk.includes("AI") || r.risk.includes("Cyber") ? 700 : 400 }}>
+                      {r.risk}{r.risk.includes("AI") ? " ⚡" : ""}
+                    </span>
+                    <span style={{ fontSize: 10, fontFamily: "'IBM Plex Mono',monospace", color: r.delta.startsWith("+") ? t.rd : r.delta.startsWith("-") ? t.gn : t.tx3, fontWeight: 600 }}>
+                      {r.delta !== "—" ? r.delta : ""}
+                    </span>
+                    <span style={{ fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", minWidth: 58, textAlign: "right" }}>{catLabel[r.cat]}</span>
+                  </div>
+                  <div style={{ marginLeft: 28, height: 4, borderRadius: 2, background: `${r.c}15` }}>
+                    <div style={{ height: "100%", borderRadius: 2, background: r.c, width: `${((11 - r.rank) / 10) * 100}%`, transition: "width 1s ease" }} />
+                  </div>
                 </div>
               ))}
               <div style={{ fontSize: 10, color: t.tx3, marginTop: 8, fontFamily: "'IBM Plex Mono',monospace" }}>
@@ -127,13 +132,18 @@ function WefDashboard({ en, t, dark }) {
           {hz === "long" && (
             <motion.div key="long" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.25 }}>
               {WEF_2026_RISKS.longTerm2036.map((r, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 7 }}>
-                  <span style={{ width: 18, fontSize: 11, fontWeight: 700, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", textAlign: "center" }}>{r.rank}</span>
-                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: r.c, flexShrink: 0 }} />
-                  <span style={{ flex: 1, fontSize: 12, color: t.tx, fontWeight: r.risk.includes("AI") ? 700 : 400 }}>
-                    {r.risk}{r.risk.includes("AI") ? " ⚡ FASTEST RISING" : ""}
-                  </span>
-                  <span style={{ fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", minWidth: 58, textAlign: "right" }}>{catLabel[r.cat]}</span>
+                <div key={i} style={{ marginBottom: 6 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 2 }}>
+                    <span style={{ width: 18, fontSize: 11, fontWeight: 700, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", textAlign: "center" }}>{r.rank}</span>
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: r.c, flexShrink: 0 }} />
+                    <span style={{ flex: 1, fontSize: 12, color: t.tx, fontWeight: r.risk.includes("AI") ? 700 : 400 }}>
+                      {r.risk}{r.risk.includes("AI") ? " ⚡ FASTEST RISING" : ""}
+                    </span>
+                    <span style={{ fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", minWidth: 58, textAlign: "right" }}>{catLabel[r.cat]}</span>
+                  </div>
+                  <div style={{ marginLeft: 28, height: 4, borderRadius: 2, background: `${r.c}15` }}>
+                    <div style={{ height: "100%", borderRadius: 2, background: r.c, width: `${((11 - r.rank) / 10) * 100}%`, transition: "width 1s ease" }} />
+                  </div>
                 </div>
               ))}
               <div style={{ marginTop: 10, padding: "8px 12px", background: `${t.vi}08`, borderRadius: 8, border: `1px solid ${t.vi}20` }}>

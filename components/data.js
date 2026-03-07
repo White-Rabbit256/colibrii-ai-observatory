@@ -232,6 +232,7 @@ export const TABS = [
   { id: "glos", l: "Glosario", le: "Glossary", ic: "book", c: TH.cy },
   { id: "about", l: "Info", le: "About", ic: "info", c: TH.vi },
   { id: "pymes", l: "PYMES", le: "SMEs", ic: "store", c: TH.or },
+  { id: "banca", l: "Banca & AI", le: "Banking & AI", ic: "bank", c: TH.am },
   /* ── IMPACT SECTORAL (AI for Good Report) ── */
   { id: "health", l: "Salud & AI", le: "Health & AI", ic: "heart", c: TH.pk },
   { id: "food", l: "Seguridad Alimentaria", le: "Food Security", ic: "wheat", c: TH.gn },
