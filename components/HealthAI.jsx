@@ -1,112 +1,371 @@
 "use client";
 import { useState } from "react";
-import { Card, SH, Grid, ScrollReveal, Tag, Bx } from "./ui";
+import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { Card, SH, Grid, ScrollReveal, Tag, Bx, Ci, MiniStat, KeyInsight, FreshnessBadge } from "./ui";
 import { Icon } from "./system/Icon";
+import {
+  HEALTH_RISKS, HEALTH_PII_MATRIX, HEALTH_BREACH_TS, CCSS_HIVE_CASE,
+  HEALTH_GOVERNANCE, HEALTH_COMPLIANCE, HEALTH_MITIGATIONS, HEALTH_STATS
+} from "./healthData";
 
 /* ═══════════════════════════════════════════════════════════════
-   COLIBRII LABS — Health & Healthcare AI
-   AI for Good Impact Report · WHO · NHS · Diagnostics · CR
+   COLIBRII LABS — Health AI: Risk Intelligence Dashboard
+   From marketing brochure → comprehensive risk & opportunity module
+   Sources: WHO, HHS, IBM, Nature Medicine, CCSS, ITU, OECD
    ═══════════════════════════════════════════════════════════════ */
 
+// ── Risk Heatmap Cell ──
+function RiskCell({ risk, onClick, selected }) {
+  const bgOpacity = Math.round((risk.severity * risk.likelihood) / 100 * 255).toString(16).padStart(2, "0");
+  return (
+    <button
+      onClick={() => onClick(risk)}
+      style={{
+        display: "flex", flexDirection: "column", gap: 2, padding: "8px 10px",
+        background: selected ? `${risk.color}20` : `${risk.color}${bgOpacity.slice(0, 2)}`,
+        border: selected ? `2px solid ${risk.color}` : "1px solid var(--border)",
+        borderRadius: 8, cursor: "pointer", textAlign: "left", width: "100%",
+        transition: "all .2s ease",
+      }}
+    >
+      <div style={{ fontSize: 11, fontWeight: 700, color: risk.color }}>{risk.name}</div>
+      <div style={{ display: "flex", gap: 6, fontSize: 9, color: "var(--text3)", fontFamily: "'IBM Plex Mono',monospace" }}>
+        <span>S:{risk.severity}</span>
+        <span>L:{risk.likelihood}</span>
+        <Tag color={risk.color}>{risk.cat}</Tag>
+      </div>
+    </button>
+  );
+}
+
+// ── Case Studies (preserved from v1) ──
 const CASE_STUDIES = (en) => [
-  {
-    title: en ? "NHS Stroke AI — United Kingdom" : "NHS Stroke AI — Reino Unido",
-    org: "NHS / Brainomix",
-    desc: en
-      ? "AI-powered brain CT analysis deployed across 107 stroke centres nationwide. Processes brain scans in under 1 minute (vs 30+ min traditional review). Good recovery rates improved from 16% to 48%. Treatment decision time reduced from 140 to 79 minutes. The system identifies salvageable brain tissue invisible to the human eye."
-      : "Análisis de tomografía cerebral con AI desplegado en 107 centros de ictus a nivel nacional. Procesa escáneres cerebrales en menos de 1 minuto (vs 30+ min revisión tradicional). Tasas de buena recuperación mejoraron de 16% a 48%. Tiempo de decisión de tratamiento reducido de 140 a 79 minutos.",
-    stat: en ? "107 centres · 16%→48% recovery" : "107 centros · 16%→48% recuperación",
-    color: "#e11d48"
-  },
-  {
-    title: "MamaMate",
-    org: en ? "AI for Good Winner" : "Ganador AI for Good",
-    desc: en
-      ? "Offline AI-powered diagnostic device for maternal healthcare in rural Africa. Solar-powered, operates in local languages, and requires no internet connectivity. Provides prenatal risk assessment and health monitoring for mothers in areas with zero medical infrastructure."
-      : "Dispositivo diagnóstico AI offline para salud materna en África rural. Solar, opera en idiomas locales y no requiere conexión a internet. Proporciona evaluación de riesgo prenatal y monitoreo de salud para madres en áreas sin infraestructura médica.",
-    stat: en ? "Offline · Solar-powered" : "Offline · Solar",
-    color: "#ec4899"
-  },
-  {
-    title: en ? "C2itech Organoid Platform" : "Plataforma Organoides C2itech",
-    org: "C2itech",
-    desc: en
-      ? "Combines AI with 3D organoid tissue models for respiratory virus drug testing. Achieves 50% faster drug screening and 90% accuracy in predicting viral mutations. Reduces reliance on animal testing while accelerating pandemic preparedness."
-      : "Combina AI con modelos de tejido organoide 3D para pruebas de medicamentos contra virus respiratorios. Logra screening de medicamentos 50% más rápido y 90% de precisión prediciendo mutaciones virales. Reduce dependencia de pruebas animales mientras acelera preparación pandémica.",
-    stat: en ? "50% faster · 90% accuracy" : "50% más rápido · 90% precisión",
-    color: "#8b5cf6"
-  },
-  {
-    title: en ? "Cedars-Sinai Connect" : "Cedars-Sinai Connect",
-    org: "Cedars-Sinai",
-    desc: en
-      ? "AI-powered remote patient management platform monitoring 42,000 patients. Achieves 77% optimal medication recommendations and reduces unnecessary emergency visits through predictive health monitoring and early intervention alerts."
-      : "Plataforma de gestión remota de pacientes con AI monitoreando 42,000 pacientes. Logra 77% de recomendaciones óptimas de medicación y reduce visitas de emergencia innecesarias mediante monitoreo predictivo y alertas de intervención temprana.",
-    stat: en ? "42K patients · 77% optimal" : "42K pacientes · 77% óptimo",
-    color: "#0ea5e9"
-  }
+  { title: en ? "NHS Stroke AI — United Kingdom" : "NHS Stroke AI — Reino Unido", org: "NHS / Brainomix", desc: en ? "AI brain CT analysis across 107 stroke centres. Processes scans in <1 min (vs 30+ min). Recovery improved 16%→48%. Treatment time: 140→79 min." : "Análisis CT cerebral AI en 107 centros de ictus. Procesa en <1 min (vs 30+). Recuperación mejoró 16%→48%. Tiempo tratamiento: 140→79 min.", stat: en ? "107 centres · 16%→48%" : "107 centros · 16%→48%", color: "#e11d48" },
+  { title: "MamaMate", org: en ? "AI for Good Winner" : "Ganador AI for Good", desc: en ? "Offline AI diagnostic for maternal healthcare in rural Africa. Solar-powered, local languages, no internet needed." : "Diagnóstico AI offline para salud materna en África rural. Solar, idiomas locales, sin internet.", stat: en ? "Offline · Solar" : "Offline · Solar", color: "#ec4899" },
+  { title: en ? "C2itech Organoid Platform" : "Plataforma Organoides C2itech", org: "C2itech", desc: en ? "AI + 3D organoid tissue models for drug testing. 50% faster screening, 90% accuracy in viral mutation prediction." : "AI + modelos organoides 3D para pruebas de fármacos. Screening 50% más rápido, 90% precisión en mutaciones virales.", stat: en ? "50% faster · 90%" : "50% más rápido · 90%", color: "#8b5cf6" },
+  { title: "Cedars-Sinai Connect", org: "Cedars-Sinai", desc: en ? "AI remote patient management: 42,000 patients, 77% optimal medication recommendations." : "Gestión remota de pacientes AI: 42,000 pacientes, 77% recomendaciones óptimas de medicación.", stat: en ? "42K · 77% optimal" : "42K · 77% óptimo", color: "#0ea5e9" }
 ];
 
+// ── CR Connections (expanded) ──
 const CR_CONNECTIONS = (en) => [
-  { title: "CCSS + EDUS", desc: en ? "Costa Rica's universal healthcare system (CCSS) has 8+ years of EDUS digital health records covering the entire population — the largest structured health dataset in Central America. A massive opportunity for AI-driven preventive medicine." : "El sistema de salud universal de CR (CCSS) tiene 8+ años de registros EDUS cubriendo toda la población — el mayor dataset de salud estructurado de Centroamérica. Oportunidad masiva para medicina preventiva con AI." },
-  { title: en ? "Federated Learning" : "Aprendizaje Federado", desc: en ? "CCSS could implement federated learning: train AI models across hospitals without centralizing sensitive patient data. Each hospital trains locally, sharing only model updates — solving the privacy vs. AI utility tension." : "CCSS podría implementar aprendizaje federado: entrenar modelos AI entre hospitales sin centralizar datos sensibles. Cada hospital entrena localmente, compartiendo solo actualizaciones del modelo." },
-  { title: en ? "Post-Hive Cybersecurity" : "Ciberseguridad Post-Hive", desc: en ? "The 2022 Hive ransomware attack crippled CCSS for weeks. Any health AI deployment must address cybersecurity first — medical AI on a vulnerable infrastructure is a national security risk." : "El ataque ransomware Hive de 2022 paralizó CCSS por semanas. Todo despliegue AI de salud debe abordar ciberseguridad primero — AI médica en infraestructura vulnerable es riesgo de seguridad nacional." },
-  { title: en ? "CCSS Fiscal Reality" : "Realidad Fiscal CCSS", desc: en ? "CCSS carries $4.4B in state debt. AI investments must demonstrate clear ROI: reduced wait times, fewer unnecessary referrals, better preventive care to lower long-term costs." : "CCSS carga $4.4B en deuda estatal. Inversiones AI deben demostrar ROI claro: tiempos de espera reducidos, menos referencias innecesarias, mejor atención preventiva para reducir costos a largo plazo." }
+  { title: "CCSS + EDUS", desc: en ? "8+ years of digital health records covering 5M+ population — the largest structured health dataset in Central America. Massive opportunity for AI preventive medicine." : "8+ años de registros digitales cubriendo 5M+ población — el mayor dataset estructurado de salud en Centroamérica. Oportunidad masiva para medicina preventiva AI." },
+  { title: en ? "Federated Learning" : "Aprendizaje Federado", desc: en ? "CCSS could train AI across 29 hospitals without centralizing data. Each hospital trains locally, sharing only model updates." : "CCSS podría entrenar AI entre 29 hospitales sin centralizar datos. Cada hospital entrena localmente, compartiendo solo actualizaciones del modelo." },
+  { title: en ? "Post-Hive Cybersecurity" : "Ciberseguridad Post-Hive", desc: en ? "2022 Hive attack crippled CCSS for weeks. Any health AI deployment must address cybersecurity first." : "Ataque Hive 2022 paralizó CCSS por semanas. Todo despliegue AI debe abordar ciberseguridad primero." },
+  { title: en ? "CCSS Fiscal Reality" : "Realidad Fiscal CCSS", desc: en ? "$4.4B state debt. AI must demonstrate ROI: reduced wait times, fewer unnecessary referrals, better preventive care." : "Deuda estatal $4.4B. AI debe demostrar ROI: tiempos reducidos, menos referencias innecesarias, mejor prevención." }
 ];
 
-export function HealthAI({ en, t }) {
+export function HealthAI({ en, t, dark, setTab }) {
   const [expandedCase, setExpandedCase] = useState(null);
+  const [selectedRisk, setSelectedRisk] = useState(null);
+  const [showAllRisks, setShowAllRisks] = useState(false);
+
+  const risks = HEALTH_RISKS(en);
+  const piiMatrix = HEALTH_PII_MATRIX(en);
+  const breachTS = HEALTH_BREACH_TS;
+  const hiveCase = CCSS_HIVE_CASE(en);
+  const governance = HEALTH_GOVERNANCE(en);
+  const compliance = HEALTH_COMPLIANCE(en);
+  const mitigations = HEALTH_MITIGATIONS(en);
+  const stats = HEALTH_STATS(en);
   const cases = CASE_STUDIES(en);
   const crConn = CR_CONNECTIONS(en);
 
+  const gridStroke = dark ? "#1e293b" : "#d1d5e0";
+  const tickFill = dark ? "#94a3b8" : "#475569";
+  const tipBg = dark ? "#111827" : "#fff";
+  const tipBorder = `1px solid ${dark ? "#1e293b" : "#d1d5e0"}`;
+
+  // Sort risks by composite score (severity × likelihood) for display
+  const sortedRisks = [...risks].sort((a, b) => (b.severity * b.likelihood) - (a.severity * a.likelihood));
+  const displayRisks = showAllRisks ? sortedRisks : sortedRisks.slice(0, 6);
+
   return (
     <div style={{ maxWidth: 900, margin: "0 auto" }}>
+      {/* ── KEY INSIGHT ── */}
+      <KeyInsight
+        icon="🏥"
+        color="var(--pink)"
+        text={en
+          ? "Healthcare AI is a $504B opportunity — but also the highest-risk domain for data breaches ($10.93M avg cost). Costa Rica has ZERO health data protection laws, and the 2022 CCSS HIVE ransomware attack exposed 5M+ patient records. This module maps both the opportunity and the risk landscape."
+          : "AI en salud es una oportunidad de $504B — pero también el dominio de mayor riesgo en brechas de datos ($10.93M costo promedio). Costa Rica tiene CERO leyes de protección de datos de salud, y el ataque ransomware HIVE a CCSS (2022) expuso 5M+ expedientes. Este módulo mapea tanto la oportunidad como el panorama de riesgo."}
+      />
+      <FreshnessBadge date={en ? "March 2026" : "Marzo 2026"} en={en} />
+
       {/* ── HEADER ── */}
       <SH
         color={t.pk}
-        label={en ? "AI FOR GOOD · SECTORAL" : "AI FOR GOOD · SECTORIAL"}
-        title={en ? "AI in Healthcare" : "AI en Salud"}
+        label={en ? "RISK INTELLIGENCE · HEALTH AI" : "INTELIGENCIA DE RIESGO · AI SALUD"}
+        title={en ? "AI in Healthcare: Opportunity & Risk" : "AI en Salud: Oportunidad y Riesgo"}
         desc={en
-          ? "How AI is transforming diagnostics, drug discovery, and healthcare delivery — from the ITU AI for Good Impact Report."
-          : "Cómo AI está transformando diagnósticos, descubrimiento de medicamentos y prestación de salud — del Reporte de Impacto AI for Good de la UIT."
+          ? "Comprehensive analysis of health AI opportunities, data privacy risks, breach intelligence, and governance gaps for Costa Rica."
+          : "Análisis integral de oportunidades AI en salud, riesgos de privacidad, inteligencia de brechas y brechas de gobernanza para Costa Rica."
         }
       />
 
-      {/* ── INTRO CONTEXT BOX ── */}
+      {/* ── KEY STATISTICS ── */}
       <ScrollReveal>
-        <Card style={{ marginBottom: 16, background: `${t.pk}08`, border: `1px solid ${t.pk}20` }}>
-          <p style={{ fontSize: 13, color: t.tx2, lineHeight: 1.7, margin: 0 }}>
-            <Icon name="heart" size={14} color={t.pk} style={{ marginRight: 6, verticalAlign: "middle" }} />
-            {en
-              ? "AI in healthcare is projected to grow from $29 billion (2024) to $504 billion by 2032. Already, 94% of healthcare organizations use AI centrally, with applications ranging from breast cancer detection (97% accuracy with AI ultrasound) to stroke treatment that tripled recovery rates. Yet 90% of drug candidates still fail in clinical trials, and most AI health innovations remain concentrated in high-income countries."
-              : "AI en salud se proyecta crecer de $29 mil millones (2024) a $504 mil millones para 2032. Ya, 94% de organizaciones de salud usan AI centralmente, con aplicaciones desde detección de cáncer de mama (97% precisión con ultrasonido AI) hasta tratamiento de ictus que triplicó tasas de recuperación. Sin embargo, 90% de candidatos a medicamentos fallan en ensayos clínicos, y la mayoría de innovaciones AI en salud permanecen concentradas en países de ingreso alto."
-            }
-          </p>
+        <Grid cols="repeat(auto-fit,minmax(150px,1fr))" gap={10} style={{ marginBottom: 20 }}>
+          {stats.map((d, i) => (
+            <Card key={i} d={0.05}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: d.c, fontFamily: "'IBM Plex Mono',monospace" }}>{d.v}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text)", marginTop: 2 }}>{d.l}</div>
+                  <div style={{ fontSize: 10, color: "var(--text3)", marginTop: 2 }}>{d.s}</div>
+                </div>
+                <Icon name={d.ic} size={20} style={{ opacity: 0.4 }} />
+              </div>
+            </Card>
+          ))}
+        </Grid>
+      </ScrollReveal>
+
+      {/* ═══ SECTION: RISK REGISTER ═══ */}
+      <ScrollReveal>
+        <div style={{ marginBottom: 20 }}>
+          <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--red)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
+            <Icon name="shield" size={14} color="var(--red)" style={{ marginRight: 6, verticalAlign: "middle" }} />
+            {en ? "Health AI Risk Register — 12 Failure Modes" : "Registro de Riesgos AI Salud — 12 Modos de Falla"}
+          </h3>
+          <Grid cols="repeat(auto-fit,minmax(200px,1fr))" gap={8}>
+            {displayRisks.map(risk => (
+              <RiskCell key={risk.id} risk={risk} onClick={setSelectedRisk} selected={selectedRisk?.id === risk.id} />
+            ))}
+          </Grid>
+          {!showAllRisks && risks.length > 6 && (
+            <button onClick={() => setShowAllRisks(true)} style={{ marginTop: 8, fontSize: 11, color: "var(--cyan)", background: "none", border: "none", cursor: "pointer", fontWeight: 600 }}>
+              {en ? `Show all ${risks.length} risks →` : `Ver los ${risks.length} riesgos →`}
+            </button>
+          )}
+          {/* Risk detail panel */}
+          {selectedRisk && (
+            <Card style={{ marginTop: 10, background: `${selectedRisk.color}08`, border: `1px solid ${selectedRisk.color}20` }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8 }}>
+                <div>
+                  <h4 style={{ fontSize: 14, fontWeight: 700, color: selectedRisk.color, margin: 0 }}>{selectedRisk.name}</h4>
+                  <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                    <Tag color={selectedRisk.color}>{en ? `Severity: ${selectedRisk.severity}/10` : `Severidad: ${selectedRisk.severity}/10`}</Tag>
+                    <Tag color={selectedRisk.color}>{en ? `Likelihood: ${selectedRisk.likelihood}/10` : `Probabilidad: ${selectedRisk.likelihood}/10`}</Tag>
+                    <Tag color="var(--text3)">{selectedRisk.cat}</Tag>
+                  </div>
+                </div>
+                <button onClick={() => setSelectedRisk(null)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 16, color: "var(--text3)" }}>×</button>
+              </div>
+              <p style={{ fontSize: 12.5, color: "var(--text2)", lineHeight: 1.7, marginTop: 8, marginBottom: 0 }}>{selectedRisk.desc}</p>
+            </Card>
+          )}
+          <Ci s={en ? "Colibrii Labs Risk Assessment — WHO, HHS, IBM, Nature Medicine, CCSS" : "Evaluación de Riesgo Colibrii Labs — WHO, HHS, IBM, Nature Medicine, CCSS"} />
+        </div>
+      </ScrollReveal>
+
+      {/* ═══ SECTION: PII EXPOSURE MATRIX ═══ */}
+      <ScrollReveal>
+        <Card style={{ marginBottom: 20, overflowX: "auto" }}>
+          <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--amber)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
+            <Icon name="lock" size={14} color="var(--amber)" style={{ marginRight: 6, verticalAlign: "middle" }} />
+            {en ? "PII Exposure Matrix — Health Data at Risk" : "Matriz de Exposición PII — Datos de Salud en Riesgo"}
+          </h3>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+              <thead>
+                <tr style={{ borderBottom: `2px solid var(--border)` }}>
+                  <th style={{ textAlign: "left", padding: "8px 10px", color: "var(--text2)", fontWeight: 700, fontSize: 11 }}>{en ? "Data Type" : "Tipo de Dato"}</th>
+                  <th style={{ textAlign: "left", padding: "8px 10px", color: "var(--text2)", fontWeight: 700, fontSize: 11 }}>{en ? "System" : "Sistema"}</th>
+                  <th style={{ textAlign: "left", padding: "8px 10px", color: "var(--text2)", fontWeight: 700, fontSize: 11 }}>{en ? "Sensitivity" : "Sensibilidad"}</th>
+                  <th style={{ textAlign: "left", padding: "8px 10px", color: "var(--text2)", fontWeight: 700, fontSize: 11 }}>{en ? "Current Gap" : "Brecha Actual"}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {piiMatrix.map((row, i) => (
+                  <tr key={i} style={{ borderBottom: "1px solid var(--border)" }}>
+                    <td style={{ padding: "8px 10px", fontWeight: 600, color: "var(--text)" }}>{row.type}</td>
+                    <td style={{ padding: "8px 10px", color: "var(--text2)", fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 }}>{row.system}</td>
+                    <td style={{ padding: "8px 10px" }}>
+                      <Tag color={row.sensitivity === (en ? "Critical" : "Crítico") ? "var(--red)" : "var(--amber)"}>{row.sensitivity}</Tag>
+                    </td>
+                    <td style={{ padding: "8px 10px", color: "var(--text3)", fontSize: 11 }}>{row.gap}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <Ci s={en ? "Colibrii Labs analysis — CCSS, EDUS, HIPAA framework comparison" : "Análisis Colibrii Labs — CCSS, EDUS, comparación con marco HIPAA"} />
         </Card>
       </ScrollReveal>
 
-      {/* ── KEY STATISTICS ── */}
+      {/* ═══ SECTION: CCSS HIVE CASE STUDY ═══ */}
+      <ScrollReveal>
+        <Card style={{ marginBottom: 20, background: `var(--red)08`, border: "1px solid var(--red)20" }}>
+          <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--red)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
+            🔴 {en ? "Case Study: CCSS HIVE Ransomware Attack (2022)" : "Caso de Estudio: Ataque Ransomware HIVE a CCSS (2022)"}
+          </h3>
+          <Grid cols="repeat(auto-fit,minmax(120px,1fr))" gap={8} style={{ marginBottom: 12 }}>
+            {hiveCase.impact.map((item, i) => (
+              <Bx key={i} style={{ padding: 10, textAlign: "center", background: "var(--card)" }}>
+                <div style={{ fontSize: 20, marginBottom: 2 }}>{item.icon}</div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: "var(--red)", fontFamily: "'IBM Plex Mono',monospace" }}>{item.value}</div>
+                <div style={{ fontSize: 10, color: "var(--text3)" }}>{item.metric}</div>
+              </Bx>
+            ))}
+          </Grid>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {hiveCase.timeline(en).map((phase, i) => (
+              <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--red)", marginTop: 5, flexShrink: 0 }} />
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text)" }}>{phase.phase}</div>
+                  <div style={{ fontSize: 11.5, color: "var(--text2)", lineHeight: 1.5 }}>{phase.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 12, padding: "10px 14px", background: "var(--surface)", borderRadius: 8, borderLeft: "3px solid var(--red)" }}>
+            <p style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.6, margin: 0, fontStyle: "italic" }}>{hiveCase.lessons}</p>
+          </div>
+          <Ci s={en ? "CCSS Public Reports, Contraloría General 2022, La Nación, CRHoy" : "Informes Públicos CCSS, Contraloría General 2022, La Nación, CRHoy"} />
+        </Card>
+      </ScrollReveal>
+
+      {/* ═══ SECTION: BREACH INTELLIGENCE ═══ */}
+      <ScrollReveal>
+        <Card style={{ marginBottom: 20 }}>
+          <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--red)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
+            <Icon name="chart" size={14} color="var(--red)" style={{ marginRight: 6, verticalAlign: "middle" }} />
+            {en ? "Healthcare Breach Intelligence (US HHS as Global Proxy)" : "Inteligencia de Brechas en Salud (HHS EE.UU. como Proxy Global)"}
+          </h3>
+          <p style={{ fontSize: 12, color: "var(--text3)", marginBottom: 12, lineHeight: 1.5 }}>
+            {en
+              ? "Costa Rica has no mandatory breach reporting. US HHS data (500+ record incidents) serves as proxy for global healthcare breach trends."
+              : "Costa Rica no tiene reporte obligatorio de brechas. Datos HHS de EE.UU. (incidentes de 500+ registros) sirven como proxy de tendencias globales."}
+          </p>
+          <ResponsiveContainer width="100%" height={240}>
+            <AreaChart data={breachTS} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="gradBreaches" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--red)" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="var(--red)" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="gradRecords" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--amber)" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="var(--amber)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+              <XAxis dataKey="year" tick={{ fontSize: 10, fill: tickFill }} />
+              <YAxis yAxisId="left" tick={{ fontSize: 10, fill: tickFill }} />
+              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10, fill: tickFill }} />
+              <Tooltip contentStyle={{ background: tipBg, border: tipBorder, borderRadius: 8, fontSize: 12 }} />
+              <Legend wrapperStyle={{ fontSize: 11 }} />
+              <Area yAxisId="left" type="monotone" dataKey="breaches" stroke="var(--red)" fill="url(#gradBreaches)" name={en ? "Breaches" : "Brechas"} strokeWidth={2} />
+              <Area yAxisId="right" type="monotone" dataKey="records" stroke="var(--amber)" fill="url(#gradRecords)" name={en ? "Records (M)" : "Registros (M)"} strokeWidth={2} />
+            </AreaChart>
+          </ResponsiveContainer>
+          <Grid cols="repeat(auto-fit,minmax(100px,1fr))" gap={8} style={{ marginTop: 10 }}>
+            <MiniStat label={en ? "Avg Cost/Breach" : "Costo/Brecha"} value="$10.93M" color="var(--red)" mono />
+            <MiniStat label={en ? "Records 2024" : "Registros 2024"} value="168M" color="var(--amber)" mono />
+            <MiniStat label={en ? "Detection Time" : "Detección"} value={en ? "194 days" : "194 días"} color="var(--text2)" mono />
+          </Grid>
+          <Ci s="HHS Breach Portal · IBM Cost of Data Breach Report 2024" />
+        </Card>
+      </ScrollReveal>
+
+      {/* ═══ SECTION: GOVERNANCE RADAR ═══ */}
+      <ScrollReveal>
+        <Card style={{ marginBottom: 20 }}>
+          <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--violet)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
+            <Icon name="globe" size={14} color="var(--violet)" style={{ marginRight: 6, verticalAlign: "middle" }} />
+            {en ? "Health AI Governance Maturity — CR vs Peers" : "Madurez de Gobernanza AI Salud — CR vs Pares"}
+          </h3>
+          <ResponsiveContainer width="100%" height={280}>
+            <RadarChart cx="50%" cy="50%" outerRadius="70%" data={governance}>
+              <PolarGrid stroke={gridStroke} />
+              <PolarAngleAxis dataKey="dim" tick={{ fontSize: 10, fill: tickFill }} />
+              <PolarRadiusAxis angle={90} domain={[0, 1]} tick={{ fontSize: 9, fill: tickFill }} />
+              <Radar name={en ? "Costa Rica" : "Costa Rica"} dataKey="cr" stroke="var(--amber)" fill="var(--amber)" fillOpacity={0.2} strokeWidth={2} />
+              <Radar name={en ? "Singapore" : "Singapur"} dataKey="sg" stroke="var(--green)" fill="var(--green)" fillOpacity={0.1} strokeWidth={2} />
+              <Radar name={en ? "EU" : "UE"} dataKey="eu" stroke="var(--cyan)" fill="var(--cyan)" fillOpacity={0.1} strokeWidth={2} />
+              <Legend wrapperStyle={{ fontSize: 11 }} />
+              <Tooltip contentStyle={{ background: tipBg, border: tipBorder, borderRadius: 8, fontSize: 12 }} />
+            </RadarChart>
+          </ResponsiveContainer>
+          <Ci s={en ? "Colibrii Labs governance assessment — GDPR, HIPAA, PDPA, CR regulatory inventory" : "Evaluación gobernanza Colibrii Labs — GDPR, HIPAA, PDPA, inventario regulatorio CR"} />
+        </Card>
+      </ScrollReveal>
+
+      {/* ═══ SECTION: COMPLIANCE COMPARISON TABLE ═══ */}
+      <ScrollReveal>
+        <Card style={{ marginBottom: 20, overflowX: "auto" }}>
+          <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--cyan)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
+            {en ? "Regulatory Compliance Gap — Health AI" : "Brecha Regulatoria — AI en Salud"}
+          </h3>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, minWidth: 500 }}>
+              <thead>
+                <tr style={{ borderBottom: `2px solid var(--border)` }}>
+                  <th style={{ textAlign: "left", padding: "6px 8px", color: "var(--text2)", fontWeight: 700 }}>{en ? "Dimension" : "Dimensión"}</th>
+                  <th style={{ textAlign: "center", padding: "6px 8px", color: "var(--amber)", fontWeight: 700 }}>🇨🇷 CR</th>
+                  <th style={{ textAlign: "center", padding: "6px 8px", color: "var(--text2)", fontWeight: 700 }}>🇺🇸 {en ? "US" : "EE.UU."}</th>
+                  <th style={{ textAlign: "center", padding: "6px 8px", color: "var(--cyan)", fontWeight: 700 }}>🇪🇺 {en ? "EU" : "UE"}</th>
+                  <th style={{ textAlign: "center", padding: "6px 8px", color: "var(--green)", fontWeight: 700 }}>🇸🇬 {en ? "Singapore" : "Singapur"}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {compliance.map((row, i) => (
+                  <tr key={i} style={{ borderBottom: "1px solid var(--border)" }}>
+                    <td style={{ padding: "6px 8px", fontWeight: 600, color: "var(--text)", fontSize: 11 }}>{row.dim}</td>
+                    <td style={{ padding: "6px 8px", textAlign: "center", color: row.crScore === 0 ? "var(--red)" : "var(--amber)", fontWeight: 600 }}>{row.cr}</td>
+                    <td style={{ padding: "6px 8px", textAlign: "center", color: "var(--text2)" }}>{row.us}</td>
+                    <td style={{ padding: "6px 8px", textAlign: "center", color: "var(--text2)" }}>{row.eu}</td>
+                    <td style={{ padding: "6px 8px", textAlign: "center", color: "var(--text2)" }}>{row.sg}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <Ci s={en ? "Colibrii Labs comparison — HIPAA, GDPR, EU AI Act, PDPA, HSA, FDA SaMD" : "Comparación Colibrii Labs — HIPAA, GDPR, EU AI Act, PDPA, HSA, FDA SaMD"} />
+        </Card>
+      </ScrollReveal>
+
+      {/* ═══ SECTION: DIAGNOSTICS & APPLICATIONS (preserved) ═══ */}
+      <ScrollReveal>
+        <Card style={{ marginBottom: 16 }}>
+          <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--text)", marginBottom: 8 }}>
+            <Icon name="target" size={16} color={t.pk} style={{ marginRight: 8, verticalAlign: "middle" }} />
+            {en ? "Diagnostics & Early Detection" : "Diagnósticos & Detección Temprana"}
+          </h3>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 10 }}>
+            {[
+              { t: en ? "Cancer Screening" : "Detección de Cáncer", d: en ? "AI ultrasound detects breast cancer with 97% accuracy. Computer-aided detection improves adenoma detection rates." : "Ultrasonido AI detecta cáncer de mama con 97% de precisión. Detección asistida mejora tasas de detección de adenomas." },
+              { t: en ? "Medical Imaging" : "Imagenología Médica", d: en ? "AI processes X-rays, CT, MRIs faster and often more accurately. Brain CT in 1 min vs 30+ traditional." : "AI procesa rayos X, CT, resonancias más rápido. CT cerebral en 1 min vs 30+ tradicional." },
+              { t: en ? "Remote Monitoring" : "Monitoreo Remoto", d: en ? "AI-powered wearables and platforms (Cedars-Sinai, 42K patients) enable continuous health monitoring." : "Wearables y plataformas AI (Cedars-Sinai, 42K pacientes) permiten monitoreo continuo de salud." },
+              { t: en ? "Drug Discovery" : "Descubrimiento de Fármacos", d: en ? "90% of drugs fail trials, costing $2.6B each. AI accelerates compound identification and toxicity prediction." : "90% de fármacos fallan en ensayos, costando $2.6B cada uno. AI acelera identificación de compuestos y predicción de toxicidad." }
+            ].map((item, i) => (
+              <Card key={i} style={{ background: `${t.pk}05`, border: `1px solid ${t.pk}12` }}>
+                <h4 style={{ fontSize: 13, fontWeight: 700, color: t.pk, marginBottom: 4 }}>{item.t}</h4>
+                <p style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.6, margin: 0 }}>{item.d}</p>
+              </Card>
+            ))}
+          </div>
+        </Card>
+      </ScrollReveal>
+
+      {/* ═══ SECTION: MITIGATION & GOVERNANCE PROTOCOLS ═══ */}
       <ScrollReveal>
         <div style={{ marginBottom: 20 }}>
-          <h3 style={{ fontSize: 13, fontWeight: 700, color: t.pk, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
-            {en ? "Healthcare AI Landscape" : "Panorama AI en Salud"}
+          <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--green)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
+            <Icon name="shield" size={14} color="var(--green)" style={{ marginRight: 6, verticalAlign: "middle" }} />
+            {en ? "Mitigation & Governance Protocols" : "Protocolos de Mitigación y Gobernanza"}
           </h3>
-          <Grid cols="repeat(auto-fit,minmax(140px,1fr))" gap={10}>
-            {[
-              { v: "$504B", l: en ? "AI Health Market 2032" : "Mercado AI Salud 2032", s: en ? "From $29B in 2024 (17x growth)" : "Desde $29B en 2024 (17x crecimiento)", c: t.pk, ic: "coins" },
-              { v: "94%", l: en ? "Orgs Using AI" : "Orgs Usando AI", s: en ? "Healthcare organizations centrally" : "Organizaciones de salud centralmente", c: t.cy, ic: "chart" },
-              { v: "97%", l: en ? "Breast Cancer Detection" : "Detección Cáncer de Mama", s: en ? "With AI-assisted ultrasound" : "Con ultrasonido asistido por AI", c: t.gn, ic: "target" },
-              { v: "90%", l: en ? "Drug Candidates Fail" : "Candidatos Fallan", s: en ? "In clinical trials — AI can help" : "En ensayos clínicos — AI puede ayudar", c: t.rd, ic: "lightning" },
-              { v: "3x", l: en ? "Stroke Recovery" : "Recuperación Ictus", s: en ? "16%→48% with NHS AI (UK)" : "16%→48% con NHS AI (UK)", c: t.vi, ic: "diamond" }
-            ].map((d, i) => (
-              <Card key={i} d={0.05}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                  <div>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: d.c, fontFamily: "'IBM Plex Mono',monospace" }}>{d.v}</div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", marginTop: 2 }}>{d.l}</div>
-                    <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 2 }}>{d.s}</div>
-                  </div>
-                  <Icon name={d.ic} size={22} style={{ opacity: 0.5 }} />
+          <Grid cols="repeat(auto-fit,minmax(260px,1fr))" gap={10}>
+            {mitigations.map((m, i) => (
+              <Card key={i} d={0.05} style={{ borderLeft: "3px solid var(--green)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                  <span style={{ fontSize: 18 }}>{m.icon}</span>
+                  <h4 style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", margin: 0 }}>{m.title}</h4>
+                </div>
+                <p style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.6, margin: "0 0 6px 0" }}>{m.desc}</p>
+                <div style={{ fontSize: 10, color: "var(--green)", fontFamily: "'IBM Plex Mono',monospace" }}>
+                  {en ? "Applicability" : "Aplicabilidad"}: {m.applicability}
                 </div>
               </Card>
             ))}
@@ -114,90 +373,42 @@ export function HealthAI({ en, t }) {
         </div>
       </ScrollReveal>
 
-      {/* ── DIAGNOSTICS & EARLY DETECTION ── */}
+      {/* ═══ SECTION: CR CONNECTION (expanded) ═══ */}
       <ScrollReveal>
-        <Card style={{ marginBottom: 16 }}>
-          <h3 style={{ fontSize: 15, fontWeight: 700, color: t.tx, marginBottom: 8 }}>
-            <Icon name="target" size={16} color={t.pk} style={{ marginRight: 8, verticalAlign: "middle" }} />
-            {en ? "Diagnostics & Early Detection" : "Diagnósticos & Detección Temprana"}
+        <Card style={{ marginBottom: 16, background: `${t.cy}06`, border: `1px solid ${t.cy}20` }}>
+          <h3 style={{ fontSize: 14, fontWeight: 700, color: t.cy, marginBottom: 10 }}>
+            🇨🇷 {en ? "Costa Rica Health System AI Readiness" : "Preparación AI del Sistema de Salud de Costa Rica"}
           </h3>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 10 }}>
-            {[
-              { t: en ? "Cancer Screening" : "Detección de Cáncer", d: en ? "AI ultrasound detects breast cancer with 97% accuracy. Computer-aided detection for colorectal cancer improves adenoma detection rates. Early detection saves lives and reduces treatment costs." : "Ultrasonido AI detecta cáncer de mama con 97% de precisión. Detección asistida por computadora para cáncer colorrectal mejora tasas de detección de adenomas. Detección temprana salva vidas." },
-              { t: en ? "Medical Imaging" : "Imagenología Médica", d: en ? "AI processes X-rays, CT scans, and MRIs faster and often more accurately than human radiologists for specific conditions. Brain CT analysis in 1 minute vs 30+ minutes traditional." : "AI procesa rayos X, tomografías y resonancias más rápido y a menudo con más precisión que radiólogos humanos para condiciones específicas. Análisis CT cerebral en 1 minuto vs 30+." },
-              { t: en ? "Multimodal Diagnostics" : "Diagnósticos Multimodales", d: en ? "India deploys AI diagnostics for malaria, diabetes, and tuberculosis in rural clinics using smartphone cameras and portable sensors — bringing specialist-level screening to underserved areas." : "India despliega diagnósticos AI para malaria, diabetes y tuberculosis en clínicas rurales usando cámaras de teléfono y sensores portátiles — llevando screening especializado a áreas desatendidas." },
-              { t: en ? "Remote Monitoring" : "Monitoreo Remoto", d: en ? "AI-powered wearables and remote platforms (like Cedars-Sinai Connect, 42K patients) enable continuous health monitoring, predicting deterioration before emergency situations arise." : "Wearables y plataformas remotas con AI (como Cedars-Sinai Connect, 42K pacientes) permiten monitoreo continuo de salud, prediciendo deterioro antes de emergencias." }
-            ].map((item, i) => (
-              <Card key={i} style={{ background: `${t.pk}05`, border: `1px solid ${t.pk}12` }}>
-                <h4 style={{ fontSize: 13, fontWeight: 700, color: t.pk, marginBottom: 4 }}>{item.t}</h4>
-                <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6, margin: 0 }}>{item.d}</p>
-              </Card>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 10 }}>
+            {crConn.map((item, i) => (
+              <div key={i} style={{ padding: 10, borderRadius: 8, background: `${t.cy}06` }}>
+                <h4 style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", marginBottom: 4 }}>{item.title}</h4>
+                <p style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.6, margin: 0 }}>{item.desc}</p>
+              </div>
             ))}
           </div>
         </Card>
       </ScrollReveal>
 
-      {/* ── DRUG DISCOVERY ── */}
-      <ScrollReveal>
-        <Card style={{ marginBottom: 16 }}>
-          <h3 style={{ fontSize: 15, fontWeight: 700, color: t.tx, marginBottom: 8 }}>
-            <Icon name="algo" size={16} color={t.vi} style={{ marginRight: 8, verticalAlign: "middle" }} />
-            {en ? "Drug Discovery & Development" : "Descubrimiento de Medicamentos"}
-          </h3>
-          <p style={{ fontSize: 13, color: t.tx2, lineHeight: 1.7, margin: "0 0 10px 0" }}>
-            {en
-              ? "90% of drug candidates fail in clinical trials, costing billions. AI accelerates every stage: identifying promising compounds, predicting toxicity, modeling drug-drug interactions, and enabling personalized medicine. The C2itech organoid platform combines AI with 3D tissue models for 50% faster drug screening with 90% accuracy in viral mutation prediction."
-              : "90% de candidatos a medicamentos fallan en ensayos clínicos, costando miles de millones. AI acelera cada etapa: identificación de compuestos prometedores, predicción de toxicidad, modelado de interacciones farmacológicas y medicina personalizada. La plataforma C2itech combina AI con modelos de tejido 3D para screening 50% más rápido con 90% de precisión en predicción de mutaciones virales."
-            }
-          </p>
-          <Grid cols="repeat(auto-fit,minmax(100px,1fr))" gap={8}>
-            <Bx style={{ padding: 10 }}>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
-                <span style={{ fontSize: 18, fontWeight: 700, color: t.rd }}>90%</span>
-                <span style={{ fontSize: 11, color: t.tx2 }}>{en ? "Drug candidate failure" : "Fallo de candidatos"}</span>
-              </div>
-            </Bx>
-            <Bx style={{ padding: 10 }}>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
-                <span style={{ fontSize: 18, fontWeight: 700, color: t.vi }}>50%</span>
-                <span style={{ fontSize: 11, color: t.tx2 }}>{en ? "Faster screening (C2itech)" : "Screening más rápido"}</span>
-              </div>
-            </Bx>
-            <Bx style={{ padding: 10 }}>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
-                <span style={{ fontSize: 18, fontWeight: 700, color: t.gn }}>$2.6B</span>
-                <span style={{ fontSize: 11, color: t.tx2 }}>{en ? "Avg. cost per drug" : "Costo promedio/fármaco"}</span>
-              </div>
-            </Bx>
-          </Grid>
-        </Card>
-      </ScrollReveal>
-
-      {/* ── CASE STUDIES ── */}
+      {/* ═══ SECTION: CASE STUDIES (preserved) ═══ */}
       <ScrollReveal>
         <div style={{ marginBottom: 20 }}>
           <h3 style={{ fontSize: 13, fontWeight: 700, color: t.pk, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
             <Icon name="star" size={14} color={t.pk} style={{ marginRight: 6, verticalAlign: "middle" }} />
-            {en ? "Case Studies" : "Casos de Estudio"}
+            {en ? "Global Case Studies" : "Casos de Estudio Globales"}
           </h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {cases.map((cs, i) => (
-              <Card key={i} className={expandedCase === i ? "card-expandable expanded" : "card-expandable"} style={{ cursor: "pointer", position: "relative", border: expandedCase === i ? `1px solid ${cs.color}40` : undefined }} onClick={() => setExpandedCase(expandedCase === i ? null : i)}>
+              <Card key={i} style={{ cursor: "pointer", border: expandedCase === i ? `1px solid ${cs.color}40` : undefined }} onClick={() => setExpandedCase(expandedCase === i ? null : i)}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8, paddingRight: 20 }}>
                   <div>
-                    <h4 style={{ fontSize: 14, fontWeight: 700, color: t.tx, margin: 0 }}>{cs.title}</h4>
-                    <span style={{ fontSize: 11, color: t.tx2 }}>{cs.org}</span>
+                    <h4 style={{ fontSize: 14, fontWeight: 700, color: "var(--text)", margin: 0 }}>{cs.title}</h4>
+                    <span style={{ fontSize: 11, color: "var(--text2)" }}>{cs.org}</span>
                   </div>
                   <Tag color={cs.color}>{cs.stat}</Tag>
                 </div>
-                {expandedCase === i ? (
-                  <p style={{ fontSize: 12.5, color: t.tx2, lineHeight: 1.7, marginTop: 8, marginBottom: 0 }}>
-                    {cs.desc}
-                  </p>
-                ) : (
-                  <div style={{ fontSize: 10, color: "var(--text3)", marginTop: 6, fontStyle: "italic" }}>
-                    {en ? "Tap to explore" : "Toca para explorar"}
-                  </div>
+                {expandedCase === i && (
+                  <p style={{ fontSize: 12.5, color: "var(--text2)", lineHeight: 1.7, marginTop: 8, marginBottom: 0 }}>{cs.desc}</p>
                 )}
               </Card>
             ))}
@@ -205,51 +416,11 @@ export function HealthAI({ en, t }) {
         </div>
       </ScrollReveal>
 
-      {/* ── CR CONNECTION ── */}
+      {/* ═══ SECTION: SOURCES & METHODOLOGY ═══ */}
       <ScrollReveal>
-        <Card style={{ marginBottom: 16, background: `${t.cy}06`, border: `1px solid ${t.cy}20` }}>
-          <h3 style={{ fontSize: 14, fontWeight: 700, color: t.cy, marginBottom: 10 }}>
-            🇨🇷 {en ? "Costa Rica Connection" : "Conexión Costa Rica"}
-          </h3>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 10 }}>
-            {crConn.map((item, i) => (
-              <div key={i} style={{ padding: 10, borderRadius: 8, background: `${t.cy}06` }}>
-                <h4 style={{ fontSize: 13, fontWeight: 700, color: t.tx, marginBottom: 4 }}>{item.title}</h4>
-                <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6, margin: 0 }}>{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </ScrollReveal>
-
-      {/* ── KEY CONSIDERATIONS ── */}
-      <ScrollReveal>
-        <Card style={{ marginBottom: 16 }}>
-          <h3 style={{ fontSize: 14, fontWeight: 700, color: t.tx, marginBottom: 8 }}>
-            <Icon name="info" size={16} color={t.am} style={{ marginRight: 8, verticalAlign: "middle" }} />
-            {en ? "Key Considerations" : "Consideraciones Clave"}
-          </h3>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 8 }}>
-            {[
-              { t: en ? "Clinical Validation" : "Validación Clínica", d: en ? "Every AI diagnostic tool must undergo rigorous clinical trials before deployment. AI suggestions are decision support — never autonomous diagnosis." : "Toda herramienta diagnóstica AI debe someterse a ensayos clínicos rigurosos. Sugerencias AI son soporte de decisión — nunca diagnóstico autónomo." },
-              { t: en ? "Data Privacy" : "Privacidad de Datos", d: en ? "Health data is the most sensitive category. CCSS/EDUS AI requires differential privacy, federated learning, and strict access controls." : "Datos de salud son la categoría más sensible. AI CCSS/EDUS requiere privacidad diferencial, aprendizaje federado y controles de acceso estrictos." },
-              { t: en ? "Algorithmic Bias" : "Sesgo Algorítmico", d: en ? "AI trained predominantly on data from high-income countries may perform poorly on underrepresented populations. CR must validate models for local demographics." : "AI entrenada predominantemente con datos de países ricos puede funcionar mal en poblaciones subrepresentadas. CR debe validar modelos para demografía local." },
-              { t: en ? "Human-in-the-Loop" : "Humano en el Circuito", d: en ? "All health AI must maintain human oversight. AI amplifies medical capacity — it does not replace clinical judgment, especially for complex or ambiguous cases." : "Toda AI de salud debe mantener supervisión humana. AI amplifica capacidad médica — no reemplaza juicio clínico, especialmente para casos complejos o ambiguos." }
-            ].map((item, i) => (
-              <Bx key={i}>
-                <h4 style={{ fontSize: 12, fontWeight: 700, color: t.am, marginBottom: 3 }}>{item.t}</h4>
-                <p style={{ fontSize: 11.5, color: t.tx2, lineHeight: 1.5, margin: 0 }}>{item.d}</p>
-              </Bx>
-            ))}
-          </div>
-        </Card>
-      </ScrollReveal>
-
-      {/* ── SOURCES ── */}
-      <ScrollReveal>
-        <div style={{ padding: "12px 0", borderTop: `1px solid ${t.tx}10` }}>
-          <p style={{ fontSize: 11, color: t.tx2, margin: 0, lineHeight: 1.6 }}>
-            <strong>{en ? "Sources" : "Fuentes"}:</strong> ITU AI for Good Impact Report 2025 · WHO · NHS England · Cedars-Sinai · C2itech · CCSS Costa Rica
+        <div style={{ padding: "12px 0", borderTop: "1px solid var(--border)" }}>
+          <p style={{ fontSize: 11, color: "var(--text2)", margin: 0, lineHeight: 1.6 }}>
+            <strong>{en ? "Sources" : "Fuentes"}:</strong> ITU AI for Good Impact Report 2025 · WHO Global Health Observatory · HHS Breach Portal · IBM Cost of Data Breach 2024 · Nature Medicine · NHS England · Cedars-Sinai · C2itech · CCSS Costa Rica · HIPAA · GDPR · PDPA · FDA SaMD Framework
           </p>
         </div>
       </ScrollReveal>
