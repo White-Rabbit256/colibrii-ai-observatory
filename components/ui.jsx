@@ -306,6 +306,41 @@ export function Flag({ code, size = 20, style }) {
   );
 }
 
+/* ── KEY INSIGHT CALLOUT (30-second module summary) ── */
+export function KeyInsight({ icon = "💡", text, color = "var(--cyan)" }) {
+  return (
+    <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
+      style={{ marginBottom: 20, padding: "14px 18px", background: `${color}08`, border: `1px solid ${color}20`, borderRadius: 12, borderLeft: `3px solid ${color}`, display: "flex", alignItems: "flex-start", gap: 10 }}>
+      <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>{icon}</span>
+      <div style={{ fontSize: 13, color: "var(--text2)", lineHeight: 1.65, fontStyle: "italic" }}>{text}</div>
+    </motion.div>
+  );
+}
+
+/* ── FRESHNESS BADGE (data last-updated indicator) ── */
+export function FreshnessBadge({ date, en }) {
+  return (
+    <div style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 10px", background: "var(--surface)", borderRadius: 20, fontSize: 10, color: "var(--text3)", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 12 }}>
+      <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--green)", display: "inline-block" }} />
+      {en ? `Updated: ${date}` : `Actualizado: ${date}`}
+    </div>
+  );
+}
+
+/* ── RELATED INSIGHT (cross-module link) ── */
+export function RelatedInsight({ icon, label, desc, onClick }) {
+  return (
+    <button onClick={onClick} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 14px", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 10, cursor: "pointer", textAlign: "left", width: "100%", transition: "all .2s ease" }}>
+      <span style={{ fontSize: 16, flexShrink: 0 }}>{icon}</span>
+      <div>
+        <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text)" }}>{label}</div>
+        <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 2 }}>{desc}</div>
+      </div>
+      <span style={{ fontSize: 12, color: "var(--text3)", marginLeft: "auto", flexShrink: 0 }}>→</span>
+    </button>
+  );
+}
+
 /* ── DOWNLOAD / EXPORT BUTTON ── */
 export function ExportBtn({ onClick, en, label }) {
   return (

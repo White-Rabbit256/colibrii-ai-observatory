@@ -1,13 +1,14 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { AreaChart, Area, BarChart, Bar, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { Card, SH, Grid, ScrollReveal, Tag, Bx, Ci, MiniStat } from "./ui";
+import { Card, SH, Grid, ScrollReveal, Tag, Bx, Ci, MiniStat, KeyInsight, FreshnessBadge } from "./ui";
 import { Icon } from "./system/Icon";
 import {
   BANCA_FRAUD_TS, BANCA_THREATS, BANCA_REG_GAP, BANCA_COSTS,
   BANCA_IFRABA, BANCA_OIJ, BANCA_CASES, BANCA_CR, BANCA_RECS,
   BANCA_STATS, BANCA_PYME, BANCA_SOURCES,
-  BANCA_LEGAL_DEFENSE, BANCA_CISO, BANCA_DECISIONS, BANCA_COST_UNIT, BANCA_FRAUD_OPS
+  BANCA_LEGAL_DEFENSE, BANCA_CISO, BANCA_DECISIONS, BANCA_COST_UNIT, BANCA_FRAUD_OPS,
+  BANCA_COUNTER_CONFIG
 } from "./bancaData";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -34,6 +35,82 @@ function IFRABAGauge({ score }) {
       <text x={cx - r - 4} y={cy + 16} textAnchor="end" fontSize={8} fill="var(--text3)">0</text>
       <text x={cx + r + 4} y={cy + 16} textAnchor="start" fontSize={8} fill="var(--text3)">100</text>
     </svg>
+  );
+}
+
+// ── Real-Time Fraud Loss Counter (Odometer) ──
+function FraudCounter({ en, t }) {
+  const [amount, setAmount] = useState(0);
+  const rafRef = useRef(null);
+  const lastTickRef = useRef(0);
+  const { startEpoch, perSecond } = BANCA_COUNTER_CONFIG;
+
+  const calcLoss = useCallback(() => {
+    const elapsed = (Date.now() - startEpoch) / 1000;
+    return Math.max(0, elapsed * perSecond);
+  }, [startEpoch, perSecond]);
+
+  useEffect(() => {
+    setAmount(calcLoss());
+    const tick = (ts) => {
+      if (ts - lastTickRef.current >= 1000) {
+        setAmount(calcLoss());
+        lastTickRef.current = ts;
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [calcLoss]);
+
+  // Format number as ₡X,XXX,XXX,XXX with locale separators
+  const formatted = new Intl.NumberFormat("es-CR", { maximumFractionDigits: 0 }).format(Math.floor(amount));
+  const digits = formatted.split("");
+
+  return (
+    <ScrollReveal>
+      <div style={{ marginBottom: 20 }}>
+        <div className="hero-bg" style={{ borderRadius: 16, padding: "24px 20px", position: "relative", overflow: "hidden" }}>
+          <div className="orb orb-1" style={{ opacity: 0.4 }} />
+          <div className="orb orb-2" style={{ opacity: 0.3 }} />
+          <div style={{ position: "relative", zIndex: 10, textAlign: "center" }}>
+            <div style={{ fontSize: 10, letterSpacing: 2, textTransform: "uppercase", color: "var(--amber)", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 8 }}>
+              {en ? "ESTIMATED FRAUD LOSSES SINCE JANUARY 2025" : "PÉRDIDAS ESTIMADAS POR FRAUDE AI DESDE ENERO 2025"}
+            </div>
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 0, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 32, fontWeight: 900, color: "var(--amber)", fontFamily: "'IBM Plex Mono',monospace", marginRight: 4, textShadow: "0 0 20px rgba(245,158,11,0.3)" }}>₡</span>
+              {digits.map((d, i) => (
+                <span key={i} style={{
+                  display: "inline-block",
+                  width: d === "." || d === "," || d === " " ? "auto" : "clamp(16px, 3.5vw, 24px)",
+                  fontSize: "clamp(24px, 5vw, 36px)",
+                  fontWeight: 900,
+                  fontFamily: "'IBM Plex Mono',monospace",
+                  textAlign: "center",
+                  color: "var(--amber)",
+                  textShadow: "0 0 20px rgba(245,158,11,0.3)",
+                  transition: d === "." || d === "," || d === " " ? "none" : "transform 0.3s ease-out",
+                  padding: d === "." || d === "," ? "0 1px" : 0,
+                }}>
+                  {d}
+                </span>
+              ))}
+            </div>
+            <div style={{ marginTop: 10, display: "flex", justifyContent: "center", gap: 16, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 11, color: "var(--text2)", fontFamily: "'IBM Plex Mono',monospace" }}>
+                ≈ ₡{new Intl.NumberFormat("es-CR", { maximumFractionDigits: 0 }).format(Math.round(BANCA_COUNTER_CONFIG.perMinute))}/{en ? "min" : "min"}
+              </span>
+              <span style={{ fontSize: 11, color: "var(--text3)", fontFamily: "'IBM Plex Mono',monospace" }}>
+                {en ? "≈ 1 teacher's weekly salary / minute" : "≈ 1 salario semanal docente / minuto"}
+              </span>
+            </div>
+            <div style={{ marginTop: 6, fontSize: 10, color: "var(--text3)", fontFamily: "'IBM Plex Mono',monospace", opacity: 0.7 }}>
+              {en ? "Based on ₡6,000MM annual projection (47.3% CAGR) — OIJ / SUGEF / Colibrii Labs" : "Basado en proyección anual ₡6,000MM (CAGR 47.3%) — OIJ / SUGEF / Colibrii Labs"}
+            </div>
+          </div>
+        </div>
+      </div>
+    </ScrollReveal>
   );
 }
 
@@ -67,6 +144,16 @@ export function BancaAI({ en, t, dark }) {
 
   return (
     <div>
+      {/* ── KEY INSIGHT ── */}
+      <KeyInsight
+        icon="⚠️"
+        color="var(--amber)"
+        text={en
+          ? "Costa Rica loses ≈₡11,416 per minute to AI-enabled fraud (668% growth since 2020). With zero binding AI regulation and only 14% investigative capacity, the IFRABA Index rates systemic risk at 78/100 (Critical)."
+          : "Costa Rica pierde ≈₡11.416 por minuto en fraude habilitado por AI (668% crecimiento desde 2020). Con cero regulación vinculante y solo 14% de capacidad investigativa, el Índice IFRABA califica el riesgo sistémico en 78/100 (Crítico)."}
+      />
+      <FreshnessBadge date={en ? "March 2026" : "Marzo 2026"} en={en} />
+
       {/* ── 1. SECTION HEADER ── */}
       <SH
         color={t.am}
@@ -111,6 +198,9 @@ export function BancaAI({ en, t, dark }) {
           <Ci s="Colibrii Labs IFRABA Algorithm — OIJ, SUGEF, Sumsub, OWASP, GAFILAT" />
         </div>
       </ScrollReveal>
+
+      {/* ── 2b. REAL-TIME FRAUD LOSS COUNTER ── */}
+      <FraudCounter en={en} t={t} />
 
       {/* ── 3. CONVERGENCE CONTEXT + EXECUTIVE IMPACT (merged) ── */}
       <ScrollReveal>

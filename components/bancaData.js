@@ -4,6 +4,18 @@
    Sources: OIJ, SUGEF, BCCR, LexisNexis, Deloitte, WEF, OWASP
    ═══════════════════════════════════════════════════════════════ */
 
+// ── Fraud Loss Counter Configuration ──
+// Annual loss: ₡6,000,000,000 (2025 projection from OIJ + SUGEF data)
+// Rate: ₡6B / 31,557,600 sec/year = ₡190.26/sec = ₡11,415.53/min
+// Start epoch: Jan 1 2025 00:00:00 UTC-6 (Costa Rica time)
+export const BANCA_COUNTER_CONFIG = {
+  annualLoss: 6_000_000_000,
+  startEpoch: new Date("2025-01-01T06:00:00Z").getTime(), // Jan 1 2025 00:00 CST = 06:00 UTC
+  perSecond: 6_000_000_000 / 31_557_600, // ≈ 190.26
+  perMinute: 6_000_000_000 / 525_960, // ≈ 11,415.53
+  source: "OIJ / SUGEF / Colibrii Labs projection (47.3% CAGR)",
+};
+
 // ── Fraud Time Series (OIJ / PDF-authoritative, 47.3% CAGR) ──
 export const BANCA_FRAUD_TS = (en) => [
   { year: 2020, cases: 1303, losses: 607, type: en ? "Historical" : "Histórico" },
