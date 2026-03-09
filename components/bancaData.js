@@ -429,5 +429,43 @@ export const BANCA_FRAUD_OPS = (en) => ({
   ],
 });
 
+// ── Fraud Typology Breakdown ──
+export const BANCA_TYPOLOGY = (en) => [
+  { type: en ? "Account Takeover (ATO)" : "Toma de Cuenta (ATO)", share: 35, cases2025: 3509, growth: "+52%", color: "#ef4444", desc: en ? "Unauthorized access to existing bank accounts via credential stuffing, SIM swap, or social engineering." : "Acceso no autorizado a cuentas existentes vía relleno de credenciales, SIM swap o ingeniería social." },
+  { type: en ? "Authorized Push Payment (APP)" : "Pago Push Autorizado (APP)", share: 25, cases2025: 2507, growth: "+78%", color: "#f59e0b", desc: en ? "Victims tricked into authorizing transfers. SINPE Móvil makes this frictionless in CR." : "Víctimas engañadas para autorizar transferencias. SINPE Móvil hace esto sin fricción en CR." },
+  { type: en ? "Synthetic Identity" : "Identidad Sintética", share: 15, cases2025: 1504, growth: "+120%", color: "#8b5cf6", desc: en ? "AI-generated fake identities combining real/fake data to open accounts and obtain credit." : "Identidades falsas generadas por AI combinando datos reales/falsos para abrir cuentas y obtener crédito." },
+  { type: en ? "Card Fraud (CNP)" : "Fraude de Tarjeta (CNP)", share: 12, cases2025: 1203, growth: "+15%", color: "#3b82f6", desc: en ? "Card-not-present fraud in e-commerce. Declining share as biometrics improve, but volume still rises." : "Fraude sin tarjeta presente en e-commerce. Participación baja pero volumen aún crece." },
+  { type: en ? "Deepfake Authentication" : "Autenticación Deepfake", share: 8, cases2025: 802, growth: "+1,265%", color: "#ef4444", desc: en ? "Voice/video deepfakes bypass biometric authentication. Cost: $10 per clone. Fastest-growing vector." : "Deepfakes de voz/video eluden autenticación biométrica. Costo: $10 por clon. Vector de mayor crecimiento." },
+  { type: en ? "Other (Phishing, Malware)" : "Otro (Phishing, Malware)", share: 5, cases2025: 502, growth: "+25%", color: "#64748b", desc: en ? "Traditional phishing, banking trojans, and social engineering. Being displaced by AI-powered methods." : "Phishing tradicional, troyanos bancarios e ingeniería social. Siendo desplazados por métodos con AI." },
+];
+
+// ── API/Open Banking Security Risks ──
+export const BANCA_API_RISKS = (en) => [
+  { risk: en ? "Broken Object Level Authorization" : "Autorización de Nivel de Objeto Rota", owasp: "API1:2023", severity: en ? "Critical" : "Crítico", desc: en ? "Attacker manipulates account IDs in API calls to access other users' accounts." : "Atacante manipula IDs de cuenta en llamadas API para acceder a cuentas ajenas.", color: "#ef4444" },
+  { risk: en ? "Broken Authentication" : "Autenticación Rota", owasp: "API2:2023", severity: en ? "Critical" : "Crítico", desc: en ? "Weak token validation, credential stuffing, JWT bypass." : "Validación débil de tokens, relleno de credenciales, bypass JWT.", color: "#ef4444" },
+  { risk: en ? "Unrestricted Resource Consumption" : "Consumo de Recursos Sin Restricción", owasp: "API4:2023", severity: en ? "High" : "Alto", desc: en ? "API rate limiting absent — enables brute force and DDoS." : "Sin limitación de tasa API — habilita fuerza bruta y DDoS.", color: "#f59e0b" },
+  { risk: en ? "Server-Side Request Forgery" : "Falsificación de Solicitud del Lado del Servidor", owasp: "API7:2023", severity: en ? "High" : "Alto", desc: en ? "Manipulate API to make requests to internal bank systems." : "Manipular API para hacer solicitudes a sistemas bancarios internos.", color: "#f59e0b" },
+  { risk: en ? "Model Inversion Attack" : "Ataque de Inversión de Modelo", owasp: en ? "AI-specific" : "Específico AI", severity: en ? "High" : "Alto", desc: en ? "Extract training data (customer info) from fraud detection model by querying it systematically." : "Extraer datos de entrenamiento (info de clientes) del modelo de detección de fraude consultándolo sistemáticamente.", color: "#f59e0b" },
+  { risk: en ? "Training Data Poisoning" : "Envenenamiento de Datos de Entrenamiento", owasp: en ? "AI-specific" : "Específico AI", severity: en ? "Critical" : "Crítico", desc: en ? "Inject malicious transactions to corrupt fraud detection model — legitimate fraud passes undetected." : "Inyectar transacciones maliciosas para corromper modelo de detección — fraude legítimo pasa sin detectar.", color: "#ef4444" },
+];
+
+// ── Regional Banking AI Comparison ──
+export const BANCA_REGIONAL = (en) => [
+  { dim: en ? "AI Banking Regulation" : "Regulación AI Bancaria", cr: en ? "None specific" : "Ninguna específica", pa: en ? "Basic" : "Básica", cl: en ? "Fintech Law 2023" : "Ley Fintech 2023", mx: en ? "Fintech Law 2018" : "Ley Fintech 2018", crScore: 5, paScore: 20, clScore: 55, mxScore: 60 },
+  { dim: en ? "Open Banking" : "Open Banking", cr: en ? "Planning" : "Planificación", pa: en ? "Limited" : "Limitado", cl: en ? "Mandatory 2025" : "Obligatorio 2025", mx: en ? "Mandatory 2021" : "Obligatorio 2021", crScore: 10, paScore: 15, clScore: 65, mxScore: 70 },
+  { dim: en ? "Digital Fraud Rate" : "Tasa Fraude Digital", cr: "668%↑", pa: "~200%↑", cl: "~150%↑", mx: "~300%↑", crScore: 10, paScore: 40, clScore: 55, mxScore: 30 },
+  { dim: en ? "Biometric Auth Adoption" : "Adopción Auth Biométrica", cr: en ? "Low (<15%)" : "Baja (<15%)", pa: en ? "Medium" : "Media", cl: en ? "High (>50%)" : "Alta (>50%)", mx: en ? "Medium-High" : "Media-Alta", crScore: 15, paScore: 40, clScore: 65, mxScore: 55 },
+  { dim: en ? "Breach Reporting" : "Reporte de Brechas", cr: en ? "Voluntary" : "Voluntario", pa: en ? "Voluntary" : "Voluntario", cl: en ? "Mandatory" : "Obligatorio", mx: en ? "Mandatory (CNBV)" : "Obligatorio (CNBV)", crScore: 10, paScore: 10, clScore: 60, mxScore: 55 },
+];
+
+// ── Cost-Benefit of AI Defense ──
+export const BANCA_DEFENSE_COSTS = (en) => [
+  { defense: en ? "Behavioral Biometrics" : "Biometría Conductual", cost: en ? "$50-150K/year" : "$50-150K/año", fraudPrevented: "25-35%", roi: "3-5x", timeframe: en ? "3-6 months" : "3-6 meses", color: "#10b981" },
+  { defense: en ? "Liveness Detection" : "Detección de Presencia", cost: en ? "$30-80K/year" : "$30-80K/año", fraudPrevented: "15-25%", roi: "4-8x", timeframe: en ? "1-3 months" : "1-3 meses", color: "#10b981" },
+  { defense: en ? "AI-Powered AML" : "AML con AI", cost: en ? "$200-500K/year" : "$200-500K/año", fraudPrevented: "40-60%", roi: "5-10x", timeframe: en ? "6-12 months" : "6-12 meses", color: "#3b82f6" },
+  { defense: en ? "Real-time Transaction Monitoring" : "Monitoreo de Transacciones en Tiempo Real", cost: en ? "$100-300K/year" : "$100-300K/año", fraudPrevented: "30-50%", roi: "4-7x", timeframe: en ? "3-6 months" : "3-6 meses", color: "#3b82f6" },
+  { defense: en ? "Network Graph Analysis" : "Análisis de Grafos de Red", cost: en ? "$150-400K/year" : "$150-400K/año", fraudPrevented: "20-35%", roi: "3-6x", timeframe: en ? "6-9 months" : "6-9 meses", color: "#f59e0b" },
+];
+
 // ── Sources ──
 export const BANCA_SOURCES = "OIJ (Organismo de Investigación Judicial) 2020-2025, SUGEF, BCCR, LexisNexis True Cost of Fraud 2024, Deloitte AI in Financial Services 2025, WEF Global Risks Report 2025, OWASP AI Security 2025, Sumsub Identity Fraud Report 2025, GAFILAT Mutual Evaluation CR, IDB Digital Economy LATAM 2025, Anthropic MCP Specification, Google A2A Protocol Specification, ACFE Report to the Nations LATAM 2024";

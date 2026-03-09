@@ -8,7 +8,7 @@ import {
   BANCA_IFRABA, BANCA_OIJ, BANCA_CASES, BANCA_CR, BANCA_RECS,
   BANCA_STATS, BANCA_PYME, BANCA_SOURCES,
   BANCA_LEGAL_DEFENSE, BANCA_CISO, BANCA_DECISIONS, BANCA_COST_UNIT, BANCA_FRAUD_OPS,
-  BANCA_COUNTER_CONFIG
+  BANCA_COUNTER_CONFIG, BANCA_TYPOLOGY, BANCA_API_RISKS, BANCA_REGIONAL, BANCA_DEFENSE_COSTS
 } from "./bancaData";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -787,7 +787,146 @@ export function BancaAI({ en, t, dark }) {
         </div>
       </ScrollReveal>
 
-      {/* ── 15. SOURCES ── */}
+      {/* ── 15. FRAUD TYPOLOGY BREAKDOWN ── */}
+      <ScrollReveal>
+        <div style={{ marginBottom: 20 }}>
+          <h3 style={{ fontSize: 13, fontWeight: 700, color: t.am, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
+            <Icon name="chart" size={14} color={t.am} style={{ marginRight: 6, verticalAlign: "middle" }} />
+            {en ? "Fraud Typology Breakdown — 2025 Estimates" : "Desglose por Tipología de Fraude — Estimaciones 2025"}
+          </h3>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={BANCA_TYPOLOGY(en)} layout="vertical" margin={{ top: 0, right: 10, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+              <XAxis type="number" tick={{ fontSize: 10, fill: tickFill }} />
+              <YAxis dataKey="type" type="category" tick={{ fontSize: 10, fill: tickFill }} width={140} />
+              <Tooltip contentStyle={{ background: tipBg, border: tipBorder, borderRadius: 8, fontSize: 12 }} formatter={(v) => [`${v}%`, en ? "Share" : "Participación"]} />
+              <Bar dataKey="share" radius={[0, 4, 4, 0]}>
+                {BANCA_TYPOLOGY(en).map((entry, i) => (
+                  <Cell key={i} fill={entry.color} fillOpacity={0.8} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+          <Grid cols="repeat(auto-fit,minmax(180px,1fr))" gap={8} style={{ marginTop: 10 }}>
+            {BANCA_TYPOLOGY(en).slice(0, 3).map((t2, i) => (
+              <Bx key={i}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: t2.color }}>{t2.type}</div>
+                <div style={{ fontSize: 10, color: "var(--text3)", marginTop: 2 }}>{t2.desc}</div>
+                <div style={{ fontSize: 10, fontFamily: "'IBM Plex Mono',monospace", color: t2.color, marginTop: 3 }}>{t2.growth} {en ? "growth" : "crecimiento"} · {t2.cases2025.toLocaleString()} {en ? "cases" : "casos"}</div>
+              </Bx>
+            ))}
+          </Grid>
+          <Ci s={en ? "Colibrii Labs estimates based on OIJ, SUGEF, Sumsub 2025, ACFE LATAM" : "Estimaciones Colibrii Labs basadas en OIJ, SUGEF, Sumsub 2025, ACFE LATAM"} />
+        </div>
+      </ScrollReveal>
+
+      {/* ── 16. API SECURITY / OPEN BANKING ── */}
+      <ScrollReveal>
+        <Card style={{ marginBottom: 20 }}>
+          <h3 style={{ fontSize: 13, fontWeight: 700, color: t.rd, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
+            <Icon name="lock" size={14} color={t.rd} style={{ marginRight: 6, verticalAlign: "middle" }} />
+            {en ? "API Security & Open Banking Risks" : "Seguridad API y Riesgos de Open Banking"}
+          </h3>
+          <p style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.5, marginBottom: 10 }}>
+            {en
+              ? "As Costa Rica moves toward Open Banking, API attack surfaces expand dramatically. These are the most critical vectors:"
+              : "Conforme Costa Rica avanza hacia Open Banking, la superficie de ataque API se expande dramáticamente. Estos son los vectores más críticos:"}
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {BANCA_API_RISKS(en).map((risk, i) => (
+              <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "8px 10px", background: `${risk.color}06`, borderRadius: 8, borderLeft: `3px solid ${risk.color}` }}>
+                <div style={{ flexShrink: 0 }}>
+                  <Tag color={risk.color}>{risk.owasp}</Tag>
+                </div>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text)" }}>{risk.risk}</div>
+                  <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 2 }}>{risk.desc}</div>
+                </div>
+                <Tag color={risk.color}>{risk.severity}</Tag>
+              </div>
+            ))}
+          </div>
+          <Ci s="OWASP API Security Top 10 (2023) · NIST AI 100-2 · Anthropic MCP Security Guide" />
+        </Card>
+      </ScrollReveal>
+
+      {/* ── 17. REGIONAL BANKING COMPARISON ── */}
+      <ScrollReveal>
+        <Card style={{ marginBottom: 20, overflowX: "auto" }}>
+          <h3 style={{ fontSize: 13, fontWeight: 700, color: t.cy, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
+            {en ? "Regional Banking AI Comparison" : "Comparación Regional Banca AI"}
+          </h3>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, minWidth: 500 }}>
+              <thead>
+                <tr style={{ borderBottom: `2px solid var(--border)` }}>
+                  <th style={{ textAlign: "left", padding: "6px 8px", color: "var(--text2)", fontWeight: 700 }}>{en ? "Dimension" : "Dimensión"}</th>
+                  <th style={{ textAlign: "center", padding: "6px 8px", color: t.am, fontWeight: 700 }}>🇨🇷 CR</th>
+                  <th style={{ textAlign: "center", padding: "6px 8px", color: "var(--text2)", fontWeight: 700 }}>🇵🇦 {en ? "Panama" : "Panamá"}</th>
+                  <th style={{ textAlign: "center", padding: "6px 8px", color: "var(--text2)", fontWeight: 700 }}>🇨🇱 Chile</th>
+                  <th style={{ textAlign: "center", padding: "6px 8px", color: "var(--text2)", fontWeight: 700 }}>🇲🇽 {en ? "Mexico" : "México"}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {BANCA_REGIONAL(en).map((row, i) => (
+                  <tr key={i} style={{ borderBottom: "1px solid var(--border)" }}>
+                    <td style={{ padding: "6px 8px", fontWeight: 600, color: "var(--text)" }}>{row.dim}</td>
+                    <td style={{ padding: "6px 8px", textAlign: "center", color: row.crScore <= 15 ? t.rd : t.am, fontWeight: 600 }}>{row.cr}</td>
+                    <td style={{ padding: "6px 8px", textAlign: "center", color: "var(--text2)" }}>{row.pa}</td>
+                    <td style={{ padding: "6px 8px", textAlign: "center", color: "var(--text2)" }}>{row.cl}</td>
+                    <td style={{ padding: "6px 8px", textAlign: "center", color: "var(--text2)" }}>{row.mx}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <Ci s={en ? "Colibrii Labs comparison — SUGEF, SBP, CMF Chile, CNBV Mexico, regional reports 2024-2025" : "Comparación Colibrii Labs — SUGEF, SBP, CMF Chile, CNBV México, reportes regionales 2024-2025"} />
+        </Card>
+      </ScrollReveal>
+
+      {/* ── 18. COST-BENEFIT OF AI DEFENSE ── */}
+      <ScrollReveal>
+        <Card style={{ marginBottom: 20 }}>
+          <h3 style={{ fontSize: 13, fontWeight: 700, color: t.gn, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
+            <Icon name="coins" size={14} color={t.gn} style={{ marginRight: 6, verticalAlign: "middle" }} />
+            {en ? "Cost-Benefit: AI Defense Investment" : "Costo-Beneficio: Inversión en Defensa AI"}
+          </h3>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, minWidth: 500 }}>
+              <thead>
+                <tr style={{ borderBottom: `2px solid var(--border)` }}>
+                  <th style={{ textAlign: "left", padding: "6px 8px", color: "var(--text2)", fontWeight: 700 }}>{en ? "Defense" : "Defensa"}</th>
+                  <th style={{ textAlign: "center", padding: "6px 8px", color: "var(--text2)", fontWeight: 700 }}>{en ? "Annual Cost" : "Costo Anual"}</th>
+                  <th style={{ textAlign: "center", padding: "6px 8px", color: "var(--text2)", fontWeight: 700 }}>{en ? "Fraud Prevented" : "Fraude Prevenido"}</th>
+                  <th style={{ textAlign: "center", padding: "6px 8px", color: t.gn, fontWeight: 700 }}>ROI</th>
+                  <th style={{ textAlign: "center", padding: "6px 8px", color: "var(--text2)", fontWeight: 700 }}>{en ? "Deploy Time" : "Tiempo Deploy"}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {BANCA_DEFENSE_COSTS(en).map((row, i) => (
+                  <tr key={i} style={{ borderBottom: "1px solid var(--border)" }}>
+                    <td style={{ padding: "6px 8px", fontWeight: 600, color: "var(--text)" }}>{row.defense}</td>
+                    <td style={{ padding: "6px 8px", textAlign: "center", fontFamily: "'IBM Plex Mono',monospace", color: "var(--text2)" }}>{row.cost}</td>
+                    <td style={{ padding: "6px 8px", textAlign: "center", color: row.color }}>{row.fraudPrevented}</td>
+                    <td style={{ padding: "6px 8px", textAlign: "center", fontWeight: 700, color: t.gn }}>{row.roi}</td>
+                    <td style={{ padding: "6px 8px", textAlign: "center", color: "var(--text3)" }}>{row.timeframe}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div style={{ marginTop: 8, padding: "8px 12px", background: `${t.gn}08`, borderRadius: 8, borderLeft: `3px solid ${t.gn}` }}>
+            <p style={{ fontSize: 11, color: "var(--text2)", lineHeight: 1.5, margin: 0 }}>
+              {en
+                ? "Against ₡6,000MM in annual fraud losses, even $500K in combined AI defense (≈₡250MM) prevents $2.5-5M in fraud — delivering 5-10x ROI."
+                : "Contra ₡6,000MM en pérdidas anuales por fraude, incluso $500K en defensa AI combinada (≈₡250MM) previene $2.5-5M en fraude — entregando 5-10x ROI."}
+            </p>
+          </div>
+          <Ci s={en ? "Industry benchmarks — Gartner, Forrester, LexisNexis True Cost of Fraud 2024, Colibrii Labs estimates" : "Benchmarks industria — Gartner, Forrester, LexisNexis True Cost of Fraud 2024, estimaciones Colibrii Labs"} />
+        </Card>
+      </ScrollReveal>
+
+      {/* ── 19. SOURCES ── */}
       <Ci s={BANCA_SOURCES} />
     </div>
   );
