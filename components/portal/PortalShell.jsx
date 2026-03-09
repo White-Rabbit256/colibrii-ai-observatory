@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { AnimatePresence } from "framer-motion";
 import { TH, TH_DARK, CO, CC, IND_MAP, CUR, GOV, DM, TABS, PARTNERS, cacheGet, cacheSet, mm, av, sco, sla } from "../data";
-import { LoadCard, Grid, TabContent } from "../ui";
+import { LoadCard, Grid, TabContent, ErrorBoundary } from "../ui";
 /* ── Lazy-loaded tab views (reduces initial JS bundle) ── */
 const Home = dynamic(() => import("../HomeView").then(m => ({ default: m.Home })), { loading: () => <LoadCard d={0.02} /> });
 const Algo = dynamic(() => import("../AlgoSecurityLeg").then(m => ({ default: m.Algo })), { loading: () => <LoadCard d={0.02} /> });
@@ -171,9 +171,11 @@ export default function PortalShell() {
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
     (async () => {
       setLoading(true);
       const [wbRes, gdeltRes, xrRes] = await Promise.allSettled([fetchWB(), fetchGDELT(), fetchXR()]);
+      if (cancelled) return;
       const scores = wbRes.status === "fulfilled" ? wbRes.value : {};
       setIdx(scores);
       if (scores.CRI) setCrS(scores.CRI.composite);
@@ -191,6 +193,7 @@ export default function PortalShell() {
       if (failures.length > 0) setDataWarning(failures);
       setLoading(false);
     })();
+    return () => { cancelled = true; };
   }, [fetchWB, fetchGDELT, fetchXR]);
 
   /* ── TAB PROPS ── */
@@ -320,7 +323,9 @@ export default function PortalShell() {
         <main id="main-content" className="portal-content">
           <AnimatePresence mode="wait">
             <TabContent id={tab} key={tab}>
-              {renderTab()}
+              <ErrorBoundary en={en} key={tab + "_eb"}>
+                {renderTab()}
+              </ErrorBoundary>
             </TabContent>
           </AnimatePresence>
         </main>

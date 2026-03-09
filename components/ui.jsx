@@ -1,8 +1,31 @@
 "use client";
-import { useRef, useEffect, useState, useCallback } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Icon } from "./system/Icon";
 import { PARTNER_LOGOS } from "./data";
+
+/* ── ERROR BOUNDARY (isolates module crashes) ── */
+export class ErrorBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { hasError: false, error: null }; }
+  static getDerivedStateFromError(error) { return { hasError: true, error }; }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: 32, textAlign: "center", color: "var(--text3)" }}>
+          <div style={{ fontSize: 28, marginBottom: 8 }}>⚠️</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text2)", marginBottom: 4 }}>
+            {this.props.en ? "Module failed to load" : "Error al cargar módulo"}
+          </div>
+          <div style={{ fontSize: 12, marginBottom: 12 }}>{this.state.error?.message}</div>
+          <button onClick={() => this.setState({ hasError: false, error: null })} style={{ padding: "6px 14px", fontSize: 12, fontWeight: 600, border: "1px solid var(--border)", borderRadius: 6, background: "var(--card)", color: "var(--text2)" }}>
+            {this.props.en ? "Retry" : "Reintentar"}
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 /* ═══════════════════════════════════════════════════════════════
    COLIBRII LABS — UI Components v13

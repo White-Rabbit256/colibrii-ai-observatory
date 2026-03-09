@@ -170,6 +170,8 @@ input, select, textarea {
 
 input:focus, select:focus, textarea:focus {
   border-color: var(--cyan);
+}
+input:focus:not(:focus-visible), select:focus:not(:focus-visible), textarea:focus:not(:focus-visible) {
   outline: none;
 }
 
