@@ -421,7 +421,7 @@ export function HealthAI({ en, t, dark, setTab }) {
       {setTab && (
         <ScrollReveal>
           <SH t={en ? "Related Modules" : "Módulos Relacionados"} />
-          <Grid cols={3}>
+          <Grid cols="repeat(auto-fit,minmax(220px,1fr))">
             {CROSS_LINKS(en).health?.map((lk, i) => (
               <RelatedInsight key={i} icon="→" label={lk.label} desc={lk.desc} onClick={() => setTab(lk.tab)} />
             ))}
