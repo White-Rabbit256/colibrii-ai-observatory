@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { AreaChart, Area, BarChart, Bar, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { Card, SH, Grid, ScrollReveal, Tag, Bx, Ci, MiniStat, KeyInsight, FreshnessBadge, RelatedInsight } from "./ui";
+import { Card, SH, Grid, ScrollReveal, Tag, Bx, Ci, MiniStat, KeyInsight, FreshnessBadge, RelatedInsight, ShareBtn } from "./ui";
 import { CROSS_LINKS } from "./data";
 import { Icon } from "./system/Icon";
 import {
@@ -44,6 +44,7 @@ function FraudCounter({ en, t }) {
   const [amount, setAmount] = useState(0);
   const rafRef = useRef(null);
   const lastTickRef = useRef(0);
+  const cardRef = useRef(null);
   const { startEpoch, perSecond } = BANCA_COUNTER_CONFIG;
 
   const calcLoss = useCallback(() => {
@@ -71,7 +72,7 @@ function FraudCounter({ en, t }) {
   return (
     <ScrollReveal>
       <div style={{ marginBottom: 20 }}>
-        <div className="hero-bg" style={{ borderRadius: 16, padding: "24px 20px", position: "relative", overflow: "hidden" }}>
+        <div ref={cardRef} className="hero-bg" style={{ borderRadius: 16, padding: "24px 20px", position: "relative", overflow: "hidden" }}>
           <div className="orb orb-1" style={{ opacity: 0.4 }} />
           <div className="orb orb-2" style={{ opacity: 0.3 }} />
           <div style={{ position: "relative", zIndex: 10, textAlign: "center" }}>
@@ -105,8 +106,11 @@ function FraudCounter({ en, t }) {
                 {en ? "≈ 1 teacher's weekly salary / minute" : "≈ 1 salario semanal docente / minuto"}
               </span>
             </div>
-            <div style={{ marginTop: 6, fontSize: 10, color: "var(--text3)", fontFamily: "'IBM Plex Mono',monospace", opacity: 0.7 }}>
-              {en ? "Based on ₡6,000MM annual projection (47.3% CAGR) — OIJ / SUGEF / Colibrii Labs" : "Basado en proyección anual ₡6,000MM (CAGR 47.3%) — OIJ / SUGEF / Colibrii Labs"}
+            <div style={{ marginTop: 8, display: "flex", justifyContent: "center", gap: 8, alignItems: "center" }}>
+              <span style={{ fontSize: 10, color: "var(--text3)", fontFamily: "'IBM Plex Mono',monospace", opacity: 0.7 }}>
+                {en ? "Based on ₡6,000MM annual projection (47.3% CAGR) — OIJ / SUGEF / Colibrii Labs" : "Basado en proyección anual ₡6,000MM (CAGR 47.3%) — OIJ / SUGEF / Colibrii Labs"}
+              </span>
+              <ShareBtn cardRef={cardRef} en={en} filename="colibrii-fraud-counter" />
             </div>
           </div>
         </div>
@@ -118,6 +122,7 @@ function FraudCounter({ en, t }) {
 export function BancaAI({ en, t, dark, setTab }) {
   const [expandedCase, setExpandedCase] = useState(null);
   const [expandedThreat, setExpandedThreat] = useState(null);
+  const ifrabaRef = useRef(null);
 
   const fraudTS = BANCA_FRAUD_TS(en);
   const threats = BANCA_THREATS(en);
@@ -171,17 +176,20 @@ export function BancaAI({ en, t, dark, setTab }) {
           <h3 style={{ fontSize: 13, fontWeight: 700, color: t.am, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
             {en ? "IFRABA — AI Banking Fraud Index" : "IFRABA — Índice de Fraude Bancario por AI"}
           </h3>
-          <div className="hero-bg" style={{ borderRadius: 16, padding: "28px 20px 20px", position: "relative", overflow: "hidden" }}>
+          <div ref={ifrabaRef} className="hero-bg" style={{ borderRadius: 16, padding: "28px 20px 20px", position: "relative", overflow: "hidden" }}>
             <div className="orb orb-1" />
             <div className="orb orb-2" />
             <div className="orb orb-3" />
             <div style={{ position: "relative", zIndex: 10, textAlign: "center" }}>
               <IFRABAGauge score={ifraba.total} t={t} />
-              <p style={{ fontSize: 11, color: "var(--text2)", margin: "10px 0 12px", fontStyle: "italic" }}>
-                {en
-                  ? "IFRABA: Índice de Fraude por Agentes de IA en Banca — Colibrii Labs proprietary index"
-                  : "IFRABA: Índice de Fraude por Agentes de IA en Banca — índice propietario de Colibrii Labs"}
-              </p>
+              <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, margin: "10px 0 12px" }}>
+                <p style={{ fontSize: 11, color: "var(--text2)", margin: 0, fontStyle: "italic" }}>
+                  {en
+                    ? "IFRABA: Índice de Fraude por Agentes de IA en Banca — Colibrii Labs proprietary index"
+                    : "IFRABA: Índice de Fraude por Agentes de IA en Banca — índice propietario de Colibrii Labs"}
+                </p>
+                <ShareBtn cardRef={ifrabaRef} en={en} filename="colibrii-ifraba" />
+              </div>
               <Grid cols="repeat(auto-fit,minmax(140px,1fr))" gap={8}>
                 {ifraba.components.map((c) => (
                   <Bx key={c.id} style={{ padding: 10, background: "var(--card)", borderRadius: 10 }}>

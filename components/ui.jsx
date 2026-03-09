@@ -349,3 +349,51 @@ export function ExportBtn({ onClick, en, label }) {
     </button>
   );
 }
+
+/* ── SHARE BUTTON (Social Card Export via html-to-image) ── */
+export function ShareBtn({ cardRef, en, filename = "colibrii-insight" }) {
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(false);
+  const handleShare = useCallback(async () => {
+    if (!cardRef?.current || busy) return;
+    setBusy(true);
+    try {
+      const { toPng } = await import("html-to-image");
+      const dataUrl = await toPng(cardRef.current, { quality: 0.95, pixelRatio: 2, backgroundColor: "#0f172a" });
+      // Try clipboard first, fall back to download
+      if (navigator.clipboard && typeof ClipboardItem !== "undefined") {
+        const resp = await fetch(dataUrl);
+        const blob = await resp.blob();
+        await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+        setDone(true);
+        setTimeout(() => setDone(false), 2000);
+      } else {
+        const link = document.createElement("a");
+        link.download = `${filename}.png`;
+        link.href = dataUrl;
+        link.click();
+        setDone(true);
+        setTimeout(() => setDone(false), 2000);
+      }
+    } catch (e) {
+      console.error("Share failed:", e);
+      // Fallback: try download
+      try {
+        const { toPng } = await import("html-to-image");
+        const dataUrl = await toPng(cardRef.current, { quality: 0.95, pixelRatio: 2, backgroundColor: "#0f172a" });
+        const link = document.createElement("a");
+        link.download = `${filename}.png`;
+        link.href = dataUrl;
+        link.click();
+      } catch {}
+    } finally {
+      setBusy(false);
+    }
+  }, [cardRef, busy, filename]);
+  return (
+    <button onClick={handleShare} disabled={busy}
+      style={{ padding: "4px 10px", fontSize: 11, fontWeight: 600, border: "1px solid var(--border)", borderRadius: 6, background: done ? "var(--green)" : "var(--card)", color: done ? "#fff" : "var(--text3)", display: "inline-flex", alignItems: "center", gap: 4, cursor: busy ? "wait" : "pointer", transition: "all .2s ease" }}>
+      {busy ? "..." : done ? (en ? "Copied!" : "Copiado!") : (en ? "Share" : "Compartir")}
+    </button>
+  );
+}
