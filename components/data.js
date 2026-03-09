@@ -1738,3 +1738,152 @@ export const CAPI_ITU_MAPPING = (en) => [
   { capiDim: en ? "Sustainable Energy" : "Energía Sostenible", ituDims: [12], coverage: en ? "Direct match" : "Coincidencia directa" },
   { capiDim: en ? "Digital Security" : "Seguridad Digital", ituDims: [10, 11], coverage: en ? "Maps to Integration + Cross-domain" : "Mapea a Integración + Inter-dominio" },
 ];
+
+// ── MODULE FRESHNESS (for FreshnessBadge) ──
+export const MODULE_FRESHNESS = {
+  home: "2026-03",
+  banca: "2026-03",
+  health: "2026-03",
+  zf: "2026-02",
+  pymes: "2026-02",
+  sec: "2026-02",
+  leg: "2026-02",
+  edu: "2026-01",
+  idx: "2026-01",
+  countries: "2026-01",
+};
+
+// ── CROSS-MODULE LINKS ──
+export const CROSS_LINKS = (en) => ({
+  banca: [
+    { tab: "health", label: en ? "Health Data Breaches" : "Brechas Datos Salud", desc: en ? "Banking fraud techniques increasingly target health records" : "Técnicas de fraude bancario crecientemente apuntan a expedientes de salud" },
+    { tab: "pymes", label: en ? "PYME Fraud Exposure" : "Exposición Fraude PYMES", desc: en ? "98% of SMEs have zero cybersecurity — prime fraud targets" : "98% de PYMES tienen cero ciberseguridad — objetivos principales de fraude" },
+    { tab: "leg", label: en ? "Exp. 23.908 Liability" : "Exp. 23.908 Responsabilidad", desc: en ? "Objective liability bill for banks on AI fraud losses" : "Proyecto responsabilidad objetiva bancos por pérdidas fraude AI" },
+  ],
+  health: [
+    { tab: "banca", label: en ? "Financial Fraud & Health" : "Fraude Financiero y Salud", desc: en ? "IFRABA risk index shows crossover between banking and health data theft" : "Índice IFRABA muestra cruce entre robo datos bancarios y de salud" },
+    { tab: "sec", label: en ? "AI Security Threats" : "Amenazas Seguridad AI", desc: en ? "Shadow AI and prompt injection risks in health systems" : "Riesgos de Shadow AI e inyección de prompts en sistemas de salud" },
+    { tab: "leg", label: en ? "GDPR & Health Data" : "GDPR y Datos de Salud", desc: en ? "EU AI Act health data requirements affect CR exports" : "Requisitos datos salud del EU AI Act afectan exportaciones CR" },
+  ],
+  zf: [
+    { tab: "pymes", label: en ? "BPO Job Displacement" : "Desplazamiento Empleos BPO", desc: en ? "28,000 BPO jobs at risk — SME workforce transition needed" : "28,000 empleos BPO en riesgo — necesaria transición laboral PYME" },
+    { tab: "leg", label: en ? "EU AI Act Compliance" : "Cumplimiento EU AI Act", desc: en ? "Aug 2026 enforcement affects all FZ companies exporting to EU" : "Aplicación Ago 2026 afecta todas empresas ZF exportando a UE" },
+    { tab: "edu", label: en ? "AI Skills Pipeline" : "Pipeline Habilidades AI", desc: en ? "INA needs AI tracks for FZ workforce demands" : "INA necesita tracks AI para demandas fuerza laboral ZF" },
+  ],
+  pymes: [
+    { tab: "banca", label: en ? "PYME Fraud Risk" : "Riesgo Fraude PYMES", desc: en ? "1% portfolio compromise = ₡13,500MM cascade" : "1% compromiso cartera = ₡13,500MM cascada" },
+    { tab: "zf", label: en ? "FZ Supply Chain" : "Cadena Suministro ZF", desc: en ? "SMEs as FZ suppliers face AI compliance requirements" : "PYMES como proveedores ZF enfrentan requisitos cumplimiento AI" },
+    { tab: "sec", label: en ? "Cybersecurity for SMEs" : "Ciberseguridad para PYMES", desc: en ? "AI-powered phishing targeting Spanish-speaking businesses" : "Phishing potenciado por AI apuntando a negocios hispanohablantes" },
+  ],
+  sec: [
+    { tab: "banca", label: en ? "Banking Fraud Intel" : "Inteligencia Fraude Bancario", desc: en ? "668% fraud growth and adversarial AI attacks on detection" : "668% crecimiento fraude y ataques adversarios AI a detección" },
+    { tab: "health", label: en ? "Health Data Security" : "Seguridad Datos Salud", desc: en ? "CCSS HIVE ransomware — 30K appointments cancelled" : "CCSS HIVE ransomware — 30K citas canceladas" },
+    { tab: "leg", label: en ? "Regulatory Framework" : "Marco Regulatorio", desc: en ? "CR scores 0-35 vs UK/EU 60-90 on security governance" : "CR puntúa 0-35 vs UK/UE 60-90 en gobernanza seguridad" },
+  ],
+  leg: [
+    { tab: "banca", label: en ? "Banking AI Regulation" : "Regulación AI Bancaria", desc: en ? "Expediente 23.908 — AI fraud liability for banks" : "Expediente 23.908 — responsabilidad fraude AI bancos" },
+    { tab: "zf", label: en ? "FZ Compliance Risk" : "Riesgo Cumplimiento ZF", desc: en ? "EU AI Act extraterritorial impact on Free Zones" : "Impacto extraterritorial EU AI Act en Zonas Francas" },
+    { tab: "health", label: en ? "Health AI Governance" : "Gobernanza AI Salud", desc: en ? "Zero health AI regulation in CR vs HIPAA/GDPR globally" : "Cero regulación AI salud en CR vs HIPAA/GDPR globalmente" },
+  ],
+  home: [
+    { tab: "banca", label: en ? "Fraud Intelligence" : "Inteligencia de Fraude", desc: en ? "Real-time fraud loss counter — ₡190/sec" : "Contador pérdidas fraude tiempo real — ₡190/seg" },
+    { tab: "health", label: en ? "Health Risk Dashboard" : "Dashboard Riesgo Salud", desc: en ? "12 AI failure modes in health systems" : "12 modos fallo AI en sistemas de salud" },
+    { tab: "zf", label: en ? "Free Zone Intelligence" : "Inteligencia Zonas Francas", desc: en ? "$4.3B FDI, 626 companies, EU AI Act impact" : "$4.3B IED, 626 empresas, impacto EU AI Act" },
+  ],
+});
+
+// ── CURATED COSTA RICA DATA (PROCOMER, CINDE, BCCR, SUGEF, INEC) ──
+export const CR_DATA = (en) => ({
+  procomer: {
+    source: "PROCOMER",
+    updated: "2025",
+    url: "https://www.procomer.com/",
+    exports: {
+      total: 8.9, // $B
+      fz: 4.3, // $B from Free Zones
+      fzPct: 48, // % of total
+      topSectors: [
+        { name: en ? "Medical Devices" : "Dispositivos Médicos", value: 2.1, pct: 24 },
+        { name: en ? "Digital Services" : "Servicios Digitales", value: 1.4, pct: 16 },
+        { name: en ? "Food & Agriculture" : "Alimentación y Agricultura", value: 1.2, pct: 13 },
+        { name: en ? "Electronics" : "Electrónica", value: 0.9, pct: 10 },
+        { name: en ? "Chemicals & Pharma" : "Químicos y Farmacéuticos", value: 0.7, pct: 8 },
+      ],
+      topDestinations: [
+        { name: en ? "United States" : "Estados Unidos", pct: 41 },
+        { name: en ? "European Union" : "Unión Europea", pct: 19 },
+        { name: en ? "Central America" : "Centroamérica", pct: 15 },
+        { name: en ? "Asia" : "Asia", pct: 8 },
+      ],
+    },
+  },
+  cinde: {
+    source: "CINDE",
+    updated: "2025",
+    url: "https://www.cinde.org/",
+    fdi: {
+      total: 4.3, // $B 2024
+      companies: 626,
+      employees: 265000,
+      gdpPct: 15,
+      cagr5yr: 12, // %
+      bySector: [
+        { name: en ? "Advanced Manufacturing" : "Manufactura Avanzada", pct: 32 },
+        { name: en ? "Digital Services" : "Servicios Digitales", pct: 28 },
+        { name: en ? "Life Sciences" : "Ciencias de la Vida", pct: 22 },
+        { name: en ? "Shared Services" : "Servicios Compartidos", pct: 18 },
+      ],
+      topInvestors: ["Intel", "Amazon", "HP", "Pfizer", "Abbott", "Edwards Lifesciences", "Microsoft"],
+    },
+  },
+  bccr: {
+    source: "BCCR",
+    updated: "2025",
+    url: "https://www.bccr.fi.cr/",
+    macro: {
+      gdp: 70.5, // $B nominal
+      gdpGrowth: 4.2, // % 2024
+      inflation: 2.1, // % 2024
+      unemployment: 8.5, // % Q4 2024
+      publicDebt: 62.5, // % GDP
+      creditPrivate: 48, // % GDP credit to private sector
+      exchangeRate: 510, // CRC/USD avg 2024
+    },
+  },
+  sugef: {
+    source: "SUGEF",
+    updated: "2025",
+    url: "https://www.sugef.fi.cr/",
+    banking: {
+      assets: 52.3, // $B total banking assets
+      nplRatio: 2.8, // % non-performing loans
+      capitalAdequacy: 16.2, // % tier 1 capital
+      digitalBanking: 72, // % transactions digital
+      fintechs: 45, // registered fintechs
+      cybIncidents: 1200, // reported 2024
+      fraudGrowthCagr: 47.3, // % 2020-2024
+    },
+  },
+  inec: {
+    source: "INEC",
+    updated: "2024",
+    url: "https://www.inec.cr/",
+    digital: {
+      internetHouseholds: 87, // % with internet access
+      mobilePhones: 170, // per 100 inhabitants (penetration rate)
+      urbanInternet: 93, // %
+      ruralInternet: 72, // %
+      digitalDivideGap: 21, // percentage points urban-rural
+      computerHouseholds: 58, // %
+      ecommerceUsers: 42, // % of internet users buy online
+    },
+    demographics: {
+      population: 5.2, // M
+      medianAge: 34,
+      urbanPct: 80,
+      literacyRate: 97.9,
+      tertiaryEnrollment: 58, // %
+      giniCoefficient: 0.49,
+    },
+  },
+});

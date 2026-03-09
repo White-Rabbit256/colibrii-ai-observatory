@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { AreaChart, Area, BarChart, Bar, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { Card, SH, Grid, ScrollReveal, Tag, Bx, Ci, MiniStat, KeyInsight, FreshnessBadge } from "./ui";
+import { Card, SH, Grid, ScrollReveal, Tag, Bx, Ci, MiniStat, KeyInsight, FreshnessBadge, RelatedInsight } from "./ui";
+import { CROSS_LINKS } from "./data";
 import { Icon } from "./system/Icon";
 import {
   BANCA_FRAUD_TS, BANCA_THREATS, BANCA_REG_GAP, BANCA_COSTS,
@@ -114,7 +115,7 @@ function FraudCounter({ en, t }) {
   );
 }
 
-export function BancaAI({ en, t, dark }) {
+export function BancaAI({ en, t, dark, setTab }) {
   const [expandedCase, setExpandedCase] = useState(null);
   const [expandedThreat, setExpandedThreat] = useState(null);
 
@@ -926,7 +927,19 @@ export function BancaAI({ en, t, dark }) {
         </Card>
       </ScrollReveal>
 
-      {/* ── 19. SOURCES ── */}
+      {/* ── 19. RELATED INSIGHTS ── */}
+      {setTab && (
+        <ScrollReveal>
+          <SH t={en ? "Related Modules" : "Módulos Relacionados"} />
+          <Grid cols={3}>
+            {CROSS_LINKS(en).banca?.map((lk, i) => (
+              <RelatedInsight key={i} icon="→" label={lk.label} desc={lk.desc} onClick={() => setTab(lk.tab)} />
+            ))}
+          </Grid>
+        </ScrollReveal>
+      )}
+
+      {/* ── 20. SOURCES ── */}
       <Ci s={BANCA_SOURCES} />
     </div>
   );

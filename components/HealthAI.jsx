@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { Card, SH, Grid, ScrollReveal, Tag, Bx, Ci, MiniStat, KeyInsight, FreshnessBadge } from "./ui";
+import { Card, SH, Grid, ScrollReveal, Tag, Bx, Ci, MiniStat, KeyInsight, FreshnessBadge, RelatedInsight } from "./ui";
+import { CROSS_LINKS } from "./data";
 import { Icon } from "./system/Icon";
 import {
   HEALTH_RISKS, HEALTH_PII_MATRIX, HEALTH_BREACH_TS, CCSS_HIVE_CASE,
@@ -415,6 +416,18 @@ export function HealthAI({ en, t, dark, setTab }) {
           </div>
         </div>
       </ScrollReveal>
+
+      {/* ═══ SECTION: RELATED MODULES ═══ */}
+      {setTab && (
+        <ScrollReveal>
+          <SH t={en ? "Related Modules" : "Módulos Relacionados"} />
+          <Grid cols={3}>
+            {CROSS_LINKS(en).health?.map((lk, i) => (
+              <RelatedInsight key={i} icon="→" label={lk.label} desc={lk.desc} onClick={() => setTab(lk.tab)} />
+            ))}
+          </Grid>
+        </ScrollReveal>
+      )}
 
       {/* ═══ SECTION: SOURCES & METHODOLOGY ═══ */}
       <ScrollReveal>
