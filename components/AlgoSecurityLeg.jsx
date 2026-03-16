@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TH, ALGOS, LAWS, CHECKLIST, SEC_DEEP, LEG_JARGON, ENIA_ANALYSIS } from "./data";
-import { Card, SH, Tag, Ci, Lnk, Grid, ProgressBar, ScrollReveal, MiniStat, fadeUp } from "./ui";
+import { Card, SH, Tag, Ci, Lnk, Grid, ProgressBar, ScrollReveal, MiniStat, fadeUp, Flag } from "./ui";
 import { FACTS } from "../data/facts";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -60,6 +60,7 @@ export function Algo({ en, t }) {
    Enhanced with risk dashboard
    ═══════════════════════════════════════════════════════════════ */
 export function SecTab({ en, t }) {
+  const [expandedInst, setExpandedInst] = useState(null);
   const secDomains = [
     { icon: "🛡", nm: en ? "National Security" : "Seguridad Nacional", c: t.rd, sid: "sec-nat", st: [{ v: "340", l: en ? "Criminal orgs" : "Orgs criminales" }, { v: "17.2", l: en ? "Homicides/100K" : "Homicidios/100K" }, { v: "88t", l: en ? "Cocaine EU ports" : "Cocaína puertos UE" }], desc: en ? "Drug groups grew 10x in a decade. US Treasury: CR is 'key cocaine transshipment hub' (2025). 70% homicides linked to trafficking. AI: container scanning, maritime patterns, OSINT." : "Grupos criminales crecieron 10x en una década. Tesoro EEUU: CR es 'hub clave transbordo cocaína' (2025). 70% homicidios vinculados a narcotráfico. Oportunidades AI: escaneo contenedores, patrones marítimos, OSINT." },
     { icon: "🔒", nm: en ? "Cybersecurity" : "Ciberseguridad", c: t.or, sid: "sec-cyber", st: [{ v: "$25M", l: en ? "US investment" : "Inversión EEUU" }, { v: "672GB", l: en ? "Exfiltrated 2022" : "Exfiltrados 2022" }, { v: "2K+", l: en ? "Cyber workers" : "Trabajadores ciber" }], desc: en ? "Conti 2022: 30 institutions, national emergency, ~$30M/day losses. SOC-CR ($9.8M) by 2026. IBM 24/7 security center from CR (320+ staff, 130 countries). AI detects threats 1000x faster." : "Conti 2022: 30 instituciones, emergencia nacional, ~$30M/día pérdidas. SOC-CR ($9.8M) para 2026. Centro seguridad IBM 24/7 desde CR (320+ personas, 130 países). AI detecta amenazas 1000x más rápido." },
@@ -88,6 +89,8 @@ export function SecTab({ en, t }) {
           { id: "food", label: en ? "Food" : "Alimentos", icon: "\u{1F33E}" },
           { id: "social", label: "Social", icon: "\u{1F3E5}" },
           { id: "threats", label: en ? "AI Threats" : "Amenazas AI", icon: "\u26A0\uFE0F" },
+          { id: "infra", label: en ? "Infra Risk" : "Riesgo Infra", icon: "\u{1F3DB}\uFE0F" },
+          { id: "personal", label: en ? "Personal" : "Personal", icon: "\u{1F464}" },
           { id: "actions", label: en ? "Actions" : "Acciones", icon: "\u{1F4CB}" },
         ].map(s => (
           <button key={s.id} onClick={() => document.getElementById(`sec-${s.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
@@ -286,6 +289,100 @@ export function SecTab({ en, t }) {
           </div>
         ))}
       </Card>
+
+      {/* ═══ NEW: CR Institutional Vulnerability Map ═══ */}
+      <Card d={0.92} accent={t.rd} style={{ marginTop: 20 }}>
+        <div id="sec-infra" style={{ fontSize: 11, letterSpacing: 2, color: t.rd, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 6 }}>
+          {SEC_DEEP(en).crInstitutionalRisk.title}
+        </div>
+        <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6, marginBottom: 12 }}>{SEC_DEEP(en).crInstitutionalRisk.intro}</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {SEC_DEEP(en).crInstitutionalRisk.institutions.map((inst, i) => (
+            <div key={i} style={{ borderRadius: 10, border: `1px solid ${inst.color}30`, borderLeft: `3px solid ${inst.color}`, overflow: "hidden", cursor: "pointer" }}
+              onClick={() => setExpandedInst(expandedInst === i ? null : i)}>
+              <div style={{ padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: t.tx }}>{inst.name}</div>
+                  <div style={{ fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>{inst.fullName}</div>
+                </div>
+                <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                  <Tag color={inst.color}>{inst.affected} {en ? "affected" : "afectados"}</Tag>
+                  <span style={{ transform: expandedInst === i ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s", display: "inline-block", color: t.tx3 }}>▾</span>
+                </div>
+              </div>
+              {expandedInst === i && (
+                <div style={{ padding: "0 14px 14px" }}>
+                  <div style={{ fontSize: 12, color: t.tx2, lineHeight: 1.5, marginBottom: 8 }}>
+                    <strong>{en ? "Services" : "Servicios"}:</strong> {inst.services}
+                  </div>
+                  <div style={{ padding: "8px 10px", background: `${inst.color}08`, borderRadius: 6, marginBottom: 6 }}>
+                    <div style={{ fontSize: 9, color: inst.color, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 2 }}>{en ? "ATTACK HISTORY" : "HISTORIAL DE ATAQUE"}</div>
+                    <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6 }}>{inst.attack}</p>
+                  </div>
+                  <div style={{ padding: "8px 10px", background: `${t.rd}06`, borderRadius: 6 }}>
+                    <div style={{ fontSize: 9, color: t.rd, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 2 }}>{en ? "CASCADE RISK" : "RIESGO EN CASCADA"}</div>
+                    <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6 }}>{inst.cascade}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* ═══ NEW: AI Attack vs Defense ═══ */}
+      <Card d={0.94} style={{ marginTop: 20 }}>
+        <div style={{ fontSize: 11, letterSpacing: 2, color: t.cy, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 6 }}>
+          {SEC_DEEP(en).aiAttackDefense.title}
+        </div>
+        <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6, marginBottom: 12 }}>{SEC_DEEP(en).aiAttackDefense.intro}</p>
+        {SEC_DEEP(en).aiAttackDefense.comparisons.map((cmp, i) => (
+          <div key={i} style={{ marginBottom: 12, borderRadius: 10, border: `1px solid ${t.bd}`, overflow: "hidden" }}>
+            <div style={{ padding: "8px 14px", background: t.sf, fontWeight: 700, fontSize: 12, color: t.tx }}>{cmp.domain}</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0 }}>
+              <div style={{ padding: "10px 12px", borderRight: `1px solid ${t.bd}` }}>
+                <div style={{ fontSize: 9, color: t.rd, fontWeight: 700, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>{en ? "ATTACK" : "ATAQUE"}</div>
+                <p style={{ fontSize: 11, color: t.tx2, lineHeight: 1.5, margin: 0 }}>{cmp.attack}</p>
+              </div>
+              <div style={{ padding: "10px 12px" }}>
+                <div style={{ fontSize: 9, color: t.gn, fontWeight: 700, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>{en ? "DEFENSE" : "DEFENSA"}</div>
+                <p style={{ fontSize: 11, color: t.tx2, lineHeight: 1.5, margin: 0 }}>{cmp.defense}</p>
+              </div>
+            </div>
+            <div style={{ padding: "8px 12px", background: `${t.cy}06`, borderTop: `1px solid ${t.bd}` }}>
+              <div style={{ fontSize: 9, color: t.cy, fontWeight: 700, fontFamily: "'IBM Plex Mono',monospace", marginBottom: 2 }}>🇨🇷 CR</div>
+              <p style={{ fontSize: 11, color: t.tx2, lineHeight: 1.5, margin: 0 }}>{cmp.crContext}</p>
+            </div>
+          </div>
+        ))}
+      </Card>
+
+      {/* ═══ NEW: Personal Cybersecurity Guide ═══ */}
+      <Card d={0.96} accent={t.gn} style={{ marginTop: 20 }}>
+        <div id="sec-personal" style={{ fontSize: 11, letterSpacing: 2, color: t.gn, textTransform: "uppercase", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 6 }}>
+          {SEC_DEEP(en).personalSecurity.title}
+        </div>
+        <p style={{ fontSize: 12, color: t.tx2, lineHeight: 1.6, marginBottom: 14, fontStyle: "italic" }}>
+          {SEC_DEEP(en).personalSecurity.intro}
+        </p>
+        <Grid cols="repeat(auto-fit,minmax(280px,1fr))" gap={10}>
+          {SEC_DEEP(en).personalSecurity.categories.map((cat, i) => (
+            <div key={i} style={{ borderRadius: 10, border: `1px solid ${cat.color}20`, borderLeft: `3px solid ${cat.color}`, padding: 14, background: `${cat.color}04` }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <span style={{ fontSize: 20 }}>{cat.icon}</span>
+                <h4 style={{ fontSize: 13, fontWeight: 700, color: t.tx, margin: 0 }}>{cat.name}</h4>
+              </div>
+              {cat.items.map((item, j) => (
+                <div key={j} style={{ display: "flex", gap: 8, alignItems: "flex-start", padding: "4px 0", borderBottom: j < cat.items.length - 1 ? `1px solid ${t.bd}` : "none" }}>
+                  <span style={{ fontSize: 10, color: cat.color, fontWeight: 700, minWidth: 16, textAlign: "center", fontFamily: "'IBM Plex Mono',monospace", marginTop: 2 }}>{j + 1}</span>
+                  <span style={{ fontSize: 11.5, color: t.tx2, lineHeight: 1.5 }}>{item}</span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </Grid>
+        <Ci s={en ? "Colibrii Labs — OWASP, NIST, INCIBE, OIJ CR, Cybersecurity best practices" : "Colibrii Labs — OWASP, NIST, INCIBE, OIJ CR, mejores prácticas de ciberseguridad"} />
+      </Card>
     </div>
   );
 }
@@ -293,6 +390,14 @@ export function SecTab({ en, t }) {
 /* ═══════════════════════════════════════════════════════════════
    LEGISLATION VIEW v13 — 7 laws + 11-item CR checklist
    ═══════════════════════════════════════════════════════════════ */
+// Extract 2-letter ISO code from regional indicator emoji (e.g. "🇪🇺" → "EU")
+const emojiToCode = (emoji) => {
+  try {
+    const pts = [...emoji].map(c => c.codePointAt(0));
+    return pts.filter(p => p >= 0x1F1E6 && p <= 0x1F1FF).map(p => String.fromCharCode(p - 0x1F1A5)).join("");
+  } catch { return ""; }
+};
+
 export function Leg({ en, t }) {
   const L = LAWS(en);
   const CK = CHECKLIST(en);
@@ -306,7 +411,9 @@ export function Leg({ en, t }) {
       {L.map((l, i) => (
         <Card key={i} d={i * 0.05} accent={l.sc} style={{ marginBottom: 12 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-            <span style={{ fontSize: 18, fontWeight: 700, fontFamily: "var(--font-display, 'Playfair Display', serif)" }}>{l.f} {l.n}</span>
+            <span style={{ fontSize: 18, fontWeight: 700, fontFamily: "var(--font-display, 'Playfair Display', serif)", display: "flex", alignItems: "center", gap: 8 }}>
+              <Flag code={emojiToCode(l.f)} size={24} /> {l.n}
+            </span>
             <Tag color={l.sc}>{l.st}</Tag>
           </div>
           <p style={{ fontSize: 13, color: t.tx2, lineHeight: 1.7, marginBottom: 10 }}>{l.desc}</p>

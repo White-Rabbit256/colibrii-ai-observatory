@@ -2588,7 +2588,8 @@ input[type="range"]::-moz-range-thumb {
 .map-marker-pulse { animation: map-pulse 2s ease-in-out infinite; }
 
 /* ═══════════════════════════════════════════════════════════════
-   v17 — MOBILE BOTTOM NAVIGATION
+   v18 — MOBILE BOTTOM NAVIGATION DOCK
+   Cleaner icon-based dock with rounded container and center highlight
    ═══════════════════════════════════════════════════════════════ */
 
 .bottom-nav {
@@ -2599,21 +2600,24 @@ input[type="range"]::-moz-range-thumb {
   .bottom-nav {
     display: flex;
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 56px;
-    background: var(--bg);
-    border-top: 1px solid var(--border);
+    bottom: 10px;
+    left: 12px;
+    right: 12px;
+    height: 60px;
+    background: var(--card);
+    border: 1px solid var(--border);
     z-index: 150;
-    justify-content: space-around;
+    justify-content: space-evenly;
     align-items: center;
-    padding: 0 4px;
-    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.08);
+    padding: 0 6px;
+    border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.06);
+    backdrop-filter: blur(12px);
   }
 
   [data-theme="dark"] .bottom-nav {
-    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.3);
+    background: rgba(17, 24, 39, 0.92);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255,255,255,0.06);
   }
 
   .bottom-nav-item {
@@ -2626,27 +2630,42 @@ input[type="range"]::-moz-range-thumb {
     border: none;
     color: var(--text3);
     cursor: pointer;
-    padding: 6px 4px;
-    min-width: 44px;
-    min-height: 48px;
-    border-radius: 8px;
-    transition: color 0.15s, background 0.15s;
+    padding: 4px 2px;
+    min-width: 40px;
+    min-height: 44px;
+    border-radius: 12px;
+    transition: color 0.2s, background 0.2s, transform 0.15s;
     -webkit-tap-highlight-color: transparent;
   }
 
   .bottom-nav-item:active {
-    background: var(--surface);
+    transform: scale(0.92);
   }
 
   .bottom-nav-item.active {
     color: var(--cyan);
   }
 
+  /* Center highlight — elevated prominent button */
+  .bottom-nav-center {
+    position: relative;
+  }
+  .bottom-nav-center.active {
+    background: var(--green);
+    color: #fff;
+    border-radius: 16px;
+    padding: 6px 8px;
+    box-shadow: 0 2px 12px rgba(16, 185, 129, 0.35);
+  }
+  .bottom-nav-center.active .bottom-nav-label {
+    color: #fff;
+  }
+
   .bottom-nav-label {
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 600;
     font-family: var(--font-mono, 'IBM Plex Mono', monospace);
-    letter-spacing: 0.3px;
+    letter-spacing: 0.2px;
     white-space: nowrap;
   }
 
@@ -2654,7 +2673,7 @@ input[type="range"]::-moz-range-thumb {
   .bottom-nav-toggle {
     min-width: 36px !important;
     min-height: 44px !important;
-    padding: 6px 2px !important;
+    padding: 4px 2px !important;
     opacity: 0.7;
   }
   .bottom-nav-toggle:active {
@@ -2663,16 +2682,16 @@ input[type="range"]::-moz-range-thumb {
 
   /* Push content above bottom nav */
   .portal-content {
-    padding-bottom: 72px !important;
+    padding-bottom: 84px !important;
   }
 
   .portal-footer {
-    padding-bottom: 64px !important;
+    padding-bottom: 80px !important;
   }
 
   /* Scroll-to-top moves above bottom nav */
   .scroll-to-top {
-    bottom: 72px !important;
+    bottom: 84px !important;
   }
 }
 
@@ -2685,8 +2704,9 @@ input[type="range"]::-moz-range-thumb {
     font-size: 16px !important;
   }
 
-  /* Bottom nav — smaller labels for narrow phones */
-  .bottom-nav-label { font-size: 9px !important; letter-spacing: 0 !important; }
+  /* Bottom nav — hide labels on narrow phones, icons only */
+  .bottom-nav-label { font-size: 8px !important; letter-spacing: 0 !important; }
+  .bottom-nav { left: 8px !important; right: 8px !important; bottom: 8px !important; height: 56px !important; }
 
   /* Larger touch targets */
   button, a, [role="button"] {

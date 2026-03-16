@@ -1,41 +1,86 @@
 "use client";
 import { useState } from "react";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { Card, SH, Grid, ScrollReveal, Tag, Bx, Ci, MiniStat, KeyInsight, FreshnessBadge, RelatedInsight } from "./ui";
+import { Card, SH, Grid, ScrollReveal, Tag, Bx, Ci, MiniStat, KeyInsight, FreshnessBadge, RelatedInsight, Lnk, Flag } from "./ui";
 import { CROSS_LINKS } from "./data";
 import { Icon } from "./system/Icon";
 import {
   HEALTH_RISKS, HEALTH_PII_MATRIX, HEALTH_BREACH_TS, CCSS_HIVE_CASE,
-  HEALTH_GOVERNANCE, HEALTH_COMPLIANCE, HEALTH_MITIGATIONS, HEALTH_STATS
+  HEALTH_GOVERNANCE, HEALTH_COMPLIANCE, HEALTH_MITIGATIONS, HEALTH_STATS,
+  HEALTH_INTL_FRAMEWORKS, HEALTH_AI_TECH_CR, HEALTH_AI_RESOURCES
 } from "./healthData";
 
 /* ═══════════════════════════════════════════════════════════════
-   COLIBRII LABS — Health AI: Risk Intelligence Dashboard
-   From marketing brochure → comprehensive risk & opportunity module
-   Sources: WHO, HHS, IBM, Nature Medicine, CCSS, ITU, OECD
+   COLIBRII LABS — Health AI: Risk Intelligence Dashboard v2
+   Major UI overhaul: refined colors, mobile-first tables,
+   international frameworks, real AI tech in CR
+   Sources: WHO, HHS, IBM, Nature Medicine, CCSS, ITU, OECD,
+   AHA, EHDS, Mayo Clinic, FDA
    ═══════════════════════════════════════════════════════════════ */
 
-// ── Risk Heatmap Cell ──
+// ── Risk severity tier colors (psychology-informed) ──
+// Critical: deep rose (urgency without alarm), High: warm amber, Medium: muted blue, Low: slate
+const RISK_TIERS = {
+  critical: { bg: "rgba(225,29,72,0.06)", border: "#e11d48", text: "#be123c", badge: "rgba(225,29,72,0.12)" },
+  high:     { bg: "rgba(245,158,11,0.06)", border: "#f59e0b", text: "#d97706", badge: "rgba(245,158,11,0.12)" },
+  medium:   { bg: "rgba(59,130,246,0.06)", border: "#3b82f6", text: "#2563eb", badge: "rgba(59,130,246,0.12)" },
+  low:      { bg: "rgba(100,116,139,0.06)", border: "#64748b", text: "#475569", badge: "rgba(100,116,139,0.12)" },
+};
+
+function getRiskTier(severity, likelihood) {
+  const score = severity * likelihood;
+  if (score >= 72) return RISK_TIERS.critical;
+  if (score >= 56) return RISK_TIERS.high;
+  if (score >= 36) return RISK_TIERS.medium;
+  return RISK_TIERS.low;
+}
+
+// ── Redesigned Risk Cell — subtle left border + clean typography ──
 function RiskCell({ risk, onClick, selected }) {
-  const bgOpacity = Math.round((risk.severity * risk.likelihood) / 100 * 255).toString(16).padStart(2, "0");
+  const tier = getRiskTier(risk.severity, risk.likelihood);
+  const score = risk.severity * risk.likelihood;
   return (
     <button
       onClick={() => onClick(risk)}
       style={{
-        display: "flex", flexDirection: "column", gap: 2, padding: "8px 10px",
-        background: selected ? `${risk.color}20` : `${risk.color}${bgOpacity.slice(0, 2)}`,
-        border: selected ? `2px solid ${risk.color}` : "1px solid var(--border)",
-        borderRadius: 8, cursor: "pointer", textAlign: "left", width: "100%",
+        display: "flex", flexDirection: "column", gap: 4, padding: "10px 12px",
+        background: selected ? tier.bg : "var(--card)",
+        border: selected ? `2px solid ${tier.border}` : "1px solid var(--border)",
+        borderLeft: `3px solid ${tier.border}`,
+        borderRadius: 10, cursor: "pointer", textAlign: "left", width: "100%",
         transition: "all .2s ease",
       }}
     >
-      <div style={{ fontSize: 11, fontWeight: 700, color: risk.color }}>{risk.name}</div>
-      <div style={{ display: "flex", gap: 6, fontSize: 9, color: "var(--text3)", fontFamily: "'IBM Plex Mono',monospace" }}>
-        <span>S:{risk.severity}</span>
-        <span>L:{risk.likelihood}</span>
-        <Tag color={risk.color}>{risk.cat}</Tag>
+      <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text)", lineHeight: 1.3 }}>{risk.name}</div>
+      <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+        <span style={{
+          fontSize: 9, fontWeight: 700, fontFamily: "'IBM Plex Mono',monospace",
+          color: tier.text, background: tier.badge, padding: "1px 6px", borderRadius: 4,
+        }}>
+          {score}/100
+        </span>
+        <Tag color={tier.border} style={{ fontSize: 9 }}>{risk.cat}</Tag>
       </div>
     </button>
+  );
+}
+
+// ── PII Card (mobile-friendly alternative to table rows) ──
+function PiiCard({ row, en }) {
+  const isCrit = row.sensitivity === (en ? "Critical" : "Crítico");
+  const color = isCrit ? "var(--red)" : "var(--amber)";
+  return (
+    <div style={{
+      padding: "12px 14px", borderRadius: 10, background: "var(--card)",
+      border: "1px solid var(--border)", borderLeft: `3px solid ${color}`,
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, marginBottom: 6 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)" }}>{row.type}</div>
+        <Tag color={color}>{row.sensitivity}</Tag>
+      </div>
+      <div style={{ fontSize: 11, color: "var(--text3)", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>{row.system}</div>
+      <div style={{ fontSize: 11.5, color: "var(--text2)", lineHeight: 1.5 }}>{row.gap}</div>
+    </div>
   );
 }
 
@@ -59,6 +104,7 @@ export function HealthAI({ en, t, dark, setTab }) {
   const [expandedCase, setExpandedCase] = useState(null);
   const [selectedRisk, setSelectedRisk] = useState(null);
   const [showAllRisks, setShowAllRisks] = useState(false);
+  const [expandedFramework, setExpandedFramework] = useState(null);
 
   const risks = HEALTH_RISKS(en);
   const piiMatrix = HEALTH_PII_MATRIX(en);
@@ -70,13 +116,16 @@ export function HealthAI({ en, t, dark, setTab }) {
   const stats = HEALTH_STATS(en);
   const cases = CASE_STUDIES(en);
   const crConn = CR_CONNECTIONS(en);
+  const frameworks = HEALTH_INTL_FRAMEWORKS(en);
+  const techCR = HEALTH_AI_TECH_CR(en);
+  const resources = HEALTH_AI_RESOURCES(en);
 
   const gridStroke = dark ? "#1e293b" : "#d1d5e0";
   const tickFill = dark ? "#94a3b8" : "#475569";
   const tipBg = dark ? "#111827" : "#fff";
   const tipBorder = `1px solid ${dark ? "#1e293b" : "#d1d5e0"}`;
 
-  // Sort risks by composite score (severity × likelihood) for display
+  // Sort risks by composite score
   const sortedRisks = [...risks].sort((a, b) => (b.severity * b.likelihood) - (a.severity * a.likelihood));
   const displayRisks = showAllRisks ? sortedRisks : sortedRisks.slice(0, 6);
 
@@ -139,56 +188,64 @@ export function HealthAI({ en, t, dark, setTab }) {
             </button>
           )}
           {/* Risk detail panel */}
-          {selectedRisk && (
-            <Card style={{ marginTop: 10, background: `${selectedRisk.color}08`, border: `1px solid ${selectedRisk.color}20` }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8 }}>
-                <div>
-                  <h4 style={{ fontSize: 14, fontWeight: 700, color: selectedRisk.color, margin: 0 }}>{selectedRisk.name}</h4>
-                  <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
-                    <Tag color={selectedRisk.color}>{en ? `Severity: ${selectedRisk.severity}/10` : `Severidad: ${selectedRisk.severity}/10`}</Tag>
-                    <Tag color={selectedRisk.color}>{en ? `Likelihood: ${selectedRisk.likelihood}/10` : `Probabilidad: ${selectedRisk.likelihood}/10`}</Tag>
-                    <Tag color="var(--text3)">{selectedRisk.cat}</Tag>
+          {selectedRisk && (() => {
+            const tier = getRiskTier(selectedRisk.severity, selectedRisk.likelihood);
+            return (
+              <Card style={{ marginTop: 10, background: tier.bg, border: `1px solid ${tier.border}30` }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8 }}>
+                  <div>
+                    <h4 style={{ fontSize: 14, fontWeight: 700, color: tier.text, margin: 0 }}>{selectedRisk.name}</h4>
+                    <div style={{ display: "flex", gap: 8, marginTop: 4, flexWrap: "wrap" }}>
+                      <Tag color={tier.border}>{en ? `Severity: ${selectedRisk.severity}/10` : `Severidad: ${selectedRisk.severity}/10`}</Tag>
+                      <Tag color={tier.border}>{en ? `Likelihood: ${selectedRisk.likelihood}/10` : `Probabilidad: ${selectedRisk.likelihood}/10`}</Tag>
+                      <Tag color="var(--text3)">{selectedRisk.cat}</Tag>
+                    </div>
                   </div>
+                  <button onClick={() => setSelectedRisk(null)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 16, color: "var(--text3)" }}>×</button>
                 </div>
-                <button onClick={() => setSelectedRisk(null)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 16, color: "var(--text3)" }}>×</button>
-              </div>
-              <p style={{ fontSize: 12.5, color: "var(--text2)", lineHeight: 1.7, marginTop: 8, marginBottom: 0 }}>{selectedRisk.desc}</p>
-            </Card>
-          )}
+                <p style={{ fontSize: 12.5, color: "var(--text2)", lineHeight: 1.7, marginTop: 8, marginBottom: 0 }}>{selectedRisk.desc}</p>
+              </Card>
+            );
+          })()}
           <Ci s={en ? "Colibrii Labs Risk Assessment — WHO, HHS, IBM, Nature Medicine, CCSS" : "Evaluación de Riesgo Colibrii Labs — WHO, HHS, IBM, Nature Medicine, CCSS"} />
         </div>
       </ScrollReveal>
 
-      {/* ═══ SECTION: PII EXPOSURE MATRIX ═══ */}
+      {/* ═══ SECTION: PII EXPOSURE MATRIX — Mobile-first card layout ═══ */}
       <ScrollReveal>
-        <Card style={{ marginBottom: 20, overflowX: "auto" }}>
+        <Card style={{ marginBottom: 20 }}>
           <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--amber)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
             <Icon name="lock" size={14} color="var(--amber)" style={{ marginRight: 6, verticalAlign: "middle" }} />
             {en ? "PII Exposure Matrix — Health Data at Risk" : "Matriz de Exposición PII — Datos de Salud en Riesgo"}
           </h3>
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+          {/* Desktop: table | Mobile: cards */}
+          <div className="hide-mobile" style={{ overflowX: "auto" }}>
+            <table className="data-table" style={{ minWidth: 520 }}>
               <thead>
-                <tr style={{ borderBottom: `2px solid var(--border)` }}>
-                  <th style={{ textAlign: "left", padding: "8px 10px", color: "var(--text2)", fontWeight: 700, fontSize: 11 }}>{en ? "Data Type" : "Tipo de Dato"}</th>
-                  <th style={{ textAlign: "left", padding: "8px 10px", color: "var(--text2)", fontWeight: 700, fontSize: 11 }}>{en ? "System" : "Sistema"}</th>
-                  <th style={{ textAlign: "left", padding: "8px 10px", color: "var(--text2)", fontWeight: 700, fontSize: 11 }}>{en ? "Sensitivity" : "Sensibilidad"}</th>
-                  <th style={{ textAlign: "left", padding: "8px 10px", color: "var(--text2)", fontWeight: 700, fontSize: 11 }}>{en ? "Current Gap" : "Brecha Actual"}</th>
+                <tr>
+                  <th>{en ? "Data Type" : "Tipo de Dato"}</th>
+                  <th>{en ? "System" : "Sistema"}</th>
+                  <th>{en ? "Sensitivity" : "Sensibilidad"}</th>
+                  <th>{en ? "Current Gap" : "Brecha Actual"}</th>
                 </tr>
               </thead>
               <tbody>
                 {piiMatrix.map((row, i) => (
-                  <tr key={i} style={{ borderBottom: "1px solid var(--border)" }}>
-                    <td style={{ padding: "8px 10px", fontWeight: 600, color: "var(--text)" }}>{row.type}</td>
-                    <td style={{ padding: "8px 10px", color: "var(--text2)", fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 }}>{row.system}</td>
-                    <td style={{ padding: "8px 10px" }}>
-                      <Tag color={row.sensitivity === (en ? "Critical" : "Crítico") ? "var(--red)" : "var(--amber)"}>{row.sensitivity}</Tag>
-                    </td>
-                    <td style={{ padding: "8px 10px", color: "var(--text3)", fontSize: 11 }}>{row.gap}</td>
+                  <tr key={i}>
+                    <td style={{ fontWeight: 600 }}>{row.type}</td>
+                    <td style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 11 }}>{row.system}</td>
+                    <td><Tag color={row.sensitivity === (en ? "Critical" : "Crítico") ? "var(--red)" : "var(--amber)"}>{row.sensitivity}</Tag></td>
+                    <td style={{ color: "var(--text3)", fontSize: 11 }}>{row.gap}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+          {/* Mobile cards */}
+          <div className="show-mobile" style={{ display: "none" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {piiMatrix.map((row, i) => <PiiCard key={i} row={row} en={en} />)}
+            </div>
           </div>
           <Ci s={en ? "Colibrii Labs analysis — CCSS, EDUS, HIPAA framework comparison" : "Análisis Colibrii Labs — CCSS, EDUS, comparación con marco HIPAA"} />
         </Card>
@@ -196,13 +253,13 @@ export function HealthAI({ en, t, dark, setTab }) {
 
       {/* ═══ SECTION: CCSS HIVE CASE STUDY ═══ */}
       <ScrollReveal>
-        <Card style={{ marginBottom: 20, background: `var(--red)08`, border: "1px solid var(--red)20" }}>
+        <Card style={{ marginBottom: 20, borderLeft: "3px solid var(--red)" }}>
           <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--red)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
-            🔴 {en ? "Case Study: CCSS HIVE Ransomware Attack (2022)" : "Caso de Estudio: Ataque Ransomware HIVE a CCSS (2022)"}
+            {en ? "Case Study: CCSS HIVE Ransomware Attack (2022)" : "Caso de Estudio: Ataque Ransomware HIVE a CCSS (2022)"}
           </h3>
           <Grid cols="repeat(auto-fit,minmax(120px,1fr))" gap={8} style={{ marginBottom: 12 }}>
             {hiveCase.impact.map((item, i) => (
-              <Bx key={i} style={{ padding: 10, textAlign: "center", background: "var(--card)" }}>
+              <Bx key={i} style={{ padding: 10, textAlign: "center", background: "var(--surface)", borderRadius: 10 }}>
                 <div style={{ fontSize: 20, marginBottom: 2 }}>{item.icon}</div>
                 <div style={{ fontSize: 16, fontWeight: 800, color: "var(--red)", fontFamily: "'IBM Plex Mono',monospace" }}>{item.value}</div>
                 <div style={{ fontSize: 10, color: "var(--text3)" }}>{item.metric}</div>
@@ -273,8 +330,8 @@ export function HealthAI({ en, t, dark, setTab }) {
       {/* ═══ SECTION: GOVERNANCE RADAR ═══ */}
       <ScrollReveal>
         <Card style={{ marginBottom: 20 }}>
-          <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--violet)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
-            <Icon name="globe" size={14} color="var(--violet)" style={{ marginRight: 6, verticalAlign: "middle" }} />
+          <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--indigo)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
+            <Icon name="globe" size={14} color="var(--indigo)" style={{ marginRight: 6, verticalAlign: "middle" }} />
             {en ? "Health AI Governance Maturity — CR vs Peers" : "Madurez de Gobernanza AI Salud — CR vs Pares"}
           </h3>
           <ResponsiveContainer width="100%" height={280}>
@@ -293,41 +350,155 @@ export function HealthAI({ en, t, dark, setTab }) {
         </Card>
       </ScrollReveal>
 
-      {/* ═══ SECTION: COMPLIANCE COMPARISON TABLE ═══ */}
+      {/* ═══ SECTION: COMPLIANCE COMPARISON — Mobile-first ═══ */}
       <ScrollReveal>
-        <Card style={{ marginBottom: 20, overflowX: "auto" }}>
+        <Card style={{ marginBottom: 20 }}>
           <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--cyan)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
             {en ? "Regulatory Compliance Gap — Health AI" : "Brecha Regulatoria — AI en Salud"}
           </h3>
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, minWidth: 500 }}>
+          {/* Desktop table */}
+          <div className="hide-mobile" style={{ overflowX: "auto" }}>
+            <table className="data-table" style={{ minWidth: 520 }}>
               <thead>
-                <tr style={{ borderBottom: `2px solid var(--border)` }}>
-                  <th style={{ textAlign: "left", padding: "6px 8px", color: "var(--text2)", fontWeight: 700 }}>{en ? "Dimension" : "Dimensión"}</th>
-                  <th style={{ textAlign: "center", padding: "6px 8px", color: "var(--amber)", fontWeight: 700 }}>🇨🇷 CR</th>
-                  <th style={{ textAlign: "center", padding: "6px 8px", color: "var(--text2)", fontWeight: 700 }}>🇺🇸 {en ? "US" : "EE.UU."}</th>
-                  <th style={{ textAlign: "center", padding: "6px 8px", color: "var(--cyan)", fontWeight: 700 }}>🇪🇺 {en ? "EU" : "UE"}</th>
-                  <th style={{ textAlign: "center", padding: "6px 8px", color: "var(--green)", fontWeight: 700 }}>🇸🇬 {en ? "Singapore" : "Singapur"}</th>
+                <tr>
+                  <th>{en ? "Dimension" : "Dimensión"}</th>
+                  <th style={{ textAlign: "center" }}><Flag code="CR" size={14} /> CR</th>
+                  <th style={{ textAlign: "center" }}><Flag code="US" size={14} /> {en ? "US" : "EE.UU."}</th>
+                  <th style={{ textAlign: "center" }}><Flag code="EU" size={14} /> {en ? "EU" : "UE"}</th>
+                  <th style={{ textAlign: "center" }}><Flag code="SG" size={14} /> {en ? "Singapore" : "Singapur"}</th>
                 </tr>
               </thead>
               <tbody>
                 {compliance.map((row, i) => (
-                  <tr key={i} style={{ borderBottom: "1px solid var(--border)" }}>
-                    <td style={{ padding: "6px 8px", fontWeight: 600, color: "var(--text)", fontSize: 11 }}>{row.dim}</td>
-                    <td style={{ padding: "6px 8px", textAlign: "center", color: row.crScore === 0 ? "var(--red)" : "var(--amber)", fontWeight: 600 }}>{row.cr}</td>
-                    <td style={{ padding: "6px 8px", textAlign: "center", color: "var(--text2)" }}>{row.us}</td>
-                    <td style={{ padding: "6px 8px", textAlign: "center", color: "var(--text2)" }}>{row.eu}</td>
-                    <td style={{ padding: "6px 8px", textAlign: "center", color: "var(--text2)" }}>{row.sg}</td>
+                  <tr key={i}>
+                    <td style={{ fontWeight: 600, fontSize: 11 }}>{row.dim}</td>
+                    <td style={{ textAlign: "center", color: row.crScore === 0 ? "var(--red)" : "var(--amber)", fontWeight: 600, fontSize: 11 }}>{row.cr}</td>
+                    <td style={{ textAlign: "center", color: "var(--text2)", fontSize: 11 }}>{row.us}</td>
+                    <td style={{ textAlign: "center", color: "var(--text2)", fontSize: 11 }}>{row.eu}</td>
+                    <td style={{ textAlign: "center", color: "var(--text2)", fontSize: 11 }}>{row.sg}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+          {/* Mobile: stacked comparison cards */}
+          <div className="show-mobile" style={{ display: "none" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {compliance.map((row, i) => (
+                <div key={i} style={{ padding: "12px 14px", borderRadius: 10, background: "var(--surface)", border: "1px solid var(--border)" }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text)", marginBottom: 8 }}>{row.dim}</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                    <div style={{ padding: "6px 8px", borderRadius: 6, background: row.crScore === 0 ? "rgba(239,68,68,0.08)" : "rgba(245,158,11,0.08)", border: `1px solid ${row.crScore === 0 ? "rgba(239,68,68,0.2)" : "rgba(245,158,11,0.2)"}` }}>
+                      <div style={{ fontSize: 9, color: "var(--text3)", fontFamily: "'IBM Plex Mono',monospace" }}><Flag code="CR" size={10} /> CR</div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: row.crScore === 0 ? "var(--red)" : "var(--amber)" }}>{row.cr}</div>
+                    </div>
+                    <div style={{ padding: "6px 8px", borderRadius: 6, background: "var(--card)" }}>
+                      <div style={{ fontSize: 9, color: "var(--text3)", fontFamily: "'IBM Plex Mono',monospace" }}><Flag code="US" size={10} /> {en ? "US" : "EE.UU."}</div>
+                      <div style={{ fontSize: 11, color: "var(--text2)" }}>{row.us}</div>
+                    </div>
+                    <div style={{ padding: "6px 8px", borderRadius: 6, background: "var(--card)" }}>
+                      <div style={{ fontSize: 9, color: "var(--text3)", fontFamily: "'IBM Plex Mono',monospace" }}><Flag code="EU" size={10} /> {en ? "EU" : "UE"}</div>
+                      <div style={{ fontSize: 11, color: "var(--text2)" }}>{row.eu}</div>
+                    </div>
+                    <div style={{ padding: "6px 8px", borderRadius: 6, background: "var(--card)" }}>
+                      <div style={{ fontSize: 9, color: "var(--text3)", fontFamily: "'IBM Plex Mono',monospace" }}><Flag code="SG" size={10} /> {en ? "SG" : "Singapur"}</div>
+                      <div style={{ fontSize: 11, color: "var(--text2)" }}>{row.sg}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
           <Ci s={en ? "Colibrii Labs comparison — HIPAA, GDPR, EU AI Act, PDPA, HSA, FDA SaMD" : "Comparación Colibrii Labs — HIPAA, GDPR, EU AI Act, PDPA, HSA, FDA SaMD"} />
         </Card>
       </ScrollReveal>
 
-      {/* ═══ SECTION: DIAGNOSTICS & APPLICATIONS (preserved) ═══ */}
+      {/* ═══ NEW SECTION: INTERNATIONAL FRAMEWORKS ═══ */}
+      <ScrollReveal>
+        <div style={{ marginBottom: 20 }}>
+          <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--indigo)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
+            <Icon name="globe" size={14} color="var(--indigo)" style={{ marginRight: 6, verticalAlign: "middle" }} />
+            {en ? "International Frameworks for Health AI" : "Marcos Internacionales para AI en Salud"}
+          </h3>
+          <p style={{ fontSize: 12, color: "var(--text3)", marginBottom: 12, lineHeight: 1.5 }}>
+            {en
+              ? "Key international standards and frameworks shaping health AI governance globally. Expert recommendation: Costa Rica should align with these as an OECD member."
+              : "Estándares y marcos internacionales clave que moldean la gobernanza de AI en salud globalmente. Recomendación experta: Costa Rica debe alinearse con estos como miembro de la OCDE."}
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {frameworks.map((fw, i) => (
+              <Card key={fw.id} d={0.05} style={{ borderLeft: `3px solid ${fw.color}`, cursor: "pointer" }}
+                onClick={() => setExpandedFramework(expandedFramework === i ? null : i)}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, flexWrap: "wrap" }}>
+                  <div style={{ flex: 1, minWidth: 200 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                      <h4 style={{ fontSize: 14, fontWeight: 700, color: "var(--text)", margin: 0 }}>{fw.name}</h4>
+                      <Tag color={fw.color}>{fw.status}</Tag>
+                    </div>
+                    <div style={{ fontSize: 11, color: "var(--text3)", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>{fw.org}</div>
+                    <div style={{ fontSize: 12, color: fw.color, fontWeight: 600, lineHeight: 1.5 }}>{fw.relevance}</div>
+                  </div>
+                  <span style={{ transform: expandedFramework === i ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s", display: "inline-block", color: "var(--text3)" }}>▾</span>
+                </div>
+                {expandedFramework === i && (
+                  <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid var(--border)" }}>
+                    <p style={{ fontSize: 12.5, color: "var(--text2)", lineHeight: 1.7, margin: "0 0 8px 0" }}>{fw.desc}</p>
+                    {fw.link && <Lnk href={fw.link}>{en ? "Read more" : "Leer más"}</Lnk>}
+                  </div>
+                )}
+              </Card>
+            ))}
+          </div>
+          <Ci s={en ? "Expert recommendation — Dr. Adrián Castillo (CSIC/EHDS certified), OECD, WHO, AHA" : "Recomendación experta — Dr. Adrián Castillo (certificado CSIC/EHDS), OCDE, OMS, AHA"} />
+        </div>
+      </ScrollReveal>
+
+      {/* ═══ NEW SECTION: AI HEALTH TECH IN COSTA RICA ═══ */}
+      <ScrollReveal>
+        <div style={{ marginBottom: 20 }}>
+          <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--green)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
+            <Icon name="target" size={14} color="var(--green)" style={{ marginRight: 6, verticalAlign: "middle" }} />
+            {en ? "AI Health Technology Active in Costa Rica" : "Tecnología AI de Salud Activa en Costa Rica"}
+          </h3>
+          <p style={{ fontSize: 12, color: "var(--text3)", marginBottom: 12, lineHeight: 1.5 }}>
+            {en
+              ? "Real AI medical devices and platforms already operating or arriving in Costa Rica — registered with Ministerio de Salud or FDA-cleared."
+              : "Dispositivos y plataformas médicas con AI reales ya operando o llegando a Costa Rica — registrados ante el Ministerio de Salud o aprobados por FDA."}
+          </p>
+          <Grid cols="repeat(auto-fit,minmax(260px,1fr))" gap={10}>
+            {techCR.map((tech) => (
+              <Card key={tech.id} d={0.05} style={{ borderLeft: `3px solid ${tech.color}` }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+                  <div>
+                    <h4 style={{ fontSize: 14, fontWeight: 700, color: "var(--text)", margin: 0 }}>{tech.name}</h4>
+                    <div style={{ fontSize: 10, color: "var(--text3)", fontFamily: "'IBM Plex Mono',monospace" }}>{tech.company}</div>
+                  </div>
+                  <Tag color={tech.color}>{tech.status}</Tag>
+                </div>
+                <div style={{ fontSize: 11, color: tech.color, fontWeight: 600, marginBottom: 6 }}>{tech.type}</div>
+                <p style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.6, margin: "0 0 8px 0" }}>{tech.desc}</p>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
+                  <span style={{ fontSize: 10, color: "var(--text3)", fontFamily: "'IBM Plex Mono',monospace" }}>{tech.approvals}</span>
+                  {tech.link && <Lnk href={tech.link}>{en ? "Details" : "Detalles"}</Lnk>}
+                </div>
+              </Card>
+            ))}
+          </Grid>
+          {/* Additional resource: La Nación apps article */}
+          {resources.map((res, i) => (
+            <div key={i} style={{ marginTop: 10, padding: "10px 14px", borderRadius: 8, background: "var(--surface)", border: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text)" }}>{res.title}</div>
+                <div style={{ fontSize: 10, color: "var(--text3)" }}>{res.source} — {res.desc}</div>
+              </div>
+              <Lnk href={res.link}>{en ? "Read" : "Leer"}</Lnk>
+            </div>
+          ))}
+          <Ci s={en ? "Expert input — Dr. Adrián Castillo · Ministerio de Salud CR · FDA · Mayo Clinic · La Nación" : "Aporte experto — Dr. Adrián Castillo · Ministerio de Salud CR · FDA · Mayo Clinic · La Nación"} />
+        </div>
+      </ScrollReveal>
+
+      {/* ═══ SECTION: DIAGNOSTICS & APPLICATIONS ═══ */}
       <ScrollReveal>
         <Card style={{ marginBottom: 16 }}>
           <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--text)", marginBottom: 8 }}>
@@ -376,13 +547,14 @@ export function HealthAI({ en, t, dark, setTab }) {
 
       {/* ═══ SECTION: CR CONNECTION (expanded) ═══ */}
       <ScrollReveal>
-        <Card style={{ marginBottom: 16, background: `${t.cy}06`, border: `1px solid ${t.cy}20` }}>
+        <Card style={{ marginBottom: 16, borderLeft: `3px solid ${t.cy}` }}>
           <h3 style={{ fontSize: 14, fontWeight: 700, color: t.cy, marginBottom: 10 }}>
-            🇨🇷 {en ? "Costa Rica Health System AI Readiness" : "Preparación AI del Sistema de Salud de Costa Rica"}
+            <Flag code="CR" size={18} style={{ marginRight: 6, verticalAlign: "middle" }} />
+            {en ? "Costa Rica Health System AI Readiness" : "Preparación AI del Sistema de Salud de Costa Rica"}
           </h3>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 10 }}>
             {crConn.map((item, i) => (
-              <div key={i} style={{ padding: 10, borderRadius: 8, background: `${t.cy}06` }}>
+              <div key={i} style={{ padding: 10, borderRadius: 8, background: "var(--surface)" }}>
                 <h4 style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", marginBottom: 4 }}>{item.title}</h4>
                 <p style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.6, margin: 0 }}>{item.desc}</p>
               </div>
@@ -391,7 +563,7 @@ export function HealthAI({ en, t, dark, setTab }) {
         </Card>
       </ScrollReveal>
 
-      {/* ═══ SECTION: CASE STUDIES (preserved) ═══ */}
+      {/* ═══ SECTION: CASE STUDIES ═══ */}
       <ScrollReveal>
         <div style={{ marginBottom: 20 }}>
           <h3 style={{ fontSize: 13, fontWeight: 700, color: t.pk, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
@@ -400,7 +572,7 @@ export function HealthAI({ en, t, dark, setTab }) {
           </h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {cases.map((cs, i) => (
-              <Card key={i} style={{ cursor: "pointer", border: expandedCase === i ? `1px solid ${cs.color}40` : undefined }} onClick={() => setExpandedCase(expandedCase === i ? null : i)}>
+              <Card key={i} style={{ cursor: "pointer", borderLeft: `3px solid ${cs.color}`, border: expandedCase === i ? `1px solid ${cs.color}40` : undefined, borderLeftWidth: 3, borderLeftStyle: "solid", borderLeftColor: cs.color }} onClick={() => setExpandedCase(expandedCase === i ? null : i)}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8, paddingRight: 20 }}>
                   <div>
                     <h4 style={{ fontSize: 14, fontWeight: 700, color: "var(--text)", margin: 0 }}>{cs.title}</h4>
@@ -433,7 +605,7 @@ export function HealthAI({ en, t, dark, setTab }) {
       <ScrollReveal>
         <div style={{ padding: "12px 0", borderTop: "1px solid var(--border)" }}>
           <p style={{ fontSize: 11, color: "var(--text2)", margin: 0, lineHeight: 1.6 }}>
-            <strong>{en ? "Sources" : "Fuentes"}:</strong> ITU AI for Good Impact Report 2025 · WHO Global Health Observatory · HHS Breach Portal · IBM Cost of Data Breach 2024 · Nature Medicine · NHS England · Cedars-Sinai · C2itech · CCSS Costa Rica · HIPAA · GDPR · PDPA · FDA SaMD Framework
+            <strong>{en ? "Sources" : "Fuentes"}:</strong> ITU AI for Good Impact Report 2025 · WHO Global Health Observatory · WHO AI Ethics & Governance 2024 · HHS Breach Portal · IBM Cost of Data Breach 2024 · Nature Medicine · NHS England · Cedars-Sinai · C2itech · CCSS Costa Rica · HIPAA · GDPR · PDPA · FDA SaMD Framework · OECD AI Principles · European Health Data Space (EHDS) · AHA Scientific Statement on AI in Heart Disease · American College of AI in Medicine · Ministerio de Salud CR · Mayo Clinic · La Nación CR · Expert input: Dr. Adrián Castillo (CSIC/EHDS)
           </p>
         </div>
       </ScrollReveal>

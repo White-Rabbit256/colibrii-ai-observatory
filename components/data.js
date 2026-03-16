@@ -1366,11 +1366,174 @@ export const SEC_DEEP = (en) => ({
     { year: "2030", event: en ? "Physical AI + humanoid robots create new security domains" : "AI Física + robots humanoides crean nuevos dominios de seguridad" }
   ],
   news: [
+    { headline: en ? "ICE Costa Rica Breached by UNC2814 (2025): Chinese State Actor Targets $40M 5G Tender" : "ICE Costa Rica Vulnerado por UNC2814 (2025): Actor Estatal Chino Ataca Licitación 5G de $40M", source: "Mandiant / CRHoy / La Nación", url: "https://www.crhoy.com/nacionales/hackeo-al-ice-habria-sido-perpetrado-por-grupo-chino/", significance: en ? "Chinese state-affiliated threat actor UNC2814 breached ICE during its $40M 5G infrastructure tender process. Mandiant forensics identified the group. 9GB of email data exfiltrated including tender documents, internal communications, and strategic infrastructure plans. ICE manages electricity for 5M+ citizens, internet backbone, and mobile networks. Espionage motive: influence 5G vendor selection (Huawei vs Western competitors). Third major institutional breach after Hacienda/Conti (2022) and CCSS (2022)." : "Actor estatal chino UNC2814 vulneró al ICE durante su proceso de licitación de infraestructura 5G de $40M. Mandiant identificó al grupo mediante análisis forense. 9GB de datos de correo exfiltrados incluyendo documentos de licitación, comunicaciones internas y planes de infraestructura estratégica. ICE gestiona electricidad para 5M+ ciudadanos, backbone de internet y redes móviles. Motivo de espionaje: influir en selección de proveedor 5G (Huawei vs competidores occidentales). Tercer gran hackeo institucional tras Hacienda/Conti (2022) y CCSS (2022)." },
+    { headline: en ? "AI Agent Hacks McKinsey's Lilli Platform in 2 Hours (2025): 46.5M Messages Exposed" : "Agente AI Hackea Plataforma Lilli de McKinsey en 2 Horas (2025): 46.5M Mensajes Expuestos", source: "CodeWall / TechCrunch / Wired", url: "https://www.wired.com/story/codewall-ai-agent-mckinsey-lilli-hack/", significance: en ? "CodeWall's autonomous AI security agent breached McKinsey's internal Lilli AI platform (built on GPT-4) in under 2 hours with zero human intervention. Exposed 46.5M internal messages, client engagement data, and proprietary methodologies. The AI agent chained multiple vulnerabilities: API authentication bypass → privilege escalation → data exfiltration. Demonstrates that AI-powered attacks can compromise even the most sophisticated organizations. Implications for CR: if McKinsey's defenses fall to an AI agent, Costa Rican institutions are exponentially more vulnerable." : "El agente autónomo de seguridad AI de CodeWall vulneró la plataforma interna Lilli de McKinsey (construida sobre GPT-4) en menos de 2 horas sin intervención humana. Expuso 46.5M mensajes internos, datos de compromisos con clientes y metodologías propietarias. El agente AI encadenó múltiples vulnerabilidades: bypass de autenticación API → escalación de privilegios → exfiltración de datos. Demuestra que ataques potenciados por AI pueden comprometer incluso las organizaciones más sofisticadas. Implicaciones para CR: si las defensas de McKinsey caen ante un agente AI, instituciones costarricenses son exponencialmente más vulnerables." },
+    { headline: en ? "RECOPE Ransomware Attack (Nov 2024): $5M Ransom Demanded" : "Ataque Ransomware a RECOPE (Nov 2024): $5M de Rescate Exigido", source: "La Nación / Semanario Universidad", url: "https://www.nacion.com/", significance: en ? "RansomHub group attacked Costa Rica's state oil refinery (RECOPE), encrypting critical systems and demanding $5M in cryptocurrency. Forced manual fuel distribution operations for weeks. RECOPE processes 100% of CR's petroleum products — attack threatened fuel supply for 5M citizens. Fourth major attack on CR critical infrastructure in 3 years (after Hacienda, CCSS, ICE)." : "Grupo RansomHub atacó la refinería estatal de petróleo (RECOPE), cifrando sistemas críticos y exigiendo $5M en criptomonedas. Forzó operaciones manuales de distribución de combustible por semanas. RECOPE procesa 100% de productos petroleros de CR — ataque amenazó suministro de combustible para 5M ciudadanos. Cuarto ataque mayor a infraestructura crítica CR en 3 años (tras Hacienda, CCSS, ICE)." },
+    { headline: en ? "DGME Migration System Breached (Nov 2024): Passport & Visa Data Compromised" : "Sistema Migratorio DGME Vulnerado (Nov 2024): Datos de Pasaportes y Visas Comprometidos", source: "Amelía Rueda / CRHoy", url: "https://www.ameliarueda.com/", significance: en ? "Costa Rica's immigration authority (DGME) suffered data breach exposing passport records, visa applications, and biometric data. Sensitive personal information of thousands of citizens and foreign residents compromised. Highlights pattern: CR government systems remain systematically vulnerable despite Conti lessons from 2022." : "Autoridad migratoria de Costa Rica (DGME) sufrió brecha de datos exponiendo registros de pasaportes, solicitudes de visa y datos biométricos. Información personal sensible de miles de ciudadanos y residentes extranjeros comprometida. Evidencia patrón: sistemas gubernamentales CR siguen siendo sistemáticamente vulnerables pese a lecciones de Conti en 2022." },
     { headline: en ? "CONTI Ransomware Legacy: 30 CR Institutions Hit (2022)" : "Legado Ransomware CONTI: 30 Instituciones CR Atacadas (2022)", source: "BBC / MICITT", url: "https://www.bbc.com/news/technology-61323402", significance: en ? "Largest government cyberattack in LATAM history. Recovery still ongoing in 2026." : "Mayor ciberataque gubernamental en historia LATAM. Recuperación aún en curso en 2026." },
     { headline: en ? "WEF 2026: AI Misinfo is #1 Risk for 3rd Consecutive Year" : "WEF 2026: Desinfo AI es Riesgo #1 por 3er Año Consecutivo", source: "WEF Global Risks 2026", url: "https://www.weforum.org/publications/global-risks-report-2026/", significance: en ? "Misinformation/disinformation remains top-ranked global risk across all time horizons." : "Desinformación/misinformación sigue como riesgo global #1 en todos los horizontes temporales." },
     { headline: en ? "OWASP LLM Top 10 v2.0 Released (2025)" : "OWASP LLM Top 10 v2.0 Publicado (2025)", source: "OWASP", url: "https://owasp.org/www-project-top-10-for-large-language-model-applications/", significance: en ? "Updated security standard for LLM applications. CR has no equivalent guideline." : "Estándar seguridad actualizado para aplicaciones LLM. CR no tiene guía equivalente." },
     { headline: en ? "AI-Generated Voice Scam Hits LATAM Banks ($2.3M losses)" : "Estafa Voz Generada AI Golpea Bancos LATAM ($2.3M pérdidas)", source: "Reuters", url: "https://www.reuters.com/", significance: en ? "CEO voice cloning used to authorize fraudulent wire transfers. Multiple LATAM banks affected." : "Clonación voz CEO usada para autorizar transferencias fraudulentas. Múltiples bancos LATAM afectados." }
-  ]
+  ],
+
+  // ── NEW: Personal Cybersecurity Guide ──
+  personalSecurity: {
+    title: en ? "Personal Cybersecurity Checklist — Protect Yourself in the AI Era" : "Checklist de Ciberseguridad Personal — Protéjase en la Era AI",
+    intro: en
+      ? "AI has supercharged cyberattacks: phishing emails are now grammatically perfect, voices can be cloned in 3 seconds, and deepfakes are indistinguishable from reality. Every Costa Rican citizen is a potential target. Follow these steps to protect yourself and your family."
+      : "AI ha potenciado los ciberataques: correos phishing ahora son gramaticalmente perfectos, voces pueden clonarse en 3 segundos, y deepfakes son indistinguibles de la realidad. Cada ciudadano costarricense es un objetivo potencial. Siga estos pasos para protegerse a usted y su familia.",
+    categories: [
+      {
+        name: en ? "Passwords & Authentication" : "Contraseñas y Autenticación",
+        icon: "🔑",
+        color: "#ef4444",
+        items: [
+          en ? "Use a unique password for EVERY account — never reuse passwords across sites" : "Use una contraseña única para CADA cuenta — nunca reutilice contraseñas entre sitios",
+          en ? "Enable Two-Factor Authentication (2FA) on all accounts, especially email, banking, and social media" : "Active Autenticación de Dos Factores (2FA) en todas las cuentas, especialmente correo, banca y redes sociales",
+          en ? "Use a password manager (Bitwarden, 1Password) instead of writing passwords down or memorizing them" : "Use un administrador de contraseñas (Bitwarden, 1Password) en lugar de escribirlas o memorizarlas",
+          en ? "Change your email password NOW if you haven't in the last 6 months — email is the master key to all your accounts" : "Cambie su contraseña de correo AHORA si no lo ha hecho en los últimos 6 meses — el correo es la llave maestra de todas sus cuentas",
+          en ? "Minimum 12 characters, mix letters/numbers/symbols. Avoid names, dates, cédula numbers" : "Mínimo 12 caracteres, mezcle letras/números/símbolos. Evite nombres, fechas, números de cédula"
+        ]
+      },
+      {
+        name: en ? "AI & Chatbot Safety" : "Seguridad con AI y Chatbots",
+        icon: "🤖",
+        color: "#6366f1",
+        items: [
+          en ? "NEVER share personal information (cédula, address, phone) with any AI chatbot — not even ChatGPT, Claude, or Gemini" : "NUNCA comparta información personal (cédula, dirección, teléfono) con ningún chatbot AI — ni siquiera ChatGPT, Claude o Gemini",
+          en ? "NEVER enter passwords, banking details, or credit card numbers into any AI system" : "NUNCA introduzca contraseñas, datos bancarios o números de tarjeta en ningún sistema AI",
+          en ? "Be extremely cautious with AI on unknown websites — they may harvest your data or inject malware" : "Sea extremadamente cauteloso con AI en sitios web desconocidos — pueden recopilar sus datos o inyectar malware",
+          en ? "AI-generated phishing emails are now grammatically perfect in Spanish — don't trust an email just because it's well-written" : "Correos phishing generados por AI ahora son gramaticalmente perfectos en español — no confíe en un correo solo porque está bien escrito",
+          en ? "Verify any AI-recommended links before clicking — AI can be manipulated to serve malicious URLs" : "Verifique cualquier enlace recomendado por AI antes de hacer clic — AI puede ser manipulada para servir URLs maliciosas"
+        ]
+      },
+      {
+        name: en ? "Device & App Updates" : "Actualizaciones de Dispositivos y Apps",
+        icon: "📱",
+        color: "#0ea5e9",
+        items: [
+          en ? "Enable automatic updates on ALL devices (phone, computer, tablet, smart TV)" : "Active actualizaciones automáticas en TODOS los dispositivos (teléfono, computadora, tablet, smart TV)",
+          en ? "Update apps immediately when prompted — delays create vulnerability windows" : "Actualice apps inmediatamente cuando se le solicite — retrasos crean ventanas de vulnerabilidad",
+          en ? "Update your router firmware (most people never do this — it's your home network's front door)" : "Actualice el firmware de su router (la mayoría nunca lo hace — es la puerta principal de su red doméstica)",
+          en ? "Remove apps you no longer use — old apps with unpatched vulnerabilities are attack vectors" : "Elimine apps que ya no usa — apps viejas con vulnerabilidades sin parchear son vectores de ataque",
+          en ? "Only install apps from official stores (App Store, Google Play) — avoid APK sideloading" : "Solo instale apps de tiendas oficiales (App Store, Google Play) — evite instalar APKs de terceros"
+        ]
+      },
+      {
+        name: en ? "Banking & Financial Protection" : "Protección Bancaria y Financiera",
+        icon: "💳",
+        color: "#10b981",
+        items: [
+          en ? "Enable transaction alerts (SMS/email) for ALL bank accounts and credit cards" : "Active alertas de transacciones (SMS/correo) para TODAS las cuentas bancarias y tarjetas de crédito",
+          en ? "Never access banking from public WiFi — use mobile data or a VPN instead" : "Nunca acceda a banca desde WiFi público — use datos móviles o un VPN",
+          en ? "Verify the URL before entering banking credentials (look for the padlock + correct domain)" : "Verifique la URL antes de ingresar credenciales bancarias (busque el candado + dominio correcto)",
+          en ? "Set daily transfer limits on your accounts to minimize damage from unauthorized access" : "Establezca límites diarios de transferencia en sus cuentas para minimizar daño por acceso no autorizado",
+          en ? "AI voice cloning can now impersonate your bank — if you receive a suspicious call, hang up and call the bank directly" : "La clonación de voz AI ahora puede suplantar a su banco — si recibe una llamada sospechosa, cuelgue y llame al banco directamente"
+        ]
+      },
+      {
+        name: en ? "Social Engineering & Deepfakes" : "Ingeniería Social y Deepfakes",
+        icon: "🎭",
+        color: "#f59e0b",
+        items: [
+          en ? "AI can clone anyone's voice with just 3 seconds of audio — verify identity through a secondary channel before acting on requests" : "AI puede clonar la voz de cualquiera con solo 3 segundos de audio — verifique identidad por un canal secundario antes de actuar",
+          en ? "Deepfake video calls are now possible in real-time — don't trust video alone for identity verification" : "Videollamadas deepfake ahora son posibles en tiempo real — no confíe solo en video para verificar identidad",
+          en ? "Be skeptical of urgent requests for money transfers, even from 'known' contacts — verify offline" : "Sea escéptico de solicitudes urgentes de transferencias, incluso de contactos 'conocidos' — verifique offline",
+          en ? "AI-powered romance/investment scams are targeting Costa Ricans specifically — be cautious on dating apps and social media" : "Estafas de romance/inversión potenciadas por AI están apuntando a costarricenses específicamente — sea cauteloso en apps de citas y redes sociales",
+          en ? "If something seems too good to be true (investment returns, prizes, lottery), it's a scam — AI makes them more convincing" : "Si algo parece demasiado bueno para ser verdad (retornos de inversión, premios, lotería), es una estafa — AI las hace más convincentes"
+        ]
+      },
+      {
+        name: en ? "Network & WiFi Security" : "Seguridad de Red y WiFi",
+        icon: "📶",
+        color: "#ec4899",
+        items: [
+          en ? "Change your home WiFi password from the default — use WPA3 if your router supports it" : "Cambie la contraseña WiFi de su hogar del valor por defecto — use WPA3 si su router lo soporta",
+          en ? "Avoid public WiFi for anything sensitive (banking, email, shopping). Use mobile data or VPN" : "Evite WiFi público para cualquier cosa sensible (banca, correo, compras). Use datos móviles o VPN",
+          en ? "Disable auto-connect to open WiFi networks on your phone" : "Desactive la conexión automática a redes WiFi abiertas en su teléfono",
+          en ? "Use a VPN when traveling or using shared networks (hotels, airports, coffee shops)" : "Use un VPN al viajar o usar redes compartidas (hoteles, aeropuertos, cafeterías)"
+        ]
+      }
+    ]
+  },
+
+  // ── NEW: CR Institutional Vulnerability Map ──
+  crInstitutionalRisk: {
+    title: en ? "Critical Infrastructure Vulnerability Map — Costa Rica" : "Mapa de Vulnerabilidades de Infraestructura Crítica — Costa Rica",
+    intro: en
+      ? "Costa Rica has suffered 3 major cyberattacks in 4 years (Conti 2022, CCSS Hive 2022, ICE 2025). Each attack exposed systemic vulnerabilities in institutions that serve millions. Here's the risk landscape."
+      : "Costa Rica ha sufrido 3 ciberataques mayores en 4 años (Conti 2022, CCSS Hive 2022, ICE 2025). Cada ataque expuso vulnerabilidades sistémicas en instituciones que sirven a millones. Este es el panorama de riesgo.",
+    institutions: [
+      {
+        name: "ICE",
+        fullName: en ? "Costa Rican Electricity Institute" : "Instituto Costarricense de Electricidad",
+        services: en ? "Electricity (99% national), internet backbone, mobile (Kölbi), landline" : "Electricidad (99% nacional), backbone internet, móvil (Kölbi), telefonía fija",
+        affected: "5.2M+",
+        attack: en ? "Cyberattack 2025 — compromised internal systems" : "Ciberataque 2025 — sistemas internos comprometidos",
+        risk: en ? "CRITICAL — controls electricity for entire country + telecommunications infrastructure" : "CRÍTICO — controla electricidad de todo el país + infraestructura de telecomunicaciones",
+        cascade: en ? "Power grid disruption → hospitals, water treatment, airports, banking systems all fail. Telecom disruption → emergency services (911), mobile banking, government operations paralyzed." : "Interrupción red eléctrica → hospitales, tratamiento agua, aeropuertos, sistemas bancarios fallan. Interrupción telecomunicaciones → servicios emergencia (911), banca móvil, operaciones gubernamentales paralizadas.",
+        color: "#ef4444"
+      },
+      {
+        name: "CCSS",
+        fullName: en ? "Costa Rican Social Security Fund" : "Caja Costarricense de Seguro Social",
+        services: en ? "Universal healthcare (29 hospitals, 1,000+ clinics), pensions, disability" : "Salud universal (29 hospitales, 1,000+ clínicas), pensiones, discapacidad",
+        affected: "5.2M",
+        attack: en ? "Hive ransomware May 2022 — EDUS, SICERE, payroll systems" : "Ransomware Hive mayo 2022 — sistemas EDUS, SICERE, planilla",
+        risk: en ? "CRITICAL — holds health records for entire population + pension fund data" : "CRÍTICO — tiene expedientes médicos de toda la población + datos de fondo de pensiones",
+        cascade: en ? "Health records unavailable → misdiagnosis, delayed treatment, medication errors. Pension system down → 300K+ retirees without income." : "Expedientes médicos no disponibles → diagnósticos erróneos, tratamiento tardío, errores de medicación. Sistema pensiones caído → 300K+ jubilados sin ingreso.",
+        color: "#ef4444"
+      },
+      {
+        name: en ? "Ministerio de Hacienda" : "Ministerio de Hacienda",
+        fullName: en ? "Ministry of Finance" : "Ministerio de Hacienda",
+        services: en ? "Tax collection, customs, government payroll, public debt" : "Recaudación tributaria, aduanas, planilla gobierno, deuda pública",
+        affected: en ? "All taxpayers" : "Todos los contribuyentes",
+        attack: en ? "Conti ransomware April 2022 — ATV and TICA systems" : "Ransomware Conti abril 2022 — sistemas ATV y TICA",
+        risk: en ? "CRITICAL — tax revenue collection paralysis + trade disruption at ports" : "CRÍTICO — parálisis recaudación tributaria + interrupción comercio en puertos",
+        cascade: en ? "Customs paralysis → import/export delays, food supply chain disruption. Tax system down → government revenue interruption, public service funding gaps." : "Parálisis aduanas → retrasos importación/exportación, interrupción cadena suministro alimentos. Sistema tributario caído → interrupción ingresos gobierno, brechas financiamiento servicios públicos.",
+        color: "#f59e0b"
+      },
+      {
+        name: "SUGEF/BCCR",
+        fullName: en ? "Financial Superintendency / Central Bank" : "Superintendencia Financiera / Banco Central",
+        services: en ? "Financial regulation, SINPE payment system, monetary policy" : "Regulación financiera, sistema de pagos SINPE, política monetaria",
+        affected: en ? "Entire financial system" : "Sistema financiero entero",
+        attack: en ? "No major attack yet — highest-value target" : "Sin ataque mayor aún — objetivo de mayor valor",
+        risk: en ? "EXTREME — SINPE processes $100B+/year in digital transactions for 5M users" : "EXTREMO — SINPE procesa $100B+/año en transacciones digitales para 5M usuarios",
+        cascade: en ? "SINPE disruption → no digital payments, no salary deposits, no inter-bank transfers. Economic paralysis within 24 hours." : "Interrupción SINPE → sin pagos digitales, sin depósitos de salario, sin transferencias interbancarias. Parálisis económica en 24 horas.",
+        color: "#dc2626"
+      }
+    ]
+  },
+
+  // ── NEW: AI-Powered Attack vs Defense ──
+  aiAttackDefense: {
+    title: en ? "AI as Weapon vs. AI as Shield" : "AI como Arma vs. AI como Escudo",
+    intro: en
+      ? "AI is a dual-use technology. The same capabilities that enable defense can be weaponized for attack. Understanding this duality is critical for Costa Rica's security posture."
+      : "AI es una tecnología de uso dual. Las mismas capacidades que permiten la defensa pueden ser armadas para el ataque. Entender esta dualidad es crítico para la postura de seguridad de Costa Rica.",
+    comparisons: [
+      {
+        domain: en ? "Vulnerability Discovery" : "Descubrimiento de Vulnerabilidades",
+        attack: en ? "AI finds zero-day vulnerabilities 10-100x faster than human hackers. Automated exploit generation." : "AI encuentra vulnerabilidades zero-day 10-100x más rápido que hackers humanos. Generación automatizada de exploits.",
+        defense: en ? "AI penetration testing (McKinsey model) proactively finds and patches vulnerabilities before attackers." : "Pruebas de penetración AI (modelo McKinsey) encuentra y parchea vulnerabilidades proactivamente antes que atacantes.",
+        crContext: en ? "CR institutions are being scanned by AI-powered attackers 24/7 but defending with manual processes." : "Instituciones CR están siendo escaneadas por atacantes potenciados con AI 24/7 pero se defienden con procesos manuales."
+      },
+      {
+        domain: en ? "Phishing & Social Engineering" : "Phishing e Ingeniería Social",
+        attack: en ? "AI generates perfect Spanish-language phishing emails, clones voices for vishing, creates deepfake video calls." : "AI genera correos phishing perfectos en español, clona voces para vishing, crea videollamadas deepfake.",
+        defense: en ? "AI email filters detect phishing with 99.5% accuracy. AI voice analysis detects synthetic speech." : "Filtros de correo AI detectan phishing con 99.5% de precisión. Análisis de voz AI detecta habla sintética.",
+        crContext: en ? "Costa Rican banks report 300%+ increase in AI-enhanced phishing targeting SINPE Móvil users." : "Bancos costarricenses reportan aumento de 300%+ en phishing potenciado por AI apuntando a usuarios SINPE Móvil."
+      },
+      {
+        domain: en ? "Threat Detection" : "Detección de Amenazas",
+        attack: en ? "AI-powered malware adapts in real-time to evade detection. Polymorphic code changes with each execution." : "Malware potenciado por AI se adapta en tiempo real para evadir detección. Código polimórfico cambia con cada ejecución.",
+        defense: en ? "AI SOC analyzes millions of events/second, detecting anomalies human analysts would miss. 1000x faster." : "SOC con AI analiza millones de eventos/segundo, detectando anomalías que analistas humanos perderían. 1000x más rápido.",
+        crContext: en ? "SOC-CR ($9.8M investment) is being established — must be AI-native from day one." : "SOC-CR (inversión $9.8M) está siendo establecido — debe ser AI-nativo desde el día uno."
+      }
+    ]
+  }
 });
 
 // ── LEGISLATION JARGON EXPLANATIONS ──

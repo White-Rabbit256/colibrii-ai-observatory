@@ -45,10 +45,43 @@ const InfraView = dynamic(() => import("../InfraSmartCities").then(m => ({ defau
 const ClimateView = dynamic(() => import("../EnvironmentalAI").then(m => ({ default: m.EnvironmentalAI })), { loading: () => <LoadCard d={0.02} /> });
 
 /* ═══════════════════════════════════════════════════════════════
-   COLIBRII LABS — Portal Shell v17
-   Sidebar navigation · Indicator drawer · 14 tabs · 4 APIs
-   Refactored from Portal.jsx — ALL state/API logic preserved
+   COLIBRII LABS — Portal Shell v18
+   Sidebar navigation · Indicator drawer · 25 tabs · 4 APIs
+   URL hash routing for direct section links
    ═══════════════════════════════════════════════════════════════ */
+
+// ── URL Hash → Tab ID mapping (supports Spanish slugs + direct tab IDs) ──
+const SLUG_TO_TAB = {
+  // Spanish slugs
+  inicio: "home", salud: "health", seguridad: "sec", legislacion: "leg",
+  educacion: "edu", banca: "banca", algoritmos: "algo", glosario: "glos",
+  pymes: "pymes", simulador: "sim", comparar: "cmp", paises: "countries",
+  zonasfrancas: "zf", medios: "media", gobernanza: "governance",
+  clima: "climate", infraestructura: "infra", preparacion: "readiness",
+  vitrina: "showcase", ods: "sdg", alimentacion: "food", robotica: "pai",
+  info: "about",
+  // English slugs (aliases)
+  health: "health", security: "sec", banking: "banca", education: "edu",
+  legislation: "leg", algorithms: "algo", glossary: "glos", smes: "pymes",
+  food: "food", climate: "climate", infrastructure: "infra",
+  readiness: "readiness", governance: "governance", showcase: "showcase",
+  // Direct tab IDs also work
+  home: "home", sec: "sec", leg: "leg", edu: "edu", algo: "algo",
+  glos: "glos", sim: "sim", cmp: "cmp", countries: "countries",
+  zf: "zf", pai: "pai", media: "media", sdg: "sdg", about: "about",
+  idx: "idx", banca: "banca", pymes: "pymes", health: "health",
+  food: "food", infra: "infra", climate: "climate",
+};
+
+const TAB_TO_SLUG = {
+  home: "inicio", health: "salud", sec: "seguridad", leg: "legislacion",
+  edu: "educacion", banca: "banca", algo: "algoritmos", glos: "glosario",
+  pymes: "pymes", sim: "simulador", cmp: "comparar", countries: "paises",
+  zf: "zonasfrancas", media: "medios", governance: "gobernanza",
+  climate: "clima", infra: "infraestructura", readiness: "preparacion",
+  showcase: "vitrina", sdg: "ods", food: "alimentacion", pai: "robotica",
+  about: "info", idx: "indice",
+};
 
 const WB = "https://api.worldbank.org/v2/country";
 const GDELT_URL = "https://api.gdeltproject.org/api/v2/doc/doc?query=%22artificial+intelligence%22+%22costa+rica%22&mode=artlist&maxrecords=24&format=json&sort=datedesc&timespan=7d";
@@ -77,15 +110,28 @@ export default function PortalShell() {
   /* ── THEME TOKENS ── */
   const t = dark ? TH_DARK : TH;
 
-  /* ── INIT (single mount effect: language + theme + scroll listener) ── */
+  /* ── INIT (single mount effect: language + theme + hash routing + scroll) ── */
   useEffect(() => {
     const sLang = typeof window !== "undefined" && localStorage.getItem("clb_lang");
     if (sLang === "en") setEn(true);
     const sTheme = typeof window !== "undefined" && localStorage.getItem("clb_theme");
     if (sTheme === "dark") setDark(true);
+    // Read initial tab from URL hash (e.g. #salud, #seguridad, #health)
+    if (typeof window !== "undefined" && window.location.hash) {
+      const slug = window.location.hash.slice(1).toLowerCase().replace(/-/g, "");
+      const mapped = SLUG_TO_TAB[slug];
+      if (mapped) setTab(mapped);
+    }
     const onScroll = () => setShowScrollTop(window.scrollY > 300);
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    // Listen for hash changes (browser back/forward)
+    const onHash = () => {
+      const slug = window.location.hash.slice(1).toLowerCase().replace(/-/g, "");
+      const mapped = SLUG_TO_TAB[slug];
+      if (mapped) setTab(mapped);
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("hashchange", onHash); };
   }, []);
 
   /* ── LANGUAGE PERSISTENCE ── */
@@ -99,9 +145,16 @@ export default function PortalShell() {
     localStorage.setItem("clb_theme", dark ? "dark" : "light");
   }, [dark]);
 
-  /* ── SCROLL RESET ON TAB CHANGE ── */
+  /* ── SCROLL RESET + URL HASH SYNC ON TAB CHANGE ── */
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
+    // Update URL hash to reflect current tab (enables shareable links)
+    const slug = TAB_TO_SLUG[tab] || tab;
+    if (typeof window !== "undefined" && tab !== "home") {
+      history.replaceState(null, "", `#${slug}`);
+    } else if (typeof window !== "undefined") {
+      history.replaceState(null, "", window.location.pathname);
+    }
   }, [tab]);
 
   /* ── API FETCHING (preserved exactly from Portal.jsx) ── */

@@ -102,3 +102,123 @@ export const HEALTH_STATS = (en) => [
   { v: "$10.93M", l: en ? "Avg Breach Cost" : "Costo Promedio Brecha", s: en ? "Healthcare sector (IBM 2024)" : "Sector salud (IBM 2024)", c: "var(--red)", ic: "shield" },
   { v: "0", l: en ? "CR Health AI Regulations" : "Regulaciones AI Salud CR", s: en ? "Zero specific health data laws" : "Cero leyes específicas de datos salud", c: "var(--amber)", ic: "law" },
 ];
+
+// ═══════════════════════════════════════════════════════════════
+// NEW: International Frameworks for Health AI Governance
+// Sources: OECD, WHO, European Commission, AHA, CSIC
+// ═══════════════════════════════════════════════════════════════
+
+export const HEALTH_INTL_FRAMEWORKS = (en) => [
+  {
+    id: "oecd",
+    name: en ? "OECD AI Principles" : "Principios de IA de la OCDE",
+    org: "OECD",
+    relevance: en ? "Costa Rica is an OECD member — these principles are binding commitments" : "Costa Rica es miembro de la OCDE — estos principios son compromisos vinculantes",
+    desc: en
+      ? "Five principles: inclusive growth, human-centred values, transparency, robustness & security, accountability. The OECD AI Policy Observatory monitors national implementation. As a member, CR must align health AI policies with these principles."
+      : "Cinco principios: crecimiento inclusivo, valores centrados en el ser humano, transparencia, robustez y seguridad, rendición de cuentas. El Observatorio de Políticas AI de la OCDE monitorea la implementación nacional. Como miembro, CR debe alinear políticas de AI en salud con estos principios.",
+    status: en ? "Binding for CR" : "Vinculante para CR",
+    color: "#2563eb",
+    link: "https://oecd.ai/en/ai-principles"
+  },
+  {
+    id: "who",
+    name: en ? "WHO Ethics & Governance for AI in Health" : "OMS Ética y Gobernanza de IA en Salud",
+    org: en ? "World Health Organization" : "Organización Mundial de la Salud",
+    relevance: en ? "Global standard for responsible health AI — covers all WHO member states" : "Estándar global para AI responsable en salud — cubre todos los estados miembros de la OMS",
+    desc: en
+      ? "Six guiding principles: protect autonomy, promote well-being & safety, ensure transparency & explainability, foster responsibility & accountability, ensure inclusiveness & equity, promote responsive & sustainable AI. WHO published guidance on large multimodal models in health (2024) and regulatory considerations for AI medical devices."
+      : "Seis principios guía: proteger la autonomía, promover bienestar y seguridad, asegurar transparencia y explicabilidad, fomentar responsabilidad y rendición de cuentas, garantizar inclusividad y equidad, promover AI responsable y sostenible. La OMS publicó guía sobre modelos multimodales grandes en salud (2024) y consideraciones regulatorias para dispositivos médicos AI.",
+    status: en ? "WHO Guidance" : "Guía OMS",
+    color: "#0ea5e9",
+    link: "https://www.who.int/publications/i/item/9789240029200"
+  },
+  {
+    id: "ehds",
+    name: en ? "European Health Data Space (EHDS)" : "Espacio Europeo de Datos de Salud (EHDS)",
+    org: en ? "European Commission" : "Comisión Europea",
+    relevance: en ? "Model for structured health data interoperability — relevant for CCSS modernization" : "Modelo de interoperabilidad estructurada de datos de salud — relevante para modernización de CCSS",
+    desc: en
+      ? "Adopted March 2025. Creates a unified framework for health data access across the EU: primary use (clinical care) and secondary use (research & innovation). Establishes mandatory interoperability standards (HL7 FHIR), patient access rights, and secure data sharing for AI training. A model CR could adapt for EDUS/CCSS data governance."
+      : "Adoptado marzo 2025. Crea un marco unificado para acceso a datos de salud en la UE: uso primario (atención clínica) y uso secundario (investigación e innovación). Establece estándares de interoperabilidad obligatorios (HL7 FHIR), derechos de acceso del paciente y compartición segura de datos para entrenamiento de AI. Un modelo que CR podría adaptar para la gobernanza de datos EDUS/CCSS.",
+    status: en ? "Adopted 2025" : "Adoptado 2025",
+    color: "#6366f1",
+    link: "https://health.ec.europa.eu/ehealth-digital-health-and-care/european-health-data-space_en"
+  },
+  {
+    id: "aha",
+    name: en ? "AHA Scientific Statement: AI in Heart Disease" : "Declaración Científica AHA: IA en Enfermedad Cardíaca",
+    org: "American Heart Association",
+    relevance: en ? "Clinical evidence framework for cardiology AI — applicable to CCSS cardiology programs" : "Marco de evidencia clínica para AI en cardiología — aplicable a programas de cardiología de CCSS",
+    desc: en
+      ? "Comprehensive scientific review of AI applications across the cardiovascular care spectrum: risk prediction, imaging interpretation, arrhythmia detection, treatment optimization. Identifies gaps in validation, regulatory oversight, and equitable implementation. Critical reference for any AI cardiology deployment in CR."
+      : "Revisión científica integral de aplicaciones AI en el espectro de atención cardiovascular: predicción de riesgo, interpretación de imágenes, detección de arritmias, optimización de tratamiento. Identifica brechas en validación, supervisión regulatoria e implementación equitativa. Referencia crítica para cualquier despliegue de AI en cardiología en CR.",
+    status: en ? "Peer-reviewed" : "Revisión por pares",
+    color: "#dc2626",
+    link: "https://www.ahajournals.org/doi/10.1161/CIR.0000000000001201"
+  },
+  {
+    id: "acaim",
+    name: en ? "American College of AI in Medicine" : "Colegio Americano de IA en Medicina",
+    org: "ACAIM",
+    relevance: en ? "Professional certification body for AI in clinical medicine" : "Cuerpo de certificación profesional para AI en medicina clínica",
+    desc: en
+      ? "Professional organization advancing AI competency among physicians. Offers certification programs, continuing education, and clinical AI implementation frameworks. Relevant for Costa Rican medical professionals seeking to integrate AI into clinical practice responsibly."
+      : "Organización profesional que avanza la competencia en AI entre médicos. Ofrece programas de certificación, educación continua y marcos de implementación de AI clínica. Relevante para profesionales médicos costarricenses que buscan integrar AI en la práctica clínica responsablemente.",
+    status: en ? "Active" : "Activo",
+    color: "#059669",
+    link: "https://americancollegeaim.org/"
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════
+// NEW: AI Health Technology Active in Costa Rica
+// Sources: Ministerio de Salud CR, FDA, Mayo Clinic, La Nación
+// ═══════════════════════════════════════════════════════════════
+
+export const HEALTH_AI_TECH_CR = (en) => [
+  {
+    id: "heartrends",
+    name: "HeartTrends",
+    company: "Lev El Diagnostics (Israel)",
+    type: en ? "AI Cardiac Risk Prediction" : "Predicción de Riesgo Cardíaco AI",
+    desc: en
+      ? "Analyzes heart rate variability (HRV) using AI to detect early signs of coronary artery disease in asymptomatic patients. Non-invasive, uses standard ECG data. Endorsed by Mayo Clinic. Registered with Costa Rica's Ministerio de Salud."
+      : "Analiza variabilidad de frecuencia cardíaca (HRV) usando AI para detectar signos tempranos de enfermedad coronaria en pacientes asintomáticos. No invasivo, usa datos de ECG estándar. Avalado por Mayo Clinic. Registrado ante el Ministerio de Salud de Costa Rica.",
+    status: en ? "Active in CR" : "Activo en CR",
+    approvals: en ? "Ministerio de Salud CR, Mayo Clinic endorsed" : "Ministerio de Salud CR, aval Mayo Clinic",
+    color: "#dc2626",
+    link: "https://www.heartrends.com/physicians"
+  },
+  {
+    id: "eko",
+    name: "Eko CORE 500",
+    company: "Eko Health (USA)",
+    type: en ? "AI Digital Stethoscope" : "Estetoscopio Digital AI",
+    desc: en
+      ? "FDA-cleared AI-powered digital stethoscope that detects heart murmurs, atrial fibrillation, and valvular heart disease with clinical-grade accuracy. AI algorithms analyze heart and lung sounds in real-time, flagging anomalies for physician review."
+      : "Estetoscopio digital con AI aprobado por FDA que detecta soplos cardíacos, fibrilación auricular y enfermedad valvular con precisión de grado clínico. Algoritmos AI analizan sonidos cardíacos y pulmonares en tiempo real, señalando anomalías para revisión médica.",
+    status: en ? "FDA cleared" : "Aprobado por FDA",
+    approvals: "FDA 510(k)",
+    color: "#0ea5e9",
+    link: "https://www.ekohealth.com/products/core-500-digital-stethoscope"
+  },
+  {
+    id: "accuchek",
+    name: "Accu-Chek SmartGuide",
+    company: "Roche",
+    type: en ? "AI Diabetes Monitoring" : "Monitoreo de Diabetes AI",
+    desc: en
+      ? "AI-powered continuous glucose monitoring that predicts hypoglycemia events before they happen. Uses machine learning to analyze glucose patterns and provide personalized insulin dosing recommendations. Expected in Costa Rica within 2 months (as of March 2026)."
+      : "Monitoreo continuo de glucosa con AI que predice eventos de hipoglucemia antes de que ocurran. Usa aprendizaje automático para analizar patrones de glucosa y brindar recomendaciones personalizadas de dosificación de insulina. Esperado en Costa Rica dentro de 2 meses (a partir de marzo 2026).",
+    status: en ? "Coming to CR ~May 2026" : "Llega a CR ~Mayo 2026",
+    approvals: en ? "CE Mark, pending local registration" : "Marca CE, pendiente registro local",
+    color: "#f59e0b",
+    link: "https://radarhealthcare.sdli.es/2025/06/12/accu-chek-smartguide-ia-para-la-monitorizacion-avanzada-de-diabetes/"
+  },
+];
+
+// ── Additional Health AI Resources (from expert feedback) ──
+export const HEALTH_AI_RESOURCES = (en) => [
+  { title: en ? "11 AI Apps for Personal Health" : "11 Apps con IA para Cuidar la Salud", source: "La Nación CR", desc: en ? "Practical AI health apps available to Costa Rican consumers: symptom checkers, medication reminders, fitness AI, and mental health tools." : "Apps de salud AI prácticas disponibles para consumidores costarricenses: verificadores de síntomas, recordatorios de medicación, fitness AI y herramientas de salud mental.", link: "https://www.nacion.com/mi-bienestar/11-apps-con-ia-que-le-ayudaran-a-cuidar-su-salud-y/YHP2EYXITZH4TF4VF5HEZVDFXQ/story/" },
+];
