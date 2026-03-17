@@ -2587,6 +2587,12 @@ input[type="range"]::-moz-range-thumb {
 }
 .map-marker-pulse { animation: map-pulse 2s ease-in-out infinite; }
 
+/* ── fadeSlideIn animation for expandable panels ── */
+@keyframes fadeSlideIn {
+  0% { opacity: 0; transform: translateY(-6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
 /* ═══════════════════════════════════════════════════════════════
    v18 — MOBILE BOTTOM NAVIGATION DOCK
    Cleaner icon-based dock with rounded container and center highlight

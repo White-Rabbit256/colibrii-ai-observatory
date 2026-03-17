@@ -35,7 +35,7 @@ function getRiskTier(severity, likelihood) {
   return RISK_TIERS.low;
 }
 
-// ── Redesigned Risk Cell — subtle left border + clean typography ──
+// ── Redesigned Risk Cell — obvious tap/click affordance ──
 function RiskCell({ risk, onClick, selected }) {
   const tier = getRiskTier(risk.severity, risk.likelihood);
   const score = risk.severity * risk.likelihood;
@@ -43,19 +43,26 @@ function RiskCell({ risk, onClick, selected }) {
     <button
       onClick={() => onClick(risk)}
       style={{
-        display: "flex", flexDirection: "column", gap: 4, padding: "10px 12px",
+        display: "flex", flexDirection: "column", gap: 6, padding: "12px 14px",
         background: selected ? tier.bg : "var(--card)",
         border: selected ? `2px solid ${tier.border}` : "1px solid var(--border)",
-        borderLeft: `3px solid ${tier.border}`,
-        borderRadius: 10, cursor: "pointer", textAlign: "left", width: "100%",
+        borderLeft: `4px solid ${tier.border}`,
+        borderRadius: 12, cursor: "pointer", textAlign: "left", width: "100%",
         transition: "all .2s ease",
+        position: "relative",
+        boxShadow: selected ? `0 2px 12px ${tier.border}20` : "0 1px 3px rgba(0,0,0,0.04)",
       }}
+      onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = `0 4px 16px ${tier.border}25`; }}
+      onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = selected ? `0 2px 12px ${tier.border}20` : "0 1px 3px rgba(0,0,0,0.04)"; }}
     >
-      <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text)", lineHeight: 1.3 }}>{risk.name}</div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", lineHeight: 1.3, flex: 1 }}>{risk.name}</div>
+        <span style={{ fontSize: 12, color: tier.text, opacity: 0.6, transform: selected ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s" }}>▾</span>
+      </div>
       <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
         <span style={{
-          fontSize: 9, fontWeight: 700, fontFamily: "'IBM Plex Mono',monospace",
-          color: tier.text, background: tier.badge, padding: "1px 6px", borderRadius: 4,
+          fontSize: 10, fontWeight: 700, fontFamily: "'IBM Plex Mono',monospace",
+          color: tier.text, background: tier.badge, padding: "2px 8px", borderRadius: 6,
         }}>
           {score}/100
         </span>
@@ -173,10 +180,14 @@ export function HealthAI({ en, t, dark, setTab }) {
       {/* ═══ SECTION: RISK REGISTER ═══ */}
       <ScrollReveal>
         <div style={{ marginBottom: 20 }}>
-          <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--red)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>
+          <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--red)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
             <Icon name="shield" size={14} color="var(--red)" style={{ marginRight: 6, verticalAlign: "middle" }} />
             {en ? "Health AI Risk Register — 12 Failure Modes" : "Registro de Riesgos AI Salud — 12 Modos de Falla"}
           </h3>
+          <p style={{ fontSize: 11, color: "var(--text3)", marginBottom: 10, display: "flex", alignItems: "center", gap: 4 }}>
+            <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "var(--cyan)", animation: "map-pulse 2s ease-in-out infinite" }} />
+            {en ? "Tap any card to explore details" : "Toca cualquier tarjeta para ver detalles"}
+          </p>
           <Grid cols="repeat(auto-fit,minmax(200px,1fr))" gap={8}>
             {displayRisks.map(risk => (
               <RiskCell key={risk.id} risk={risk} onClick={setSelectedRisk} selected={selectedRisk?.id === risk.id} />
@@ -187,24 +198,34 @@ export function HealthAI({ en, t, dark, setTab }) {
               {en ? `Show all ${risks.length} risks →` : `Ver los ${risks.length} riesgos →`}
             </button>
           )}
-          {/* Risk detail panel */}
+          {/* Risk detail panel — animated expansion */}
           {selectedRisk && (() => {
             const tier = getRiskTier(selectedRisk.severity, selectedRisk.likelihood);
             return (
-              <Card style={{ marginTop: 10, background: tier.bg, border: `1px solid ${tier.border}30` }}>
+              <div style={{
+                marginTop: 12, padding: "16px 18px", borderRadius: 14,
+                background: tier.bg, border: `1.5px solid ${tier.border}40`,
+                borderLeft: `4px solid ${tier.border}`,
+                boxShadow: `0 4px 20px ${tier.border}15`,
+                animation: "fadeSlideIn 0.2s ease-out",
+              }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8 }}>
                   <div>
-                    <h4 style={{ fontSize: 14, fontWeight: 700, color: tier.text, margin: 0 }}>{selectedRisk.name}</h4>
-                    <div style={{ display: "flex", gap: 8, marginTop: 4, flexWrap: "wrap" }}>
+                    <h4 style={{ fontSize: 15, fontWeight: 700, color: tier.text, margin: 0 }}>{selectedRisk.name}</h4>
+                    <div style={{ display: "flex", gap: 8, marginTop: 6, flexWrap: "wrap" }}>
                       <Tag color={tier.border}>{en ? `Severity: ${selectedRisk.severity}/10` : `Severidad: ${selectedRisk.severity}/10`}</Tag>
                       <Tag color={tier.border}>{en ? `Likelihood: ${selectedRisk.likelihood}/10` : `Probabilidad: ${selectedRisk.likelihood}/10`}</Tag>
                       <Tag color="var(--text3)">{selectedRisk.cat}</Tag>
                     </div>
                   </div>
-                  <button onClick={() => setSelectedRisk(null)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 16, color: "var(--text3)" }}>×</button>
+                  <button onClick={(e) => { e.stopPropagation(); setSelectedRisk(null); }} style={{
+                    background: `${tier.border}15`, border: "none", cursor: "pointer",
+                    fontSize: 14, color: tier.text, width: 28, height: 28,
+                    borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>×</button>
                 </div>
-                <p style={{ fontSize: 12.5, color: "var(--text2)", lineHeight: 1.7, marginTop: 8, marginBottom: 0 }}>{selectedRisk.desc}</p>
-              </Card>
+                <p style={{ fontSize: 13, color: "var(--text2)", lineHeight: 1.7, marginTop: 10, marginBottom: 0 }}>{selectedRisk.desc}</p>
+              </div>
             );
           })()}
           <Ci s={en ? "Colibrii Labs Risk Assessment — WHO, HHS, IBM, Nature Medicine, CCSS" : "Evaluación de Riesgo Colibrii Labs — WHO, HHS, IBM, Nature Medicine, CCSS"} />
@@ -427,26 +448,38 @@ export function HealthAI({ en, t, dark, setTab }) {
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {frameworks.map((fw, i) => (
-              <Card key={fw.id} d={0.05} style={{ borderLeft: `3px solid ${fw.color}`, cursor: "pointer" }}
-                onClick={() => setExpandedFramework(expandedFramework === i ? null : i)}>
+              <button key={fw.id}
+                onClick={() => setExpandedFramework(expandedFramework === i ? null : i)}
+                style={{
+                  display: "block", width: "100%", textAlign: "left", cursor: "pointer",
+                  padding: "14px 16px", borderRadius: 12,
+                  background: expandedFramework === i ? `${fw.color}08` : "var(--card)",
+                  border: `1px solid ${expandedFramework === i ? `${fw.color}30` : "var(--border)"}`,
+                  borderLeft: `4px solid ${fw.color}`,
+                  transition: "all .2s ease",
+                  boxShadow: expandedFramework === i ? `0 2px 12px ${fw.color}15` : "0 1px 3px rgba(0,0,0,0.04)",
+                }}
+                onMouseEnter={e => { if (expandedFramework !== i) { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = `0 3px 12px ${fw.color}15`; } }}
+                onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = expandedFramework === i ? `0 2px 12px ${fw.color}15` : "0 1px 3px rgba(0,0,0,0.04)"; }}
+              >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, flexWrap: "wrap" }}>
-                  <div style={{ flex: 1, minWidth: 200 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                      <h4 style={{ fontSize: 14, fontWeight: 700, color: "var(--text)", margin: 0 }}>{fw.name}</h4>
+                  <div style={{ flex: 1, minWidth: 180 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: "var(--text)" }}>{fw.name}</span>
                       <Tag color={fw.color}>{fw.status}</Tag>
                     </div>
                     <div style={{ fontSize: 11, color: "var(--text3)", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 4 }}>{fw.org}</div>
                     <div style={{ fontSize: 12, color: fw.color, fontWeight: 600, lineHeight: 1.5 }}>{fw.relevance}</div>
                   </div>
-                  <span style={{ transform: expandedFramework === i ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s", display: "inline-block", color: "var(--text3)" }}>▾</span>
+                  <span style={{ transform: expandedFramework === i ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s", display: "inline-block", color: "var(--text3)", fontSize: 14, marginTop: 2 }}>▾</span>
                 </div>
                 {expandedFramework === i && (
-                  <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid var(--border)" }}>
+                  <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${fw.color}20`, animation: "fadeSlideIn 0.2s ease-out" }}>
                     <p style={{ fontSize: 12.5, color: "var(--text2)", lineHeight: 1.7, margin: "0 0 8px 0" }}>{fw.desc}</p>
-                    {fw.link && <Lnk href={fw.link}>{en ? "Read more" : "Leer más"}</Lnk>}
+                    {fw.link && <Lnk href={fw.link}>{en ? "Read more →" : "Leer más →"}</Lnk>}
                   </div>
                 )}
-              </Card>
+              </button>
             ))}
           </div>
           <Ci s={en ? "Expert recommendation — Dr. Adrián Castillo (CSIC/EHDS certified), OECD, WHO, AHA" : "Recomendación experta — Dr. Adrián Castillo (certificado CSIC/EHDS), OCDE, OMS, AHA"} />
@@ -572,18 +605,34 @@ export function HealthAI({ en, t, dark, setTab }) {
           </h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {cases.map((cs, i) => (
-              <Card key={i} style={{ cursor: "pointer", borderLeft: `3px solid ${cs.color}`, border: expandedCase === i ? `1px solid ${cs.color}40` : undefined, borderLeftWidth: 3, borderLeftStyle: "solid", borderLeftColor: cs.color }} onClick={() => setExpandedCase(expandedCase === i ? null : i)}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8, paddingRight: 20 }}>
-                  <div>
-                    <h4 style={{ fontSize: 14, fontWeight: 700, color: "var(--text)", margin: 0 }}>{cs.title}</h4>
-                    <span style={{ fontSize: 11, color: "var(--text2)" }}>{cs.org}</span>
+              <button key={i}
+                onClick={() => setExpandedCase(expandedCase === i ? null : i)}
+                style={{
+                  display: "block", width: "100%", textAlign: "left", cursor: "pointer",
+                  padding: "14px 16px", borderRadius: 12,
+                  background: expandedCase === i ? `${cs.color}08` : "var(--card)",
+                  border: `1px solid ${expandedCase === i ? `${cs.color}30` : "var(--border)"}`,
+                  borderLeft: `4px solid ${cs.color}`,
+                  transition: "all .2s ease",
+                  boxShadow: expandedCase === i ? `0 2px 12px ${cs.color}15` : "0 1px 3px rgba(0,0,0,0.04)",
+                }}
+                onMouseEnter={e => { if (expandedCase !== i) { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = `0 3px 12px ${cs.color}15`; } }}
+                onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = expandedCase === i ? `0 2px 12px ${cs.color}15` : "0 1px 3px rgba(0,0,0,0.04)"; }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: "var(--text)" }}>{cs.title}</span>
+                      <span style={{ transform: expandedCase === i ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s", display: "inline-block", color: "var(--text3)", fontSize: 12 }}>▾</span>
+                    </div>
+                    <span style={{ fontSize: 11, color: "var(--text3)" }}>{cs.org}</span>
                   </div>
                   <Tag color={cs.color}>{cs.stat}</Tag>
                 </div>
                 {expandedCase === i && (
-                  <p style={{ fontSize: 12.5, color: "var(--text2)", lineHeight: 1.7, marginTop: 8, marginBottom: 0 }}>{cs.desc}</p>
+                  <p style={{ fontSize: 12.5, color: "var(--text2)", lineHeight: 1.7, marginTop: 10, paddingTop: 10, borderTop: `1px solid ${cs.color}20`, marginBottom: 0, animation: "fadeSlideIn 0.2s ease-out" }}>{cs.desc}</p>
                 )}
-              </Card>
+              </button>
             ))}
           </div>
         </div>
