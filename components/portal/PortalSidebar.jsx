@@ -35,6 +35,26 @@ export function PortalSidebar({ tab, setTab, en, setEn, dark, setDark, t, mobile
         </div>
       </Link>
 
+      {/* Quick Controls — immediately visible (not buried at bottom) */}
+      <div className="portal-sidebar-quick-controls">
+        <button
+          className="portal-sidebar-toggle-btn"
+          onClick={() => setDark(!dark)}
+          aria-label={en ? "Toggle dark mode" : "Modo oscuro"}
+        >
+          <Icon name={dark ? "sun" : "moon"} size={14} />
+          <span>{dark ? (en ? "Light" : "Claro") : (en ? "Dark" : "Oscuro")}</span>
+        </button>
+        <button
+          className="portal-sidebar-toggle-btn"
+          onClick={() => setEn(!en)}
+          aria-label={en ? "Switch to Spanish" : "Cambiar a inglés"}
+        >
+          <Flag code={en ? "CR" : "GB"} size={16} />
+          <span>{en ? "ES" : "EN"}</span>
+        </button>
+      </div>
+
       {/* Navigation Groups */}
       <nav className="portal-sidebar-nav" aria-label="Portal navigation">
         {GROUPS.map((g, gi) => (
@@ -60,26 +80,6 @@ export function PortalSidebar({ tab, setTab, en, setEn, dark, setDark, t, mobile
           </div>
         ))}
       </nav>
-
-      {/* Bottom Controls */}
-      <div className="portal-sidebar-controls">
-        <button
-          className="portal-sidebar-toggle-btn"
-          onClick={() => setDark(!dark)}
-          aria-label={en ? "Toggle dark mode" : "Modo oscuro"}
-        >
-          <Icon name={dark ? "sun" : "moon"} size={14} />
-          <span>{dark ? (en ? "Light" : "Claro") : (en ? "Dark" : "Oscuro")}</span>
-        </button>
-        <button
-          className="portal-sidebar-toggle-btn"
-          onClick={() => setEn(!en)}
-          aria-label={en ? "Switch to Spanish" : "Cambiar a inglés"}
-        >
-          <Flag code={en ? "CR" : "GB"} size={16} />
-          <span>{en ? "ES" : "EN"}</span>
-        </button>
-      </div>
     </div>
   );
 

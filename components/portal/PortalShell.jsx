@@ -327,7 +327,7 @@ export default function PortalShell() {
 
       {/* ── MAIN AREA ── */}
       <div className="portal-main">
-        {/* Mobile header bar */}
+        {/* Mobile header bar — with lang/theme toggles for instant access */}
         <header className="portal-mobile-header no-print">
           <button
             className="portal-mobile-menu-btn"
@@ -337,15 +337,28 @@ export default function PortalShell() {
             <Icon name="menu" size={20} color={t.tx2} />
           </button>
           <Link href="/" style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", gap: 6 }} className="portal-mobile-title">
-            <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 32, height: 32 }} />
-            <span style={{ fontWeight: 800, fontFamily: "var(--font-display, 'Playfair Display', serif)", fontSize: 14, color: t.tx }}>Colibrii Labs</span>
+            <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 28, height: 28 }} />
+            <span style={{ fontWeight: 800, fontFamily: "var(--font-display, 'Playfair Display', serif)", fontSize: 13, color: t.tx }}>Colibrii Labs</span>
           </Link>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            {xr && (
-              <span style={{ fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace" }}>
-                ₡{Math.round(xr - 3)} compra · ₡{Math.round(xr + 3)} venta
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            {/* Theme toggle */}
+            <button
+              className="mobile-header-toggle"
+              onClick={() => setDark(!dark)}
+              aria-label={dark ? "Light mode" : "Dark mode"}
+            >
+              <Icon name={dark ? "sun" : "moon"} size={16} />
+            </button>
+            {/* Language toggle */}
+            <button
+              className="mobile-header-toggle"
+              onClick={() => setEn(!en)}
+              aria-label={en ? "Español" : "English"}
+            >
+              <span style={{ fontSize: 11, fontWeight: 700, fontFamily: "'IBM Plex Mono',monospace" }}>
+                {en ? "ES" : "EN"}
               </span>
-            )}
+            </button>
           </div>
         </header>
 
@@ -394,7 +407,7 @@ export default function PortalShell() {
         </footer>
 
         {/* ── MOBILE BOTTOM NAV ── */}
-        <BottomNav tab={tab} setTab={setTab} en={en} setEn={setEn} t={t} dark={dark} setDark={setDark} onMoreClick={() => setMobileNav(true)} />
+        <BottomNav tab={tab} setTab={setTab} en={en} onMoreClick={() => setMobileNav(true)} />
       </div>
 
       {/* ── INDICATOR DRAWER ── */}

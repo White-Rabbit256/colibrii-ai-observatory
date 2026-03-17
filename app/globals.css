@@ -2594,36 +2594,80 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   v18 — MOBILE BOTTOM NAVIGATION DOCK
-   Cleaner icon-based dock with rounded container and center highlight
+   v19 — PREMIUM MOBILE BOTTOM NAVIGATION DOCK
+   5-item dock with center FAB · Layered shadows · Spring easing
+   Safe area aware · Glassmorphism + saturate
+   Expert panel: Apple HIG, Google MD3, Bloomberg/Robinhood pattern
    ═══════════════════════════════════════════════════════════════ */
 
 .bottom-nav {
   display: none;
 }
 
+/* ── Mobile header toggle buttons (lang/theme) ── */
+.mobile-header-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: none;
+  background: var(--surface);
+  color: var(--text2);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.mobile-header-toggle:active {
+  transform: scale(0.92);
+  background: var(--border);
+}
+
+/* ── Sidebar quick controls (moved from bottom to top) ── */
+.portal-sidebar-quick-controls {
+  display: flex;
+  gap: 6px;
+  padding: 0 16px 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+
 @media (max-width: 768px) {
   .bottom-nav {
     display: flex;
     position: fixed;
-    bottom: 10px;
-    left: 12px;
-    right: 12px;
-    height: 60px;
-    background: var(--card);
-    border: 1px solid var(--border);
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    left: 14px;
+    right: 14px;
+    height: 62px;
+    /* Premium glassmorphism — no visible border in light mode */
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: none;
     z-index: 150;
     justify-content: space-evenly;
     align-items: center;
-    padding: 0 6px;
-    border-radius: 20px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.06);
-    backdrop-filter: blur(12px);
+    padding: 0 12px;
+    border-radius: 22px;
+    /* Triple-layer shadow (Linear/Stripe signature) */
+    box-shadow:
+      0 0 0 0.5px rgba(0, 0, 0, 0.06),
+      0 2px 4px rgba(0, 0, 0, 0.02),
+      0 12px 24px rgba(0, 0, 0, 0.06),
+      0 24px 48px rgba(0, 0, 0, 0.04);
   }
 
   [data-theme="dark"] .bottom-nav {
-    background: rgba(17, 24, 39, 0.92);
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255,255,255,0.06);
+    background: rgba(15, 23, 42, 0.82);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    box-shadow:
+      0 0 0 0.5px rgba(255, 255, 255, 0.06),
+      inset 0 0.5px 0 rgba(255, 255, 255, 0.05),
+      0 4px 16px rgba(0, 0, 0, 0.3),
+      0 24px 48px rgba(0, 0, 0, 0.2);
   }
 
   .bottom-nav-item {
@@ -2631,73 +2675,100 @@ input[type="range"]::-moz-range-thumb {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    gap: 3px;
     background: none;
     border: none;
     color: var(--text3);
     cursor: pointer;
-    padding: 4px 2px;
-    min-width: 40px;
+    padding: 6px 4px;
+    min-width: 48px;
     min-height: 44px;
-    border-radius: 12px;
-    transition: color 0.2s, background 0.2s, transform 0.15s;
+    border-radius: 14px;
+    position: relative;
+    /* Spring easing for premium tap feel (Robinhood pattern) */
+    transition: color 0.2s ease,
+                transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     -webkit-tap-highlight-color: transparent;
   }
 
   .bottom-nav-item:active {
-    transform: scale(0.92);
+    transform: scale(0.88);
   }
 
+  /* Active state — subtle background pill + brand color */
   .bottom-nav-item.active {
     color: var(--cyan);
   }
+  .bottom-nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: rgba(6, 182, 212, 0.08);
+    z-index: -1;
+    animation: navPillIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  [data-theme="dark"] .bottom-nav-item.active::before {
+    background: rgba(6, 182, 212, 0.12);
+  }
+  /* Active glow in dark mode (Bloomberg signature) */
+  [data-theme="dark"] .bottom-nav-item.active {
+    filter: drop-shadow(0 0 4px rgba(6, 182, 212, 0.15));
+  }
 
-  /* Center highlight — elevated prominent button */
+  @keyframes navPillIn {
+    from { transform: translateX(-50%) scale(0.5); opacity: 0; }
+    to   { transform: translateX(-50%) scale(1); opacity: 1; }
+  }
+
+  /* Center FAB — "Explore" button, always highlighted */
   .bottom-nav-center {
     position: relative;
-  }
-  .bottom-nav-center.active {
     background: var(--green);
-    color: #fff;
+    color: #fff !important;
     border-radius: 16px;
-    padding: 6px 8px;
-    box-shadow: 0 2px 12px rgba(16, 185, 129, 0.35);
+    padding: 8px 10px;
+    min-width: 52px;
+    box-shadow: 0 2px 12px rgba(16, 185, 129, 0.3);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.2s ease;
   }
-  .bottom-nav-center.active .bottom-nav-label {
-    color: #fff;
+  .bottom-nav-center:active {
+    transform: scale(0.9);
+    box-shadow: 0 1px 6px rgba(16, 185, 129, 0.4);
+  }
+  .bottom-nav-center .bottom-nav-label {
+    color: #fff !important;
+  }
+  .bottom-nav-center::before {
+    display: none !important; /* No pill for center FAB */
   }
 
+  /* Labels — humanist sans-serif, not monospace (premium signal) */
   .bottom-nav-label {
-    font-size: 9px;
-    font-weight: 600;
-    font-family: var(--font-mono, 'IBM Plex Mono', monospace);
-    letter-spacing: 0.2px;
+    font-size: 10px;
+    font-weight: 500;
+    font-family: var(--font-body, system-ui, -apple-system, sans-serif);
+    letter-spacing: 0.1px;
     white-space: nowrap;
   }
 
-  /* Utility toggle buttons (dark mode, language, more) — icon only, compact */
-  .bottom-nav-toggle {
-    min-width: 36px !important;
-    min-height: 44px !important;
-    padding: 4px 2px !important;
-    opacity: 0.7;
-  }
-  .bottom-nav-toggle:active {
-    opacity: 1;
-  }
-
-  /* Push content above bottom nav */
+  /* Push content above bottom nav (safe area aware) */
   .portal-content {
-    padding-bottom: 84px !important;
+    padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   .portal-footer {
-    padding-bottom: 80px !important;
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   /* Scroll-to-top moves above bottom nav */
   .scroll-to-top {
-    bottom: 84px !important;
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
 
@@ -2710,9 +2781,9 @@ input[type="range"]::-moz-range-thumb {
     font-size: 16px !important;
   }
 
-  /* Bottom nav — hide labels on narrow phones, icons only */
-  .bottom-nav-label { font-size: 8px !important; letter-spacing: 0 !important; }
-  .bottom-nav { left: 8px !important; right: 8px !important; bottom: 8px !important; height: 56px !important; }
+  /* Bottom nav — slightly tighter on narrow phones */
+  .bottom-nav-label { font-size: 9px !important; }
+  .bottom-nav { left: 10px !important; right: 10px !important; bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important; height: 58px !important; }
 
   /* Larger touch targets */
   button, a, [role="button"] {
