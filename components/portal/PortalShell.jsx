@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { AnimatePresence } from "framer-motion";
 import { TH, TH_DARK, CO, CC, IND_MAP, CUR, GOV, DM, TABS, PARTNERS, cacheGet, cacheSet, mm, av, sco, sla } from "../data";
-import { LoadCard, Grid, TabContent, ErrorBoundary } from "../ui";
+import { LoadCard, Grid, TabContent, ErrorBoundary, Flag } from "../ui";
 /* ── Lazy-loaded tab views (reduces initial JS bundle) ── */
 const Home = dynamic(() => import("../HomeView").then(m => ({ default: m.Home })), { loading: () => <LoadCard d={0.02} /> });
 const Algo = dynamic(() => import("../AlgoSecurityLeg").then(m => ({ default: m.Algo })), { loading: () => <LoadCard d={0.02} /> });
@@ -349,15 +349,13 @@ export default function PortalShell() {
             >
               <Icon name={dark ? "sun" : "moon"} size={16} />
             </button>
-            {/* Language toggle */}
+            {/* Language toggle — flag of target language */}
             <button
               className="mobile-header-toggle"
               onClick={() => setEn(!en)}
-              aria-label={en ? "Español" : "English"}
+              aria-label={en ? "Cambiar a Español" : "Switch to English"}
             >
-              <span style={{ fontSize: 11, fontWeight: 700, fontFamily: "'IBM Plex Mono',monospace" }}>
-                {en ? "ES" : "EN"}
-              </span>
+              <Flag code={en ? "CR" : "GB"} size={18} />
             </button>
           </div>
         </header>

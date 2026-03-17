@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Card, SH, Grid, ScrollReveal, Tag, Bx, Ci, MiniStat, KeyInsight, FreshnessBadge, RelatedInsight, Lnk, Flag } from "./ui";
 import { CROSS_LINKS } from "./data";
@@ -112,6 +112,32 @@ export function HealthAI({ en, t, dark, setTab }) {
   const [selectedRisk, setSelectedRisk] = useState(null);
   const [showAllRisks, setShowAllRisks] = useState(false);
   const [expandedFramework, setExpandedFramework] = useState(null);
+  const riskDetailRef = useRef(null);
+  const frameworkDetailRef = useRef(null);
+  const caseDetailRef = useRef(null);
+
+  // Auto-scroll detail panels into view on mobile
+  useEffect(() => {
+    if (selectedRisk && riskDetailRef.current) {
+      setTimeout(() => {
+        riskDetailRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }, 50);
+    }
+  }, [selectedRisk]);
+  useEffect(() => {
+    if (expandedFramework !== null && frameworkDetailRef.current) {
+      setTimeout(() => {
+        frameworkDetailRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }, 50);
+    }
+  }, [expandedFramework]);
+  useEffect(() => {
+    if (expandedCase !== null && caseDetailRef.current) {
+      setTimeout(() => {
+        caseDetailRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }, 50);
+    }
+  }, [expandedCase]);
 
   const risks = HEALTH_RISKS(en);
   const piiMatrix = HEALTH_PII_MATRIX(en);
@@ -198,11 +224,11 @@ export function HealthAI({ en, t, dark, setTab }) {
               {en ? `Show all ${risks.length} risks →` : `Ver los ${risks.length} riesgos →`}
             </button>
           )}
-          {/* Risk detail panel — animated expansion */}
+          {/* Risk detail panel — animated expansion, auto-scrolls into view */}
           {selectedRisk && (() => {
             const tier = getRiskTier(selectedRisk.severity, selectedRisk.likelihood);
             return (
-              <div style={{
+              <div ref={riskDetailRef} style={{
                 marginTop: 12, padding: "16px 18px", borderRadius: 14,
                 background: tier.bg, border: `1.5px solid ${tier.border}40`,
                 borderLeft: `4px solid ${tier.border}`,
@@ -474,7 +500,7 @@ export function HealthAI({ en, t, dark, setTab }) {
                   <span style={{ transform: expandedFramework === i ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s", display: "inline-block", color: "var(--text3)", fontSize: 14, marginTop: 2 }}>▾</span>
                 </div>
                 {expandedFramework === i && (
-                  <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${fw.color}20`, animation: "fadeSlideIn 0.2s ease-out" }}>
+                  <div ref={frameworkDetailRef} style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${fw.color}20`, animation: "fadeSlideIn 0.2s ease-out" }}>
                     <p style={{ fontSize: 12.5, color: "var(--text2)", lineHeight: 1.7, margin: "0 0 8px 0" }}>{fw.desc}</p>
                     {fw.link && <Lnk href={fw.link}>{en ? "Read more →" : "Leer más →"}</Lnk>}
                   </div>
@@ -630,7 +656,7 @@ export function HealthAI({ en, t, dark, setTab }) {
                   <Tag color={cs.color}>{cs.stat}</Tag>
                 </div>
                 {expandedCase === i && (
-                  <p style={{ fontSize: 12.5, color: "var(--text2)", lineHeight: 1.7, marginTop: 10, paddingTop: 10, borderTop: `1px solid ${cs.color}20`, marginBottom: 0, animation: "fadeSlideIn 0.2s ease-out" }}>{cs.desc}</p>
+                  <p ref={caseDetailRef} style={{ fontSize: 12.5, color: "var(--text2)", lineHeight: 1.7, marginTop: 10, paddingTop: 10, borderTop: `1px solid ${cs.color}20`, marginBottom: 0, animation: "fadeSlideIn 0.2s ease-out" }}>{cs.desc}</p>
                 )}
               </button>
             ))}
