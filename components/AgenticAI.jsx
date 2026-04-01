@@ -519,23 +519,21 @@ export function AgenticAI({ en, t }) {
       <ScrollReveal>
         <Card style={{ marginBottom: 28, position: "relative", paddingLeft: 32 }}>
           <div style={{ position: "absolute", left: 18, top: 20, bottom: 20, width: 2, background: "linear-gradient(180deg, #6366f1, #22d3ee, #ec4899, #f59e0b, #10b981, #64748b)" }} />
-          {timeline.map((t2, i) => (
-            <div key={i} style={{ position: "relative", marginBottom: 24 }}>
-              <div style={{ position: "absolute", left: -22, top: 2, width: 14, height: 14, borderRadius: "50%", background: t2.current ? t2.color : "var(--card)", border: `2px solid ${t2.color}`, boxShadow: t2.current ? `0 0 14px ${t2.color}50` : "none" }} />
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                <span style={{ fontSize: 18, fontWeight: 800, color: t2.color, ...mono }}>{t2.year}</span>
-                <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text)" }}>{t2.title}</span>
-                {t2.current && <Tag color={t2.color}>{en ? "NOW" : "AHORA"}</Tag>}
+          {timeline.slice(0, 15).map((t2, i) => {
+            const colors = [th.vi, th.cy, th.pk, th.am, th.gn, th.or, th.rd];
+            const c = colors[i % colors.length];
+            const is2026 = String(t2.date || "").includes("2026");
+            return (
+            <div key={i} style={{ position: "relative", marginBottom: 16 }}>
+              <div style={{ position: "absolute", left: -22, top: 2, width: 12, height: 12, borderRadius: "50%", background: is2026 ? c : "var(--card)", border: `2px solid ${c}`, boxShadow: is2026 ? `0 0 12px ${c}50` : "none" }} />
+              <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 2 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: c, ...mono, whiteSpace: "nowrap" }}>{t2.date}</span>
+                {is2026 && <Tag color={c}>{en ? "NOW" : "AHORA"}</Tag>}
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                {t2.events.map((e, j) => (
-                  <div key={j} style={{ fontSize: 11, color: "var(--text3)", lineHeight: 1.5, display: "flex", alignItems: "flex-start", gap: 6 }}>
-                    <span style={{ color: t2.color, flexShrink: 0, marginTop: 2 }}>\u25B8</span> {e}
-                  </div>
-                ))}
-              </div>
+              <div style={{ fontSize: 12, color: "var(--text)", fontWeight: 600, lineHeight: 1.4 }}>{T(t2.event, en)}</div>
+              <div style={{ fontSize: 10, color: "var(--text3)", marginTop: 2 }}>{T(t2.significance, en)}</div>
             </div>
-          ))}
+            ); })}
         </Card>
       </ScrollReveal>
 
@@ -546,7 +544,7 @@ export function AgenticAI({ en, t }) {
             {en ? "SOURCES & ATTRIBUTION" : "FUENTES Y ATRIBUCI\u00d3N"}
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {SOURCES.map((s, i) => (
+            {["WEF Future of Jobs 2025", "McKinsey Nov 2025", "IMF AI & Jobs 2024", "Stanford HAI 2025", "Gartner 2025-2026", "Goldman Sachs 2024", "Anthropic Economic Index", "BCG AI Agents 2025", "OECD Employment Outlook", "ILO GenAI Impact 2025", "PwC AI Jobs Barometer", "MIT CSAIL Project Iceberg"].map((s, i) => (
               <span key={i} style={{ padding: "3px 10px", background: "var(--surface)", borderRadius: 16, fontSize: 10, color: "var(--text3)", ...mono }}>
                 {s}
               </span>
