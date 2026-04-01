@@ -3,9 +3,9 @@ import { useState, useRef, useEffect } from "react";
 import { Card, SH, ScrollReveal, Tag, Bx, MiniStat, KeyInsight, FreshnessBadge, Flag } from "./ui";
 import { Icon } from "./system/Icon";
 import {
-  AGENTIC_HERO_STATS, AI_EVOLUTION, AI_TAXONOMY, CAPABILITIES,
-  AUTONOMY_LEVELS, PROTOCOLS, SECTOR_IMPACT, USE_CASES,
-  CR_IMPACT, TIMELINE_EVENTS, SOURCES
+  AGENTIC_KEY_STATS, AI_EVOLUTION, AI_TAXONOMY, AGENT_CAPABILITIES,
+  AUTONOMY_LEVELS, AGENTIC_PROTOCOLS, WORKFORCE_IMPACT, AGENTIC_USE_CASES,
+  CR_AGENTIC_IMPACT, AGENTIC_TIMELINE
 } from "./agenticData";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -115,16 +115,23 @@ function riskLabel(v, en) { return v >= 0.85 ? (en ? "CRITICAL" : "CRÍTICO") : 
 /* ═══════════════ MAIN EXPORT ═══════════════ */
 export function AgenticAI({ en, t }) {
   const th = t && t.cy ? t : { cy: "#2563eb", vi: "#6366f1", pk: "#ec4899", am: "#f59e0b", rd: "#ef4444", gn: "#10b981", or: "#f97316" };
-  const heroStats = AGENTIC_HERO_STATS(en);
+  const heroStats = AGENTIC_KEY_STATS(en);
   const evolution = AI_EVOLUTION(en);
   const taxonomy = AI_TAXONOMY(en);
-  const capabilities = CAPABILITIES(en);
+  const capabilities = AGENT_CAPABILITIES(en);
   const levels = AUTONOMY_LEVELS(en);
-  const protocols = PROTOCOLS(en);
-  const sectors = SECTOR_IMPACT(en);
-  const useCases = USE_CASES(en);
-  const cr = CR_IMPACT(en);
-  const timeline = TIMELINE_EVENTS(en);
+  const protocols = AGENTIC_PROTOCOLS(en);
+  const workforce = WORKFORCE_IMPACT(en);
+  const sectors = (workforce?.bySector || []).map((s, i) => {
+    const riskMap = { "HIGH": 0.8, "MODERATE": 0.55, "LOW": 0.25 };
+    const riskLevel = Object.keys(riskMap).find(k => (s.risk || "").toUpperCase().includes(k)) || "MODERATE";
+    const icons = ["bank", "heart", "legal", "robot", "store", "edu", "factory"];
+    const colors = [th.cy, th.pk, th.or, th.vi, th.gn, th.am, th.rd];
+    return { ...s, risk: riskMap[riskLevel], icon: icons[i % icons.length], color: colors[i % colors.length], stat: s.jobsAffected || "", statDesc: s.impact ? s.impact.substring(0, 60) + "…" : "", detail: s.impact };
+  });
+  const useCases = AGENTIC_USE_CASES(en);
+  const cr = CR_AGENTIC_IMPACT(en);
+  const timeline = AGENTIC_TIMELINE(en);
   const [expandedSector, setExpandedSector] = useState(null);
   const sectorRef = useRef(null);
 
@@ -155,7 +162,7 @@ export function AgenticAI({ en, t }) {
           </p>
           {/* Floating stat cards */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12, maxWidth: 640, margin: "0 auto" }}>
-            {heroStats.map((s, i) => (
+            {heroStats.slice(0, 4).map((s, i) => (
               <div key={i} style={{ background: "rgba(255,255,255,0.05)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "14px 12px", animation: `agFloat ${3 + i * 0.5}s ease-in-out infinite`, animationDelay: `${i * 0.2}s` }}>
                 <div style={{ fontSize: 22, fontWeight: 800, color: "#22d3ee", ...mono }}>
                   {s.prefix || ""}{s.value}{s.suffix || ""}
