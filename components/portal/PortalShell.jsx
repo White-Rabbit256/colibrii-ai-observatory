@@ -44,8 +44,17 @@ const HealthView = dynamic(() => import("../HealthAI").then(m => ({ default: m.H
 const InfraView = dynamic(() => import("../InfraSmartCities").then(m => ({ default: m.InfraSmartCities })), { loading: () => <LoadCard d={0.02} /> });
 const ClimateView = dynamic(() => import("../EnvironmentalAI").then(m => ({ default: m.EnvironmentalAI })), { loading: () => <LoadCard d={0.02} /> });
 
+/* ── Lazy-loaded DEEP ANALYSIS tabs (new data integration) ── */
+const GovernanceDeepView = dynamic(() => import("../GovernanceDeep").then(m => ({ default: m.GovernanceDeep })), { loading: () => <LoadCard d={0.02} /> });
+const EducationDeepView = dynamic(() => import("../EducationDeep").then(m => ({ default: m.EducationDeep })), { loading: () => <LoadCard d={0.02} /> });
+const ClimateDeepView = dynamic(() => import("../ClimateDeep").then(m => ({ default: m.ClimateDeep })), { loading: () => <LoadCard d={0.02} /> });
+const ReadinessDeepView = dynamic(() => import("../ReadinessDeep").then(m => ({ default: m.ReadinessDeep })), { loading: () => <LoadCard d={0.02} /> });
+const SourcesView = dynamic(() => import("../SourcesExplorer").then(m => ({ default: m.SourcesExplorer })), { loading: () => <LoadCard d={0.02} /> });
+const ILIAView = dynamic(() => import("../ILIADeep").then(m => ({ default: m.ILIADeep })), { ssr: false, loading: () => <div style={{padding:20}}>Loading ILIA...</div> });
+const AgenticView = dynamic(() => import("../AgenticAI").then(m => ({ default: m.AgenticAI })), { ssr: false, loading: () => <div style={{padding:20}}>Loading Agentic AI...</div> });
+
 /* ═══════════════════════════════════════════════════════════════
-   COLIBRII LABS — Portal Shell v18
+   COLIBRII LABS — Portal Shell v19
    Sidebar navigation · Indicator drawer · 25 tabs · 4 APIs
    URL hash routing for direct section links
    ═══════════════════════════════════════════════════════════════ */
@@ -71,6 +80,14 @@ const SLUG_TO_TAB = {
   zf: "zf", pai: "pai", media: "media", sdg: "sdg", about: "about",
   idx: "idx", banca: "banca", pymes: "pymes", health: "health",
   food: "food", infra: "infra", climate: "climate",
+  // Deep Analysis tabs
+  govdeep: "govdeep", edudeep: "edudeep", climatedeep: "climatedeep",
+  readinessdeep: "readinessdeep", sources: "sources",
+  gobernanzaprofunda: "govdeep", educacionprofunda: "edudeep",
+  climaprofundo: "climatedeep", preparacionprofunda: "readinessdeep",
+  fuentes: "sources", datasources: "sources",
+  ilia: "ilia", ilia2025: "ilia", cepal: "ilia", cenia: "ilia",
+  agentic: "agentic", agenticai: "agentic", agentica: "agentic", agentes: "agentic", iaagente: "agentic", iaagentes: "agentic",
 };
 
 const TAB_TO_SLUG = {
@@ -81,6 +98,11 @@ const TAB_TO_SLUG = {
   climate: "clima", infra: "infraestructura", readiness: "preparacion",
   showcase: "vitrina", sdg: "ods", food: "alimentacion", pai: "robotica",
   about: "info", idx: "indice",
+  govdeep: "gobernanza-profunda", edudeep: "educacion-profunda",
+  climatedeep: "clima-profundo", readinessdeep: "preparacion-profunda",
+  sources: "fuentes",
+  ilia: "ilia",
+  agentic: "ia-agente",
 };
 
 const WB = "https://api.worldbank.org/v2/country";
@@ -303,6 +325,14 @@ export default function PortalShell() {
       case "health": return <HealthView {...tp} />;
       case "infra": return <InfraView {...tp} />;
       case "climate": return <ClimateView {...tp} />;
+      /* ── DEEP ANALYSIS tabs (new data integration) ── */
+      case "govdeep": return <GovernanceDeepView {...tp} />;
+      case "edudeep": return <EducationDeepView {...tp} />;
+      case "climatedeep": return <ClimateDeepView {...tp} />;
+      case "readinessdeep": return <ReadinessDeepView {...tp} />;
+      case "sources": return <SourcesView {...tp} />;
+      case "ilia": return <ILIAView {...tp} />;
+      case "agentic": return <AgenticView {...tp} />;
       default: return <Home {...tp} />;
     }
   };

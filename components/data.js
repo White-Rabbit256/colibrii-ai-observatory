@@ -243,6 +243,14 @@ export const TABS = [
   { id: "readiness", l: "Preparación AI", le: "AI Readiness", ic: "chart", c: TH.cy },
   { id: "showcase", l: "Vitrina Impacto", le: "Impact Showcase", ic: "star", c: TH.gd },
   { id: "sdg", l: "Objetivos ONU", le: "UN Goals (SDGs)", ic: "globe", c: TH.gn },
+  /* ── DEEP INTELLIGENCE (new data integration) ── */
+  { id: "govdeep", l: "Gobernanza Profunda", le: "Governance Deep", ic: "legal", c: TH.vi },
+  { id: "edudeep", l: "Educación Profunda", le: "Education Deep", ic: "edu", c: TH.gn },
+  { id: "climatedeep", l: "Clima Profundo", le: "Climate Deep", ic: "leaf", c: TH.gn },
+  { id: "readinessdeep", l: "Preparación Profunda", le: "Readiness Deep", ic: "chart", c: TH.cy },
+  { id: "sources", l: "Fuentes de Datos", le: "Data Sources", ic: "database", c: TH.vi },
+  { id: "ilia", l: "ILIA 2025 (CEPAL)", le: "ILIA 2025 (CEPAL)", ic: "globe", c: TH.cy },
+  { id: "agentic", l: "IA Agéntica", le: "Agentic AI", ic: "robot", c: TH.vi },
 ];
 
 // ── PARTNERS / DATA SOURCES ──
