@@ -1,0 +1,26 @@
+{
+  "name": "colibrii-observatory-mcp",
+  "version": "1.0.0",
+  "description": "Colibrii Labs Observatory MCP Server — exposes CAPI-CR, ILIA 2025, governance, workforce, and regulatory data as MCP tools for AI agents",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "colibrii-mcp": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "mcp",
+    "ai-observatory",
+    "costa-rica",
+    "latam",
+    "governance",
+    "capi-cr"
+  ],
+  "author": "Colibrii Labs <andres@colibriilabs.com>",
+  "license": "CC-BY-NC-4.0",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1"
+  }
+}
