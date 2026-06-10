@@ -62,6 +62,11 @@ How to build a Colibrii Observatory section end-to-end. The trigger this skill i
 - R3F remains deferred (pre-existing decision); the 2D-canvas hero pattern (`HeroBackground` idiom) delivers the "one excellent 3D moment" at 0 KB — reuse `components/energia/GridHero.jsx` as the template.
 - Bilingual data modules grow fast: keep prose in the view where possible, keep the data module numeric + provenance.
 - Freeze the data-module API (export names + shapes) BEFORE spawning the parallel band; integration cost comes from API drift, not from code quality.
-- Persona board: run all 12 in ONE parallel batch with explicit file lists; vague file scopes produce vague reviews.
+- Persona board: run all 12 in ONE parallel batch with explicit file lists; vague file scopes produce vague reviews. The board pays for itself: it caught a runtime crash the build can't see (see next).
+- **Lazy-tab import trap:** `ssr:false` dynamic tabs compile even with missing imports — a referenced-but-unimported identifier crashes at render, not at build. Frontend-dev DoD now includes an import-surface check (grep every identifier used in JSX against the import block) before the build gate.
+- **Light-theme accent contrast:** brand accents that pass on navy fail on light surfaces (~2.6:1). Use the section-scoped CSS-var pattern (`.energia-scope`, D-011): darkened accents in light theme, bright in dark; `var(--enX)` for text, raw hexes only on always-dark panels. Budget this from the start, not at review.
+- Grids: always `repeat(auto-fit, minmax(min(100%, Xpx), 1fr))` — plain `minmax(Xpx, 1fr)` overflows 360px viewports.
+- Push channels can die mid-session (git proxy 403 / MCP 401). Commit locally early and often; Vercel MCP deploys straight from the workspace, so staging is deliverable even with git down (D-010).
 - Video embeds: CSP `frame-src` is TikTok-only and the platform promises zero tracking → use branded link-out video cards, don't relax CSP for YouTube.
 - Third-party photos: if a license can't be verified in-session, ship without and log candidates in the section backlog (prompt rule, works well).
+- Subagent reviews of in-flight code: freeze edits to any file a running reviewer is reading; batch your fixes for after the wave completes (one tiny exception per run, max).

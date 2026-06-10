@@ -26,4 +26,4 @@
 - Hit areas ≥44px; no scroll-jacking.
 
 ## Definition of done
-`npm run build` + `npm run lint` green · both languages render · both themes render · 360px-wide viewport sane · every stat traces to the data module.
+`npm run build` + `npm run lint` green · **import-surface check** (every identifier used in JSX exists in the import block — `ssr:false` lazy tabs compile with missing imports and crash only at render) · both languages render · both themes render · 360px-wide viewport sane (grids use `minmax(min(100%, Xpx), 1fr)`) · accent TEXT uses the section's theme-aware CSS vars (see D-011), raw accent hexes only on always-dark panels · every stat traces to the data module.

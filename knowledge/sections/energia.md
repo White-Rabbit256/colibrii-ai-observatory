@@ -83,5 +83,13 @@
 
 **Nota de assets propios:** `public/colibrii-icon-sm.png` y `colibrii-logo.png` son marca propia de Colibrii Labs (sin restricción de uso interno).
 
+## Persona board results (Run #1)
+
+**Iteration 1 (12 parallel reviewers):** 11× FIX-THEN-SHIP · 1× BLOCK (Persona 08, economist: 600 MW figure missing from canonical provenance table). Notable catches: `SOLAR_CURVE` referenced without import (runtime crash in lazy `ssr:false` tab — build passes, tab crashes; caught by 4 personas), light-theme accent contrast failures (turquoise/gold small text ~2.6:1 on light surfaces), 360px grid overflow, mixed-methodology labeling, BLUF imprecision ("double" vs 1.8×).
+
+**Iteration 2 (targeted re-runs):** Persona 08 → **SHIP** (provenance chain complete, no regressions; ECAI composites re-verified). Persona 12 → **SHIP** (all computed contrast ratios ≥4.96:1, most AAA; 9 overflow-safe grids; focus styles intact). **Gate satisfied: zero BLOCK; residual minor items moved to backlog above.**
+
+False positives ruled by orchestrator (documented for future boards): "ScrollProgress SSR-unsafe" (window access is inside useEffect — never runs server-side; tab is ssr:false), "hero turquoise 3.2:1 on navy" (computed 6.38:1 — hero passes as designed).
+
 ## Session log
-- **2026-06-10:** Section built end-to-end by factory Run #1 (this session). Persona board results + final state appended at close-out.
+- **2026-06-10:** Section built end-to-end by factory Run #1 (this session). Build green (254 kB first-load, tab lazy-chunked). Board: 2 iterations to zero-BLOCK. **Push-channel note:** git proxy 403 + GitHub API writes 401 during close-out — all work committed locally on `claude/zen-lovelace-5l2e7g`; staging deployed to Vercel directly from the workspace (see D-010). Re-push + draft PR pending channel recovery.
