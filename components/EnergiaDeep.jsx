@@ -7,7 +7,7 @@ import {
   EN_ACCENT, SRC, HERO, DC_DEMAND, CAPEX, NUCLEAR_DEALS, CHINA,
   TARIFFS, RENEW_SHARE, CR_MIX, CR_RENEW_POINTS, ICE_FIN, ARESEP_2026,
   PEG_TARGETS, TIMELINE, VOTE_MATH, BILL_CORE, STAKEHOLDERS,
-  COMPARATIVE, ECAI, SCENARIOS, AMENDMENTS, VIDEOS,
+  COMPARATIVE, ECAI, SCENARIOS, SOLAR_CURVE, AMENDMENTS, VIDEOS,
 } from "./energiaData";
 import { DCDemandChart, TariffChart, MixDonut, EcaiRadar, SolarCurveChart } from "./energia/EnergiaCharts";
 import { EcaiExplorer, TariffComparator, ScenarioExplorer } from "./energia/EnergiaInteractive";

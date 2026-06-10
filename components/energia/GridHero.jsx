@@ -11,15 +11,20 @@ import { GRID_NODES } from "../energiaData";
    prefers-reduced-motion. Zero new dependencies.
    ═══════════════════════════════════════════════════════════════ */
 
-/* ── Node palette by generation kind ── */
+/* ── Node palette by generation kind — derived from EN_ACCENT
+      (energiaData.js): glow/turquoise/gold family. The hero backdrop is
+      theme-independent (always navy), so fixed canvas values are
+      intentional here. ── */
 const KIND_COLORS = {
-  hydro: "#22d3ee",
-  geo: "#F2B135",
-  wind: "#00B5A8",
+  hydro: "#22d3ee",   // EN_ACCENT.glow
+  geo: "#F2B135",     // EN_ACCENT.gold
+  wind: "#00B5A8",    // EN_ACCENT.turquoise
   solar: "#fbbf24",
-  thermal: "#ef4444",
+  thermal: "#ef4444", // EN_ACCENT.risk
   load: "#ffffff",
 };
+const LAND_FILL = "rgba(13,38,76,0.55)"; // EN_ACCENT.navy2 (#10294f) @ ~55%
+const PARTICLE_COLORS = [KIND_COLORS.wind, KIND_COLORS.hydro, KIND_COLORS.load];
 
 /* ── Stylized Costa Rica silhouette — hand-tuned points normalized
       to the shape's own 0..1 bbox (x: W→E, y: N→S). Nicoya and Osa
@@ -100,7 +105,7 @@ export default function GridHero() {
       });
       bctx.closePath();
       bctx.lineJoin = "round";
-      bctx.fillStyle = "rgba(13,38,76,0.55)";
+      bctx.fillStyle = LAND_FILL;
       bctx.fill();
 
       /* Soft inner glow: blurred re-stroke under the crisp coastline */
@@ -229,7 +234,7 @@ export default function GridHero() {
       map = { x: (W - mw) / 2, y: (H - mh) / 2, w: mw, h: mh };
 
       /* Ambient drift particles — fewer on small screens */
-      const colors = ["#00B5A8", "#22d3ee", "#ffffff"];
+      const colors = PARTICLE_COLORS;
       particles = Array.from({ length: W < 640 ? 12 : 25 }, () => ({
         x: Math.random() * W,
         y: Math.random() * H,
