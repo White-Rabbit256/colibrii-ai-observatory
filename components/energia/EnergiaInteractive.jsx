@@ -10,7 +10,7 @@ import { useMemo, useState } from "react";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
 } from "recharts";
-import { ECAI, TARIFFS, SCENARIOS, EN_ACCENT } from "../energiaData";
+import { ECAI, TARIFFS, SCENARIOS } from "../energiaData";
 
 /* ── Shared helpers ── */
 const T = (v, en) => (v && typeof v === "object" && !Array.isArray(v) && ("es" in v) ? (en ? v.en : v.es) : v);
@@ -73,7 +73,7 @@ export function EcaiExplorer({ en }) {
                 <label htmlFor={`ecai-w-${w.id}`} style={{ fontSize: 12.5, fontWeight: 600, color: "var(--text2)" }}>
                   {label}
                 </label>
-                <span style={{ fontFamily: MONO, fontSize: 13, fontWeight: 700, color: EN_ACCENT.turquoise }}>
+                <span style={{ fontFamily: MONO, fontSize: 13, fontWeight: 700, color: "var(--enTurq)" }}>
                   {vals[w.id]}%
                 </span>
               </div>
@@ -130,7 +130,7 @@ export function EcaiExplorer({ en }) {
           const cr = !!c.highlight;
           return (
             <div key={c.code} style={{ display: "grid", gridTemplateColumns: "40px minmax(84px, 118px) 1fr 52px", gap: 10, alignItems: "center", marginBottom: 8 }}>
-              <span style={{ ...codeChip, ...(cr ? { borderColor: EN_ACCENT.turquoise, color: EN_ACCENT.turquoise } : {}) }}>{c.code}</span>
+              <span style={{ ...codeChip, ...(cr ? { borderColor: "var(--enTurq)", color: "var(--enTurq)" } : {}) }}>{c.code}</span>
               <span style={{ fontSize: 12.5, fontWeight: cr ? 700 : 500, color: cr ? "var(--text)" : "var(--text2)" }}>
                 {T(c.name, en)}
               </span>
@@ -140,12 +140,12 @@ export function EcaiExplorer({ en }) {
                     height: "100%",
                     width: `${(c.score * 100).toFixed(1)}%`,
                     borderRadius: 7,
-                    background: cr ? EN_ACCENT.turquoise : "rgba(129,140,248,0.65)",
+                    background: cr ? "var(--enTurq)" : "var(--enViolet)",
                     transition: "width .6s ease",
                   }}
                 />
               </div>
-              <span style={{ fontFamily: MONO, fontSize: 13, fontWeight: 700, color: cr ? EN_ACCENT.turquoise : "var(--text2)", textAlign: "right" }}>
+              <span style={{ fontFamily: MONO, fontSize: 13, fontWeight: 700, color: cr ? "var(--enTurq)" : "var(--text2)", textAlign: "right" }}>
                 {fmtScore(c.score, en)}
               </span>
             </div>
@@ -231,7 +231,7 @@ export function TariffComparator({ en }) {
                 aria-pressed={on}
                 style={{
                   minHeight: 40, padding: "5px 12px", borderRadius: 999, cursor: "pointer", textAlign: "left",
-                  border: on ? `1.5px solid ${EN_ACCENT.turquoise}` : "1.5px solid var(--border)",
+                  border: on ? "1.5px solid var(--enTurq)" : "1.5px solid var(--border)",
                   background: on ? "rgba(0,181,168,0.12)" : "var(--surface)",
                   color: on ? "var(--text)" : "var(--text2)", fontSize: 12, fontWeight: on ? 700 : 500,
                 }}
@@ -262,12 +262,12 @@ export function TariffComparator({ en }) {
                 padding: "10px 12px", borderRadius: 8,
                 background: us ? "rgba(242,177,53,0.10)" : "var(--card)",
                 border: "1px solid var(--border)",
-                borderLeft: cr ? `3px solid ${EN_ACCENT.turquoise}` : "3px solid transparent",
+                borderLeft: cr ? "3px solid var(--enTurq)" : "3px solid transparent",
               }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-                  <span style={{ ...codeChip, ...(cr ? { borderColor: EN_ACCENT.turquoise, color: EN_ACCENT.turquoise } : us ? { borderColor: EN_ACCENT.gold, color: EN_ACCENT.gold } : {}) }}>{r.code}</span>
+                  <span style={{ ...codeChip, ...(cr ? { borderColor: "var(--enTurq)", color: "var(--enTurq)" } : us ? { borderColor: "var(--enGold)", color: "var(--enGold)" } : {}) }}>{r.code}</span>
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontSize: 12.5, fontWeight: cr ? 800 : 600, color: "var(--text)" }}>{T(r.country, en)}</div>
                     <div style={{ fontSize: 10.5, color: "var(--text3)" }}>
@@ -275,7 +275,7 @@ export function TariffComparator({ en }) {
                     </div>
                   </div>
                 </div>
-                <div style={{ fontFamily: MONO, fontSize: 13.5, fontWeight: cr ? 800 : 700, color: cr ? EN_ACCENT.turquoise : us ? EN_ACCENT.gold : "var(--text)", whiteSpace: "nowrap" }}>
+                <div style={{ fontFamily: MONO, fontSize: 13.5, fontWeight: cr ? 800 : 700, color: cr ? "var(--enTurq)" : us ? "var(--enGold)" : "var(--text)", whiteSpace: "nowrap" }}>
                   {costLabel(r)}
                 </div>
               </div>
@@ -328,6 +328,9 @@ function ScenTooltip({ active, payload, label }) {
   );
 }
 
+/* Theme-aware scenario colors (CSS vars from .energia-scope; data hexes stay for tints) */
+const SCEN_VAR = { base: "var(--enGlow)", emov: "var(--enGold)", ai: "var(--enTurq)" };
+
 export function ScenarioExplorer({ en }) {
   const [active, setActive] = useState(() => Object.fromEntries(SCENARIOS.rows.map((r) => [r.id, true])));
 
@@ -369,12 +372,12 @@ export function ScenarioExplorer({ en }) {
                 display: "inline-flex", alignItems: "center", gap: 7,
                 minHeight: 40, padding: "8px 14px", borderRadius: 999, cursor: "pointer",
                 background: on ? `${r.color}2E` : "var(--surface)",
-                border: on ? `1.5px solid ${r.color}` : "1.5px solid var(--border)",
+                border: on ? `1.5px solid ${SCEN_VAR[r.id] || r.color}` : "1.5px solid var(--border)",
                 color: on ? "var(--text)" : "var(--text2)",
                 fontSize: 12.5, fontWeight: on ? 700 : 500,
               }}
             >
-              <span aria-hidden="true" style={{ width: 9, height: 9, borderRadius: "50%", background: r.color, opacity: on ? 1 : 0.45 }} />
+              <span aria-hidden="true" style={{ width: 9, height: 9, borderRadius: "50%", background: SCEN_VAR[r.id] || r.color, opacity: on ? 1 : 0.45 }} />
               {T(r.label, en)}
             </button>
           );
@@ -410,9 +413,9 @@ export function ScenarioExplorer({ en }) {
                 dataKey={r.id}
                 name={T(r.label, en)}
                 type="linear"
-                stroke={r.color}
+                stroke={SCEN_VAR[r.id] || r.color}
                 strokeWidth={2.5}
-                dot={{ r: 4, fill: r.color, strokeWidth: 0 }}
+                dot={{ r: 4, fill: SCEN_VAR[r.id] || r.color, strokeWidth: 0 }}
                 activeDot={{ r: 5 }}
                 connectNulls
               />
@@ -428,7 +431,7 @@ export function ScenarioExplorer({ en }) {
           return (
             <span
               key={r.id}
-              style={{ padding: "6px 10px", borderRadius: 8, background: "var(--surface)", border: "1px solid var(--border)", borderLeft: `3px solid ${r.color}`, fontSize: 11.5, color: "var(--text2)" }}
+              style={{ padding: "6px 10px", borderRadius: 8, background: "var(--surface)", border: "1px solid var(--border)", borderLeft: `3px solid ${SCEN_VAR[r.id] || r.color}`, fontSize: 11.5, color: "var(--text2)" }}
             >
               {T(r.label, en)} · <b>{r.growth}</b> ·{" "}
               <span style={{ fontFamily: MONO, fontWeight: 700, color: "var(--text)" }}>2050: +{end.idx - 100}%</span>
@@ -439,7 +442,7 @@ export function ScenarioExplorer({ en }) {
 
       {/* ── Method note + implication callout ── */}
       <p style={{ fontSize: 11.5, color: "var(--text3)", lineHeight: 1.55, margin: "12px 0 10px" }}>{T(SCENARIOS.method, en)}</p>
-      <div style={{ borderLeft: `3px solid ${EN_ACCENT.gold}`, background: "var(--surface)", padding: "12px 14px", borderRadius: 10 }}>
+      <div style={{ borderLeft: "3px solid var(--enGold)", background: "var(--surface)", padding: "12px 14px", borderRadius: 10 }}>
         <div style={{ fontSize: 13.5, color: "var(--text)", lineHeight: 1.6 }}>{T(SCENARIOS.implication, en)}</div>
       </div>
     </div>

@@ -37,7 +37,8 @@
 | CR renewable share 2025 | 98.6% (demanda interna 97.3%) | Grupo ICE / DOCSE, verif. LSQA (Feb-Mar 2026) | grupoice.com | 2026-06 | verified |
 | CR renewable share 2024 | 89.4% (El Niño) | Grupo ICE (per prompt anchor; report_1 cita 86.8%) | grupoice.com | 2026-06 | reported |
 | CR installed capacity | ~3,500 MW (3,499 Dic-2023: hidro 68/geo 7/eólica 12/bio 2/solar 0.2/térmica 11) | ICE / PEG | grupoice.com | 2026-06 | verified |
-| PEG 2024-2040 target | 5,995 MW al 2040 (+71%; +2,495 MW) | ICE PEG 2024-2040 (may-2025); cifra 2.495 no cotejada línea-por-línea c/ PDF | grupoice.com | 2026-06 | reported |
+| PEG 2024-2040 target | 5,995 MW al 2040 (+71%; +2,495 MW) | ICE PEG 2024-2040 (may-2025), vía divulgaciones públicas y CICR; cifra 2.495 NO cotejada página-por-página con el PDF del Informe Ejecutivo (backlog) | grupoice.com | 2026-06 | reported |
+| Renovables nuevas a 2030 | +600 MW (geotérmica Borinquen I — Liberia, solar San Antonio — La Uruca, repotenciación Tejona; inversión mixta ICE-privados) | Grupo ICE, divulgación pública del plan de expansión (armonizacion_2 §6, feb-mar 2026) | grupoice.com | 2026-06 | reported |
 | Inversión pre-2030 requerida | >US$4,000M | CICR (S. Capón) citando datos ICE | delfino.cr | 2026-06 | reported |
 | ICE deuda | −25% desde dic-2022 (−₡655,757M a sep-2025) | ICE EEFF sep-2025 (pub. 18-11-2025) | grupoice.com | 2026-06 | verified |
 | Ley 8660 apalancamiento | 27.8% sep-2025 (tope 45%) | ICE EEFF sep-2025 | grupoice.com | 2026-06 | verified |
@@ -63,14 +64,24 @@
 - Political insults from the 27-May press conference are reported (attributed, dated) but never amplified in headlines.
 - Multi-stakeholder "analytical review" items rendered as typological lenses, clearly distinct from verbatim quotes.
 
-## Backlog (post-Run-#1)
+## Backlog (post-Run-#1, includes persona-board deferrals)
 - [ ] **Images (license verification pending — D-006):** TMI/Crane CEC (Constellation press kit) · Natrium groundbreaking (TerraPower press) · Reventazón/Miravalles (ICE press / Wikimedia Commons CC) · China solar farms (NASA Earth Observatory, PD) · Intel CR campus (Intel newsroom). Verify license → add with credit line.
+- [ ] **Document-level source URLs (persona 10):** replace portal-level links (Moody's, Fitch, ARESEP, CICR, SEG, outlets) with permalinks to the specific rating action / boletín / article; never fabricate deep links — verify each manually. Closing note discloses portal-level linking meanwhile.
+- [ ] **PEG 2024-2040 PDF verification (personas 08/10):** cotejar página-por-página 5,995 MW / +600 MW / 2,495 MW contra el Informe Ejecutivo del PEG.
+- [ ] Act 2 interactive hook (persona 06): IEA base-vs-conservative toggle on DC demand chart.
+- [ ] Hero "copy citation" affordance (persona 06).
+- [ ] Suspense boundaries between acts + AMENDMENTS lazy extraction if data module grows (persona 04).
+- [ ] CSP `img-src blob:` tightening — platform-wide, pre-existing; requires validating ShareBtn/html-to-image blob usage first (persona 04).
+- [ ] Light-theme chart series saturation fine-tune + donut thermal/bio palette separation (persona 05, minor).
+- [ ] Canvas re-derive on data-theme change mid-animation (persona 03, cosmetic — hero is theme-fixed navy by design).
 - [ ] EN translation review by native editor (machine-mirrored EN shipped).
 - [ ] Lighthouse run on Vercel preview (in-session run unavailable) + record scores here.
 - [ ] Extend repo MCP server (`mcp-server/`) with `get_ecai_score` tool.
 - [ ] Sankey (generación→transmisión→distribución) deferred — needs d3-sankey dep decision.
 - [ ] Peer review of ECAI-CR weights (external energy economist).
 - [ ] Watch: publication of Decreto 45807-MP in La Gaceta; reconvocatoria signals ago-2026; Sala IV consulta if reconvened.
+
+**Nota de assets propios:** `public/colibrii-icon-sm.png` y `colibrii-logo.png` son marca propia de Colibrii Labs (sin restricción de uso interno).
 
 ## Session log
 - **2026-06-10:** Section built end-to-end by factory Run #1 (this session). Persona board results + final state appended at close-out.

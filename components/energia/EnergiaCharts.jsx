@@ -16,7 +16,7 @@ import {
 } from "recharts";
 import {
   DC_DEMAND, TARIFFS, CR_MIX, CR_RENEW_POINTS, ECAI, SOLAR_CURVE,
-  EN_ACCENT, SRC,
+  SRC,
 } from "../energiaData";
 
 /* ── i18n + format helpers ── */
@@ -75,7 +75,7 @@ function DCTip({ active, payload, en }) {
       <div style={{ color: "var(--text)", fontWeight: 700 }}>
         {d.year}{d.est ? (en ? " (proj.)" : " (est.)") : ""}
       </div>
-      <div style={{ color: EN_ACCENT.turquoise, fontFamily: MONO, fontWeight: 700 }}>
+      <div style={{ color: "var(--enTurq)", fontFamily: MONO, fontWeight: 700 }}>
         {d.twh.toLocaleString(en ? "en-US" : "es-CR")} TWh
       </div>
       {d.pct && <div style={{ color: "var(--text3)" }}>{T(d.pct, en)}</div>}
@@ -96,14 +96,14 @@ export function DCDemandChart({ en }) {
           <Tooltip content={<DCTip en={en} />} cursor={CURSOR} />
           <Bar dataKey="twh" radius={[4, 4, 0, 0]} maxBarSize={64}>
             {data.map(d => (
-              <Cell key={d.year} fill={d.est ? "rgba(0,181,168,0.45)" : EN_ACCENT.turquoise} />
+              <Cell key={d.year} fill={d.est ? "var(--enTurqSoft)" : "var(--enTurq)"} />
             ))}
           </Bar>
         </BarChart>
       </ResponsiveContainer>
       <LegendRow items={[
-        { color: EN_ACCENT.turquoise, label: en ? "Actual (IEA)" : "Real (AIE)" },
-        { color: "rgba(0,181,168,0.45)", label: en ? "IEA projection (Base Case)" : "Proyección AIE (caso base)" },
+        { color: "var(--enTurq)", label: en ? "Actual (IEA)" : "Real (AIE)" },
+        { color: "var(--enTurqSoft)", label: en ? "IEA projection (Base Case)" : "Proyección AIE (caso base)" },
       ]} />
       <Src ids={[DC_DEMAND.s]} en={en} />
     </div>
@@ -115,7 +115,7 @@ function TariffTip({ active, payload, en }) {
   if (!active || !payload || !payload.length) return null;
   const r = payload[0].payload;
   const range = r.lo === r.hi ? fmt(r.lo, en) : `${fmt(r.lo, en)}–${fmt(r.hi, en)}`;
-  const color = r.highlight ? EN_ACCENT.turquoise : r.benchmark ? EN_ACCENT.gold : "var(--text2)";
+  const color = r.highlight ? "var(--enTurq)" : r.benchmark ? "var(--enGold)" : "var(--text2)";
   return (
     <div style={TT_BOX}>
       <div style={{ color: "var(--text)", fontWeight: 700 }}>{T(r.country, en)}</div>
@@ -141,21 +141,21 @@ export function TariffChart({ en }) {
             label={{ value: "US$/MWh", position: "insideBottom", offset: -10, fill: "var(--text3)", fontSize: 11 }} />
           <YAxis type="category" dataKey="label" width={118} {...AXIS} />
           <Tooltip content={<TariffTip en={en} />} cursor={CURSOR} />
-          <ReferenceLine x={81.3} stroke={EN_ACCENT.gold} strokeDasharray="4 4" strokeWidth={1.2}
-            label={{ value: en ? "US avg" : "Prom. EE. UU.", position: "insideTop", fill: EN_ACCENT.gold, fontSize: 10 }} />
+          <ReferenceLine x={81.3} stroke="var(--enGold)" strokeDasharray="4 4" strokeWidth={1.2}
+            label={{ value: en ? "US avg" : "Prom. EE. UU.", position: "insideTop", fill: "var(--enGold)", fontSize: 10 }} />
           <Bar dataKey="base" stackId="band" fill="transparent" isAnimationActive={false} />
           <Bar dataKey="span" stackId="band" radius={[3, 3, 3, 3]} maxBarSize={16}>
             {rows.map(r => (
               <Cell key={r.code}
-                fill={r.highlight ? EN_ACCENT.turquoise : r.benchmark ? EN_ACCENT.gold : "rgba(34,211,238,0.35)"} />
+                fill={r.highlight ? "var(--enTurq)" : r.benchmark ? "var(--enGold)" : "var(--enGlowSoft)"} />
             ))}
           </Bar>
         </BarChart>
       </ResponsiveContainer>
       <LegendRow items={[
-        { color: EN_ACCENT.turquoise, label: en ? "Costa Rica (band)" : "Costa Rica (banda)" },
-        { color: EN_ACCENT.gold, label: en ? "US benchmark" : "Referencia EE. UU." },
-        { color: "rgba(34,211,238,0.35)", label: en ? "Region (lo–hi range)" : "Región (rango lo–hi)" },
+        { color: "var(--enTurq)", label: en ? "Costa Rica (band)" : "Costa Rica (banda)" },
+        { color: "var(--enGold)", label: en ? "US benchmark" : "Referencia EE. UU." },
+        { color: "var(--enGlowSoft)", label: en ? "Region (lo–hi range)" : "Región (rango lo–hi)" },
       ]} />
       <Src ids={srcIds} en={en} />
     </div>
@@ -191,23 +191,27 @@ export function MixDonut({ en }) {
           </PieChart>
         </ResponsiveContainer>
         <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pointerEvents: "none", textAlign: "center" }}>
-          <div style={{ fontSize: 30, fontWeight: 800, fontFamily: MONO, color: EN_ACCENT.turquoise, lineHeight: 1.15 }}>
+          <div style={{ fontSize: 30, fontWeight: 800, fontFamily: MONO, color: "var(--enTurq)", lineHeight: 1.15 }}>
             {fmt(renew.pct, en)}%
           </div>
-          <div style={{ fontSize: 11, fontFamily: MONO, color: "var(--text3)", letterSpacing: 1 }}>
-            {en ? `renewable ${renew.year}` : `renovable ${renew.year}`}
+          <div style={{ fontSize: 11, fontFamily: MONO, color: "var(--text3)", letterSpacing: 1, maxWidth: 130 }}>
+            {en ? `renewable generation ${renew.year}` : `generación renovable ${renew.year}`}
           </div>
         </div>
       </div>
       <LegendRow center items={data.map(r => ({ color: r.color, label: r.label, value: `${fmt(r.pct, en)}%` }))} />
-      <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 8 }}>{T(CR_MIX.asOf, en)}</div>
+      <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 8 }}>
+        {en
+          ? `Ring: installed capacity by source (${T(CR_MIX.asOf, en)}). Center: % of 2025 generation that was renewable — two different denominators.`
+          : `Anillo: capacidad instalada por fuente (${T(CR_MIX.asOf, en)}). Centro: % de la generación 2025 que fue renovable — dos denominadores distintos.`}
+      </div>
       <Src ids={[CR_MIX.s, CR_RENEW_POINTS.s]} en={en} />
     </div>
   );
 }
 
 /* ── 4 · EcaiRadar — ECAI-CR component scores, 4-country overlay ── */
-const RADAR_COLORS = { CR: EN_ACCENT.turquoise, UY: EN_ACCENT.violet, PA: EN_ACCENT.gold, MX: "#ec4899" };
+const RADAR_COLORS = { CR: "var(--enTurq)", UY: "var(--enViolet)", PA: "var(--enGold)", MX: "var(--enPink)" };
 const shortAxis = (label) => {
   const s = String(label).replace(/\s*\([^)]*\)/g, "").trim();
   return s.length > 13 ? s.split(" ")[0] : s;
@@ -256,8 +260,8 @@ export function EcaiRadar({ en }) {
       <LegendRow center items={ECAI.countries.map(c => ({ color: RADAR_COLORS[c.code], label: T(c.name, en) }))} />
       <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 6 }}>
         {en
-          ? "Component scores 0–100 (higher = better). Colibrii composite; weights open to peer review."
-          : "Componentes 0–100 (más alto = mejor). Compuesto Colibrii; pesos abiertos a revisión de pares."}
+          ? "Component scores 0–100 (higher = better), shown UNWEIGHTED — the composite applies 30/25/20/15/10. Colibrii proposal; provisional weights, open to peer review."
+          : "Componentes 0–100 (más alto = mejor), mostrados SIN ponderar — el compuesto aplica 30/25/20/15/10. Propuesta Colibrii; pesos provisionales, abiertos a revisión de pares."}
       </div>
       <Src ids={[ECAI.s]} en={en} />
     </div>
@@ -273,7 +277,7 @@ function SolarTip({ active, payload, en }) {
       <div style={{ color: "var(--text)", fontWeight: 700 }}>
         {d.year}{d.est ? (en ? " (proj.)" : " (est.)") : ""}
       </div>
-      <div style={{ color: EN_ACCENT.gold, fontFamily: MONO, fontWeight: 700 }}>
+      <div style={{ color: "var(--enGold)", fontFamily: MONO, fontWeight: 700 }}>
         ${fmt(d.val, en)}/W
       </div>
       {d.note && <div style={{ color: "var(--text3)" }}>{T(d.note, en)}</div>}
@@ -307,16 +311,16 @@ export function SolarCurveChart({ en }) {
             tickFormatter={v => `$${fmt(v, en)}`} {...AXIS}
             label={{ value: "US$/W (log)", angle: -90, position: "insideLeft", fill: "var(--text3)", fontSize: 11 }} />
           <Tooltip content={<SolarTip en={en} />} />
-          <Line type="monotone" dataKey="usd" stroke={EN_ACCENT.gold} strokeWidth={2.5}
-            dot={{ r: 4, fill: EN_ACCENT.gold, strokeWidth: 0 }} activeDot={{ r: 5 }} />
-          <Line type="monotone" dataKey="usdEst" stroke={EN_ACCENT.gold} strokeWidth={2}
-            strokeDasharray="6 4" dot={{ r: 3.5, fill: "var(--card)", stroke: EN_ACCENT.gold, strokeWidth: 1.5 }}
+          <Line type="monotone" dataKey="usd" stroke="var(--enGold)" strokeWidth={2.5}
+            dot={{ r: 4, fill: "var(--enGold)", strokeWidth: 0 }} activeDot={{ r: 5 }} />
+          <Line type="monotone" dataKey="usdEst" stroke="var(--enGold)" strokeWidth={2}
+            strokeDasharray="6 4" dot={{ r: 3.5, fill: "var(--card)", stroke: "var(--enGold)", strokeWidth: 1.5 }}
             activeDot={{ r: 5 }} />
         </LineChart>
       </ResponsiveContainer>
       <LegendRow items={[
-        { color: EN_ACCENT.gold, label: en ? "Historical" : "Histórico" },
-        { color: "rgba(242,177,53,0.55)", label: en ? "Projection (constant learning rate)" : "Proyección (tasa de aprendizaje constante)" },
+        { color: "var(--enGold)", label: en ? "Historical (solid)" : "Histórico (sólido)" },
+        { color: "var(--enGold)", label: en ? "Projection, dashed (constant learning rate)" : "Proyección, discontinua (tasa de aprendizaje constante)" },
       ]} />
       <Src ids={[SOLAR_CURVE.s]} en={en} />
     </div>

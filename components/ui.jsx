@@ -392,7 +392,7 @@ export function ShareBtn({ cardRef, en, filename = "colibrii-insight" }) {
   }, [cardRef, busy, filename]);
   return (
     <button onClick={handleShare} disabled={busy}
-      style={{ padding: "4px 10px", fontSize: 11, fontWeight: 600, border: "1px solid var(--border)", borderRadius: 6, background: done ? "var(--green)" : "var(--card)", color: done ? "#fff" : "var(--text3)", display: "inline-flex", alignItems: "center", gap: 4, cursor: busy ? "wait" : "pointer", transition: "all .2s ease" }}>
+      style={{ padding: "6px 12px", minHeight: 36, fontSize: 11, fontWeight: 600, border: "1px solid var(--border)", borderRadius: 6, background: done ? "var(--green)" : "var(--card)", color: done ? "#fff" : "var(--text3)", display: "inline-flex", alignItems: "center", gap: 4, cursor: busy ? "wait" : "pointer", transition: "all .2s ease" }}>
       {busy ? "..." : done ? (en ? "Copied!" : "Copiado!") : (en ? "Share" : "Compartir")}
     </button>
   );

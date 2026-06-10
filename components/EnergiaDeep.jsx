@@ -54,9 +54,9 @@ function CRAnchor({ en, children }) {
   return (
     <ScrollReveal>
       <div style={{ display: "flex", gap: 12, alignItems: "flex-start", background: "var(--surface)", border: "1px solid var(--border)", borderLeft: `3px solid ${EN_ACCENT.turquoise}`, borderRadius: "var(--radius-sm)", padding: "14px 16px", margin: "18px 0" }}>
-        <span aria-hidden="true" style={{ flexShrink: 0, marginTop: 2, color: EN_ACCENT.turquoise }}><Icon name="target" size={18} /></span>
+        <span aria-hidden="true" style={{ flexShrink: 0, marginTop: 2, color: "var(--enTurq)" }}><Icon name="target" size={18} /></span>
         <div>
-          <div style={{ ...mono, fontSize: 10.5, letterSpacing: 1.5, textTransform: "uppercase", color: EN_ACCENT.turquoise, marginBottom: 4 }}>
+          <div style={{ ...mono, fontSize: 10.5, letterSpacing: 1.5, textTransform: "uppercase", color: "var(--enTurq)", marginBottom: 4 }}>
             {en ? "What does this mean for Costa Rica?" : "¿Qué significa esto para Costa Rica?"}
           </div>
           <div style={{ fontSize: 13.5, color: "var(--text2)", lineHeight: 1.65 }}>{children}</div>
@@ -85,7 +85,7 @@ function ShareCard({ en, title, filename, sourceIds, children }) {
           ))}
         </div>
       )}
-      {/* Brand watermark — included in ShareBtn PNG exports */}
+      {/* Brand watermark — included in ShareBtn PNG exports. Self-owned asset (Colibrii Labs). */}
       <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 6, opacity: 0.75 }}>
         <img src="/colibrii-icon-sm.png" alt="" width={14} height={14} loading="lazy" decoding="async" style={{ borderRadius: 3 }} />
         <span style={{ ...mono, fontSize: 9.5, color: "var(--text3)", letterSpacing: 0.5 }}>colibriilabs.ai · {en ? "Energy & AI" : "Energía & IA"}</span>
@@ -97,10 +97,10 @@ function ShareCard({ en, title, filename, sourceIds, children }) {
 /* ── Act header ── */
 function Act({ n, en, label, title, desc }) {
   return (
-    <div style={{ marginTop: 56, marginBottom: 20 }}>
+    <div style={{ marginTop: "clamp(36px, 7vw, 56px)", marginBottom: 20 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-        <span style={{ ...mono, fontSize: 11, color: EN_ACCENT.gold, border: `1px solid ${EN_ACCENT.gold}55`, borderRadius: 6, padding: "2px 8px" }}>{en ? "ACT" : "ACTO"} {n}</span>
-        <span style={{ ...mono, fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: EN_ACCENT.turquoise }}>{label}</span>
+        <span style={{ ...mono, fontSize: 11, color: "var(--enGold)", border: `1px solid ${EN_ACCENT.gold}55`, borderRadius: 6, padding: "2px 8px" }}>{en ? "ACT" : "ACTO"} {n}</span>
+        <span style={{ ...mono, fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: "var(--enTurq)" }}>{label}</span>
       </div>
       <h2 style={{ ...display, fontSize: 26, fontWeight: 800, color: "var(--text)", lineHeight: 1.25, marginBottom: 8 }}>{title}</h2>
       {desc && <p style={{ fontSize: 14, color: "var(--text2)", lineHeight: 1.7, maxWidth: 680 }}>{desc}</p>}
@@ -118,7 +118,7 @@ function TimelineViz({ en }) {
         <ScrollReveal key={i} delay={i * 40}>
           <div role="listitem" style={{ position: "relative", paddingBottom: i === TIMELINE.rows.length - 1 ? 0 : 22 }}>
             <span aria-hidden="true" style={{ position: "absolute", left: -26, top: 4, width: 16, height: 16, borderRadius: "50%", background: "var(--card)", border: `3px solid ${TL_COLORS[r.type] || "#22d3ee"}`, boxShadow: `0 0 10px ${TL_COLORS[r.type]}44` }} />
-            <div style={{ ...mono, fontSize: 11.5, color: TL_COLORS[r.type], marginBottom: 2 }}>{r.date}</div>
+            <div style={{ ...mono, fontSize: 11.5, color: "var(--text2)", marginBottom: 2 }}>{r.date}</div>
             <div style={{ fontSize: 14.5, fontWeight: 700, color: "var(--text)", marginBottom: 3 }}>{T(r.title, en)}</div>
             <div style={{ fontSize: 13, color: "var(--text2)", lineHeight: 1.6, maxWidth: 640 }}>{T(r.desc, en)}</div>
           </div>
@@ -130,16 +130,16 @@ function TimelineViz({ en }) {
 
 /* ── 38-vote arithmetic (Act 5) ── */
 const STANCE = {
-  pro: { c: "#00B5A8", es: "A favor", en: "In favour" },
-  con: { c: "#818cf8", es: "En contra", en: "Against" },
-  "lean-pro": { c: "#F2B135", es: "Inclinación a favor", en: "Leaning in favour" },
+  pro: { c: "var(--enTurq)", es: "A favor", en: "In favour" },
+  con: { c: "var(--enViolet)", es: "En contra", en: "Against" },
+  "lean-pro": { c: "var(--enGold)", es: "Inclinación a favor", en: "Leaning in favour" },
 };
 function VoteMath({ en }) {
   const fd = VOTE_MATH.firstDebate;
   const segs = [
-    { n: fd.favor, c: "#00B5A8", l: en ? "In favour" : "A favor" },
-    { n: fd.against, c: "#818cf8", l: en ? "Against" : "En contra" },
-    { n: fd.absent, c: "var(--border2)", l: en ? "Absent" : "Ausencias" },
+    { n: fd.favor, c: "var(--enTurq)", tx: "var(--enOnAccent)", l: en ? "In favour" : "A favor" },
+    { n: fd.against, c: "var(--enViolet)", tx: "var(--enOnAccent)", l: en ? "Against" : "En contra" },
+    { n: fd.absent, c: "var(--border2)", tx: "var(--text)", l: en ? "Absent" : "Ausencias" },
   ];
   const effectivePro = VOTE_MATH.blocs.find(b => b.party === "PPSO").effective;
   return (
@@ -151,7 +151,7 @@ function VoteMath({ en }) {
       <div style={{ display: "flex", height: 34, borderRadius: 8, overflow: "hidden", border: "1px solid var(--border)" }} role="img"
         aria-label={en ? `First debate: ${fd.favor} in favour, ${fd.against} against, ${fd.absent} absent` : `Primer debate: ${fd.favor} a favor, ${fd.against} en contra, ${fd.absent} ausencias`}>
         {segs.map((s, i) => (
-          <div key={i} style={{ width: `${(s.n / VOTE_MATH.totalSeats) * 100}%`, background: s.c, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 13, fontWeight: 800, ...mono }}>{s.n}</div>
+          <div key={i} style={{ width: `${(s.n / VOTE_MATH.totalSeats) * 100}%`, background: s.c, display: "flex", alignItems: "center", justifyContent: "center", color: s.tx, fontSize: 13, fontWeight: 800, ...mono }}>{s.n}</div>
         ))}
       </div>
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginTop: 8 }}>
@@ -168,12 +168,14 @@ function VoteMath({ en }) {
       </div>
       <div style={{ position: "relative", height: 34, borderRadius: 8, overflow: "hidden", border: "1px solid var(--border)", background: "var(--surface)" }} role="img"
         aria-label={en ? `${effectivePro} effective government votes of ${VOTE_MATH.needed} required` : `${effectivePro} votos efectivos del oficialismo de ${VOTE_MATH.needed} requeridos`}>
-        <div style={{ position: "absolute", inset: 0, width: `${(effectivePro / VOTE_MATH.totalSeats) * 100}%`, background: "linear-gradient(90deg,#00B5A8,#22d3ee)" }} />
+        <div style={{ position: "absolute", inset: 0, width: `${(effectivePro / VOTE_MATH.totalSeats) * 100}%`, background: "var(--enTurq)" }} />
         <div style={{ position: "absolute", top: 0, bottom: 0, left: `${(VOTE_MATH.needed / VOTE_MATH.totalSeats) * 100}%`, width: 0, borderLeft: `3px dashed ${EN_ACCENT.gold}` }} />
-        <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "#fff", fontSize: 12.5, fontWeight: 800, ...mono }}>{effectivePro}</span>
-        <span style={{ position: "absolute", left: `${(VOTE_MATH.needed / VOTE_MATH.totalSeats) * 100}%`, top: "50%", transform: "translate(8px,-50%)", color: EN_ACCENT.gold, fontSize: 12.5, fontWeight: 800, ...mono }}>38</span>
+        <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--enOnAccent)", fontSize: 12.5, fontWeight: 800, ...mono }}>{effectivePro}</span>
       </div>
-      <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 8 }}>
+      <div style={{ ...mono, fontSize: 11, color: "var(--enGold)", marginTop: 6 }}>
+        {en ? "▮ 38 = qualified two-thirds majority required (of 57 seats)" : "▮ 38 = mayoría calificada de dos tercios requerida (de 57 escaños)"}
+      </div>
+      <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))", gap: 8 }}>
         {VOTE_MATH.blocs.map((b, i) => (
           <div key={i} style={{ background: "var(--surface)", borderRadius: 10, padding: "10px 12px", borderTop: `3px solid ${STANCE[b.stance].c}` }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
@@ -194,24 +196,34 @@ function VoteMath({ en }) {
 /* ── Stakeholder card (Act 5) ── */
 function StakeholderGrid({ en }) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(290px, 1fr))", gap: 12 }}>
-      {STAKEHOLDERS.rows.map((p, i) => (
-        <ScrollReveal key={i} delay={(i % 3) * 60}>
-          <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", padding: 16, height: "100%", borderTop: `3px solid ${STANCE[p.stance]?.c || "#F2B135"}` }}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginBottom: 6 }}>
-              <div>
-                <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--text)" }}>{T(p.name, en)}</div>
-                <div style={{ fontSize: 11, color: "var(--text3)" }}>{T(p.role, en)}</div>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 290px), 1fr))", gap: 12 }}>
+      {STAKEHOLDERS.rows.map((p, i) => {
+        const sc = STANCE[p.stance]?.c || "var(--enGold)";
+        return (
+          <ScrollReveal key={i} delay={(i % 3) * 60}>
+            <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", padding: 16, height: "100%", borderTop: `3px solid ${sc}` }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginBottom: 6 }}>
+                <div>
+                  <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--text)" }}>{T(p.name, en)}</div>
+                  <div style={{ fontSize: 11, color: "var(--text3)" }}>{T(p.role, en)}</div>
+                </div>
+                <div style={{ flexShrink: 0, alignSelf: "flex-start", display: "flex", flexDirection: "column", gap: 4, alignItems: "flex-end" }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, ...mono, color: sc, border: "1px solid var(--border2)", borderRadius: 6, padding: "2px 7px" }}>
+                    {p.stance === "matiz" ? (en ? "NUANCED" : "MATIZ") : STANCE[p.stance][en ? "en" : "es"].toUpperCase()}
+                  </span>
+                  {p.synth && (
+                    <span style={{ fontSize: 9, fontWeight: 700, ...mono, color: "var(--text3)", border: "1px dashed var(--border2)", borderRadius: 6, padding: "2px 7px" }}>
+                      {en ? "SUMMARY" : "SÍNTESIS"}
+                    </span>
+                  )}
+                </div>
               </div>
-              <span style={{ flexShrink: 0, alignSelf: "flex-start", fontSize: 10, fontWeight: 700, ...mono, color: STANCE[p.stance]?.c, border: `1px solid ${STANCE[p.stance]?.c}55`, borderRadius: 6, padding: "2px 7px" }}>
-                {p.stance === "matiz" ? (en ? "NUANCED" : "MATIZ") : STANCE[p.stance][en ? "en" : "es"].toUpperCase()}
-              </span>
+              <p style={{ fontSize: 12.5, color: "var(--text2)", lineHeight: 1.6, marginBottom: 8 }}>{T(p.quote, en)}</p>
+              <div style={{ ...mono, fontSize: 10.5, color: "var(--text3)" }}>{T(p.outlet, en)} · {p.date}</div>
             </div>
-            <p style={{ fontSize: 12.5, color: "var(--text2)", lineHeight: 1.6, marginBottom: 8 }}>{T(p.quote, en)}</p>
-            <div style={{ ...mono, fontSize: 10.5, color: "var(--text3)" }}>{p.outlet} · {p.date}</div>
-          </div>
-        </ScrollReveal>
-      ))}
+          </ScrollReveal>
+        );
+      })}
     </div>
   );
 }
@@ -219,25 +231,33 @@ function StakeholderGrid({ en }) {
 /* ── Comparative lessons rail (Act 6) ── */
 function ComparativeRail({ en }) {
   return (
-    <div
-      tabIndex={0}
-      role="region"
-      aria-label={en ? "Comparative cases — scroll horizontally" : "Casos comparados — desplace horizontalmente"}
-      style={{ display: "flex", gap: 14, overflowX: "auto", scrollSnapType: "x mandatory", paddingBottom: 12, WebkitOverflowScrolling: "touch" }}
-    >
-      {COMPARATIVE.rows.map((c, i) => (
-        <div key={i} style={{ scrollSnapAlign: "start", flex: "0 0 min(86%, 300px)", background: "var(--card)", border: "1px solid var(--border)", borderTop: `3px solid ${c.tone === "good" ? EN_ACCENT.turquoise : EN_ACCENT.gold}`, borderRadius: "var(--radius-sm)", padding: 16, display: "flex", flexDirection: "column", gap: 8 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-            <span style={{ ...display, fontSize: 16.5, fontWeight: 800, color: "var(--text)" }}>{T(c.country, en)}</span>
-            <span style={{ ...mono, fontSize: 11, color: "var(--text3)" }}>{c.year}</span>
-          </div>
-          <p style={{ fontSize: 12.5, color: "var(--text2)", lineHeight: 1.6, flexGrow: 1 }}>{T(c.model, en)}</p>
-          <div style={{ background: "var(--surface)", borderRadius: 8, padding: "10px 12px", borderLeft: `3px solid ${c.tone === "good" ? EN_ACCENT.turquoise : EN_ACCENT.gold}` }}>
-            <div style={{ ...mono, fontSize: 9.5, letterSpacing: 1.2, textTransform: "uppercase", color: c.tone === "good" ? EN_ACCENT.turquoise : EN_ACCENT.gold, marginBottom: 3 }}>{en ? "Lesson for CR" : "Lección para CR"}</div>
-            <div style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.55 }}>{T(c.lesson, en)}</div>
-          </div>
-        </div>
-      ))}
+    <div>
+      <div aria-hidden="true" style={{ ...mono, fontSize: 11, color: "var(--text3)", textAlign: "right", marginBottom: 6 }}>
+        {en ? "← swipe →" : "← deslice →"}
+      </div>
+      <div
+        tabIndex={0}
+        role="region"
+        aria-label={en ? "Comparative cases — scroll horizontally" : "Casos comparados — desplace horizontalmente"}
+        style={{ display: "flex", gap: 14, overflowX: "auto", scrollSnapType: "x mandatory", paddingBottom: 12, WebkitOverflowScrolling: "touch" }}
+      >
+        {COMPARATIVE.rows.map((c, i) => {
+          const tc = c.tone === "good" ? "var(--enTurq)" : "var(--enGold)";
+          return (
+            <div key={i} style={{ scrollSnapAlign: "start", flex: "0 0 min(86%, 300px)", background: "var(--card)", border: "1px solid var(--border)", borderTop: `3px solid ${tc}`, borderRadius: "var(--radius-sm)", padding: 16, display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                <span style={{ ...display, fontSize: 16.5, fontWeight: 800, color: "var(--text)" }}>{T(c.country, en)}</span>
+                <span style={{ ...mono, fontSize: 11, color: "var(--text3)" }}>{c.year}</span>
+              </div>
+              <p style={{ fontSize: 12.5, color: "var(--text2)", lineHeight: 1.6, flexGrow: 1 }}>{T(c.model, en)}</p>
+              <div style={{ background: "var(--surface)", borderRadius: 8, padding: "10px 12px", borderLeft: `3px solid ${tc}` }}>
+                <div style={{ ...mono, fontSize: 9.5, letterSpacing: 1.2, textTransform: "uppercase", color: tc, marginBottom: 3 }}>{en ? "Lesson for CR" : "Lección para CR"}</div>
+                <div style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.55 }}>{T(c.lesson, en)}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -253,7 +273,7 @@ function AmendmentCard({ a, en }) {
         aria-expanded={open}
         style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", background: "transparent", border: "none", cursor: "pointer", padding: "14px 16px", color: "var(--text)", minHeight: 48 }}
       >
-        <span aria-hidden="true" style={{ ...mono, flexShrink: 0, width: 30, height: 30, borderRadius: 8, background: `${EN_ACCENT.turquoise}1a`, color: EN_ACCENT.turquoise, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800 }}>{a.n}</span>
+        <span aria-hidden="true" style={{ ...mono, flexShrink: 0, width: 30, height: 30, borderRadius: 8, background: `${EN_ACCENT.turquoise}1a`, color: "var(--enTurq)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800 }}>{a.n}</span>
         <span style={{ flexGrow: 1, fontSize: 13.5, fontWeight: 700, lineHeight: 1.4 }}>{T(a.title, en)}</span>
         <span aria-hidden="true" style={{ flexShrink: 0, color: "var(--text3)", transform: open ? "rotate(180deg)" : "none", transition: "transform .25s" }}><Icon name="chevronDown" size={16} /></span>
       </button>
@@ -263,7 +283,7 @@ function AmendmentCard({ a, en }) {
           <div style={{ background: "var(--surface)", borderRadius: 8, padding: "9px 12px", fontSize: 12, color: "var(--text2)", lineHeight: 1.6, borderLeft: `3px solid ${EN_ACCENT.gold}` }}>
             <strong style={{ color: "var(--text)" }}>{en ? "Why: " : "Por qué: "}</strong>{T(a.why, en)}
           </div>
-          {stage && <div style={{ ...mono, fontSize: 10, color: "var(--text3)", marginTop: 8 }}>{T(stage.label, en)}</div>}
+          {stage && <div style={{ ...mono, fontSize: 10, color: "var(--enGold)", marginTop: 8 }}>{T(stage.label, en)}</div>}
         </div>
       )}
     </div>
@@ -274,7 +294,7 @@ function AmendmentCard({ a, en }) {
 export function EnergiaDeep({ en = false }) {
   const heroStat = HERO.stat;
   return (
-    <div style={{ maxWidth: 1060, margin: "0 auto" }}>
+    <div className="energia-scope" style={{ maxWidth: 1060, margin: "0 auto" }}>
       <ScrollProgress />
 
       {/* ════ ACTO 1 — COLD OPEN ════ */}
@@ -292,7 +312,10 @@ export function EnergiaDeep({ en = false }) {
             <span style={{ ...mono, fontSize: 20, color: EN_ACCENT.gold }}>{heroStat.unit} · 2030</span>
             <span style={{ ...mono, fontSize: 13, color: "rgba(241,245,249,0.55)" }}>{heroStat.from} {heroStat.unit} · 2024</span>
           </div>
-          <p style={{ fontSize: 14, color: "rgba(241,245,249,0.85)", lineHeight: 1.65, maxWidth: 640, marginBottom: 22 }}>{T(heroStat.label, en)}</p>
+          <p style={{ fontSize: 14, color: "rgba(241,245,249,0.85)", lineHeight: 1.65, maxWidth: 640, marginBottom: 8 }}>{T(heroStat.label, en)}</p>
+          <a href={SRC[heroStat.s].url} target="_blank" rel="noopener noreferrer" style={{ ...mono, display: "inline-block", fontSize: 10.5, color: "rgba(241,245,249,0.65)", textDecoration: "none", border: "1px solid rgba(241,245,249,0.25)", borderRadius: 6, padding: "2px 8px", marginBottom: 22 }}>
+            {SRC[heroStat.s].name} ↗
+          </a>
           <div style={{ display: "grid", gap: 10, maxWidth: 760 }}>
             {HERO.bluf.map((b, i) => (
               <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
@@ -320,7 +343,7 @@ export function EnergiaDeep({ en = false }) {
         </ShareCard>
       </ScrollReveal>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 12, marginTop: 14 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 230px), 1fr))", gap: 12, marginTop: 14 }}>
         {CAPEX.map((c, i) => (
           <ScrollReveal key={i} delay={i * 70}>
             <div className="card" style={{ padding: 18, height: "100%", borderTop: `3px solid ${EN_ACCENT.turquoise}` }}>
@@ -344,7 +367,7 @@ export function EnergiaDeep({ en = false }) {
             {NUCLEAR_DEALS.rows.map((d, i) => (
               <div key={i} style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px", alignItems: "baseline", background: "var(--surface)", borderRadius: 10, padding: "10px 14px" }}>
                 <span style={{ fontSize: 13, fontWeight: 800, color: "var(--text)", minWidth: 90 }}>{d.buyer}</span>
-                <span style={{ ...mono, fontSize: 13, fontWeight: 700, color: EN_ACCENT.gold }}>{d.mw.toLocaleString(en ? "en-US" : "es-CR")} MW</span>
+                <span style={{ ...mono, fontSize: 13, fontWeight: 700, color: "var(--enGold)" }}>{d.mw.toLocaleString(en ? "en-US" : "es-CR")} MW</span>
                 <span style={{ fontSize: 12, color: "var(--text2)", flexBasis: "100%" }}>{T(d.plant, en)} — {T(d.deal, en)}</span>
               </div>
             ))}
@@ -384,8 +407,9 @@ export function EnergiaDeep({ en = false }) {
       <ScrollReveal>
         <ShareCard en={en} filename="colibrii-energia-tarifas-latam" sourceIds={["seg", "eia", "aresep", "cicr", "enerdata"]}
           title={en ? "Industrial electricity tariffs (US$/MWh, 2024-2025)" : "Tarifas eléctricas industriales (US$/MWh, 2024-2025)"}>
+          <p style={{ fontSize: 11.5, color: "var(--text3)", lineHeight: 1.55, marginBottom: 8 }}>{T(TARIFFS.caveat, en)}</p>
           <TariffChart en={en} />
-          <p style={{ fontSize: 11.5, color: "var(--text3)", lineHeight: 1.55, marginTop: 8 }}>{T(TARIFFS.caveat, en)} {T(TARIFFS.crNote, en)}</p>
+          <p style={{ fontSize: 11.5, color: "var(--text3)", lineHeight: 1.55, marginTop: 8 }}>{T(TARIFFS.crNote, en)}</p>
         </ShareCard>
       </ScrollReveal>
 
@@ -400,7 +424,7 @@ export function EnergiaDeep({ en = false }) {
                 <div style={{ flexGrow: 1, height: 10, background: "var(--surface)", borderRadius: 5, overflow: "hidden" }}>
                   <div style={{ width: `${r.pct}%`, height: "100%", borderRadius: 5, background: r.highlight ? `linear-gradient(90deg, ${EN_ACCENT.turquoise}, #22d3ee)` : "rgba(129,140,248,0.55)" }} />
                 </div>
-                <span style={{ ...mono, fontSize: 12.5, fontWeight: 700, color: r.highlight ? EN_ACCENT.turquoise : "var(--text2)", width: 64, textAlign: "right" }}>{r.pct}% <span style={{ fontSize: 9.5, color: "var(--text3)" }}>'{String(r.year).slice(2)}</span></span>
+                <span style={{ ...mono, fontSize: 12.5, fontWeight: 700, color: r.highlight ? "var(--enTurq)" : "var(--text2)", width: 64, textAlign: "right" }}>{r.pct}% <span style={{ fontSize: 9.5, color: "var(--text3)" }}>'{String(r.year).slice(2)}</span></span>
               </div>
             ))}
           </div>
@@ -413,7 +437,7 @@ export function EnergiaDeep({ en = false }) {
         title={en ? "98.6% renewable, a stronger ICE — and almost no spare megawatts" : "98,6% renovable, un ICE más sólido — y casi ningún megavatio de sobra"}
         desc={en ? "The 2025 numbers contradict two popular narratives at once: ICE is not broke, and the grid is not ready for an AI-scale demand wave." : "Los números de 2025 contradicen dos narrativas populares a la vez: el ICE no está quebrado, y la red no está lista para una ola de demanda a escala IA."} />
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(290px, 1fr))", gap: 14 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 290px), 1fr))", gap: 14 }}>
         <ScrollReveal>
           <ShareCard en={en} filename="colibrii-energia-matriz-cr" sourceIds={["peg", "ice"]}
             title={en ? "Electric matrix: installed capacity & renewable share" : "Matriz eléctrica: capacidad instalada y participación renovable"}>
@@ -426,7 +450,7 @@ export function EnergiaDeep({ en = false }) {
             <div style={{ display: "grid", gap: 10 }}>
               {ICE_FIN.stats.map((s, i) => (
                 <div key={s.id} style={{ display: "flex", gap: 12, alignItems: "baseline" }}>
-                  <span style={{ ...mono, fontSize: 19, fontWeight: 800, color: s.v < 0 ? EN_ACCENT.turquoise : "var(--text)", minWidth: 86, textAlign: "right" }}>
+                  <span style={{ ...mono, fontSize: 19, fontWeight: 800, color: s.v < 0 ? "var(--enTurq)" : "var(--text)", minWidth: 86, textAlign: "right" }}>
                     {s.v < 0 ? "" : ""}{s.v.toLocaleString(en ? "en-US" : "es-CR")}{typeof s.unit === "string" ? s.unit : ""}
                   </span>
                   <span style={{ fontSize: 11.5, color: "var(--text2)", lineHeight: 1.5 }}>{typeof s.unit !== "string" ? `(${T(s.unit, en)}) ` : ""}{T(s.label, en)}</span>
@@ -445,7 +469,7 @@ export function EnergiaDeep({ en = false }) {
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>
               {ICE_FIN.ratings.map((r, i) => (
                 <div key={i} style={{ background: "var(--surface)", borderRadius: 10, padding: "8px 12px" }}>
-                  <span style={{ ...mono, fontSize: 13, fontWeight: 800, color: EN_ACCENT.gold }}>{r.agency} {r.rating}</span>
+                  <span style={{ ...mono, fontSize: 13, fontWeight: 800, color: "var(--enGold)" }}>{r.agency} {r.rating}</span>
                   <span style={{ fontSize: 11, color: "var(--text2)", marginLeft: 6 }}>{T(r.outlook, en)} · {r.date}</span>
                   <div style={{ fontSize: 10.5, color: "var(--text3)", marginTop: 2, maxWidth: 290, lineHeight: 1.45 }}>{T(r.note, en)}</div>
                 </div>
@@ -459,7 +483,7 @@ export function EnergiaDeep({ en = false }) {
       <ScrollReveal>
         <Card style={{ marginTop: 14 }} accent={EN_ACCENT.gold}>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "10px 24px", alignItems: "baseline" }}>
-            <span style={{ ...mono, fontSize: 26, fontWeight: 800, color: EN_ACCENT.turquoise }}>−4,93% → −16,44%</span>
+            <span style={{ ...mono, fontSize: 26, fontWeight: 800, color: "var(--enTurq)" }}>{en ? "−4.93% → −16.44%" : "−4,93% → −16,44%"}</span>
             <span style={{ fontSize: 12.5, color: "var(--text2)" }}>ICE −14,92% · CNFL −14,55% · {en ? "generation cost factor" : "factor CVG"} −7,77%</span>
           </div>
           <p style={{ fontSize: 13, color: "var(--text2)", lineHeight: 1.65, marginTop: 8 }}>{T(ARESEP_2026.headline, en)}</p>
@@ -467,12 +491,12 @@ export function EnergiaDeep({ en = false }) {
         </Card>
       </ScrollReveal>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 12, marginTop: 14 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 230px), 1fr))", gap: 12, marginTop: 14 }}>
         {PEG_TARGETS.rows.map((r, i) => (
           <ScrollReveal key={i} delay={i * 70}>
             <div className="card" style={{ padding: 18, height: "100%" }}>
               <div style={{ ...mono, fontSize: 24, fontWeight: 800, color: "var(--text)" }}>
-                <AN v={r.v} p={0} /><span style={{ fontSize: 13, color: EN_ACCENT.turquoise, marginLeft: 5 }}>{typeof r.unit === "string" ? r.unit : T(r.unit, en)}</span>
+                <AN v={r.v} p={0} /><span style={{ fontSize: 13, color: "var(--enTurq)", marginLeft: 5 }}>{typeof r.unit === "string" ? r.unit : T(r.unit, en)}</span>
               </div>
               <div style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.55, marginTop: 6 }}>{T(r.label, en)}</div>
               <div style={{ ...mono, fontSize: 10, color: "var(--text3)", marginTop: 8 }}>{SRC[r.s || PEG_TARGETS.s].name}</div>
@@ -488,7 +512,7 @@ export function EnergiaDeep({ en = false }) {
         title={en ? "The reform that passed one debate and stalled the next day" : "La reforma que ganó un debate y quedó varada al día siguiente"}
         desc={en ? "The most consequential electricity reform in 30 years passed first debate 27-24 on 26 May 2026 — and was withdrawn from the agenda by decree 18 hours later. What the bill does, who stands where, and the arithmetic that decides everything." : "La reforma eléctrica más importante en 30 años se aprobó en primer debate 27-24 el 26 de mayo de 2026 — y fue retirada de la agenda por decreto 18 horas después. Qué hace el proyecto, quién está dónde, y la aritmética que lo decide todo."} />
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 250px), 1fr))", gap: 12 }}>
         {BILL_CORE.rows.map((b, i) => (
           <ScrollReveal key={i} delay={i * 60}>
             <div className="card" style={{ padding: 16, height: "100%", borderTop: `3px solid ${i < 2 ? EN_ACCENT.turquoise : EN_ACCENT.gold}` }}>
@@ -499,7 +523,7 @@ export function EnergiaDeep({ en = false }) {
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(310px, 1fr))", gap: 14, marginTop: 14 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 310px), 1fr))", gap: 14, marginTop: 14 }}>
         <ScrollReveal>
           <Card style={{ height: "100%" }}>
             <h3 style={{ fontSize: 15.5, fontWeight: 700, color: "var(--text)", marginBottom: 16 }}>{en ? "Timeline of the expediente" : "Cronología del expediente"}</h3>
@@ -530,6 +554,7 @@ export function EnergiaDeep({ en = false }) {
 
       <ScrollReveal><ComparativeRail en={en} /></ScrollReveal>
       <KeyInsight text={T(COMPARATIVE.netAssessment, en)} color={EN_ACCENT.turquoise} />
+      <div style={{ ...mono, fontSize: 10.5, color: "var(--text3)", marginTop: -10, marginBottom: 10 }}>{T(COMPARATIVE.asOf, en)}</div>
       <p style={{ fontSize: 12, color: "var(--text3)", lineHeight: 1.6, marginTop: 8 }}>{T(COMPARATIVE.cepalNote, en)} <Lnk href={SRC.cepal2002.url}>{SRC.cepal2002.name}</Lnk></p>
 
       {/* ════ ACTO 7 — LOS NÚMEROS QUE IMPORTAN ════ */}
@@ -537,7 +562,7 @@ export function EnergiaDeep({ en = false }) {
         title={en ? "ECAI-CR: measure the race, then run your own scenarios" : "ECAI-CR: mida la carrera, y luego corra sus propios escenarios"}
         desc={en ? "Colibrii's Energy Competitiveness for AI Investment index, an adjustable-weight tool — plus a demand explorer to 2050, a tariff cost comparator, and the solar curve that changes everything." : "El índice de Competitividad Energética para Inversión en IA de Colibrii, con pesos ajustables — más un explorador de demanda al 2050, un comparador de costos tarifarios y la curva solar que lo cambia todo."} />
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(310px, 1fr))", gap: 14 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 310px), 1fr))", gap: 14 }}>
         <ScrollReveal>
           <ShareCard en={en} filename="colibrii-ecai-radar" sourceIds={["colibrii"]}
             title={en ? "ECAI-CR components (0-100)" : "Componentes ECAI-CR (0-100)"}>
@@ -559,7 +584,7 @@ export function EnergiaDeep({ en = false }) {
         </ShareCard>
       </ScrollReveal>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(310px, 1fr))", gap: 14, marginTop: 14 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 310px), 1fr))", gap: 14, marginTop: 14 }}>
         <ScrollReveal>
           <ShareCard en={en} filename="colibrii-comparador-tarifario" sourceIds={["seg", "eia", "cicr"]}
             title={en ? "What would your megawatts cost?" : "¿Cuánto costarían sus megavatios?"}>
@@ -568,7 +593,7 @@ export function EnergiaDeep({ en = false }) {
         </ScrollReveal>
         <ScrollReveal delay={80}>
           <ShareCard en={en} filename="colibrii-curva-solar" sourceIds={["owid"]}
-            title={en ? "Solar learning curve (Swanson's Law)" : "Curva de aprendizaje solar (Ley de Swanson)"}>
+            title={en ? "Solar learning curve (Swanson's Law, projection to 2030)" : "Curva de aprendizaje solar (Ley de Swanson, proyección a 2030)"}>
             <SolarCurveChart en={en} />
             <p style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.6, marginTop: 8 }}>{T(SOLAR_CURVE.law, en)}</p>
           </ShareCard>
@@ -584,7 +609,7 @@ export function EnergiaDeep({ en = false }) {
 
       {AMENDMENTS.stages.map(stage => (
         <div key={stage.id} style={{ marginBottom: 18 }}>
-          <div style={{ ...mono, fontSize: 11, letterSpacing: 1.5, textTransform: "uppercase", color: EN_ACCENT.gold, margin: "14px 0 10px" }}>{T(stage.label, en)}</div>
+          <div style={{ ...mono, fontSize: 11, letterSpacing: 1.5, textTransform: "uppercase", color: "var(--enGold)", margin: "14px 0 10px" }}>{T(stage.label, en)}</div>
           <div style={{ display: "grid", gap: 8 }}>
             {AMENDMENTS.rows.filter(a => a.stage === stage.id).map(a => <AmendmentCard key={a.n} a={a} en={en} />)}
           </div>
@@ -595,12 +620,12 @@ export function EnergiaDeep({ en = false }) {
       <ScrollReveal>
         <div style={{ marginTop: 24 }}>
           <h3 style={{ fontSize: 15.5, fontWeight: 700, color: "var(--text)", marginBottom: 10 }}>{en ? "Watch the sources" : "Vea las fuentes"}</h3>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 10 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 230px), 1fr))", gap: 10 }}>
             {VIDEOS.map((v, i) => (
-              <a key={i} href={v.url} target="_blank" rel="noopener noreferrer" style={{ display: "block", textDecoration: "none", background: `linear-gradient(150deg, ${EN_ACCENT.navy}, ${EN_ACCENT.navy2})`, borderRadius: "var(--radius-sm)", padding: 16, border: "1px solid rgba(0,181,168,0.25)" }}>
-                <span aria-hidden="true" style={{ display: "inline-flex", width: 34, height: 34, borderRadius: "50%", background: "rgba(0,181,168,0.18)", color: EN_ACCENT.turquoise, alignItems: "center", justifyContent: "center", marginBottom: 10 }}><Icon name="video" size={16} /></span>
+              <a key={i} href={v.url} target="_blank" rel="noopener noreferrer" style={{ display: "block", textDecoration: "none", background: `linear-gradient(150deg, ${EN_ACCENT.navy}, ${EN_ACCENT.navy2})`, borderRadius: "var(--radius-sm)", padding: 16, border: `1px solid ${EN_ACCENT.turquoise}40` }}>
+                <span aria-hidden="true" style={{ display: "inline-flex", width: 34, height: 34, borderRadius: "50%", background: `${EN_ACCENT.turquoise}2e`, color: EN_ACCENT.turquoise, alignItems: "center", justifyContent: "center", marginBottom: 10 }}><Icon name="video" size={16} /></span>
                 <div style={{ fontSize: 13, fontWeight: 700, color: "#f1f5f9", lineHeight: 1.45, marginBottom: 4 }}>{T(v.title, en)}</div>
-                <div style={{ ...mono, fontSize: 10.5, color: "rgba(241,245,249,0.55)" }}>{v.outlet} ↗</div>
+                <div style={{ ...mono, fontSize: 10.5, color: "rgba(241,245,249,0.7)" }}>{en ? "Watch on" : "Ver en"} {v.outlet} ↗</div>
               </a>
             ))}
           </div>
@@ -612,8 +637,8 @@ export function EnergiaDeep({ en = false }) {
         <div style={{ ...mono, fontSize: 10.5, letterSpacing: 1.5, textTransform: "uppercase", color: "var(--text3)", marginBottom: 6 }}>{en ? "Method & provenance" : "Método y procedencia"}</div>
         <p style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.65 }}>
           {en
-            ? "Every figure in this section carries a named source, URL, access date and confidence flag. Primary documents (IEA, ARESEP resolutions, ICE financial statements, rating actions, Assembly records) prevail over press reports; scenarios and the ECAI-CR composite are Colibrii proposals, labeled as estimates with open methodology. Independent technical input: Colibrii Labs takes no partisan position and serves no government."
-            : "Cada cifra de esta sección lleva fuente nombrada, URL, fecha de acceso y bandera de confianza. Los documentos primarios (AIE, resoluciones de ARESEP, estados financieros del ICE, acciones de calificación, registros de la Asamblea) prevalecen sobre la prensa; los escenarios y el índice ECAI-CR son propuestas de Colibrii, marcadas como estimaciones con metodología abierta. Insumo técnico independiente: Colibrii Labs no toma posición partidista ni asesora a gobierno alguno."}
+            ? "Every figure in this section carries a named source, URL, access date and confidence flag. Primary documents (IEA, ARESEP resolutions, ICE financial statements, rating actions, Assembly records) prevail over press reports; scenarios and the ECAI-CR composite are Colibrii proposals, labeled as estimates with open methodology. Where a document-level permalink requires archive search, links point to the issuer's portal. Independent technical input: Colibrii Labs takes no partisan position and serves no government."
+            : "Cada cifra de esta sección lleva fuente nombrada, URL, fecha de acceso y bandera de confianza. Los documentos primarios (AIE, resoluciones de ARESEP, estados financieros del ICE, acciones de calificación, registros de la Asamblea) prevalecen sobre la prensa; los escenarios y el índice ECAI-CR son propuestas de Colibrii, marcadas como estimaciones con metodología abierta. Cuando el permalink exacto requiere búsqueda en archivo, los enlaces dirigen al portal del emisor. Insumo técnico independiente: Colibrii Labs no toma posición partidista ni asesora a gobierno alguno."}
         </p>
       </div>
     </div>
