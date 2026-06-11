@@ -93,3 +93,7 @@ False positives ruled by orchestrator (documented for future boards): "ScrollPro
 
 ## Session log
 - **2026-06-10:** Section built end-to-end by factory Run #1 (this session). Build green (254 kB first-load, tab lazy-chunked). Board: 2 iterations to zero-BLOCK. **Push-channel note:** git proxy 403 + GitHub API writes 401 during close-out — all work committed locally on `claude/zen-lovelace-5l2e7g`; staging deployed to Vercel directly from the workspace (see D-010). Re-push + draft PR pending channel recovery.
+
+## 20-Persona Board — Run #1.5 results (2026-06-11)
+Verdicts: 1 BLOCK (P08 economist: map label "FUENTES REALES" vs "aproximadas" contradiction — FIXED; "$6,7 B" notation — FIXED to $6.7T) · rest SHIP/PASS/FIX-THEN-SHIP. All P-round fixes applied same day: 44px touch targets (map nodes), reactor caption hardened (no-CR-project + reuse credit), ECAI pull-stat added to Act 3 (P06 virality), MicroCTA after Act 7 (P15/P20), Act 6→7 bridge + consequence ending (P17), scroll-cue auto-hide (P02), ICE one-line read (P02), amendment previews (P19), stage escalation labels (P17), rim light + hiDPI dashes + onUpdate fix in Hero3D (P18/P03), utm on share links + citation portals (P16/P20/P10), dead deps removed (P03).
+Backlog (non-blocking): Vercel custom event instrumentation (needs Pro plan or alt analytics), CRGridMap EN_ACCENT import consistency (P07), GridHero mobile packets <640px (P19), parallax amplitude gate (P13), ohter P01 token nits.

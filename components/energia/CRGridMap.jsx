@@ -196,8 +196,8 @@ export default function CRGridMap({ en }) {
               position: "absolute",
               left: `${n.px}%`,
               top: `${n.py}%`,
-              width: 28,
-              height: 28,
+              width: 44,
+              height: 44,
               transform: "translate(-50%,-50%)",
               borderRadius: "50%",
               background: "transparent",
@@ -222,8 +222,8 @@ export default function CRGridMap({ en }) {
                 left: `${Math.min(Math.max(n.px, 6), 94)}%`,
                 ...vert,
                 transform: horiz,
-                minWidth: 148,
-                maxWidth: 220,
+                minWidth: "min(148px, 42vw)",
+                maxWidth: "min(220px, 60vw)",
                 background: "rgba(7,20,42,0.92)",
                 backdropFilter: "blur(8px)",
                 WebkitBackdropFilter: "blur(8px)",
@@ -264,7 +264,7 @@ export default function CRGridMap({ en }) {
       {/* ── Title chip ── */}
       <div style={{ position: "absolute", top: 12, left: 14, zIndex: 1, pointerEvents: "none" }}>
         <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: 2, color: "#22d3ee" }}>
-          {en ? "POWER GRID · REAL GEOGRAPHY" : "RED ELÉCTRICA · FUENTES REALES"}
+          {en ? "COSTA RICA POWER GRID · INTERACTIVE" : "RED ELÉCTRICA DE COSTA RICA · INTERACTIVO"}
         </div>
         <div style={{ marginTop: 4, fontSize: 11, color: "rgba(255,255,255,0.55)", maxWidth: 420 }}>
           {en

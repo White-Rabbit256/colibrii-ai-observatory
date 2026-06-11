@@ -313,8 +313,8 @@ export function ReactorCutaway({ en }) {
 
       <div style={{ marginTop: 12, fontSize: 11.5, lineHeight: 1.5, color: "rgba(255,255,255,0.6)" }}>
         {en
-          ? "Illustrative Natrium-style schematic (sodium-cooled fast reactor + thermal storage). Not to scale."
-          : "Esquema ilustrativo tipo Natrium (reactor rápido refrigerado por sodio + almacenamiento térmico). No a escala."}
+          ? "Illustrative Natrium-style schematic (sodium-cooled fast reactor + thermal storage). Global reference architecture — there is no nuclear project in Costa Rica. Not to scale. Editorial reuse: credit Colibrii Labs (2026)."
+          : "Esquema ilustrativo tipo Natrium (reactor rápido refrigerado por sodio + almacenamiento térmico). Arquitectura de referencia global — no existe ni se propone un proyecto nuclear en Costa Rica. No a escala. Reuso editorial: crédito Colibrii Labs (2026)."}
       </div>
     </div>
   );

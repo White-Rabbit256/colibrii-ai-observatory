@@ -272,7 +272,7 @@ function StakeholderGrid({ en }) {
                   )}
                 </div>
               </div>
-              <p style={{ fontSize: 12.5, color: "var(--text2)", lineHeight: 1.6, marginBottom: 8 }}>{T(p.quote, en)}</p>
+              <p style={{ fontSize: 12.5, color: "var(--text2)", lineHeight: 1.6, marginBottom: 8, maxWidth: 620 }}>{T(p.quote, en)}</p>
               <div style={{ ...mono, fontSize: 10.5, color: "var(--text3)" }}>{T(p.outlet, en)} · {p.date}</div>
             </div>
           </ScrollReveal>
@@ -328,7 +328,14 @@ function AmendmentCard({ a, en }) {
         style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", background: "transparent", border: "none", cursor: "pointer", padding: "14px 16px", color: "var(--text)", minHeight: 48 }}
       >
         <span aria-hidden="true" style={{ ...mono, flexShrink: 0, width: 30, height: 30, borderRadius: 8, background: `${EN_ACCENT.turquoise}1a`, color: "var(--enTurq)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800 }}>{a.n}</span>
-        <span style={{ flexGrow: 1, fontSize: 13.5, fontWeight: 700, lineHeight: 1.4 }}>{T(a.title, en)}</span>
+        <span style={{ flexGrow: 1, minWidth: 0 }}>
+          <span style={{ display: "block", fontSize: 13.5, fontWeight: 700, lineHeight: 1.4 }}>{T(a.title, en)}</span>
+          {!open && (
+            <span style={{ display: "block", fontSize: 11.5, color: "var(--text3)", lineHeight: 1.45, marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {T(a.what, en)}
+            </span>
+          )}
+        </span>
         <span aria-hidden="true" style={{ flexShrink: 0, color: "var(--text3)", transform: open ? "rotate(180deg)" : "none", transition: "transform .25s" }}><Icon name="chevronDown" size={16} /></span>
       </button>
       {open && (
@@ -344,13 +351,36 @@ function AmendmentCard({ a, en }) {
   );
 }
 
+/* ── Mid-scroll micro-CTA (value peak, after Act 7) ── */
+function MicroCTA({ en }) {
+  const [done, setDone] = useState(false);
+  const share = async () => {
+    try {
+      await navigator.clipboard.writeText("https://colibriilabs.ai/app#energia?utm_source=share&utm_medium=microcta&utm_campaign=energia");
+      setDone(true); setTimeout(() => setDone(false), 2200);
+    } catch {}
+  };
+  return (
+    <ScrollReveal>
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 12, margin: "26px 0", padding: "14px 18px", borderRadius: 12, background: "var(--surface)", border: "1px dashed var(--border2)" }}>
+        <span style={{ fontSize: 13, color: "var(--text2)" }}>
+          {en ? "Useful so far? Send it to whoever needs these numbers." : "¿Le está sirviendo? Envíeselo a quien necesita estos números."}
+        </span>
+        <button onClick={share} style={{ ...mono, minHeight: 40, padding: "8px 16px", borderRadius: 10, border: "1.5px solid var(--enTurq)", background: "transparent", color: "var(--enTurq)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+          {done ? (en ? "Copied ✓" : "Copiado ✓") : (en ? "Copy link" : "Copiar enlace")}
+        </button>
+      </div>
+    </ScrollReveal>
+  );
+}
+
 /* ── End-of-scroll conversion block ── */
 function CTABlock({ en }) {
   const [copied, setCopied] = useState(null);
   const url = "https://colibriilabs.ai/app#energia";
   const cite = en
-    ? "Colibrii Labs (2026). Energy: Electricity, Energy Competitiveness & AI — independent technical input. colibriilabs.ai/app#energia"
-    : "Colibrii Labs (2026). Energía: Electricidad, Competitividad Energética e IA — insumo técnico independiente. colibriilabs.ai/app#energia";
+    ? "Colibrii Labs (2026). Energy: Electricity, Energy Competitiveness & AI — independent technical input. colibriilabs.ai/app#energia. Primary sources: asamblea.go.cr, aresep.go.cr, grupoice.com, iea.org."
+    : "Colibrii Labs (2026). Energía: Electricidad, Competitividad Energética e IA — insumo técnico independiente. colibriilabs.ai/app#energia. Fuentes primarias: asamblea.go.cr, aresep.go.cr, grupoice.com, iea.org.";
   const copy = async (what, text) => {
     try { await navigator.clipboard.writeText(text); setCopied(what); setTimeout(() => setCopied(null), 2200); } catch {}
   };
@@ -372,14 +402,14 @@ function CTABlock({ en }) {
         </h2>
         <p style={{ fontSize: 13.5, color: "rgba(241,245,249,0.75)", lineHeight: 1.65, maxWidth: 620, marginBottom: 20 }}>
           {en
-            ? "Share it with whoever decides, debates or invests. Every chart exports with its sources — and the full provenance table is public."
-            : "Compártalo con quien decide, debate o invierte. Cada gráfico se exporta con sus fuentes — y la tabla de procedencia completa es pública."}
+            ? "Share it with whoever decides, debates or invests. Every chart exports with its sources — and the full provenance table is public. The floor regains its agenda on August 1: until a renegotiated text exists, the 8-vote gap stands while the global investment wave keeps moving."
+            : "Compártalo con quien decide, debate o invierte. Cada gráfico se exporta con sus fuentes — y la tabla de procedencia completa es pública. El Plenario recupera la agenda el 1 de agosto: mientras no exista un texto renegociado, la brecha de 8 votos sigue intacta y la ola global de inversión sigue avanzando."}
         </p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
           <button onClick={() => copy("link", url)} style={{ ...btn, border: "none", background: `linear-gradient(135deg, ${EN_ACCENT.turquoise}, ${EN_ACCENT.glow})`, color: "#06281f", boxShadow: "0 4px 24px rgba(0,181,168,0.35)" }}>
             {copied === "link" ? (en ? "Link copied ✓" : "Enlace copiado ✓") : (en ? "Copy section link" : "Copiar enlace de la sección")}
           </button>
-          <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`} target="_blank" rel="noopener noreferrer"
+          <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url + "?utm_source=linkedin&utm_medium=social&utm_campaign=energia")}`} target="_blank" rel="noopener noreferrer"
             style={{ ...btn, background: "rgba(241,245,249,0.08)", border: "1px solid rgba(241,245,249,0.25)", color: "#f1f5f9" }}>
             {en ? "Share on LinkedIn" : "Compartir en LinkedIn"} ↗
           </a>
@@ -401,10 +431,14 @@ export function EnergiaDeep({ en = false }) {
   const heroStat = HERO.stat;
   /* 3D hero on capable desktops; 2D canvas fallback on mobile / reduced-motion */
   const [use3d, setUse3d] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
     const wide = window.matchMedia("(min-width: 768px)").matches;
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     setUse3d(wide && !still);
+    const onFirstScroll = () => { if (window.scrollY > 90) { setScrolled(true); window.removeEventListener("scroll", onFirstScroll); } };
+    window.addEventListener("scroll", onFirstScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onFirstScroll);
   }, []);
   return (
     <div className="energia-scope" style={{ maxWidth: 1060, margin: "0 auto" }}>
@@ -442,10 +476,10 @@ export function EnergiaDeep({ en = false }) {
           </div>
           <div style={{ ...mono, fontSize: 11, color: "rgba(241,245,249,0.5)", marginTop: 22, display: "flex", alignItems: "center", gap: 8 }}>
             <span aria-hidden="true" style={{ width: 7, height: 7, borderRadius: "50%", background: EN_ACCENT.turquoise, display: "inline-block" }} />
-            {T(HERO.disclaimer, en)}
+            {T(HERO.disclaimer, en)}{use3d ? (en ? " · Illustrative 3D visual (geography: Natural Earth)" : " · Visual 3D ilustrativo (geografía: Natural Earth)") : ""}
           </div>
           {/* Scroll cue */}
-          <div aria-hidden="true" style={{ display: "flex", justifyContent: "center", marginTop: 26 }}>
+          <div aria-hidden="true" style={{ display: "flex", justifyContent: "center", marginTop: 26, opacity: scrolled ? 0 : 1, transition: "opacity .6s ease" }}>
             <div className="energia-scroll-cue" style={{ width: 26, height: 42, borderRadius: 14, border: "1.5px solid rgba(0,181,168,0.5)", display: "flex", justifyContent: "center", paddingTop: 7 }}>
               <div style={{ width: 4, height: 9, borderRadius: 2, background: EN_ACCENT.turquoise, animation: "energiaCue 1.8s ease-in-out infinite" }} />
             </div>
@@ -482,8 +516,8 @@ export function EnergiaDeep({ en = false }) {
       </div>
 
       <PullStat
-        v={en ? "$6.7T" : "$6,7 B"}
-        caption={en ? "of global data-centre buildout by 2030 — the largest private infrastructure bet in history (B = trillion)" : "de construcción global de centros de datos al 2030 — la mayor apuesta privada de infraestructura de la historia (B = billones, 10¹²)"}
+        v="$6.7T"
+        caption={en ? "of global data-centre buildout by 2030 — the largest private infrastructure bet in history (T = trillion, 10¹²)" : "de construcción global de centros de datos al 2030 — la mayor apuesta privada de infraestructura de la historia (T = 6,7 billones, 10¹²)"}
         srcId="mckinsey" />
 
       <ScrollReveal>
@@ -569,6 +603,11 @@ export function EnergiaDeep({ en = false }) {
         </Card>
       </ScrollReveal>
 
+      <PullStat
+        v={en ? "0.71" : "0,71"}
+        caption={en ? "Costa Rica's ECAI-CR score — Colibrii's proprietary Energy Competitiveness for AI Investment index. 2nd of 4 economies compared (Uruguay 0.78 · Panama 0.65 · Mexico 0.62). Adjust the weights yourself in Act 7." : "puntaje ECAI-CR de Costa Rica — índice propio de Colibrii de Competitividad Energética para Inversión en IA. 2º de 4 economías comparadas (Uruguay 0,78 · Panamá 0,65 · México 0,62). Ajuste los pesos usted mismo en el Acto 7."}
+        srcId="colibrii" />
+
       {/* ════ ACTO 4 — COSTA RICA HOY ════ */}
       <Act n={4} en={en} label={en ? "Costa Rica today" : "Costa Rica hoy"}
         title={en ? "98.6% renewable, a stronger ICE — and almost no spare megawatts" : "98,6% renovable, un ICE más sólido — y casi ningún megavatio de sobra"}
@@ -587,7 +626,10 @@ export function EnergiaDeep({ en = false }) {
         </ScrollReveal>
         <ScrollReveal delay={80}>
           <Card style={{ height: "100%" }}>
-            <h3 style={{ fontSize: 15.5, fontWeight: 700, color: "var(--text)", marginBottom: 12 }}>{en ? "ICE financial dashboard" : "Dashboard financiero del ICE"}</h3>
+            <h3 style={{ fontSize: 15.5, fontWeight: 700, color: "var(--text)", marginBottom: 4 }}>{en ? "ICE financial dashboard" : "Dashboard financiero del ICE"}</h3>
+            <p style={{ fontSize: 12, color: "var(--text3)", marginBottom: 12, lineHeight: 1.5 }}>
+              {en ? "One-line read: solvent and improving — but not enough muscle to double the grid alone." : "Lectura en una línea: solvente y mejorando — pero sin músculo para duplicar la red por sí solo."}
+            </p>
             <div style={{ display: "grid", gap: 10 }}>
               {ICE_FIN.stats.map((s, i) => (
                 <div key={s.id} style={{ display: "flex", gap: 12, alignItems: "baseline" }}>
@@ -704,6 +746,11 @@ export function EnergiaDeep({ en = false }) {
       <KeyInsight text={T(COMPARATIVE.netAssessment, en)} color={EN_ACCENT.turquoise} />
       <div style={{ ...mono, fontSize: 10.5, color: "var(--text3)", marginTop: -10, marginBottom: 10 }}>{T(COMPARATIVE.asOf, en)}</div>
       <p style={{ fontSize: 12, color: "var(--text3)", lineHeight: 1.6, marginTop: 8 }}>{T(COMPARATIVE.cepalNote, en)} <Lnk href={SRC.cepal2002.url}>{SRC.cepal2002.name}</Lnk></p>
+      <p style={{ fontSize: 14, color: "var(--text2)", lineHeight: 1.7, marginTop: 16, maxWidth: 680, fontStyle: "italic" }}>
+        {en
+          ? "Six countries already untied this knot — two templates work for Costa Rica. What it would take to close the 8-vote gap lives in the numbers that follow."
+          : "Seis países ya desataron este nudo — dos plantillas funcionan para Costa Rica. Lo que haría falta para cerrar la brecha de 8 votos vive en los números que siguen."}
+      </p>
 
       <EnergyBeam />
 
@@ -751,6 +798,8 @@ export function EnergiaDeep({ en = false }) {
       </div>
 
       <CRAnchor en={en}>{T(ECAI.reading, en)}</CRAnchor>
+
+      <MicroCTA en={en} />
 
       {/* ════ ACTO 8 — RECOMENDACIONES ════ */}
       <Act n={8} en={en} label={en ? "Recommendations" : "Recomendaciones"}

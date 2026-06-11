@@ -333,9 +333,9 @@ export const AMENDMENTS = {
   s: "colibrii", conf: "estimate",
   framing: { es: "Doce enmiendas técnicas, escalonadas al escenario post-desconvocatoria. Son opciones con costos y beneficios — insumo para el debate, no instrucciones; Colibrii no aboga por ninguna enmienda en particular. Sintetizan mejores prácticas (Uruguay, Colombia, Chile 20.936, Nord Pool) y las advertencias de la División Jurídica del ICE (ene 2024).", en: "Twelve technical amendments, staged for the post-withdrawal scenario. They are options with costs and benefits — input for the debate, not instructions; Colibrii does not advocate for any single amendment. They synthesize best practice (Uruguay, Colombia, Chile 20.936, Nord Pool) and ICE Legal Division's warnings (Jan 2024)." },
   stages: [
-    { id: 1, label: { es: "Etapa 1 — Durante la pausa (jun-ago 2026)", en: "Stage 1 — During the pause (Jun-Aug 2026)" } },
-    { id: 2, label: { es: "Etapa 2 — Renegociación del texto (ago-oct 2026)", en: "Stage 2 — Renegotiating the text (Aug-Oct 2026)" } },
-    { id: 3, label: { es: "Etapa 3 — Si hay reconvocatoria (post-Q3 2026)", en: "Stage 3 — If reconvened (post-Q3 2026)" } },
+    { id: 1, label: { es: "Etapa 1 — Durante la pausa (jun-ago 2026) · supervivencia aritmética", en: "Stage 1 — During the pause (Jun-Aug 2026) · arithmetic survival" } },
+    { id: 2, label: { es: "Etapa 2 — Renegociación del texto (ago-oct 2026) · palancas de negociación", en: "Stage 2 — Renegotiating the text (Aug-Oct 2026) · negotiation levers" } },
+    { id: 3, label: { es: "Etapa 3 — Si hay reconvocatoria (post-Q3 2026) · seguros políticos", en: "Stage 3 — If reconvened (post-Q3 2026) · political insurance" } },
   ],
   rows: [
     { n: 1, stage: 1, title: { es: "ECOSEN como desconcentración máxima del MINAE", en: "ECOSEN as maximum deconcentration under MINAE" }, what: { es: "Reestructurar ECOSEN como órgano de desconcentración máxima, no institución autónoma.", en: "Restructure ECOSEN as a maximum-deconcentration body, not an autonomous institution." }, why: { es: "El umbral baja de 38 a 29 votos (mayoría absoluta) y desactiva el problema del Art. 189 CP. Por sí sola, vuelve el proyecto matemáticamente viable.", en: "The threshold drops from 38 to 29 votes (absolute majority), defusing the Art. 189 problem. By itself, it makes the bill arithmetically viable." } },

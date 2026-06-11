@@ -107,11 +107,12 @@ function EnergyArcs() {
   return (
     <group>
       {arcs.map((a, i) => (
-        <line key={a.key} geometry={a.geo} onUpdate={(l) => l.computeLineDistances()}>
+        <line key={a.key} geometry={a.geo}
+          ref={(l) => { if (l && !l.userData.ld) { l.computeLineDistances(); l.userData.ld = true; } }}>
           <lineDashedMaterial
             ref={(el) => (matRefs.current[i] = el)}
-            color={a.color} transparent opacity={0.55}
-            dashSize={0.09} gapSize={0.14} toneMapped={false}
+            color={a.color} transparent opacity={0.7}
+            dashSize={0.14} gapSize={0.18} toneMapped={false}
           />
         </line>
       ))}
@@ -159,6 +160,7 @@ function Scene() {
     <>
       <ambientLight intensity={0.45} />
       <directionalLight position={[3, 4, 6]} intensity={1.1} color="#cde9ff" />
+      <directionalLight position={[-3, 2, -4]} intensity={0.55} color="#7ee7f0" />
       <pointLight position={[0, -2.4, 2]} intensity={1.4} color="#00B5A8" distance={9} />
       <pointLight position={[2.2, 1.8, 3]} intensity={0.8} color="#F2B135" distance={8} />
       <group ref={group}>
