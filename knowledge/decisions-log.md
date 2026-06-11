@@ -36,3 +36,6 @@ Git proxy returned persistent 403 on push (reads fine); GitHub MCP writes return
 
 **D-011 · 2026-06-10 · Theme-aware section accent pattern**
 Light-theme contrast failures (accent small-text ~2.6:1) are now solved platform-pattern-wise: section-scoped CSS vars (`.energia-scope` in globals.css) with darkened light-theme accents and bright dark-theme accents; components reference `var(--enX)` for TEXT, EN_ACCENT hexes for always-dark panels/graphics. Reuse this scope pattern for every future section accent palette.
+
+**D-012 · 2026-06-11 · Push-blocker root cause refined: integration write-permission, not outage**
+GitHub MCP reads recovered (get_me 200) while ALL writes return 403 "Resource not accessible by integration" (git proxy push, API create_branch). Diagnosis: the Claude GitHub App installation for White-Rabbit256 lost write permission (Contents/Pull requests) or the repo grant was narrowed. Supersedes D-010's "outage" framing. Fix is owner-side: re-authorize the app with Read & write on Contents + Pull requests for colibrii-ai-observatory. Local branch + signed bundle remain the delivery vehicles.
