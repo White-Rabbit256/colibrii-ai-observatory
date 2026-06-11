@@ -11,8 +11,12 @@ import {
 } from "./energiaData";
 import { DCDemandChart, TariffChart, MixDonut, EcaiRadar, SolarCurveChart } from "./energia/EnergiaCharts";
 import { EcaiExplorer, TariffComparator, ScenarioExplorer } from "./energia/EnergiaInteractive";
+import CRGridMap from "./energia/CRGridMap";
+import { ReactorCutaway, EnergyBeam } from "./energia/EnergiaArt";
+import { FACTS } from "../data/facts";
 
 const GridHero = dynamic(() => import("./energia/GridHero"), { ssr: false, loading: () => null });
+const Hero3D = dynamic(() => import("./energia/Hero3D"), { ssr: false, loading: () => null });
 
 /* ═══════════════════════════════════════════════════════════════
    COLIBRII LABS — Energía · Electricidad, Competitividad & IA
@@ -94,10 +98,60 @@ function ShareCard({ en, title, filename, sourceIds, children }) {
   );
 }
 
+/* ── Sticky act navigation (desktop) ── */
+const ACT_IDS = [2, 3, 4, 5, 6, 7, 8];
+function ActNav({ en }) {
+  const [current, setCurrent] = useState(0);
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 880px)");
+    const sync = () => setShow(mq.matches);
+    sync(); mq.addEventListener("change", sync);
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) setCurrent(+e.target.dataset.act); });
+    }, { rootMargin: "-30% 0px -60% 0px" });
+    ACT_IDS.forEach(n => { const el = document.getElementById(`energia-act-${n}`); if (el) { el.dataset.act = n; obs.observe(el); } });
+    return () => { obs.disconnect(); mq.removeEventListener("change", sync); };
+  }, []);
+  if (!show) return null;
+  return (
+    <nav aria-label={en ? "Section acts" : "Actos de la sección"} style={{ position: "sticky", top: 10, zIndex: 15, display: "flex", justifyContent: "center", gap: 6, marginBottom: -34 }}>
+      <div style={{ display: "flex", gap: 4, padding: "5px 8px", borderRadius: 999, background: "color-mix(in srgb, var(--card) 80%, transparent)", backdropFilter: "blur(10px)", border: "1px solid var(--border)", boxShadow: "var(--shadow-md)" }}>
+        {ACT_IDS.map(n => (
+          <button key={n} onClick={() => document.getElementById(`energia-act-${n}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+            aria-label={`${en ? "Act" : "Acto"} ${n}`} aria-current={current === n ? "true" : undefined}
+            style={{ ...mono, width: 30, height: 30, borderRadius: "50%", border: "none", cursor: "pointer", fontSize: 12, fontWeight: 800,
+              background: current === n ? `linear-gradient(135deg, ${EN_ACCENT.turquoise}, ${EN_ACCENT.glow})` : "transparent",
+              color: current === n ? "#06281f" : "var(--text3)", transition: "all .25s" }}>
+            {n}
+          </button>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
+/* ── Giant gradient pull-stat (emotional beat) ── */
+function PullStat({ v, caption, srcId }) {
+  return (
+    <ScrollReveal>
+      <div style={{ textAlign: "center", margin: "44px 0 40px" }}>
+        <div style={{ ...display, fontSize: "clamp(56px, 11vw, 120px)", fontWeight: 800, lineHeight: 1,
+          background: `linear-gradient(120deg, var(--enTurq), ${EN_ACCENT.glow} 50%, var(--enGold))`,
+          WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent", color: "transparent" }}>
+          {v}
+        </div>
+        <div style={{ fontSize: 14.5, color: "var(--text2)", marginTop: 10, lineHeight: 1.6, maxWidth: 520, marginLeft: "auto", marginRight: "auto" }}>{caption}</div>
+        {srcId && <div style={{ ...mono, fontSize: 10, color: "var(--text3)", marginTop: 6 }}>{SRC[srcId].name}</div>}
+      </div>
+    </ScrollReveal>
+  );
+}
+
 /* ── Act header ── */
 function Act({ n, en, label, title, desc }) {
   return (
-    <div style={{ marginTop: "clamp(36px, 7vw, 56px)", marginBottom: 20 }}>
+    <div id={`energia-act-${n}`} style={{ marginTop: "clamp(36px, 7vw, 56px)", marginBottom: 20, scrollMarginTop: 64 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
         <span style={{ ...mono, fontSize: 11, color: "var(--enGold)", border: `1px solid ${EN_ACCENT.gold}55`, borderRadius: 6, padding: "2px 8px" }}>{en ? "ACT" : "ACTO"} {n}</span>
         <span style={{ ...mono, fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: "var(--enTurq)" }}>{label}</span>
@@ -290,23 +344,85 @@ function AmendmentCard({ a, en }) {
   );
 }
 
+/* ── End-of-scroll conversion block ── */
+function CTABlock({ en }) {
+  const [copied, setCopied] = useState(null);
+  const url = "https://colibriilabs.ai/app#energia";
+  const cite = en
+    ? "Colibrii Labs (2026). Energy: Electricity, Energy Competitiveness & AI — independent technical input. colibriilabs.ai/app#energia"
+    : "Colibrii Labs (2026). Energía: Electricidad, Competitividad Energética e IA — insumo técnico independiente. colibriilabs.ai/app#energia";
+  const copy = async (what, text) => {
+    try { await navigator.clipboard.writeText(text); setCopied(what); setTimeout(() => setCopied(null), 2200); } catch {}
+  };
+  const btn = {
+    minHeight: 46, padding: "10px 20px", borderRadius: 12, cursor: "pointer", fontSize: 13.5, fontWeight: 700,
+    display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none", transition: "transform .2s, box-shadow .2s",
+  };
+  return (
+    <section id="energia-cta" aria-label={en ? "Use this analysis" : "Use este análisis"}
+      style={{ marginTop: 36, borderRadius: "var(--radius)", overflow: "hidden", position: "relative",
+        background: `linear-gradient(150deg, ${EN_ACCENT.navy} 0%, ${EN_ACCENT.navy2} 60%, #0a1f33 100%)`, border: "1px solid rgba(0,181,168,0.3)", padding: "clamp(26px, 5vw, 44px)" }}>
+      <div aria-hidden="true" style={{ position: "absolute", width: 420, height: 420, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,181,168,0.22), transparent 70%)", top: -180, right: -120, filter: "blur(50px)" }} />
+      <div style={{ position: "relative" }}>
+        <div style={{ ...mono, fontSize: 11, letterSpacing: 2.5, color: EN_ACCENT.turquoise, marginBottom: 10 }}>
+          {en ? "INDEPENDENT TECHNICAL INPUT · FREE TO CITE" : "INSUMO TÉCNICO INDEPENDIENTE · LIBRE DE CITAR"}
+        </div>
+        <h2 style={{ ...display, fontSize: "clamp(22px, 3.6vw, 32px)", fontWeight: 800, color: "#f1f5f9", lineHeight: 1.25, maxWidth: 640, marginBottom: 8 }}>
+          {en ? "If this analysis was useful, put it to work" : "Si este análisis le sirvió, póngalo a trabajar"}
+        </h2>
+        <p style={{ fontSize: 13.5, color: "rgba(241,245,249,0.75)", lineHeight: 1.65, maxWidth: 620, marginBottom: 20 }}>
+          {en
+            ? "Share it with whoever decides, debates or invests. Every chart exports with its sources — and the full provenance table is public."
+            : "Compártalo con quien decide, debate o invierte. Cada gráfico se exporta con sus fuentes — y la tabla de procedencia completa es pública."}
+        </p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+          <button onClick={() => copy("link", url)} style={{ ...btn, border: "none", background: `linear-gradient(135deg, ${EN_ACCENT.turquoise}, ${EN_ACCENT.glow})`, color: "#06281f", boxShadow: "0 4px 24px rgba(0,181,168,0.35)" }}>
+            {copied === "link" ? (en ? "Link copied ✓" : "Enlace copiado ✓") : (en ? "Copy section link" : "Copiar enlace de la sección")}
+          </button>
+          <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`} target="_blank" rel="noopener noreferrer"
+            style={{ ...btn, background: "rgba(241,245,249,0.08)", border: "1px solid rgba(241,245,249,0.25)", color: "#f1f5f9" }}>
+            {en ? "Share on LinkedIn" : "Compartir en LinkedIn"} ↗
+          </a>
+          <button onClick={() => copy("cite", cite)} style={{ ...btn, background: "transparent", border: "1px solid rgba(0,181,168,0.45)", color: EN_ACCENT.turquoise }}>
+            {copied === "cite" ? (en ? "Citation copied ✓" : "Cita copiada ✓") : (en ? "Copy citation" : "Copiar cita")}
+          </button>
+        </div>
+        <div style={{ ...mono, fontSize: 10.5, color: "rgba(241,245,249,0.45)", marginTop: 18 }}>
+          {en ? "Questions or data corrections: " : "Consultas o correcciones de datos: "}
+          <a href={`mailto:${FACTS.email}`} style={{ color: "rgba(241,245,249,0.7)" }}>{FACTS.email}</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ═══════════════ MAIN VIEW ═══════════════ */
 export function EnergiaDeep({ en = false }) {
   const heroStat = HERO.stat;
+  /* 3D hero on capable desktops; 2D canvas fallback on mobile / reduced-motion */
+  const [use3d, setUse3d] = useState(false);
+  useEffect(() => {
+    const wide = window.matchMedia("(min-width: 768px)").matches;
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setUse3d(wide && !still);
+  }, []);
   return (
     <div className="energia-scope" style={{ maxWidth: 1060, margin: "0 auto" }}>
       <ScrollProgress />
+      <ActNav en={en} />
 
       {/* ════ ACTO 1 — COLD OPEN ════ */}
       <section aria-label={en ? "Opening" : "Apertura"} style={{ position: "relative", borderRadius: "var(--radius)", overflow: "hidden", background: `linear-gradient(160deg, ${EN_ACCENT.navy} 0%, ${EN_ACCENT.navy2} 55%, #0a1830 100%)`, border: "1px solid rgba(0,181,168,0.25)", marginTop: 14 }}>
-        <GridHero />
+        {use3d ? <Hero3D /> : <GridHero />}
         <div style={{ position: "relative", zIndex: 2, padding: "clamp(28px, 6vw, 64px) clamp(20px, 5vw, 56px)" }}>
           <div style={{ ...mono, fontSize: 11, letterSpacing: 2.5, color: EN_ACCENT.turquoise, marginBottom: 14 }}>{T(HERO.eyebrow, en)}</div>
-          <h1 style={{ ...display, fontSize: "clamp(26px, 4.6vw, 44px)", fontWeight: 800, color: "#f1f5f9", lineHeight: 1.18, maxWidth: 720, marginBottom: 22 }}>
+          <h1 style={{ ...display, fontSize: "clamp(28px, 5vw, 50px)", fontWeight: 800, lineHeight: 1.14, maxWidth: 760, marginBottom: 22,
+            background: "linear-gradient(115deg, #ffffff 30%, #9beef0 68%, #F2B135 105%)",
+            WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent", color: "transparent" }}>
             {T(HERO.title, en)}
           </h1>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: 14, marginBottom: 10 }}>
-            <span style={{ ...mono, fontSize: "clamp(40px, 7vw, 72px)", fontWeight: 800, color: EN_ACCENT.gold, lineHeight: 1 }}>
+            <span style={{ ...mono, fontSize: "clamp(44px, 8vw, 84px)", fontWeight: 800, color: EN_ACCENT.gold, lineHeight: 1, filter: "drop-shadow(0 0 24px rgba(242,177,53,0.45))" }}>
               <AN v={heroStat.v} p={0} />
             </span>
             <span style={{ ...mono, fontSize: 20, color: EN_ACCENT.gold }}>{heroStat.unit} · 2030</span>
@@ -328,6 +444,16 @@ export function EnergiaDeep({ en = false }) {
             <span aria-hidden="true" style={{ width: 7, height: 7, borderRadius: "50%", background: EN_ACCENT.turquoise, display: "inline-block" }} />
             {T(HERO.disclaimer, en)}
           </div>
+          {/* Scroll cue */}
+          <div aria-hidden="true" style={{ display: "flex", justifyContent: "center", marginTop: 26 }}>
+            <div className="energia-scroll-cue" style={{ width: 26, height: 42, borderRadius: 14, border: "1.5px solid rgba(0,181,168,0.5)", display: "flex", justifyContent: "center", paddingTop: 7 }}>
+              <div style={{ width: 4, height: 9, borderRadius: 2, background: EN_ACCENT.turquoise, animation: "energiaCue 1.8s ease-in-out infinite" }} />
+            </div>
+          </div>
+          <style>{`
+            @keyframes energiaCue { 0%,100% { transform: translateY(0); opacity: 1; } 55% { transform: translateY(12px); opacity: 0.25; } }
+            @media (prefers-reduced-motion: reduce) { .energia-scroll-cue div { animation: none !important; } }
+          `}</style>
         </div>
       </section>
 
@@ -355,6 +481,11 @@ export function EnergiaDeep({ en = false }) {
         ))}
       </div>
 
+      <PullStat
+        v={en ? "$6.7T" : "$6,7 B"}
+        caption={en ? "of global data-centre buildout by 2030 — the largest private infrastructure bet in history (B = trillion)" : "de construcción global de centros de datos al 2030 — la mayor apuesta privada de infraestructura de la historia (B = billones, 10¹²)"}
+        srcId="mckinsey" />
+
       <ScrollReveal>
         <Card style={{ marginTop: 14 }}>
           <h3 style={{ fontSize: 15.5, fontWeight: 700, color: "var(--text)", marginBottom: 4 }}>
@@ -381,6 +512,10 @@ export function EnergiaDeep({ en = false }) {
       </ScrollReveal>
 
       <ScrollReveal>
+        <div style={{ marginTop: 14 }}><ReactorCutaway en={en} /></div>
+      </ScrollReveal>
+
+      <ScrollReveal>
         <div style={{ marginTop: 14, background: `linear-gradient(135deg, ${EN_ACCENT.navy}, ${EN_ACCENT.navy2})`, borderRadius: "var(--radius)", padding: "22px 24px", border: "1px solid rgba(0,181,168,0.2)" }}>
           <div style={{ ...mono, fontSize: 11, letterSpacing: 2, color: EN_ACCENT.turquoise, marginBottom: 12 }}>{en ? "MEANWHILE, CHINA" : "MIENTRAS TANTO, CHINA"}</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 16 }}>
@@ -398,6 +533,8 @@ export function EnergiaDeep({ en = false }) {
       </ScrollReveal>
 
       <CRAnchor en={en}>{T(NUCLEAR_DEALS.insight, en)}</CRAnchor>
+
+      <EnergyBeam />
 
       {/* ════ ACTO 3 — LA REGIÓN ════ */}
       <Act n={3} en={en} label={en ? "The region" : "La región"}
@@ -437,7 +574,11 @@ export function EnergiaDeep({ en = false }) {
         title={en ? "98.6% renewable, a stronger ICE — and almost no spare megawatts" : "98,6% renovable, un ICE más sólido — y casi ningún megavatio de sobra"}
         desc={en ? "The 2025 numbers contradict two popular narratives at once: ICE is not broke, and the grid is not ready for an AI-scale demand wave." : "Los números de 2025 contradicen dos narrativas populares a la vez: el ICE no está quebrado, y la red no está lista para una ola de demanda a escala IA."} />
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 290px), 1fr))", gap: 14 }}>
+      <ScrollReveal>
+        <CRGridMap en={en} />
+      </ScrollReveal>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 290px), 1fr))", gap: 14, marginTop: 14 }}>
         <ScrollReveal>
           <ShareCard en={en} filename="colibrii-energia-matriz-cr" sourceIds={["peg", "ice"]}
             title={en ? "Electric matrix: installed capacity & renewable share" : "Matriz eléctrica: capacidad instalada y participación renovable"}>
@@ -507,10 +648,17 @@ export function EnergiaDeep({ en = false }) {
 
       <CRAnchor en={en}>{T(ICE_FIN.insight, en)}</CRAnchor>
 
+      <EnergyBeam />
+
       {/* ════ ACTO 5 — EXPEDIENTE 23.414 ════ */}
       <Act n={5} en={en} label="Expediente 23.414"
         title={en ? "The reform that passed one debate and stalled the next day" : "La reforma que ganó un debate y quedó varada al día siguiente"}
-        desc={en ? "The most consequential electricity reform in 30 years passed first debate 27-24 on 26 May 2026 — and was withdrawn from the agenda by decree 18 hours later. What the bill does, who stands where, and the arithmetic that decides everything." : "La reforma eléctrica más importante en 30 años se aprobó en primer debate 27-24 el 26 de mayo de 2026 — y fue retirada de la agenda por decreto 18 horas después. Qué hace el proyecto, quién está dónde, y la aritmética que lo decide todo."} />
+        desc={en ? "The most consequential electricity reform in 30 years passed first debate 27-24 on 26 May 2026 — and was withdrawn from the agenda by decree the following afternoon. What the bill does, who stands where, and the arithmetic that decides everything." : "La reforma eléctrica más importante en 30 años se aprobó en primer debate 27-24 el 26 de mayo de 2026 — y fue retirada de la agenda por decreto la tarde siguiente. Qué hace el proyecto, quién está dónde, y la aritmética que lo decide todo."} />
+
+      <PullStat
+        v="8"
+        caption={en ? "opposition votes short of the 38 the Constitution requires for second debate — the whole reform now hangs on this number" : "votos opositores le faltan al oficialismo para los 38 que exige la Constitución en segundo debate — toda la reforma pende de este número"}
+        srcId="asamblea" />
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 250px), 1fr))", gap: 12 }}>
         {BILL_CORE.rows.map((b, i) => (
@@ -556,6 +704,8 @@ export function EnergiaDeep({ en = false }) {
       <KeyInsight text={T(COMPARATIVE.netAssessment, en)} color={EN_ACCENT.turquoise} />
       <div style={{ ...mono, fontSize: 10.5, color: "var(--text3)", marginTop: -10, marginBottom: 10 }}>{T(COMPARATIVE.asOf, en)}</div>
       <p style={{ fontSize: 12, color: "var(--text3)", lineHeight: 1.6, marginTop: 8 }}>{T(COMPARATIVE.cepalNote, en)} <Lnk href={SRC.cepal2002.url}>{SRC.cepal2002.name}</Lnk></p>
+
+      <EnergyBeam />
 
       {/* ════ ACTO 7 — LOS NÚMEROS QUE IMPORTAN ════ */}
       <Act n={7} en={en} label={en ? "The numbers that matter" : "Los números que importan"}
@@ -641,6 +791,8 @@ export function EnergiaDeep({ en = false }) {
             : "Cada cifra de esta sección lleva fuente nombrada, URL, fecha de acceso y bandera de confianza. Los documentos primarios (AIE, resoluciones de ARESEP, estados financieros del ICE, acciones de calificación, registros de la Asamblea) prevalecen sobre la prensa; los escenarios y el índice ECAI-CR son propuestas de Colibrii, marcadas como estimaciones con metodología abierta. Cuando el permalink exacto requiere búsqueda en archivo, los enlaces dirigen al portal del emisor. Insumo técnico independiente: Colibrii Labs no toma posición partidista ni asesora a gobierno alguno."}
         </p>
       </div>
+
+      <CTABlock en={en} />
     </div>
   );
 }
