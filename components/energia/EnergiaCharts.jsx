@@ -45,7 +45,7 @@ const CTRY = { CR: C.turq, UY: C.violet, PA: C.gold, MX: EN_ACCENT.green };
 
 /* ── shared chart cosmetics (dark-panel friendly, CSS-var aware) ── */
 const AXIS = {
-  tick: { fontSize: 11, fill: "var(--text3)" },
+  tick: { fontSize: 11, fill: "var(--text2)" },
   axisLine: { stroke: "var(--border)" },
   tickLine: { stroke: "var(--border)" },
 };
@@ -176,13 +176,13 @@ export function DCDemandChart({ en }) {
           <XAxis dataKey="year" {...AXIS} padding={{ left: 6, right: 6 }} />
           <YAxis domain={[0, yTop]} {...AXIS} width={44}
             tickFormatter={v => v.toLocaleString(en ? "en-US" : "es-CR")}
-            label={{ value: "TWh", angle: -90, position: "insideLeft", fill: "var(--text3)", fontSize: 11, dy: 18 }} />
+            label={{ value: "TWh", angle: -90, position: "insideLeft", fill: "var(--text2)", fontSize: 11, dy: 18 }} />
           <Tooltip content={<DCTip en={en} />} cursor={CURSOR} />
 
-          {/* "≈ Japan" annotation marked near 2030 / 945 TWh */}
+          {/* 2030 level annotation — ~3% of world electricity (IEA), unambiguous */}
           <ReferenceLine y={japan} stroke={C.gold} strokeDasharray="5 5" strokeOpacity={0.85} strokeWidth={1.2}
             label={{
-              value: en ? "≈ Japan's entire consumption" : "≈ todo el consumo de Japón",
+              value: en ? "2030 · ~3% of world electricity" : "2030 · ~3% del consumo mundial",
               position: "insideTopRight", fill: C.gold, fontSize: 10, dy: -4,
             }} />
 
@@ -204,7 +204,7 @@ export function DCDemandChart({ en }) {
       <LegendRow items={[
         { color: C.turq, label: en ? "Measured (IEA)" : "Medido (AIE)", ring: true },
         { color: C.glow, label: en ? "IEA projection (Base Case)" : "Proyección AIE (caso base)", dashed: true },
-        { color: C.gold, label: en ? "Japan reference (~945 TWh)" : "Referencia Japón (~945 TWh)", dashed: true },
+        { color: C.gold, label: en ? "2030 level (~945 TWh ≈ 3% world)" : "Nivel 2030 (~945 TWh ≈ 3% mundial)", dashed: true },
       ]} />
       <Src ids={[DC_DEMAND.s]} en={en} />
     </div>
@@ -272,7 +272,7 @@ export function TariffChart({ en }) {
           </defs>
           <CartesianGrid {...GRID} horizontal={false} />
           <XAxis type="number" domain={[0, 200]} ticks={[0, 50, 100, 150, 200]} {...AXIS}
-            label={{ value: "US$/MWh", position: "insideBottom", offset: -10, fill: "var(--text3)", fontSize: 11 }} />
+            label={{ value: "US$/MWh", position: "insideBottom", offset: -10, fill: "var(--text2)", fontSize: 11 }} />
           <YAxis type="category" dataKey="label" width={120} {...AXIS}
             tick={{ fontSize: 11, fill: "var(--text2)" }} />
           <Tooltip content={<TariffTip en={en} />} cursor={CURSOR} />
@@ -288,7 +288,7 @@ export function TariffChart({ en }) {
           <Bar dataKey="base" stackId="band" fill="transparent" isAnimationActive={false} />
           {/* the floating band itself — rounded, per-bar gradient, CR glows */}
           <Bar dataKey="span" stackId="band" radius={[5, 5, 5, 5]} maxBarSize={18}
-            isAnimationActive animationDuration={1100} animationEasing="ease-out">
+            isAnimationActive animationDuration={800} animationEasing="ease-out">
             {rows.map(r => (
               <Cell key={r.code}
                 fill={`url(#${gradId(r.code)})`}
@@ -350,7 +350,7 @@ export function MixDonut({ en }) {
             <Pie data={data} dataKey="pct" nameKey="label" cx="50%" cy="50%"
               innerRadius="60%" outerRadius="86%" paddingAngle={2} cornerRadius={6}
               startAngle={90} endAngle={-270} stroke="var(--card)" strokeWidth={1.5}
-              isAnimationActive animationDuration={1100} animationEasing="ease-out"
+              isAnimationActive animationDuration={800} animationEasing="ease-out"
               filter={`url(#${fGlow})`}>
               {data.map(r => <Cell key={r.id} fill={r.color} />)}
             </Pie>
@@ -532,7 +532,7 @@ export function SolarCurveChart({ en }) {
             allowDuplicatedCategory={false} padding={{ left: 4, right: 4 }} />
           <YAxis scale="log" domain={[0.05, 100]} ticks={[0.1, 1, 10, 76]}
             tickFormatter={v => `$${fmt(v, en)}`} {...AXIS} width={50}
-            label={{ value: "US$/W (log)", angle: -90, position: "insideLeft", fill: "var(--text3)", fontSize: 11, dy: 30 }} />
+            label={{ value: "US$/W (log)", angle: -90, position: "insideLeft", fill: "var(--text2)", fontSize: 11, dy: 30 }} />
           <Tooltip content={<SolarTip en={en} />} cursor={{ stroke: C.gold, strokeOpacity: 0.3, strokeDasharray: "3 3" }} />
 
           {/* shaded projection band 2025–2030 */}

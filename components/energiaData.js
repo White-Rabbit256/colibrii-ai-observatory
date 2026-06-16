@@ -63,7 +63,7 @@ export const HERO = {
   eyebrow: { es: "ENERGÍA · INSUMO TÉCNICO INDEPENDIENTE", en: "ENERGY · INDEPENDENT TECHNICAL INPUT" },
   title: { es: "La electricidad decide dónde se construye la inteligencia artificial", en: "Electricity decides where artificial intelligence gets built" },
   stat: { v: 945, from: 415, unit: "TWh", s: "iea2025", conf: "verified",
-    label: { es: "Demanda eléctrica de centros de datos: 415 TWh (2024) → ~945 TWh (2030), según la AIE. Más que todo el consumo actual de Japón.", en: "Data-centre electricity demand: 415 TWh (2024) → ~945 TWh (2030), per the IEA. More than Japan's entire current consumption." } },
+    label: { es: "Demanda eléctrica de centros de datos: 415 TWh (2024) → ~945 TWh (2030), según la AIE — cerca del 3% de toda la electricidad del mundo.", en: "Data-centre electricity demand: 415 TWh (2024) → ~945 TWh (2030), per the IEA — about 3% of the world's entire electricity." } },
   bluf: [
     { es: "La electricidad es hoy el insumo que define la competitividad en IA: la demanda de los centros de datos se duplicará con creces hacia 2030 y los hiperescaladores invertirán hasta $725.000 millones solo en 2026.", en: "Electricity now defines AI competitiveness: data-centre demand will more than double by 2030 and hyperscalers will invest up to $725 billion in 2026 alone." },
     { es: "Costa Rica entra a esa carrera con una matriz 98,6% renovable y un ICE más sólido (Moody's Ba1, deuda −25%), pero con poco margen de capacidad y tarifas industriales de hasta ~1,8 veces el promedio de EE. UU.", en: "Costa Rica enters that race with a 98.6% renewable grid and a stronger ICE (Moody's Ba1, debt −25%), but with little spare capacity and industrial tariffs up to ~1.8× the US average." },

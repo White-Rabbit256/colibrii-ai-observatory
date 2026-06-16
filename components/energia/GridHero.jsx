@@ -187,7 +187,7 @@ export default function GridHero() {
       ctx.clearRect(0, 0, W, H);
       drawParticles(dt);
       ctx.drawImage(base, 0, 0, W, H);
-      if (W >= 640) drawPackets(t);
+      if (W >= 360) drawPackets(t);
       drawLoadRing(t);
       nodes.forEach((n) => drawNode(n, 0.5 + 0.5 * Math.sin(t * 0.0019 + n.phase)));
     };

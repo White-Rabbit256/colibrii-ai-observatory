@@ -136,7 +136,7 @@ function StageGlow() {
     <mesh position={[0.1, -0.15, -0.55]} rotation={[0, 0, 0]}>
       <planeGeometry args={[8.2, 6.4]} />
       <meshBasicMaterial
-        map={tex} transparent opacity={0.85}
+        map={tex} transparent opacity={0.95}
         blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false}
       />
     </mesh>
@@ -272,10 +272,18 @@ function EnergyArcs({ paused }) {
       ))}
       <group ref={packetGrp}>
         {arcs.map((a) => (
-          <mesh key={a.key} position={[0, 0, Z_TOP]}>
-            <sphereGeometry args={[0.026, 12, 12]} />
-            <meshBasicMaterial color={a.color} toneMapped={false} />
-          </mesh>
+          <group key={a.key} position={[0, 0, Z_TOP]}>
+            {/* bright core */}
+            <mesh>
+              <sphereGeometry args={[0.046, 14, 14]} />
+              <meshBasicMaterial color={a.color} toneMapped={false} />
+            </mesh>
+            {/* additive halo for visual weight */}
+            <mesh>
+              <sphereGeometry args={[0.1, 12, 12]} />
+              <meshBasicMaterial color={a.color} transparent opacity={0.28} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
+            </mesh>
+          </group>
         ))}
       </group>
     </group>
@@ -386,7 +394,7 @@ export default function Hero3D() {
   return (
     <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
       <Canvas
-        dpr={[1, 2]}
+        dpr={reduced ? 1 : [1, 2]}
         frameloop={reduced ? "demand" : "always"}
         camera={{ position: [0, -0.4, 4.6], fov: 42 }}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}

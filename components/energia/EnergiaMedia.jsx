@@ -64,8 +64,11 @@ export function MediaFigure({ id, en, height = 240, eager = false }) {
         <img
           src={fileSrc(m.file, 1280)}
           alt={T(m.caption, en)}
+          width={1280}
+          height={800}
           loading={eager ? "eager" : "lazy"}
           decoding="async"
+          fetchpriority={eager ? "high" : "auto"}
           onError={() => setFailed(true)}
           className="energia-media-img"
           style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
@@ -87,7 +90,7 @@ export function MediaFigure({ id, en, height = 240, eager = false }) {
       {/* Credit / license chip (attribution-by-link) */}
       <a href={filePage(m.file)} target="_blank" rel="noopener noreferrer"
         style={{ position: "absolute", top: 10, right: 10, display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 8px", borderRadius: 999, background: "rgba(4,12,28,0.7)", backdropFilter: "blur(6px)", border: "1px solid rgba(255,255,255,0.15)", fontFamily: "'IBM Plex Mono',monospace", fontSize: 9.5, color: "rgba(255,255,255,0.8)", textDecoration: "none", letterSpacing: 0.3 }}>
-        {m.credit} · {m.license} ↗
+        {en ? "Photo: Wikimedia Commons — see license" : "Foto: Wikimedia Commons — ver licencia"} ↗
       </a>
 
       {/* "FOTO" corner tag */}

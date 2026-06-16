@@ -352,6 +352,46 @@ function AmendmentCard({ a, en }) {
   );
 }
 
+/* ── Floating share affordance — appears after the hero (P16/P20/P06) ── */
+function FloatingShare({ en }) {
+  const [show, setShow] = useState(false);
+  const [done, setDone] = useState(false);
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      setShow(y > 520 && y < max - 420);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  const share = async () => {
+    try {
+      await navigator.clipboard.writeText("https://colibriilabs.ai/app#energia?utm_source=share&utm_medium=floating&utm_campaign=energia");
+      setDone(true); setTimeout(() => setDone(false), 2000);
+    } catch {}
+  };
+  return (
+    <button
+      onClick={share}
+      aria-label={en ? "Copy link to this analysis" : "Copiar enlace de este análisis"}
+      style={{
+        position: "fixed", right: "max(16px, env(safe-area-inset-right))", bottom: "max(18px, env(safe-area-inset-bottom))",
+        zIndex: 40, display: "inline-flex", alignItems: "center", gap: 8, minHeight: 46, padding: "10px 16px",
+        borderRadius: 999, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 700, ...mono,
+        color: "#06281f", background: `linear-gradient(135deg, ${EN_ACCENT.turquoise}, ${EN_ACCENT.glow})`,
+        boxShadow: "0 8px 28px rgba(0,181,168,0.4)",
+        opacity: show ? 1 : 0, transform: show ? "translateY(0)" : "translateY(16px)",
+        pointerEvents: show ? "auto" : "none", transition: "opacity .3s ease, transform .3s ease",
+      }}
+    >
+      <Icon name="copy" size={15} />
+      {done ? (en ? "Copied ✓" : "Copiado ✓") : (en ? "Share" : "Compartir")}
+    </button>
+  );
+}
+
 /* ── Mid-scroll micro-CTA (value peak, after Act 7) ── */
 function MicroCTA({ en }) {
   const [done, setDone] = useState(false);
@@ -445,6 +485,7 @@ export function EnergiaDeep({ en = false }) {
     <div className="energia-scope" style={{ maxWidth: 1060, margin: "0 auto" }}>
       <ScrollProgress />
       <ActNav en={en} />
+      <FloatingShare en={en} />
 
       {/* ════ ACTO 1 — COLD OPEN ════ */}
       <section aria-label={en ? "Opening" : "Apertura"} style={{ position: "relative", borderRadius: "var(--radius)", overflow: "hidden", background: `linear-gradient(160deg, ${EN_ACCENT.navy} 0%, ${EN_ACCENT.navy2} 55%, #0a1830 100%)`, border: "1px solid rgba(0,181,168,0.25)", marginTop: 14 }}>
@@ -624,6 +665,13 @@ export function EnergiaDeep({ en = false }) {
 
       <ScrollReveal>
         <div style={{ marginTop: 14 }}><MediaRow en={en} ids={["cachi", "reventazon"]} height={220} /></div>
+      </ScrollReveal>
+      <ScrollReveal>
+        <p style={{ fontSize: 13.5, color: "var(--text2)", lineHeight: 1.7, marginTop: 12, maxWidth: 680, fontStyle: "italic" }}>
+          {en
+            ? "These dams built Costa Rica's clean grid. But hydro is 68% of capacity in a country that must add +2,495 MW by 2040 — and the rivers are nearly spoken for. That is the squeeze."
+            : "Estas represas construyeron la red limpia de Costa Rica. Pero la hidro es el 68% de la capacidad en un país que debe sumar +2.495 MW al 2040 — y los ríos están casi comprometidos. Ese es el apretón."}
+        </p>
       </ScrollReveal>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 290px), 1fr))", gap: 14, marginTop: 14 }}>
