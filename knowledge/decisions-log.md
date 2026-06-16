@@ -45,3 +45,15 @@ three@0.165 + @react-three/fiber@8.16 compile clean on Next 14/React 18.3 (the o
 
 **D-014 · 2026-06-11 · Run #1.5 — visual/engagement overhaul after owner review**
 Owner verdict on Run #1: sterile, broken hand-drawn map, no imagery, weak hooks. Response: (a) accurate CR geometry extracted from world-atlas 50m (Natural Earth, public domain) → crGeo.js, consumed by Hero3D (3D) and CRGridMap (interactive SVG); (b) original editorial art instead of license-blocked photos (ReactorCutaway SMR diagram, EnergyBeam dividers); (c) shell upgrades: sticky ActNav, gradient display type, PullStat emotional beats, scroll cue, CTABlock conversion section; (d) persona board expanded 12 → 20 (motion, brand, retention, virality, story, WebGL art direction, Gen-Z mobile, conversion). Lesson for the factory: "build gates passing" ≠ "owner delighted" — add a mandatory visual-impact persona pass to Run #2's FIRST iteration, not after owner complaint.
+
+**D-015 · 2026-06-16 · Run #2 "Maximum Effort" — real photos + cinematic visual rebuild**
+Owner: still too plain; wants real 3D, fixed map, news photos, less-boring charts, 20-persona attractiveness review. Capability reality: WebSearch works in-sandbox but WebFetch + raw curl are allowlist-blocked (403) for all image/wiki/NASA hosts — so exact URLs/licenses can't be fetch-verified here. Solution: harvested EXACT Wikimedia Commons filenames via domain-restricted WebSearch, load them through the stable `Special:FilePath/<filename>` redirect (renders in the user's browser; CSP img-src https: allows it), and satisfy CC BY-SA via attribution-by-link to each Commons File: page. Every <img> has an onError → CSS-art fallback so a wrong URL never shows a broken image. Bill Gates/Natrium groundbreaking photo is NYT/Redux (copyright) → NOT embedded; represented by the original ReactorCutaway. R3F upgraded to cinematic (tube-arcs + energy packets + stage glow + rim halo). Map smoothed (Catmull-Rom). Charts rebuilt dramatic-but-honest. Persona board → 20 with attractiveness/interactivity lens.
+
+## Media manifest (Run #2) — verified Commons filenames, attribution-by-link
+| id | File (Commons) | Act | credit/license |
+|---|---|---|---|
+| datacenter | Datacenter Server Racks (22370909788).jpg | 2 | Wikimedia Commons · CC BY-SA (link) |
+| tmi | 3 mile Island from Goldsboro PA.JPG | 2 | Wikimedia Commons · CC BY-SA (link) |
+| cachi | Represa de Cachi ICE Costa Rica CA.jpg | 4 | Wikimedia Commons · CC BY-SA (link) |
+| reventazon | Río Reventazón. Costa Rica.JPG | 4 | Wikimedia Commons · CC BY-SA (link) |
+Note: exact per-file author/license not fetch-verifiable in-session → credit links to the file page (standard CC BY-SA attribution-by-link); onError fallback guarantees no broken images. Backlog: confirm each file's license/author from a browser and refine credit lines; consider self-hosting copies in /public for permanence.

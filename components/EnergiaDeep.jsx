@@ -10,6 +10,7 @@ import {
   COMPARATIVE, ECAI, SCENARIOS, SOLAR_CURVE, AMENDMENTS, VIDEOS,
 } from "./energiaData";
 import { DCDemandChart, TariffChart, MixDonut, EcaiRadar, SolarCurveChart } from "./energia/EnergiaCharts";
+import { MediaRow } from "./energia/EnergiaMedia";
 import { EcaiExplorer, TariffComparator, ScenarioExplorer } from "./energia/EnergiaInteractive";
 import CRGridMap from "./energia/CRGridMap";
 import { ReactorCutaway, EnergyBeam } from "./energia/EnergiaArt";
@@ -497,6 +498,10 @@ export function EnergiaDeep({ en = false }) {
         desc={en ? "Data-centre demand will more than double by 2030. The world's largest companies are responding with the biggest private infrastructure bet in history — including restarting nuclear plants." : "La demanda de los centros de datos se duplicará con creces al 2030. Las empresas más grandes del mundo responden con la mayor apuesta privada de infraestructura de la historia — incluida la reapertura de plantas nucleares."} />
 
       <ScrollReveal>
+        <MediaRow en={en} ids={["datacenter", "tmi"]} height={260} />
+      </ScrollReveal>
+
+      <ScrollReveal>
         <ShareCard en={en} filename="colibrii-energia-demanda-datacenters" sourceIds={["iea2025"]}
           title={en ? "Data-centre electricity demand, 2020-2035 (TWh)" : "Demanda eléctrica de centros de datos, 2020-2035 (TWh)"}>
           <DCDemandChart en={en} />
@@ -615,6 +620,10 @@ export function EnergiaDeep({ en = false }) {
 
       <ScrollReveal>
         <CRGridMap en={en} />
+      </ScrollReveal>
+
+      <ScrollReveal>
+        <div style={{ marginTop: 14 }}><MediaRow en={en} ids={["cachi", "reventazon"]} height={220} /></div>
       </ScrollReveal>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 290px), 1fr))", gap: 14, marginTop: 14 }}>
