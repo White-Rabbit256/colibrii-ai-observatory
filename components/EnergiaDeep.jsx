@@ -490,6 +490,11 @@ export function EnergiaDeep({ en = false }) {
       {/* ════ ACTO 1 — COLD OPEN ════ */}
       <section aria-label={en ? "Opening" : "Apertura"} style={{ position: "relative", borderRadius: "var(--radius)", overflow: "hidden", background: `linear-gradient(160deg, ${EN_ACCENT.navy} 0%, ${EN_ACCENT.navy2} 55%, #0a1830 100%)`, border: "1px solid rgba(0,181,168,0.25)", marginTop: 14 }}>
         {use3d ? <Hero3D /> : <GridHero />}
+        {/* Legibility scrim — solid navy under the text column, fading to reveal the 3D on the right */}
+        <div aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
+          background: "linear-gradient(100deg, rgba(6,15,34,0.96) 0%, rgba(6,15,34,0.9) 30%, rgba(6,15,34,0.6) 56%, rgba(6,15,34,0.2) 78%, rgba(6,15,34,0) 100%)" }} />
+        <div aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
+          background: "linear-gradient(0deg, rgba(6,15,34,0.7) 0%, rgba(6,15,34,0) 40%)" }} />
         <div style={{ position: "relative", zIndex: 2, padding: "clamp(28px, 6vw, 64px) clamp(20px, 5vw, 56px)" }}>
           <div style={{ ...mono, fontSize: 11, letterSpacing: 2.5, color: EN_ACCENT.turquoise, marginBottom: 14 }}>{T(HERO.eyebrow, en)}</div>
           <h1 style={{ ...display, fontSize: "clamp(28px, 5vw, 50px)", fontWeight: 800, lineHeight: 1.14, maxWidth: 760, marginBottom: 22,

@@ -117,7 +117,7 @@ function CountryMesh() {
       <mesh geometry={body} castShadow receiveShadow>
         <meshStandardMaterial
           color={DEEP} metalness={0.42} roughness={0.4}
-          emissive={TURQ} emissiveIntensity={0.34}
+          emissive={TURQ} emissiveIntensity={0.12}
         />
       </mesh>
       {/* Bright beveled top edge */}
@@ -133,10 +133,10 @@ function StageGlow() {
   const tex = useMemo(makeGlowTexture, []);
   if (!tex) return null;
   return (
-    <mesh position={[0.1, -0.15, -0.55]} rotation={[0, 0, 0]}>
+    <mesh position={[0.9, -0.1, -0.6]} rotation={[0, 0, 0]}>
       <planeGeometry args={[8.2, 6.4]} />
       <meshBasicMaterial
-        map={tex} transparent opacity={0.95}
+        map={tex} transparent opacity={0.45}
         blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false}
       />
     </mesh>
@@ -346,7 +346,7 @@ function Scene({ reduced }) {
     if (reduced) {
       if (group.current) {
         group.current.rotation.set(-0.42, 0.0, 0.1);
-        group.current.position.set(0, 0, 0);
+        group.current.position.set(0.95, -0.05, 0);
       }
       invalidate();
     }
@@ -363,7 +363,8 @@ function Scene({ reduced }) {
     group.current.rotation.x = -0.42 + Math.sin(t * 0.25) * 0.03 + aim.current.y * 0.7;
     group.current.rotation.y = Math.sin(t * 0.21) * 0.05 + aim.current.x;
     group.current.rotation.z = 0.1 + Math.sin(t * 0.18) * 0.02;
-    group.current.position.y = Math.sin(t * 0.4) * 0.045;
+    group.current.position.x = 0.95;
+    group.current.position.y = -0.05 + Math.sin(t * 0.4) * 0.045;
   });
 
   return (
@@ -372,7 +373,7 @@ function Scene({ reduced }) {
       {/* key + rim + accents for dramatic edge separation */}
       <ambientLight intensity={0.42} />
       <directionalLight position={[3, 4.5, 6]} intensity={1.15} color="#dcefff" />
-      <directionalLight position={[-3.5, 2, -4.5]} intensity={0.7} color="#7ee7f0" />
+      <directionalLight position={[-3.5, 2, -4.5]} intensity={0.5} color="#7ee7f0" />
       <pointLight position={[0, -2.6, 2.2]} intensity={1.6} color={TURQ} distance={9} />
       <pointLight position={[2.4, 2.0, 3]} intensity={0.9} color={GOLD} distance={8} />
 
@@ -380,7 +381,7 @@ function Scene({ reduced }) {
       <ParticleLayer paused={paused} count={220} spread={9} depth={-1.6} size={0.018} opacity={0.5} color={TURQ} speed={0.016} />
       <StageGlow />
 
-      <group ref={group}>
+      <group ref={group} scale={0.9}>
         <CountryMesh />
         <PlantNodes paused={paused} />
         <EnergyArcs paused={paused} />
