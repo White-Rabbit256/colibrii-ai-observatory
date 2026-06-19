@@ -1,19 +1,22 @@
 "use client";
 import { useRef, useMemo, useState, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { EffectComposer, Bloom } from "@react-three/postprocessing";
+import { animate } from "animejs";
 import * as THREE from "three";
 import { CR_OUTLINE_GEO, CR_BBOX, PLANTS_GEO } from "./crGeo";
 import { EN_ACCENT } from "../energiaData";
 
 /* ═══════════════════════════════════════════════════════════════
-   ENERGÍA — Hero3D (cinematic command-center edition)
-   Extruded Costa Rica in deep navy with a turquoise rim-glow
-   silhouette over a luminous stage disc in a fogged void; energy
-   streams along glowing tube-arcs from every plant into the GAM
-   load core, pulsing rings mark each node, twin parallax particle
-   layers add depth. Float + auto-rotate + eased pointer parallax.
-   Honours prefers-reduced-motion (one static lit frame) and pauses
-   when hidden. Lazy (ssr:false); guards all window/document use.
+   ENERGÍA — Hero3D (cinematic edition v2)
+   Extruded Costa Rica in deep navy with a turquoise rim-glow over a
+   luminous stage disc in a fogged void; energy streams along glowing
+   tube-arcs into the GAM load core with REAL bloom; pulsing nodes,
+   twin parallax particle layers. anime.js drives the intro build-on
+   (country rises + assembles, nodes pop staggered); pointer-drag
+   rotates the globe with inertia + spring-back. Float + auto-rotate +
+   eased pointer parallax. Honours prefers-reduced-motion (one static
+   lit frame) and pauses when hidden. Lazy (ssr:false), SSR-guarded.
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── Palette (harmonised with EN_ACCENT) ── */
@@ -24,12 +27,8 @@ const GOLD = EN_ACCENT.gold;            // #F2B135
 const DEEP = "#0e2a52";                 // landmass body
 
 const KIND = {
-  hydro: GLOW,
-  geo: GOLD,
-  wind: TURQ,
-  solar: "#fbbf24",
-  thermal: EN_ACCENT.risk,
-  load: "#ffffff",
+  hydro: GLOW, geo: GOLD, wind: TURQ, solar: "#fbbf24",
+  thermal: EN_ACCENT.risk, load: "#ffffff",
 };
 
 /* ── Geo → scene projection (centered, aspect-corrected) ── */
@@ -40,9 +39,10 @@ const SCALE = 1.42;
 const px = (lng) => (lng - cLng) * K * SCALE;
 const py = (lat) => (lat - cLat) * SCALE;
 
-const Z_MAP = 0.0;     // map plane (top of extrusion sits a hair above)
 const Z_TOP = 0.205;   // node / ring plane on the country's lit face
 const DEPTH = 0.18;    // extrusion depth
+const easeOutCubic = (x) => 1 - Math.pow(1 - x, 3);
+const clamp01 = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
 
 /* ── prefers-reduced-motion (SSR-safe) ── */
 function useReducedMotion() {
@@ -52,12 +52,8 @@ function useReducedMotion() {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     const apply = () => setReduced(!!mq.matches);
     apply();
-    mq.addEventListener ? mq.addEventListener("change", apply)
-                        : mq.addListener(apply);
-    return () => {
-      mq.removeEventListener ? mq.removeEventListener("change", apply)
-                            : mq.removeListener(apply);
-    };
+    mq.addEventListener ? mq.addEventListener("change", apply) : mq.addListener(apply);
+    return () => { mq.removeEventListener ? mq.removeEventListener("change", apply) : mq.removeListener(apply); };
   }, []);
   return reduced;
 }
@@ -92,13 +88,10 @@ function CountryMesh() {
     });
     shape.closePath();
     const body = new THREE.ExtrudeGeometry(shape, {
-      depth: DEPTH, bevelEnabled: true,
-      bevelThickness: 0.022, bevelSize: 0.016, bevelSegments: 2,
+      depth: DEPTH, bevelEnabled: true, bevelThickness: 0.022, bevelSize: 0.016, bevelSegments: 2,
     });
-    // Slightly inflated silhouette for the rim glow behind the body.
     const halo = new THREE.ExtrudeGeometry(shape, {
-      depth: DEPTH * 0.6, bevelEnabled: true,
-      bevelThickness: 0.05, bevelSize: 0.08, bevelSegments: 1,
+      depth: DEPTH * 0.6, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.08, bevelSegments: 1,
     });
     const edges = new THREE.EdgesGeometry(body, 22);
     return { body, halo, edges };
@@ -106,21 +99,12 @@ function CountryMesh() {
 
   return (
     <group>
-      {/* Rim-glow silhouette (additive, behind & beneath the body) */}
       <mesh geometry={halo} position={[0, 0, -0.06]} scale={[1.035, 1.035, 1]}>
-        <meshBasicMaterial
-          color={TURQ} transparent opacity={0.14}
-          blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false}
-        />
+        <meshBasicMaterial color={TURQ} transparent opacity={0.14} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
       </mesh>
-      {/* The landmass body */}
       <mesh geometry={body} castShadow receiveShadow>
-        <meshStandardMaterial
-          color={DEEP} metalness={0.42} roughness={0.4}
-          emissive={TURQ} emissiveIntensity={0.12}
-        />
+        <meshStandardMaterial color={DEEP} metalness={0.42} roughness={0.4} emissive={TURQ} emissiveIntensity={0.12} />
       </mesh>
-      {/* Bright beveled top edge */}
       <lineSegments geometry={edges} position={[0, 0, DEPTH + 0.022]}>
         <lineBasicMaterial color={GLOW} transparent opacity={0.92} toneMapped={false} />
       </lineSegments>
@@ -133,54 +117,50 @@ function StageGlow() {
   const tex = useMemo(makeGlowTexture, []);
   if (!tex) return null;
   return (
-    <mesh position={[0.9, -0.1, -0.6]} rotation={[0, 0, 0]}>
+    <mesh position={[0.9, -0.1, -0.6]}>
       <planeGeometry args={[8.2, 6.4]} />
-      <meshBasicMaterial
-        map={tex} transparent opacity={0.45}
-        blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false}
-      />
+      <meshBasicMaterial map={tex} transparent opacity={0.45} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
     </mesh>
   );
 }
 
-/* ── Glowing plant nodes + pulsing rings ── */
-function PlantNodes({ paused }) {
+/* ── Glowing plant nodes + pulsing rings (intro-staggered pop-in) ── */
+function PlantNodes({ paused, intro }) {
   const sphereGrp = useRef();
   const ringGrp = useRef();
   const nodes = useMemo(() => PLANTS_GEO.map((p, i) => ({
-    ...p,
-    x: px(p.lng), y: py(p.lat),
-    phase: i * 0.85,
-    isLoad: p.kind === "load",
-    c: new THREE.Color(KIND[p.kind] || "#ffffff"),
+    ...p, x: px(p.lng), y: py(p.lat), phase: i * 0.85,
+    isLoad: p.kind === "load", c: new THREE.Color(KIND[p.kind] || "#ffffff"),
   })), []);
 
   useFrame(({ clock }) => {
     if (paused.current) return;
     const t = clock.elapsedTime;
+    const ip = intro.current.p;
     const spheres = sphereGrp.current;
     const rings = ringGrp.current;
     if (spheres) {
       for (let i = 0; i < spheres.children.length; i++) {
         const n = nodes[i];
-        const s = 1 + Math.sin(t * 2 + n.phase) * 0.22;
-        spheres.children[i].scale.setScalar(n.isLoad ? s * 1.2 : s);
+        const pop = easeOutCubic(clamp01((ip - i * 0.05) / 0.24)); // staggered build-on
+        const s = (1 + Math.sin(t * 2 + n.phase) * 0.22) * (n.isLoad ? 1.2 : 1) * pop;
+        spheres.children[i].scale.setScalar(s);
       }
     }
     if (rings) {
       for (let i = 0; i < rings.children.length; i++) {
         const n = nodes[i];
         const m = rings.children[i];
+        const pop = clamp01((ip - i * 0.05) / 0.24);
         if (n.isLoad) {
-          // GAM: larger expanding-and-fading pulse
-          const cyc = (t * 0.7 + 0.0) % 1;
+          const cyc = (t * 0.7) % 1;
           const sc = 1 + cyc * 3.4;
           m.scale.set(sc, sc, sc);
-          m.material.opacity = (1 - cyc) * 0.7;
+          m.material.opacity = (1 - cyc) * 0.7 * pop;
         } else {
           const sc = 1 + (Math.sin(t * 2.2 + n.phase) * 0.5 + 0.5) * 0.9;
           m.scale.set(sc, sc, sc);
-          m.material.opacity = 0.28 + Math.sin(t * 2.2 + n.phase) * 0.18;
+          m.material.opacity = (0.28 + Math.sin(t * 2.2 + n.phase) * 0.18) * pop;
         }
       }
     }
@@ -190,12 +170,9 @@ function PlantNodes({ paused }) {
     <group>
       <group ref={sphereGrp}>
         {nodes.map((n) => (
-          <mesh key={n.id} position={[n.x, n.y, Z_TOP]}>
+          <mesh key={n.id} position={[n.x, n.y, Z_TOP]} scale={0.001}>
             <sphereGeometry args={[n.isLoad ? 0.052 : 0.038, 16, 16]} />
-            <meshStandardMaterial
-              color={n.c} emissive={n.c}
-              emissiveIntensity={n.isLoad ? 3.0 : 2.4} toneMapped={false}
-            />
+            <meshStandardMaterial color={n.c} emissive={n.c} emissiveIntensity={n.isLoad ? 3.0 : 2.4} toneMapped={false} />
           </mesh>
         ))}
       </group>
@@ -203,10 +180,7 @@ function PlantNodes({ paused }) {
         {nodes.map((n) => (
           <mesh key={n.id} position={[n.x, n.y, Z_TOP + 0.002]}>
             <ringGeometry args={[n.isLoad ? 0.075 : 0.055, n.isLoad ? 0.092 : 0.068, 40]} />
-            <meshBasicMaterial
-              color={n.isLoad ? "#ffffff" : n.c} transparent opacity={0.4}
-              side={THREE.DoubleSide} depthWrite={false} toneMapped={false}
-            />
+            <meshBasicMaterial color={n.isLoad ? "#ffffff" : n.c} transparent opacity={0.4} side={THREE.DoubleSide} depthWrite={false} toneMapped={false} />
           </mesh>
         ))}
       </group>
@@ -214,8 +188,9 @@ function PlantNodes({ paused }) {
   );
 }
 
-/* ── Energy tube-arcs + traveling glow packets (plant → GAM) ── */
-function EnergyArcs({ paused }) {
+/* ── Energy tube-arcs + traveling glow packets (intro-drawn) ── */
+function EnergyArcs({ paused, intro }) {
+  const tubeGrp = useRef();
   const packetGrp = useRef();
   const scratch = useMemo(() => new THREE.Vector3(), []);
   const arcs = useMemo(() => {
@@ -227,62 +202,48 @@ function EnergyArcs({ paused }) {
       const lift = 0.42 + dist * 0.28 + (i % 3) * 0.08;
       const mid = new THREE.Vector3((x + gx) / 2, (y + gy) / 2, Z_TOP + lift);
       const curve = new THREE.QuadraticBezierCurve3(
-        new THREE.Vector3(x, y, Z_TOP),
-        mid,
-        new THREE.Vector3(gx, gy, Z_TOP)
-      );
-      const tube = new THREE.TubeGeometry(curve, 44, 0.012, 8, false);
-      return {
-        key: p.id,
-        tube,
-        curve,
-        color: new THREE.Color(KIND[p.kind] || GLOW),
-        speed: 0.18 + (i % 4) * 0.035,
-        offset: (i * 0.137) % 1,
-      };
+        new THREE.Vector3(x, y, Z_TOP), mid, new THREE.Vector3(gx, gy, Z_TOP));
+      const tube = new THREE.TubeGeometry(curve, 48, 0.013, 8, false);
+      return { key: p.id, tube, curve, color: new THREE.Color(KIND[p.kind] || GLOW),
+        speed: 0.18 + (i % 4) * 0.035, offset: (i * 0.137) % 1 };
     });
   }, []);
 
   useFrame(({ clock }) => {
     if (paused.current) return;
     const t = clock.elapsedTime;
+    const ip = intro.current.p;
+    const draw = clamp01((ip - 0.4) / 0.45); // arcs fade in after country/nodes
+    const tubes = tubeGrp.current;
+    if (tubes) for (let i = 0; i < tubes.children.length; i++) tubes.children[i].material.opacity = 0.5 * draw;
     const grp = packetGrp.current;
-    if (!grp) return;
-    for (let i = 0; i < arcs.length; i++) {
-      const a = arcs[i];
-      const tt = (t * a.speed + a.offset) % 1;
-      a.curve.getPointAt(tt, scratch);
-      const m = grp.children[i];
-      m.position.copy(scratch);
-      // brighten as the packet nears the capital
-      m.scale.setScalar(0.7 + tt * 0.8);
+    if (grp) {
+      grp.visible = draw > 0.6;
+      for (let i = 0; i < arcs.length; i++) {
+        const a = arcs[i];
+        const tt = (t * a.speed + a.offset) % 1;
+        a.curve.getPointAt(tt, scratch);
+        const m = grp.children[i];
+        m.position.copy(scratch);
+        m.scale.setScalar((0.7 + tt * 0.8) * draw);
+      }
     }
   });
 
   return (
     <group>
-      {arcs.map((a) => (
-        <mesh key={a.key} geometry={a.tube}>
-          <meshStandardMaterial
-            color={a.color} emissive={a.color} emissiveIntensity={1.1}
-            transparent opacity={0.5} toneMapped={false}
-            depthWrite={false}
-          />
-        </mesh>
-      ))}
+      <group ref={tubeGrp}>
+        {arcs.map((a) => (
+          <mesh key={a.key} geometry={a.tube}>
+            <meshStandardMaterial color={a.color} emissive={a.color} emissiveIntensity={1.4} transparent opacity={0} toneMapped={false} depthWrite={false} />
+          </mesh>
+        ))}
+      </group>
       <group ref={packetGrp}>
         {arcs.map((a) => (
           <group key={a.key} position={[0, 0, Z_TOP]}>
-            {/* bright core */}
-            <mesh>
-              <sphereGeometry args={[0.046, 14, 14]} />
-              <meshBasicMaterial color={a.color} toneMapped={false} />
-            </mesh>
-            {/* additive halo for visual weight */}
-            <mesh>
-              <sphereGeometry args={[0.1, 12, 12]} />
-              <meshBasicMaterial color={a.color} transparent opacity={0.28} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
-            </mesh>
+            <mesh><sphereGeometry args={[0.05, 14, 14]} /><meshBasicMaterial color={a.color} toneMapped={false} /></mesh>
+            <mesh><sphereGeometry args={[0.11, 12, 12]} /><meshBasicMaterial color={a.color} transparent opacity={0.3} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} /></mesh>
           </group>
         ))}
       </group>
@@ -302,75 +263,72 @@ function ParticleLayer({ count, spread, depth, size, opacity, color, speed, paus
     }
     return arr;
   }, [count, spread, depth]);
-  useFrame(({ clock }) => {
-    if (paused.current) return;
-    if (ref.current) ref.current.rotation.z = clock.elapsedTime * speed;
-  });
+  useFrame(({ clock }) => { if (!paused.current && ref.current) ref.current.rotation.z = clock.elapsedTime * speed; });
   return (
     <points ref={ref}>
-      <bufferGeometry>
-        <bufferAttribute attach="attributes-position" count={count} array={positions} itemSize={3} />
-      </bufferGeometry>
-      <pointsMaterial
-        color={color} size={size} transparent opacity={opacity}
-        sizeAttenuation depthWrite={false}
-      />
+      <bufferGeometry><bufferAttribute attach="attributes-position" count={count} array={positions} itemSize={3} /></bufferGeometry>
+      <pointsMaterial color={color} size={size} transparent opacity={opacity} sizeAttenuation depthWrite={false} />
     </points>
   );
 }
 
-/* ── Scene root: float + auto-rotate + eased pointer parallax ── */
-function Scene({ reduced }) {
+/* ── Scene root: intro build-on + float + auto-rotate + pointer parallax + drag ── */
+function Scene({ reduced, drag }) {
   const group = useRef();
   const paused = useRef(false);
   const hidden = useRef(false);
+  const intro = useRef({ p: reduced ? 1 : 0 });
   const invalidate = useThree((s) => s.invalidate);
-
-  // Eased pointer targets (no per-frame allocation; capped amplitude).
   const aim = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     paused.current = reduced;
     if (typeof document === "undefined") return;
-    const onVis = () => {
-      hidden.current = document.hidden;
-      if (!document.hidden && !reduced) invalidate();
-    };
+    const onVis = () => { hidden.current = document.hidden; if (!document.hidden && !reduced) invalidate(); };
     onVis();
     document.addEventListener("visibilitychange", onVis);
     return () => document.removeEventListener("visibilitychange", onVis);
   }, [reduced, invalidate]);
 
-  // Render exactly one lit, motionless frame when reduced-motion is on.
+  // anime.js intro build-on (skipped under reduced-motion)
   useEffect(() => {
     if (reduced) {
-      if (group.current) {
-        group.current.rotation.set(-0.42, 0.0, 0.1);
-        group.current.position.set(0.95, -0.05, 0);
-      }
+      intro.current.p = 1;
+      if (group.current) { group.current.rotation.set(-0.42, 0, 0.1); group.current.position.set(0.95, -0.05, 0); group.current.scale.setScalar(0.9); }
       invalidate();
+      return;
     }
+    intro.current.p = 0;
+    const anim = animate(intro.current, { p: [0, 1], duration: 1900, delay: 150, ease: "outCubic" });
+    return () => { try { anim.pause(); } catch {} };
   }, [reduced, invalidate]);
 
-  const CAP = 0.09; // hard cap on pointer-driven rotation (rad)
-
+  const CAP = 0.09;
   useFrame(({ clock, pointer }) => {
     if (paused.current || hidden.current || !group.current) return;
     const t = clock.elapsedTime;
-    // ease toward capped pointer target
+    const ip = easeOutCubic(intro.current.p);
+
+    // drag inertia + spring-back toward the designed pose
+    const d = drag.current;
+    if (!d.down) { d.ry += d.vy; d.vy *= 0.92; d.ry *= 0.96; d.rx *= 0.96; }
+    d.rx = THREE.MathUtils.clamp(d.rx, -0.5, 0.5);
+
     aim.current.x += (THREE.MathUtils.clamp(pointer.x, -1, 1) * CAP - aim.current.x) * 0.045;
     aim.current.y += (THREE.MathUtils.clamp(pointer.y, -1, 1) * CAP - aim.current.y) * 0.045;
-    group.current.rotation.x = -0.42 + Math.sin(t * 0.25) * 0.03 + aim.current.y * 0.7;
-    group.current.rotation.y = Math.sin(t * 0.21) * 0.05 + aim.current.x;
-    group.current.rotation.z = 0.1 + Math.sin(t * 0.18) * 0.02;
+
+    const float = ip; // motion eases in with the build-on
+    group.current.rotation.x = -0.42 + (Math.sin(t * 0.25) * 0.03 + aim.current.y * 0.7) * float + d.rx;
+    group.current.rotation.y = (Math.sin(t * 0.21) * 0.05 + aim.current.x) * float + d.ry;
+    group.current.rotation.z = 0.1 + Math.sin(t * 0.18) * 0.02 * float;
     group.current.position.x = 0.95;
-    group.current.position.y = -0.05 + Math.sin(t * 0.4) * 0.045;
+    group.current.position.y = -0.05 + (1 - ip) * -1.0 + Math.sin(t * 0.4) * 0.045 * float;
+    group.current.scale.setScalar(0.9 * (0.5 + 0.5 * ip));
   });
 
   return (
     <>
       <fogExp2 attach="fog" args={[NAVY, 0.085]} />
-      {/* key + rim + accents for dramatic edge separation */}
       <ambientLight intensity={0.42} />
       <directionalLight position={[3, 4.5, 6]} intensity={1.15} color="#dcefff" />
       <directionalLight position={[-3.5, 2, -4.5]} intensity={0.5} color="#7ee7f0" />
@@ -381,19 +339,44 @@ function Scene({ reduced }) {
       <ParticleLayer paused={paused} count={220} spread={9} depth={-1.6} size={0.018} opacity={0.5} color={TURQ} speed={0.016} />
       <StageGlow />
 
-      <group ref={group} scale={0.9}>
+      <group ref={group} scale={0.001}>
         <CountryMesh />
-        <PlantNodes paused={paused} />
-        <EnergyArcs paused={paused} />
+        <PlantNodes paused={paused} intro={intro} />
+        <EnergyArcs paused={paused} intro={intro} />
       </group>
+
+      {/* Real cinematic bloom — only bright emissive (nodes/arcs/packets) blooms */}
+      <EffectComposer disableNormalPass>
+        <Bloom intensity={0.9} luminanceThreshold={0.22} luminanceSmoothing={0.32} mipmapBlur radius={0.7} />
+      </EffectComposer>
     </>
   );
 }
 
 export default function Hero3D() {
   const reduced = useReducedMotion();
+  const drag = useRef({ down: false, lx: 0, ly: 0, ry: 0, rx: 0, vy: 0 });
+  const [grabbing, setGrabbing] = useState(false);
+
+  const onDown = (e) => { drag.current.down = true; drag.current.lx = e.clientX; drag.current.ly = e.clientY; drag.current.vy = 0; setGrabbing(true); };
+  const onMove = (e) => {
+    const d = drag.current;
+    if (!d.down) return;
+    const dx = e.clientX - d.lx, dy = e.clientY - d.ly;
+    d.lx = e.clientX; d.ly = e.clientY;
+    d.ry += dx * 0.006; d.rx += dy * 0.004; d.vy = dx * 0.006;
+  };
+  const onUp = () => { drag.current.down = false; setGrabbing(false); };
+
   return (
-    <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+    <div
+      aria-hidden="true"
+      onPointerDown={reduced ? undefined : onDown}
+      onPointerMove={reduced ? undefined : onMove}
+      onPointerUp={onUp}
+      onPointerLeave={onUp}
+      style={{ position: "absolute", inset: 0, pointerEvents: reduced ? "none" : "auto", cursor: reduced ? "default" : grabbing ? "grabbing" : "grab", touchAction: "pan-y" }}
+    >
       <Canvas
         dpr={reduced ? 1 : [1, 2]}
         frameloop={reduced ? "demand" : "always"}
@@ -403,16 +386,11 @@ export default function Hero3D() {
         eventSource={typeof document !== "undefined" ? document.body : undefined}
         onCreated={({ gl }) => gl.setClearColor(0x000000, 0)}
       >
-        <Scene reduced={reduced} />
+        <Scene reduced={reduced} drag={drag} />
       </Canvas>
-      {/* Vignette + depth glow so the 3D melts into the navy hero band */}
-      <div
-        style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          background:
-            "radial-gradient(135% 100% at 32% 18%, transparent 38%, rgba(10,31,63,0.45) 72%, rgba(4,12,28,0.78) 100%)",
-        }}
-      />
+      {/* Vignette so the 3D melts into the navy hero band */}
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none",
+        background: "radial-gradient(135% 100% at 32% 18%, transparent 38%, rgba(10,31,63,0.45) 72%, rgba(4,12,28,0.78) 100%)" }} />
     </div>
   );
 }
