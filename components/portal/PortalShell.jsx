@@ -52,6 +52,7 @@ const ReadinessDeepView = dynamic(() => import("../ReadinessDeep").then(m => ({ 
 const SourcesView = dynamic(() => import("../SourcesExplorer").then(m => ({ default: m.SourcesExplorer })), { loading: () => <LoadCard d={0.02} /> });
 const ILIAView = dynamic(() => import("../ILIADeep").then(m => ({ default: m.ILIADeep })), { ssr: false, loading: () => <div style={{padding:20}}>Loading ILIA...</div> });
 const AgenticView = dynamic(() => import("../AgenticAI").then(m => ({ default: m.AgenticAI })), { ssr: false, loading: () => <div style={{padding:20}}>Loading Agentic AI...</div> });
+const EnergiaView = dynamic(() => import("../EnergiaDeep").then(m => ({ default: m.EnergiaDeep })), { ssr: false, loading: () => <div style={{padding:20}}>Loading Energía...</div> });
 
 /* ═══════════════════════════════════════════════════════════════
    COLIBRII LABS — Portal Shell v19
@@ -88,6 +89,7 @@ const SLUG_TO_TAB = {
   fuentes: "sources", datasources: "sources",
   ilia: "ilia", ilia2025: "ilia", cepal: "ilia", cenia: "ilia",
   agentic: "agentic", agenticai: "agentic", agentica: "agentic", agentes: "agentic", iaagente: "agentic", iaagentes: "agentic",
+  energia: "energia", energy: "energia", electricidad: "energia", electricity: "energia", armonizacion: "energia",
 };
 
 const TAB_TO_SLUG = {
@@ -103,6 +105,7 @@ const TAB_TO_SLUG = {
   sources: "fuentes",
   ilia: "ilia",
   agentic: "ia-agente",
+  energia: "energia",
 };
 
 const WB = "https://api.worldbank.org/v2/country";
@@ -333,6 +336,7 @@ export default function PortalShell() {
       case "sources": return <SourcesView {...tp} />;
       case "ilia": return <ILIAView {...tp} />;
       case "agentic": return <AgenticView {...tp} />;
+      case "energia": return <EnergiaView {...tp} />;
       default: return <Home {...tp} />;
     }
   };

@@ -251,6 +251,7 @@ export const TABS = [
   { id: "sources", l: "Fuentes de Datos", le: "Data Sources", ic: "database", c: TH.vi },
   { id: "ilia", l: "ILIA 2025 (CEPAL)", le: "ILIA 2025 (CEPAL)", ic: "globe", c: TH.cy },
   { id: "agentic", l: "IA Agéntica", le: "Agentic AI", ic: "robot", c: TH.vi },
+  { id: "energia", l: "Energía & IA", le: "Energy & AI", ic: "lightning", c: "#00B5A8" },
 ];
 
 // ── PARTNERS / DATA SOURCES ──

@@ -2937,3 +2937,46 @@ input[type="range"]::-moz-range-thumb {
   color: var(--text);
   margin-bottom: 2px;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   ENERGÍA SECTION — theme-aware accent text (WCAG AA both themes)
+   Light theme: darkened accents (≥4.5:1 on --bg/--card)
+   Dark theme: bright accents (≥4.5:1 on navy/charcoal surfaces)
+   Graphics/fills keep EN_ACCENT constants; TEXT uses these vars.
+   ═══════════════════════════════════════════════════════════════ */
+.energia-scope {
+  --enTurq: #067a70;
+  --enGold: #8a5e00;
+  --enGlow: #0e7490;
+  --enViolet: #4f46e5;
+  --enRisk: #b91c1c;
+  --enGreen: #047857;
+  --enPink: #be185d;
+  --enTurqSoft: rgba(6, 122, 112, 0.45);
+  --enGlowSoft: rgba(14, 116, 144, 0.35);
+  --enOnAccent: #ffffff;
+}
+[data-theme="dark"] .energia-scope {
+  --enTurq: #2dd4bf;
+  --enGold: #f2b135;
+  --enGlow: #22d3ee;
+  --enViolet: #a5b4fc;
+  --enRisk: #f87171;
+  --enGreen: #34d399;
+  --enPink: #f472b6;
+  --enTurqSoft: rgba(45, 212, 191, 0.45);
+  --enGlowSoft: rgba(34, 211, 238, 0.35);
+  --enOnAccent: #0a1f3f;
+}
+
+/* ═══════════════ ENERGÍA — hero mobile legibility ═══════════════ */
+.energia-scope .energia-hero-scrim {
+  background: linear-gradient(100deg, rgba(6,15,34,0.96) 0%, rgba(6,15,34,0.9) 30%, rgba(6,15,34,0.58) 56%, rgba(6,15,34,0.2) 78%, rgba(6,15,34,0) 100%);
+}
+@media (max-width: 700px) {
+  /* On phones the canvas/3D behind the text just adds noise — go near-solid
+     vertical so the headline + stat + BLUF read cleanly. */
+  .energia-scope .energia-hero-scrim {
+    background: linear-gradient(180deg, rgba(6,15,34,0.82) 0%, rgba(6,15,34,0.93) 60%, rgba(6,15,34,0.97) 100%);
+  }
+}
