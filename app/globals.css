@@ -2968,3 +2968,15 @@ input[type="range"]::-moz-range-thumb {
   --enGlowSoft: rgba(34, 211, 238, 0.35);
   --enOnAccent: #0a1f3f;
 }
+
+/* ═══════════════ ENERGÍA — hero mobile legibility ═══════════════ */
+.energia-scope .energia-hero-scrim {
+  background: linear-gradient(100deg, rgba(6,15,34,0.96) 0%, rgba(6,15,34,0.9) 30%, rgba(6,15,34,0.58) 56%, rgba(6,15,34,0.2) 78%, rgba(6,15,34,0) 100%);
+}
+@media (max-width: 700px) {
+  /* On phones the canvas/3D behind the text just adds noise — go near-solid
+     vertical so the headline + stat + BLUF read cleanly. */
+  .energia-scope .energia-hero-scrim {
+    background: linear-gradient(180deg, rgba(6,15,34,0.82) 0%, rgba(6,15,34,0.93) 60%, rgba(6,15,34,0.97) 100%);
+  }
+}
