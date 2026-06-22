@@ -26,8 +26,12 @@ const GLOW = EN_ACCENT.glow;            // #22d3ee
 const GOLD = EN_ACCENT.gold;            // #F2B135
 const DEEP = "#0e2a52";                 // landmass body
 
+/* Kind palette — every kind a distinguishable hue (incl. for colour-blind
+   readers): hydro cyan · geo gold · wind emerald · solar orange · thermal red.
+   wind moved off turquoise so plant nodes don't blend into the turquoise
+   chrome; solar moved off amber so it no longer twins with geo's gold. */
 const KIND = {
-  hydro: GLOW, geo: GOLD, wind: TURQ, solar: "#fbbf24",
+  hydro: GLOW, geo: GOLD, wind: EN_ACCENT.green, solar: EN_ACCENT.solar,
   thermal: EN_ACCENT.risk, load: "#ffffff",
 };
 
@@ -339,8 +343,8 @@ function Scene({ reduced, drag, compact = false }) {
       <pointLight position={[0, -2.6, 2.2]} intensity={1.6} color={TURQ} distance={9} />
       <pointLight position={[2.4, 2.0, 3]} intensity={0.9} color={GOLD} distance={8} />
 
-      <ParticleLayer paused={paused} count={compact ? 70 : 140} spread={11} depth={-3.4} size={0.03} opacity={0.42} color={GLOW} speed={0.008} />
-      <ParticleLayer paused={paused} count={compact ? 110 : 220} spread={9} depth={-1.6} size={0.018} opacity={0.5} color={TURQ} speed={0.016} />
+      <ParticleLayer paused={paused} count={compact ? 100 : 140} spread={11} depth={-3.4} size={0.03} opacity={0.42} color={GLOW} speed={0.008} />
+      <ParticleLayer paused={paused} count={compact ? 150 : 220} spread={9} depth={-1.6} size={0.018} opacity={0.5} color={TURQ} speed={0.016} />
       <StageGlow />
 
       <group ref={group} scale={0.001}>
@@ -349,12 +353,20 @@ function Scene({ reduced, drag, compact = false }) {
         <EnergyArcs paused={paused} intro={intro} />
       </group>
 
-      {/* Real cinematic bloom — only bright emissive (nodes/arcs/packets) blooms.
-          Disabled in compact/mobile mode (mobile GPUs choke on it; the emissive
-          materials + additive halos already glow). */}
-      {!compact && (
+      {/* Real cinematic bloom — only bright emissive (nodes/arcs/packets) blooms,
+          not the navy country. Mobile keeps it (so the hero reads as ONE visual
+          family, not a downgrade) but cheaper: higher threshold → fewer pixels
+          bloom, lower intensity/radius. mipmapBlur is resolution-independent, so
+          the cost stays modest. Off entirely under reduced-motion. */}
+      {!reduced && (
         <EffectComposer disableNormalPass>
-          <Bloom intensity={0.9} luminanceThreshold={0.22} luminanceSmoothing={0.32} mipmapBlur radius={0.7} />
+          <Bloom
+            intensity={compact ? 0.62 : 0.9}
+            luminanceThreshold={compact ? 0.32 : 0.22}
+            luminanceSmoothing={0.32}
+            mipmapBlur
+            radius={compact ? 0.5 : 0.7}
+          />
         </EffectComposer>
       )}
     </>
@@ -363,21 +375,38 @@ function Scene({ reduced, drag, compact = false }) {
 
 export default function Hero3D({ compact = false }) {
   const reduced = useReducedMotion();
-  const drag = useRef({ down: false, lx: 0, ly: 0, ry: 0, rx: 0, vy: 0 });
+  // axis: 0 undecided · 1 horizontal (rotate) · -1 vertical (let the page scroll)
+  const drag = useRef({ down: false, lx: 0, ly: 0, sx: 0, sy: 0, ry: 0, rx: 0, vy: 0, axis: 1 });
   const [grabbing, setGrabbing] = useState(false);
 
-  // drag is disabled in compact/mobile mode so touch falls through to scroll
-  const dragOff = reduced || compact;
+  // Only fully disabled under reduced-motion. On mobile we KEEP drag, but gate it
+  // to horizontal gestures so vertical swipes still scroll the page.
+  const dragOff = reduced;
 
-  const onDown = (e) => { drag.current.down = true; drag.current.lx = e.clientX; drag.current.ly = e.clientY; drag.current.vy = 0; setGrabbing(true); };
+  const onDown = (e) => {
+    const d = drag.current;
+    d.down = true; d.lx = d.sx = e.clientX; d.ly = d.sy = e.clientY; d.vy = 0;
+    d.axis = compact ? 0 : 1;            // desktop: rotate immediately; mobile: decide on first move
+    if (!compact) setGrabbing(true);     // grab cursor is desktop-only
+  };
   const onMove = (e) => {
     const d = drag.current;
     if (!d.down) return;
+    if (d.axis === 0) {                   // mobile: wait for a clear intent, then lock the axis
+      const adx = Math.abs(e.clientX - d.sx), ady = Math.abs(e.clientY - d.sy);
+      if (adx < 6 && ady < 6) return;
+      d.axis = adx > ady ? 1 : -1;
+      if (d.axis === 1) setGrabbing(true);
+    }
+    if (d.axis !== 1) return;             // vertical → hand the gesture back to the scroller
+    if (e.cancelable) e.preventDefault();
     const dx = e.clientX - d.lx, dy = e.clientY - d.ly;
     d.lx = e.clientX; d.ly = e.clientY;
-    d.ry += dx * 0.006; d.rx += dy * 0.004; d.vy = dx * 0.006;
+    d.ry += dx * 0.006;
+    if (!compact) d.rx += dy * 0.004;    // vertical tilt only on desktop
+    d.vy = dx * 0.006;
   };
-  const onUp = () => { drag.current.down = false; setGrabbing(false); };
+  const onUp = () => { const d = drag.current; d.down = false; d.axis = compact ? 0 : 1; setGrabbing(false); };
 
   return (
     <div
@@ -385,8 +414,9 @@ export default function Hero3D({ compact = false }) {
       onPointerDown={dragOff ? undefined : onDown}
       onPointerMove={dragOff ? undefined : onMove}
       onPointerUp={dragOff ? undefined : onUp}
+      onPointerCancel={dragOff ? undefined : onUp}
       onPointerLeave={dragOff ? undefined : onUp}
-      style={{ position: "absolute", inset: 0, pointerEvents: dragOff ? "none" : "auto", cursor: dragOff ? "default" : grabbing ? "grabbing" : "grab", touchAction: compact ? "auto" : "pan-y" }}
+      style={{ position: "absolute", inset: 0, pointerEvents: dragOff ? "none" : "auto", cursor: dragOff ? "default" : grabbing ? "grabbing" : "grab", touchAction: dragOff ? "auto" : "pan-y" }}
     >
       <Canvas
         dpr={reduced ? 1 : compact ? [1, 1.5] : [1, 2]}

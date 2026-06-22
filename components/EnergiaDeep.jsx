@@ -502,6 +502,16 @@ export function EnergiaDeep({ en = false }) {
             <Hero3D compact />
             <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none",
               background: "linear-gradient(180deg, rgba(6,15,34,0) 55%, rgba(6,15,34,0.6) 80%, rgba(10,31,63,1) 100%)" }} />
+            {/* Discoverability cue: the 3D is rotatable on touch — fades once engaged */}
+            <div aria-hidden="true" style={{ position: "absolute", left: "50%", bottom: 14, transform: "translateX(-50%)",
+              opacity: scrolled ? 0 : 0.92, transition: "opacity .5s ease", pointerEvents: "none", zIndex: 2,
+              ...mono, fontSize: 10, letterSpacing: 1.4, color: "rgba(155,238,240,0.92)",
+              background: "rgba(6,15,34,0.55)", border: "1px solid rgba(0,181,168,0.4)", borderRadius: 999,
+              padding: "4px 11px", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)",
+              display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
+              <span style={{ animation: "energiaSwipe 1.8s ease-in-out infinite", fontSize: 13 }}>↔</span>
+              {en ? "Drag to rotate" : "Arrastrá para rotar"}
+            </div>
           </div>
         ) : (
           <>
@@ -550,7 +560,8 @@ export function EnergiaDeep({ en = false }) {
           </div>
           <style>{`
             @keyframes energiaCue { 0%,100% { transform: translateY(0); opacity: 1; } 55% { transform: translateY(12px); opacity: 0.25; } }
-            @media (prefers-reduced-motion: reduce) { .energia-scroll-cue div { animation: none !important; } }
+            @keyframes energiaSwipe { 0%,100% { transform: translateX(-3px); } 50% { transform: translateX(3px); } }
+            @media (prefers-reduced-motion: reduce) { .energia-scroll-cue div { animation: none !important; } [style*="energiaSwipe"] { animation: none !important; } }
           `}</style>
         </div>
       </section>

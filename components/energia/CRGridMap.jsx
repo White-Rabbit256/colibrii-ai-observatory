@@ -24,13 +24,16 @@ import { EN_ACCENT } from "../energiaData";
    Colors derive from EN_ACCENT.
    ═══════════════════════════════════════════════════════════════ */
 
-/* Kind palette — from EN_ACCENT (solar/load are local accents). */
+/* Kind palette — every kind a distinguishable hue (incl. for colour-blind
+   readers): hydro cyan · geo gold · wind emerald · solar orange · thermal red.
+   wind moved off turquoise so plant nodes don't blend into the turquoise
+   coastline/chrome; solar moved off amber so it no longer twins with geo gold. */
 const KIND = {
-  hydro: EN_ACCENT.glow,       // #22d3ee
-  geo: EN_ACCENT.gold,         // #F2B135
-  wind: EN_ACCENT.turquoise,   // #00B5A8
-  solar: "#fbbf24",
-  thermal: EN_ACCENT.risk,     // #ef4444
+  hydro: EN_ACCENT.glow,       // #22d3ee cyan
+  geo: EN_ACCENT.gold,         // #F2B135 gold
+  wind: EN_ACCENT.green,       // #10b981 emerald
+  solar: EN_ACCENT.solar,      // #fb923c orange
+  thermal: EN_ACCENT.risk,     // #ef4444 red
   load: "#ffffff",
 };
 const KIND_LABEL = {
@@ -277,12 +280,12 @@ export default function CRGridMap({ en }) {
     const card = cardRefs.current[active];
     if (!card) return;
     if (reduced) { card.style.opacity = "1"; card.style.transform = card.dataset.horiz; return; }
-    const a = animate(card, {
+    const a = track(animate(card, {
       opacity: [0, 1],
       translateY: [6, 0],
       duration: 220,
       ease: "outQuad",
-    });
+    }));
     return () => { try { a.pause(); } catch {} };
   }, [active, reduced]);
 
@@ -294,7 +297,7 @@ export default function CRGridMap({ en }) {
       ref={rootRef}
       style={{
         position: "relative", aspectRatio: "16 / 10", borderRadius: 16, overflow: "hidden",
-        background: `radial-gradient(120% 120% at 30% 12%, ${EN_ACCENT.navy2}, ${EN_ACCENT.navy} 60%, #050f24 100%)`,
+        background: `radial-gradient(120% 120% at 30% 12%, ${EN_ACCENT.navy2}, ${EN_ACCENT.navy} 60%, ${EN_ACCENT.navyDeep} 100%)`,
         border: `1px solid ${TURQ}40`,
         boxShadow: `0 0 0 1px rgba(0,0,0,0.35), inset 0 0 70px rgba(0,0,0,0.5)`,
       }}
@@ -591,8 +594,8 @@ export default function CRGridMap({ en }) {
         </div>
         <div style={{ marginTop: 4, fontSize: 11, color: "rgba(255,255,255,0.55)", maxWidth: 420 }}>
           {en
-            ? "Geography: Natural Earth (public domain) · approximate locations"
-            : "Geografía: Natural Earth (dominio público) · ubicaciones aproximadas"}
+            ? "Geography: Natural Earth (public domain) · approximate locations · schematic transmission"
+            : "Geografía: Natural Earth (dominio público) · ubicaciones aproximadas · transmisión esquemática"}
         </div>
       </div>
 

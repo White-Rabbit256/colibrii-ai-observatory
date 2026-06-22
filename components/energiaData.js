@@ -11,9 +11,11 @@
 export const EN_ACCENT = {
   navy: "#0A1F3F",
   navy2: "#10294f",
+  navyDeep: "#06152e",   // deepest panel base (was a one-off #050f24)
   turquoise: "#00B5A8",
   gold: "#F2B135",
   glow: "#22d3ee",
+  solar: "#fb923c",      // defined solar accent — warm orange, distinct from gold
   risk: "#ef4444",
   green: "#10b981",
   violet: "#818cf8",
