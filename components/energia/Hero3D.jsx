@@ -44,7 +44,9 @@ const px = (lng) => (lng - cLng) * K * SCALE;
 const py = (lat) => (lat - cLat) * SCALE;
 
 const Z_TOP = 0.205;   // node / ring plane on the country's lit face
-const DEPTH = 0.18;    // extrusion depth
+const DEPTH = 0.27;    // extrusion depth (chunkier so the 3D reads on mobile)
+const BASE_TILT = -0.52; // resting pitch — shows the extruded thickness
+const BASE_YAW = 0.17;   // resting 3/4 yaw — reveals depth instead of a flat face
 const easeOutCubic = (x) => 1 - Math.pow(1 - x, 3);
 const clamp01 = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
 
@@ -302,7 +304,7 @@ function Scene({ reduced, drag, compact = false }) {
   useEffect(() => {
     if (reduced) {
       intro.current.p = 1;
-      if (group.current) { group.current.rotation.set(-0.42, 0, 0.1); group.current.position.set(POS_X, -0.05, 0); group.current.scale.setScalar(BASE_SCALE); }
+      if (group.current) { group.current.rotation.set(BASE_TILT, BASE_YAW, 0.1); group.current.position.set(POS_X, -0.05, 0); group.current.scale.setScalar(BASE_SCALE); }
       invalidate();
       return;
     }
@@ -326,8 +328,8 @@ function Scene({ reduced, drag, compact = false }) {
     aim.current.y += (THREE.MathUtils.clamp(pointer.y, -1, 1) * CAP - aim.current.y) * 0.045;
 
     const float = ip; // motion eases in with the build-on
-    group.current.rotation.x = -0.42 + (Math.sin(t * 0.25) * 0.03 + aim.current.y * 0.7) * float + d.rx;
-    group.current.rotation.y = (Math.sin(t * 0.21) * 0.05 + aim.current.x) * float + d.ry;
+    group.current.rotation.x = BASE_TILT + (Math.sin(t * 0.25) * 0.03 + aim.current.y * 0.7) * float + d.rx;
+    group.current.rotation.y = BASE_YAW + (Math.sin(t * 0.21) * 0.05 + aim.current.x) * float + d.ry;
     group.current.rotation.z = 0.1 + Math.sin(t * 0.18) * 0.02 * float;
     group.current.position.x = POS_X;
     group.current.position.y = -0.05 + (1 - ip) * -1.0 + Math.sin(t * 0.4) * 0.045 * float;
@@ -361,11 +363,11 @@ function Scene({ reduced, drag, compact = false }) {
       {!reduced && (
         <EffectComposer disableNormalPass>
           <Bloom
-            intensity={compact ? 0.62 : 0.9}
-            luminanceThreshold={compact ? 0.32 : 0.22}
+            intensity={compact ? 0.92 : 1.0}
+            luminanceThreshold={compact ? 0.26 : 0.22}
             luminanceSmoothing={0.32}
             mipmapBlur
-            radius={compact ? 0.5 : 0.7}
+            radius={compact ? 0.62 : 0.72}
           />
         </EffectComposer>
       )}

@@ -31,7 +31,9 @@ import { EN_ACCENT } from "../energiaData";
    ═══════════════════════════════════════════════════════════════ */
 
 const R = 1.6;                              // globe radius
-const NIGHT_TEX = "https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/textures/planets/earth_lights_2048.png";
+/* world-atlas land outlines — same pinned, CSP-allowed CDN that the
+   production WorldMapMini already fetches from (reliable, ~100 KB). */
+const LAND_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json";
 const WRI_CSV = "https://cdn.jsdelivr.net/gh/wri/global-power-plant-database@master/output_database/global_power_plant_database.csv";
 
 /* Technology palette — categorical, distinguishable; renewables glow,
@@ -154,34 +156,52 @@ function parseCSV(text) {
   return rows;
 }
 
-/* ── Earth: night-lights emissive on a deep navy sphere (graceful
-      fallback to a plain lit navy sphere if the texture fails). ── */
+/* Decode a (quantized) TopoJSON land file → flat Float32Array of line
+   segments on the sphere. Every arc in a land topology is a coastline,
+   so drawing all arcs gives the continents' outlines (no external
+   texture, deterministic). */
+function landToSegments(topo) {
+  if (!topo || !topo.arcs) return null;
+  const tr = topo.transform || { scale: [1, 1], translate: [0, 0] };
+  const [sx, sy] = tr.scale, [tx, ty] = tr.translate;
+  const seg = [];
+  for (const arc of topo.arcs) {
+    let x = 0, y = 0; const pts = [];
+    for (let i = 0; i < arc.length; i++) { x += arc[i][0]; y += arc[i][1]; pts.push([x * sx + tx, y * sy + ty]); }
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = llToVec3(pts[i][1], pts[i][0], R * 1.004);
+      const b = llToVec3(pts[i + 1][1], pts[i + 1][0], R * 1.004);
+      seg.push(a[0], a[1], a[2], b[0], b[1], b[2]);
+    }
+  }
+  return new Float32Array(seg);
+}
+
+/* ── Earth: a clean dark-navy sphere; directional light gives it a lit
+      crescent so it reads as a globe. (No external texture — the glowing
+      coastlines + plant points carry the visualisation.) ── */
 function Earth() {
-  const [tex, setTex] = useState(null);
-  useEffect(() => {
-    const loader = new THREE.TextureLoader();
-    loader.setCrossOrigin("anonymous");
-    let alive = true;
-    loader.load(NIGHT_TEX, (t) => {
-      if (!alive) return;
-      t.colorSpace = THREE.SRGBColorSpace;
-      t.anisotropy = 4;
-      setTex(t);
-    }, undefined, () => {});
-    return () => { alive = false; };
-  }, []);
   return (
     <mesh>
       <sphereGeometry args={[R, 64, 64]} />
-      <meshStandardMaterial
-        color={tex ? "#08182f" : "#0c2748"}
-        emissive={tex ? "#ffd9a0" : EN_ACCENT.turquoise}
-        emissiveMap={tex || undefined}
-        emissiveIntensity={tex ? 1.25 : 0.08}
-        metalness={0.1}
-        roughness={0.85}
-      />
+      <meshStandardMaterial color="#0a1d39" emissive={EN_ACCENT.navy} emissiveIntensity={0.28} metalness={0.25} roughness={0.92} />
     </mesh>
+  );
+}
+
+/* ── Coastlines: continents as glowing turquoise lines (from world-atlas). ── */
+function Coastlines({ positions }) {
+  const geo = useMemo(() => {
+    if (!positions || !positions.length) return null;
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    return g;
+  }, [positions]);
+  if (!geo) return null;
+  return (
+    <lineSegments geometry={geo}>
+      <lineBasicMaterial color={EN_ACCENT.turquoise} transparent opacity={0.6} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
+    </lineSegments>
   );
 }
 
@@ -286,7 +306,7 @@ function Marquee({ filters, onHover, dot }) {
 }
 
 /* ── Scene root ── */
-function Scene({ reduced, compact, drag, focus, parsed, filters, onHover }) {
+function Scene({ reduced, compact, drag, focus, parsed, filters, onHover, coast }) {
   const group = useRef();
   const spin = useRef(THREE.MathUtils.degToRad(-90 - (-80))); // Americas-forward
   const tilt = useRef(0.14);
@@ -353,6 +373,7 @@ function Scene({ reduced, compact, drag, focus, parsed, filters, onHover }) {
       <group ref={group}>
         <Earth />
         <Graticule />
+        <Coastlines positions={coast} />
         <DensePoints parsed={parsed} filters={filters} dot={dot} />
         <Marquee filters={filters} onHover={onHover} dot={dot} />
       </group>
@@ -374,6 +395,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
   const [filters, setFilters] = useState({});
   const [hover, setHover] = useState(null);
   const [parsed, setParsed] = useState(null);
+  const [coast, setCoast] = useState(null);
   const [status, setStatus] = useState("idle"); // idle · loading · ok · error
   const [webgl, setWebgl] = useState(true);
 
@@ -384,9 +406,20 @@ export default function PowerGlobe({ en = false, compact = false }) {
     } catch { setWebgl(false); }
   }, []);
 
+  // Continents — fetched once from world-atlas (the same reliable CDN the
+  // production WorldMapMini uses). Desktop + mobile; cheap (~100 KB).
+  useEffect(() => {
+    let alive = true;
+    fetch(LAND_URL)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("land"))))
+      .then((topo) => { if (alive) { const s = landToSegments(topo); if (s && s.length) setCoast(s); } })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
+
   // Lazy-fetch the WRI dataset when the globe scrolls into view (desktop only;
-  // mobile relies on the night-lights texture + curated marquee to avoid a
-  // ~10 MB parse). Curated marquee is always present regardless.
+  // mobile relies on the continents + curated marquee to avoid a ~10 MB parse).
+  // Curated marquee is always present regardless.
   useEffect(() => {
     if (compact || reduced) return;
     const el = wrapRef.current;
@@ -494,11 +527,11 @@ export default function PowerGlobe({ en = false, compact = false }) {
         <Canvas
           dpr={reduced ? 1 : compact ? [1, 1.5] : [1, 2]}
           frameloop={reduced ? "demand" : "always"}
-          camera={{ position: [0, 0, compact ? 4.4 : 4.0], fov: 42 }}
+          camera={{ position: [0, 0, compact ? 4.9 : 4.2], fov: 42 }}
           gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
           onCreated={({ gl }) => gl.setClearColor(0x000000, 0)}
         >
-          <Scene reduced={reduced} compact={compact} drag={drag} focus={focus} parsed={parsed} filters={filters} onHover={setHover} />
+          <Scene reduced={reduced} compact={compact} drag={drag} focus={focus} parsed={parsed} filters={filters} onHover={setHover} coast={coast} />
         </Canvas>
       </div>
 
