@@ -18,6 +18,7 @@ import { FACTS } from "../data/facts";
 
 const GridHero = dynamic(() => import("./energia/GridHero"), { ssr: false, loading: () => null });
 const Hero3D = dynamic(() => import("./energia/Hero3D"), { ssr: false, loading: () => null });
+const PowerGlobe = dynamic(() => import("./energia/PowerGlobe"), { ssr: false, loading: () => null });
 
 /* ═══════════════════════════════════════════════════════════════
    COLIBRII LABS — Energía · Electricidad, Competitividad & IA
@@ -570,6 +571,18 @@ export function EnergiaDeep({ en = false }) {
       <Act n={2} en={en} label={en ? "The global stake" : "La apuesta global"}
         title={en ? "AI runs on electricity — and is buying it years in advance" : "La IA corre sobre electricidad — y la está comprando con años de anticipación"}
         desc={en ? "Data-centre demand will more than double by 2030. The world's largest companies are responding with the biggest private infrastructure bet in history — including restarting nuclear plants." : "La demanda de los centros de datos se duplicará con creces al 2030. Las empresas más grandes del mundo responden con la mayor apuesta privada de infraestructura de la historia — incluida la reapertura de plantas nucleares."} />
+
+      {/* ════ ATLAS GLOBAL DE GENERACIÓN — 3D ════ */}
+      <ScrollReveal>
+        <div style={{ marginTop: 16 }}>
+          <PowerGlobe en={en} compact={mode === "mobile3d"} />
+          <p style={{ fontSize: 12, color: "rgba(241,245,249,0.6)", lineHeight: 1.6, marginTop: 10 }}>
+            {en
+              ? "Where the world makes its electricity — drag to spin the globe, tap a technology to filter, or focus on Costa Rica. Global points: WRI Global Power Plant Database (CC-BY-4.0). An independent technical visual; marker locations are approximate."
+              : "Dónde el mundo genera su electricidad — arrastrá para girar el globo, tocá una tecnología para filtrar o enfocá Costa Rica. Puntos globales: WRI Global Power Plant Database (CC-BY-4.0). Visual técnico independiente; las ubicaciones son aproximadas."}
+          </p>
+        </div>
+      </ScrollReveal>
 
       <ScrollReveal>
         <MediaRow en={en} ids={["datacenter", "tmi"]} height={260} />

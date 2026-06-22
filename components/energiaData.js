@@ -49,6 +49,8 @@ export const SRC = {
   observador: { name: "El Observador CR (27 may 2026)", url: "https://observador.cr/", date: "2026-06" },
   seg: { name: "SEG Ingeniería — comparativo tarifario regional (2025)", url: "https://segingenieria.com/", date: "2026-06" },
   eia: { name: "US EIA — Form 861, Table 4 (2024)", url: "https://www.eia.gov/electricity/", date: "2026-06" },
+  wri: { name: "WRI — Global Power Plant Database (CC-BY-4.0)", url: "https://datasets.wri.org/dataset/globalpowerplantdatabase", date: "2026-06" },
+  osm: { name: "OpenStreetMap contributors (ODbL) / Global Energy Monitor", url: "https://www.openstreetmap.org/copyright", date: "2026-06" },
   enerdata: { name: "Enerdata (2024)", url: "https://www.enerdata.net/", date: "2026-06" },
   intratec: { name: "Intratec — Chile (ago 2025)", url: "https://www.intratec.us/", date: "2026-06" },
   bnef: { name: "BloombergNEF — Climatescope 2025", url: "https://www.global-climatescope.org/", date: "2026-06" },
