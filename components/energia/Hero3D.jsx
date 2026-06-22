@@ -273,13 +273,17 @@ function ParticleLayer({ count, spread, depth, size, opacity, color, speed, paus
 }
 
 /* ── Scene root: intro build-on + float + auto-rotate + pointer parallax + drag ── */
-function Scene({ reduced, drag }) {
+function Scene({ reduced, drag, compact = false }) {
   const group = useRef();
   const paused = useRef(false);
   const hidden = useRef(false);
   const intro = useRef({ p: reduced ? 1 : 0 });
   const invalidate = useThree((s) => s.invalidate);
   const aim = useRef({ x: 0, y: 0 });
+
+  // portrait/banner tuning: country centered + slightly smaller so it never clips
+  const POS_X = compact ? 0 : 0.95;
+  const BASE_SCALE = compact ? 0.78 : 0.9;
 
   useEffect(() => {
     paused.current = reduced;
@@ -294,7 +298,7 @@ function Scene({ reduced, drag }) {
   useEffect(() => {
     if (reduced) {
       intro.current.p = 1;
-      if (group.current) { group.current.rotation.set(-0.42, 0, 0.1); group.current.position.set(0.95, -0.05, 0); group.current.scale.setScalar(0.9); }
+      if (group.current) { group.current.rotation.set(-0.42, 0, 0.1); group.current.position.set(POS_X, -0.05, 0); group.current.scale.setScalar(BASE_SCALE); }
       invalidate();
       return;
     }
@@ -321,9 +325,9 @@ function Scene({ reduced, drag }) {
     group.current.rotation.x = -0.42 + (Math.sin(t * 0.25) * 0.03 + aim.current.y * 0.7) * float + d.rx;
     group.current.rotation.y = (Math.sin(t * 0.21) * 0.05 + aim.current.x) * float + d.ry;
     group.current.rotation.z = 0.1 + Math.sin(t * 0.18) * 0.02 * float;
-    group.current.position.x = 0.95;
+    group.current.position.x = POS_X;
     group.current.position.y = -0.05 + (1 - ip) * -1.0 + Math.sin(t * 0.4) * 0.045 * float;
-    group.current.scale.setScalar(0.9 * (0.5 + 0.5 * ip));
+    group.current.scale.setScalar(BASE_SCALE * (0.5 + 0.5 * ip));
   });
 
   return (
@@ -335,8 +339,8 @@ function Scene({ reduced, drag }) {
       <pointLight position={[0, -2.6, 2.2]} intensity={1.6} color={TURQ} distance={9} />
       <pointLight position={[2.4, 2.0, 3]} intensity={0.9} color={GOLD} distance={8} />
 
-      <ParticleLayer paused={paused} count={140} spread={11} depth={-3.4} size={0.03} opacity={0.42} color={GLOW} speed={0.008} />
-      <ParticleLayer paused={paused} count={220} spread={9} depth={-1.6} size={0.018} opacity={0.5} color={TURQ} speed={0.016} />
+      <ParticleLayer paused={paused} count={compact ? 70 : 140} spread={11} depth={-3.4} size={0.03} opacity={0.42} color={GLOW} speed={0.008} />
+      <ParticleLayer paused={paused} count={compact ? 110 : 220} spread={9} depth={-1.6} size={0.018} opacity={0.5} color={TURQ} speed={0.016} />
       <StageGlow />
 
       <group ref={group} scale={0.001}>
@@ -345,18 +349,25 @@ function Scene({ reduced, drag }) {
         <EnergyArcs paused={paused} intro={intro} />
       </group>
 
-      {/* Real cinematic bloom — only bright emissive (nodes/arcs/packets) blooms */}
-      <EffectComposer disableNormalPass>
-        <Bloom intensity={0.9} luminanceThreshold={0.22} luminanceSmoothing={0.32} mipmapBlur radius={0.7} />
-      </EffectComposer>
+      {/* Real cinematic bloom — only bright emissive (nodes/arcs/packets) blooms.
+          Disabled in compact/mobile mode (mobile GPUs choke on it; the emissive
+          materials + additive halos already glow). */}
+      {!compact && (
+        <EffectComposer disableNormalPass>
+          <Bloom intensity={0.9} luminanceThreshold={0.22} luminanceSmoothing={0.32} mipmapBlur radius={0.7} />
+        </EffectComposer>
+      )}
     </>
   );
 }
 
-export default function Hero3D() {
+export default function Hero3D({ compact = false }) {
   const reduced = useReducedMotion();
   const drag = useRef({ down: false, lx: 0, ly: 0, ry: 0, rx: 0, vy: 0 });
   const [grabbing, setGrabbing] = useState(false);
+
+  // drag is disabled in compact/mobile mode so touch falls through to scroll
+  const dragOff = reduced || compact;
 
   const onDown = (e) => { drag.current.down = true; drag.current.lx = e.clientX; drag.current.ly = e.clientY; drag.current.vy = 0; setGrabbing(true); };
   const onMove = (e) => {
@@ -371,22 +382,22 @@ export default function Hero3D() {
   return (
     <div
       aria-hidden="true"
-      onPointerDown={reduced ? undefined : onDown}
-      onPointerMove={reduced ? undefined : onMove}
-      onPointerUp={onUp}
-      onPointerLeave={onUp}
-      style={{ position: "absolute", inset: 0, pointerEvents: reduced ? "none" : "auto", cursor: reduced ? "default" : grabbing ? "grabbing" : "grab", touchAction: "pan-y" }}
+      onPointerDown={dragOff ? undefined : onDown}
+      onPointerMove={dragOff ? undefined : onMove}
+      onPointerUp={dragOff ? undefined : onUp}
+      onPointerLeave={dragOff ? undefined : onUp}
+      style={{ position: "absolute", inset: 0, pointerEvents: dragOff ? "none" : "auto", cursor: dragOff ? "default" : grabbing ? "grabbing" : "grab", touchAction: compact ? "auto" : "pan-y" }}
     >
       <Canvas
-        dpr={reduced ? 1 : [1, 2]}
+        dpr={reduced ? 1 : compact ? [1, 1.5] : [1, 2]}
         frameloop={reduced ? "demand" : "always"}
-        camera={{ position: [0, -0.4, 4.6], fov: 42 }}
+        camera={{ position: [0, -0.4, compact ? 5.2 : 4.6], fov: 42 }}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
         style={{ position: "absolute", inset: 0 }}
         eventSource={typeof document !== "undefined" ? document.body : undefined}
         onCreated={({ gl }) => gl.setClearColor(0x000000, 0)}
       >
-        <Scene reduced={reduced} drag={drag} />
+        <Scene reduced={reduced} drag={drag} compact={compact} />
       </Canvas>
       {/* Vignette so the 3D melts into the navy hero band */}
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none",

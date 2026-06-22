@@ -471,17 +471,23 @@ function CTABlock({ en }) {
 /* ═══════════════ MAIN VIEW ═══════════════ */
 export function EnergiaDeep({ en = false }) {
   const heroStat = HERO.stat;
-  /* 3D hero on capable desktops; 2D canvas fallback on mobile / reduced-motion */
-  const [use3d, setUse3d] = useState(false);
+  /* Hero visual mode: desktop overlay 3D · mobile 3D banner · 2D fallback (no-webgl / reduced-motion) */
+  const [mode, setMode] = useState("fallback2d");
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
     const wide = window.matchMedia("(min-width: 768px)").matches;
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    setUse3d(wide && !still);
+    let gl = false;
+    try {
+      const c = document.createElement("canvas");
+      gl = !!(window.WebGLRenderingContext && (c.getContext("webgl") || c.getContext("experimental-webgl")));
+    } catch { gl = false; }
+    setMode(still || !gl ? "fallback2d" : wide ? "desktop3d" : "mobile3d");
     const onFirstScroll = () => { if (window.scrollY > 90) { setScrolled(true); window.removeEventListener("scroll", onFirstScroll); } };
     window.addEventListener("scroll", onFirstScroll, { passive: true });
     return () => window.removeEventListener("scroll", onFirstScroll);
   }, []);
+  const is3d = mode !== "fallback2d";
   return (
     <div className="energia-scope" style={{ maxWidth: 1060, margin: "0 auto" }}>
       <ScrollProgress />
@@ -490,12 +496,23 @@ export function EnergiaDeep({ en = false }) {
 
       {/* ════ ACTO 1 — COLD OPEN ════ */}
       <section aria-label={en ? "Opening" : "Apertura"} style={{ position: "relative", borderRadius: "var(--radius)", overflow: "hidden", background: `linear-gradient(160deg, ${EN_ACCENT.navy} 0%, ${EN_ACCENT.navy2} 55%, #0a1830 100%)`, border: "1px solid rgba(0,181,168,0.25)", marginTop: 14 }}>
-        {use3d ? <Hero3D /> : <GridHero />}
-        {/* Legibility scrim — solid navy under the text column, fading to reveal the 3D on the right (near-solid on mobile, see globals.css) */}
-        <div aria-hidden="true" className="energia-hero-scrim" style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none" }} />
-        <div aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
-          background: "linear-gradient(0deg, rgba(6,15,34,0.7) 0%, rgba(6,15,34,0) 40%)" }} />
-        <div style={{ position: "relative", zIndex: 2, padding: "clamp(32px, 6vw, 64px) clamp(24px, 5vw, 56px)" }}>
+        {mode === "mobile3d" ? (
+          /* Mobile: dedicated 3D banner ON TOP, text flows cleanly below it */
+          <div style={{ position: "relative", width: "100%", height: "clamp(280px, 46vh, 380px)" }}>
+            <Hero3D compact />
+            <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none",
+              background: "linear-gradient(180deg, rgba(6,15,34,0) 55%, rgba(6,15,34,0.6) 80%, rgba(10,31,63,1) 100%)" }} />
+          </div>
+        ) : (
+          <>
+            {mode === "desktop3d" ? <Hero3D /> : <GridHero />}
+            {/* Legibility scrim — solid navy under the text column, fading to reveal the 3D on the right */}
+            <div aria-hidden="true" className="energia-hero-scrim" style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none" }} />
+            <div aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
+              background: "linear-gradient(0deg, rgba(6,15,34,0.7) 0%, rgba(6,15,34,0) 40%)" }} />
+          </>
+        )}
+        <div style={{ position: "relative", zIndex: 2, padding: "clamp(28px, 6vw, 64px) clamp(24px, 5vw, 56px)" }}>
           <div style={{ ...mono, fontSize: 11, letterSpacing: 2.5, color: EN_ACCENT.turquoise, marginBottom: 14 }}>{T(HERO.eyebrow, en)}</div>
           <h1 style={{ ...display, fontSize: "clamp(28px, 5vw, 50px)", fontWeight: 800, lineHeight: 1.14, maxWidth: 760, marginBottom: 22,
             background: "linear-gradient(115deg, #ffffff 30%, #9beef0 68%, #F2B135 105%)",
@@ -523,7 +540,7 @@ export function EnergiaDeep({ en = false }) {
           </div>
           <div style={{ ...mono, fontSize: 11, color: "rgba(241,245,249,0.5)", marginTop: 22, display: "flex", alignItems: "center", gap: 8 }}>
             <span aria-hidden="true" style={{ width: 7, height: 7, borderRadius: "50%", background: EN_ACCENT.turquoise, display: "inline-block" }} />
-            {T(HERO.disclaimer, en)}{use3d ? (en ? " · Illustrative 3D visual (geography: Natural Earth)" : " · Visual 3D ilustrativo (geografía: Natural Earth)") : ""}
+            {T(HERO.disclaimer, en)}{is3d ? (en ? " · Illustrative 3D visual (geography: Natural Earth)" : " · Visual 3D ilustrativo (geografía: Natural Earth)") : ""}
           </div>
           {/* Scroll cue */}
           <div aria-hidden="true" style={{ display: "flex", justifyContent: "center", marginTop: 26, opacity: scrolled ? 0 : 1, transition: "opacity .6s ease" }}>
