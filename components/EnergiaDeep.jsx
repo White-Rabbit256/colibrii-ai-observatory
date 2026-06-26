@@ -332,6 +332,7 @@ function AmendmentCard({ a, en }) {
       <button
         onClick={() => setOpen(o => !o)}
         aria-expanded={open}
+        className="energia-amendment-btn"
         style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", background: "transparent", border: "none", cursor: "pointer", padding: "14px 16px", color: "var(--text)", minHeight: 48 }}
       >
         <span aria-hidden="true" style={{ ...mono, flexShrink: 0, width: 30, height: 30, borderRadius: 8, background: `${EN_ACCENT.turquoise}1a`, color: "var(--enTurq)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800 }}>{a.n}</span>
@@ -567,6 +568,7 @@ export function EnergiaDeep({ en = false }) {
           <style>{`
             @keyframes energiaCue { 0%,100% { transform: translateY(0); opacity: 1; } 55% { transform: translateY(12px); opacity: 0.25; } }
             @keyframes energiaSwipe { 0%,100% { transform: translateX(-3px); } 50% { transform: translateX(3px); } }
+            .energia-amendment-btn:focus-visible { outline: 2px solid ${EN_ACCENT.glow}; outline-offset: 2px; border-radius: 8px; }
             @media (prefers-reduced-motion: reduce) { .energia-scroll-cue div { animation: none !important; } [style*="energiaSwipe"] { animation: none !important; } }
           `}</style>
         </div>

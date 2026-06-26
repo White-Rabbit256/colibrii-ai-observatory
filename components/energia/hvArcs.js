@@ -36,7 +36,7 @@ export const HV_ARCS = [
   { from: "Xiangjiaba", to: "Shanghai", kind: "hvdc", mw: 6400, startLat: 28.65, startLng: 104.40, endLat: 31.23, endLng: 121.47 },
   { from: "Changji", to: "Guquan (UHVDC)", kind: "hvdc", mw: 12000, startLat: 44.02, startLng: 87.30, endLat: 31.30, endLng: 118.10 },
   { from: "Inga", to: "Kolwezi", kind: "hvdc", mw: 1100, startLat: -5.52, startLng: 13.62, endLat: -10.71, endLng: 25.47 },
-  { from: "Etiopía (Sodo)", to: "Kenia (Suswa)", kind: "hvdc", mw: 2000, startLat: 6.85, startLng: 37.76, endLat: -1.10, endLng: 36.42 },
+  { from: "Etiopía (Sodo)", to: "Kenia (Suswa)", kind: "ac", mw: 400, startLat: 6.85, startLng: 37.76, endLat: -1.10, endLng: 36.42 },
   { from: "Basslink", to: "Victoria", kind: "hvdc", mw: 500, startLat: -41.16, startLng: 146.36, endLat: -38.15, endLng: 147.07 },
   { from: "Leyte (Ormoc)", to: "Naga (Cebu)", kind: "hvdc", mw: 440, startLat: 11.24, startLng: 124.89, endLat: 10.19, endLng: 123.75 },
 ];

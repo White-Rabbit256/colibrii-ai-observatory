@@ -38,7 +38,7 @@ const LEGEND = ["Hydro", "Solar", "Wind", "Geothermal", "Nuclear", "Gas", "Coal"
 const FUEL_ES = {
   Hydro: "Hidro", Solar: "Solar", Wind: "Eólica", Geothermal: "Geotérmica",
   Nuclear: "Nuclear", Gas: "Gas", Coal: "Carbón", Oil: "Petróleo",
-  Biomass: "Biomasa", Storage: "Almac.", CSP: "Solar térmica",
+  Biomass: "Biomasa", Storage: "Almacenamiento", CSP: "Solar térmica",
 };
 
 /* Curated landmark plants (used as the mobile layer + fallback when WRI fails). */
@@ -77,7 +77,14 @@ const ARC_COLOR_FN = (a) => a.kind === "siepac"
       ? ["#10b981", "#34d399"]
       : ["#22d3ee", "#00B5A8"];
 const ARC_STROKE_FN = (a) => a.kind === "siepac" ? 1.1 : a.kind === "planned" ? 0.45 : a.kind === "ac" ? 0.40 : 0.45;
-const ARC_ALT_FN = (a) => 0.05 + Math.min(0.17, (a.mw || 500) / 80000); // capped < atmosphereAltitude 0.24
+const ARC_ALT_FN = (a) => {
+  const base = 0.05 + Math.min(0.17, (a.mw || 500) / 80000);
+  // Kind-aware floor so editorially-central low-MW arcs (SIEPAC 300 MW, the
+  // Darién planned link) don't render flush with the night-texture terrain.
+  if (a.kind === "siepac") return Math.max(0.09, base);
+  if (a.kind === "planned") return Math.max(0.12, base);
+  return base; // capped < atmosphereAltitude 0.24
+};
 const ARC_DASH_LEN_FN = (a) => a.kind === "planned" ? 0.16 : 0.45;
 const ARC_DASH_GAP_FN = (a) => a.kind === "planned" ? 0.5 : 0.12;
 const RING_COLOR_FN = () => (t) => `rgba(34,211,238,${1 - t})`;
@@ -207,7 +214,8 @@ export default function PowerGlobe({ en = false, compact = false }) {
 
   const arcs = useMemo(() => (layers.grid ? HV_ARCS : []), [layers.grid]);
   const dcs = useMemo(() => (layers.hubs ? DATACENTERS : []), [layers.hubs]);
-  const ringsData = useMemo(() => (focus === "cr" ? CR_MARQUEE.slice(0, 5) : CR_MARQUEE), [focus]);
+  // Cap ring count: focus → top 5 CR plants; global → top 3 (otherwise 8 rings overlap on the SIEPAC corridor).
+  const ringsData = useMemo(() => (focus === "cr" ? CR_MARQUEE.slice(0, 5) : CR_MARQUEE.slice(0, 3)), [focus]);
 
   const counts = useMemo(() => {
     const c = {};
@@ -264,8 +272,10 @@ export default function PowerGlobe({ en = false, compact = false }) {
           : `Enfoque en Costa Rica: ${CR_MARQUEE.length} plantas, ${HV_ARCS.filter((a) => a.kind === "siepac").length} interconexiones SIEPAC.`);
       } else {
         g.pointOfView(compact ? { lat: 6, lng: -80, altitude: 2.1 } : { lat: 18, lng: -55, altitude: 2.4 }, reduced ? 0 : 1200);
-        c.autoRotate = !reduced;
+        // Defer auto-rotate resume until after the camera tween settles — eliminates the axis-fighting lurch on CR↔Global.
+        const t = setTimeout(() => { try { g.controls().autoRotate = !reduced; } catch {} }, reduced ? 0 : 1250);
         setAnnounce(en ? "Global view." : "Vista global.");
+        return () => clearTimeout(t);
       }
     } catch {}
   }, [focus, ready, reduced, compact, en]);
@@ -494,7 +504,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
                 {[["plants", en ? "Plants" : "Plantas"], ["grid", en ? "Grid" : "Red"], ["hubs", en ? "AI hubs" : "Hubs IA"]].map(([k, label]) => (
                   <button key={k} type="button" onClick={() => toggleLayer(k)} aria-pressed={layers[k]}
                     className={`pg-btn${layers[k] ? " pg-btn-on" : ""}`} data-off={layers[k] ? "0" : "1"}>
-                    {layers[k] ? "● " : "○ "}{label}
+                    <span aria-hidden="true">{layers[k] ? "● " : "○ "}</span>{label}
                   </button>
                 ))}
               </div>
@@ -585,7 +595,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
       )}
 
       {/* ── Bottom: fuel chips + reset ── */}
-      <div style={{ position: "absolute", left: 14, bottom: 12, right: 14, zIndex: 3, display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center", justifyContent: "center" }}>
+      <div style={{ position: "absolute", left: 14, bottom: "max(12px, env(safe-area-inset-bottom))", right: 14, zIndex: 3, display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center", justifyContent: "center" }}>
         {LEGEND.map((k) => {
           const on = filters[k] !== false;
           return (
