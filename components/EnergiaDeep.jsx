@@ -487,6 +487,8 @@ export function EnergiaDeep({ en = false }) {
   /* Hero visual mode: desktop overlay 3D · mobile 3D banner · 2D fallback (no-webgl / reduced-motion) */
   const [mode, setMode] = useState("fallback2d");
   const [scrolled, setScrolled] = useState(false);
+  /* Reserved for Phase 2 FloatingShare screenshot — do not remove */
+  const globeContainerRef = useRef(null);
   useEffect(() => {
     const wide = window.matchMedia("(min-width: 768px)").matches;
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -590,6 +592,7 @@ export function EnergiaDeep({ en = false }) {
               aspect-ratio: 16 / 9; width: 100%; border-radius: 16px;
               background: radial-gradient(130% 120% at 50% -10%, #0A1F3F, #06152e 70%, #02070f 100%);
               border: 1px solid rgba(0,181,168,0.2);
+              min-height: 200px;
             }
             @media (max-width: 767px) { .energia-globe-skeleton { aspect-ratio: 4 / 5; } }
             @media (prefers-reduced-motion: reduce) { .energia-scroll-cue div { animation: none !important; } [style*="energiaSwipe"] { animation: none !important; } }
@@ -604,19 +607,58 @@ export function EnergiaDeep({ en = false }) {
 
       {/* ════ ATLAS GLOBAL DE GENERACIÓN — 3D ════ */}
       <ScrollReveal>
-        <div style={{ marginTop: 16, aspectRatio: mode === "mobile3d" ? "4 / 5" : "16 / 9", width: "100%", position: "relative" }}>
+        {/* globeContainerRef reserved for Phase 2 FloatingShare screenshot */}
+        <div
+          ref={globeContainerRef}
+          data-section="act2-globe"
+          style={{
+            marginTop: 16,
+            aspectRatio: mode === "mobile3d" ? "4 / 5" : "16 / 9",
+            width: "100%",
+            position: "relative",
+            maxHeight: mode === "mobile3d" ? "clamp(340px, 80svh, 540px)" : "none",
+          }}
+        >
           <a href="#crGridMapAnchor" className="energia-skip">
-            {en ? "Skip to accessible Costa Rica map" : "Saltar al mapa accesible de Costa Rica"}
+            {en ? "Skip to Costa Rica map" : "Saltar al mapa de Costa Rica"}
           </a>
           <PowerGlobe en={en} compact={mode === "mobile3d"} />
-          <p style={{ fontSize: 12, color: "rgba(241,245,249,0.72)", lineHeight: 1.6, marginTop: 10 }}>
-            {en ? (
-              <>Where the world makes its electricity — drag to spin the globe, tap a technology to filter, or focus on Costa Rica. Global points: <a href={SRC.wri.url} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>WRI Global Power Plant Database</a> (<a href={SRC.cc_by_4.url} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>CC-BY-4.0</a>). High-voltage interconnections illustrative — see <a href={SRC.entsoe.url} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>ENTSO-E</a>, <a href={SRC.iea_wgo.url} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>IEA</a>, <a href={SRC.epr.url} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>SIEPAC/EPR</a>. An independent technical visual; marker locations are approximate.</>
-            ) : (
-              <>Dónde el mundo genera su electricidad — arrastrá para girar el globo, tocá una tecnología para filtrar o enfocá Costa Rica. Puntos globales: <a href={SRC.wri.url} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>WRI Global Power Plant Database</a> (<a href={SRC.cc_by_4.url} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>CC-BY-4.0</a>). Interconexiones de alta tensión ilustrativas — ver <a href={SRC.entsoe.url} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>ENTSO-E</a>, <a href={SRC.iea_wgo.url} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>IEA</a>, <a href={SRC.epr.url} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>SIEPAC/EPR</a>. Visual técnico independiente; las ubicaciones son aproximadas.</>
-            )}
-          </p>
         </div>
+        {/* Zone D: sourced attribution caption — spec §14 / sourcing §3 */}
+        <p style={{
+          fontSize: 12, color: "rgba(241,245,249,0.72)", lineHeight: 1.6, marginTop: 10,
+          textShadow: "0 1px 4px rgba(0,0,0,0.85)",
+        }}>
+          {en ? (
+            <>
+              Plants:{" "}
+              <a href={SRC.wri.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>WRI Global Power Plant Database</a>
+              {" "}(<a href={SRC.cc_by_4.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>CC-BY-4.0</a>)
+              {" · "}basemap{" "}
+              <a href={SRC.three_globe.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>NASA night lights</a>
+              {" · "}interconnections illustrative (
+              <a href={SRC.entsoe.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>ENTSO-E</a>
+              {", "}
+              <a href={SRC.iea_wgo.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>IEA</a>
+              {", "}
+              <a href={SRC.epr.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>SIEPAC/EPR</a>)
+            </>
+          ) : (
+            <>
+              Plantas:{" "}
+              <a href={SRC.wri.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>WRI Global Power Plant Database</a>
+              {" "}(<a href={SRC.cc_by_4.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>CC-BY-4.0</a>)
+              {" · "}base{" "}
+              <a href={SRC.three_globe.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>NASA night lights</a>
+              {" · "}interconexiones ilustrativas (
+              <a href={SRC.entsoe.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>ENTSO-E</a>
+              {", "}
+              <a href={SRC.iea_wgo.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>IEA</a>
+              {", "}
+              <a href={SRC.epr.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>SIEPAC/EPR</a>)
+            </>
+          )}
+        </p>
       </ScrollReveal>
 
       <ScrollReveal>

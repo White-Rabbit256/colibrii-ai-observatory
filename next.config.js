@@ -23,6 +23,8 @@ const nextConfig = {
             "font-src 'self' https://fonts.gstatic.com",
             "img-src 'self' data: https: blob:",
             "connect-src 'self' https://api.worldbank.org https://api.gdeltproject.org https://open.er-api.com https://restcountries.com https://ghoapi.azureedge.net https://sdmx.oecd.org https://sdmx.fao.org https://datahub.itu.int https://databrowser.uis.unesco.org https://api.github.com https://cdn.jsdelivr.net https://www.tiktok.com https://services.nvd.nist.gov https://va.vercel-scripts.com https://vitals.vercel-insights.com",
+            // worker-src added for WRI CSV parse Web Worker (Phase 1)
+            "worker-src 'self' blob:",
             "frame-src 'self' https://www.tiktok.com",
             "frame-ancestors 'none'",
             "base-uri 'self'",
@@ -36,6 +38,22 @@ const nextConfig = {
         { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
       ],
     }];
+  },
+  webpack(config) {
+    config.optimization.splitChunks = {
+      ...(config.optimization.splitChunks || {}),
+      cacheGroups: {
+        ...((config.optimization.splitChunks && config.optimization.splitChunks.cacheGroups) || {}),
+        globeGl: {
+          test: /[\\/]node_modules[\\/](react-globe\.gl|globe\.gl|three-render-objects)[\\/]/,
+          name: 'chunk-globe-gl',
+          chunks: 'async',
+          priority: 30,
+          enforce: true,
+        },
+      },
+    };
+    return config;
   },
 };
 

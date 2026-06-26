@@ -7,6 +7,18 @@
    hyperscale capacity in the metro (public reporting: Synergy
    Research, Dell'Oro, JLL "Data Centers" research, DC Byte). All
    figures are approximate and labeled as such in the UI.
+
+   Sources:
+     - Synergy Research Group — Data Center Quarterly (est.) · 2025-2026
+     - Dell'Oro Group — Data Center Capex FY2025 (17 mar 2026)
+     - JLL — "Data Centers" H1 2025 research
+     - DC Byte (2025 estimates)
+   License: analyst research; all MW figures labeled "(est.)" in UI.
+
+   tier 1: top global AI + hyperscale markets by installed/pipeline MW
+   tier 2: significant regional hubs
+
+   Total hubs: 26 (14 Tier 1, 12 Tier 2). NO CHANGE from Phase 1 spec.
    ═══════════════════════════════════════════════════════════════ */
 export const DATACENTERS = [
   { name: { es: "Norte de Virginia",       en: "Northern Virginia" },        country: { es: "EE. UU.",       en: "USA" },          tier: 1, lat: 39.04,  lng: -77.49,  demandMw: 4500 },
