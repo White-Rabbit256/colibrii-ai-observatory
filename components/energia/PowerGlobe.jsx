@@ -1116,6 +1116,52 @@ export default function PowerGlobe({ en = false, compact = false }) {
       )}
 
       {/* ═══════════════════════════
+          Phase 2 · CR Teaser strip — permanent, always-visible bottom-left
+          when focus !== "cr". Auto-expands the full CR Info Panel on click.
+          Closes Audit #5 "CR Info Panel buried behind a click".
+          ═══════════════════════════ */}
+      {focus !== "cr" && (
+        <button
+          type="button"
+          onClick={() => setFocus("cr")}
+          aria-label={en ? "Expand Costa Rica panel — 5 SIEPAC segments, Bill 23.414" : "Expandir panel de Costa Rica — 5 segmentos SIEPAC, Exp. 23.414"}
+          style={{
+            position: "absolute",
+            bottom: compact ? 130 : 108,
+            left: 14,
+            zIndex: 3,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            background: `${EN_ACCENT.navyDeep}d8`,
+            border: `1px solid ${EN_ACCENT.gold}88`,
+            borderRadius: 999,
+            padding: "8px 12px",
+            cursor: "pointer",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            boxShadow: `0 4px 14px rgba(0,0,0,0.32), 0 0 12px ${EN_ACCENT.gold}33`,
+            color: "rgba(255,255,255,0.96)",
+            fontFamily: MONO,
+            fontSize: 10.5,
+            letterSpacing: 0.6,
+            minHeight: 36,
+            maxWidth: "min(280px, calc(100% - 28px))",
+          }}
+        >
+          <span aria-hidden="true" style={{
+            width: 10, height: 10, transform: "rotate(45deg)",
+            background: EN_ACCENT.gold, flexShrink: 0,
+            boxShadow: `0 0 8px ${EN_ACCENT.gold}`,
+          }} />
+          <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            {en ? "COSTA RICA · 5 SIEPAC · EXP. 23.414" : "COSTA RICA · 5 SIEPAC · EXP. 23.414"}
+          </span>
+          <span aria-hidden="true" style={{ color: EN_ACCENT.gold, fontSize: 12, marginLeft: 2 }}>→</span>
+        </button>
+      )}
+
+      {/* ═══════════════════════════
           CR Info Panel (focus === "cr")
           ═══════════════════════════ */}
       <AnimatePresence>

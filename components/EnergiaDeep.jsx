@@ -754,7 +754,27 @@ export function EnergiaDeep({ en = false }) {
               min-height: 200px;
             }
             @media (max-width: 767px) { .energia-globe-skeleton { aspect-ratio: 4 / 5; } }
-            @media (prefers-reduced-motion: reduce) { .energia-scroll-cue div { animation: none !important; } [style*="energiaSwipe"] { animation: none !important; } }
+            /* Phase 2 · Per-Act bg-wash — gutter behind each Act header breathes
+               the act's tint (6-7% alpha). :has() gated so older browsers fall
+               back to no wash with no contrast hit. */
+            @supports (background: rgb(from white r g b / 0.06)) {
+              [data-act]::before {
+                content: "";
+                position: absolute;
+                left: 50%; transform: translateX(-50%);
+                width: 100vw; height: 100%;
+                background: var(--act-tint, transparent);
+                z-index: -1;
+                pointer-events: none;
+                transition: opacity 0.6s ease;
+              }
+              [data-act] { position: relative; isolation: isolate; }
+            }
+            @media (prefers-reduced-motion: reduce) {
+              .energia-scroll-cue div { animation: none !important; }
+              [style*="energiaSwipe"] { animation: none !important; }
+              [data-act]::before { transition: none; }
+            }
           `}</style>
         </div>
       </section>
