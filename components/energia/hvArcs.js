@@ -11,19 +11,19 @@
    ═══════════════════════════════════════════════════════════════ */
 export const HV_ARCS = [
   // ── Central America — SIEPAC (the Costa Rica tie-in) ──
-  { from: "Costa Rica (Cañas)", to: "Panamá (Las Minas)", kind: "siepac", mw: 300, startLat: 10.27, startLng: -85.07, endLat: 7.97, endLng: -80.52 },
+  { from: "Costa Rica (Cañas)", to: "Panamá (Las Minas)", kind: "siepac", mw: 300, startLat: 10.27, startLng: -85.07, endLat: 7.97, endLng: -80.38 },
   { from: "Costa Rica (Cañas)", to: "Nicaragua", kind: "siepac", mw: 300, startLat: 10.27, startLng: -85.07, endLat: 12.13, endLng: -86.25 },
   { from: "Nicaragua", to: "Honduras", kind: "siepac", mw: 300, startLat: 12.13, startLng: -86.25, endLat: 14.10, endLng: -87.22 },
   { from: "Honduras", to: "El Salvador", kind: "siepac", mw: 300, startLat: 14.10, startLng: -87.22, endLat: 13.69, endLng: -89.19 },
   { from: "El Salvador", to: "Guatemala", kind: "siepac", mw: 300, startLat: 13.69, startLng: -89.19, endLat: 14.63, endLng: -90.51 },
-  { from: "Panamá", to: { es: "Colombia (planificado)", en: "Colombia (planned)" }, kind: "planned", mw: 400, startLat: 8.98, startLng: -79.52, endLat: 8.0, endLng: -77.0 },
+  { from: "Panamá", to: { es: "Colombia (planificado · Cerromatoso)", en: "Colombia (planned · Cerromatoso)" }, kind: "planned", mw: 400, startLat: 8.98, startLng: -79.52, endLat: 7.97, endLng: -75.47 },
 
   // ── Americas — long-haul HVDC / major links ──
   { from: "Itaipú", to: "São Paulo", kind: "hvdc", mw: 6300, startLat: -25.41, startLng: -54.59, endLat: -23.55, endLng: -46.63 },
   { from: "Rio Madeira", to: "São Paulo", kind: "hvdc", mw: 7100, startLat: -8.76, startLng: -63.90, endLat: -23.55, endLng: -46.63 },
   { from: "Pacific DC Intertie", to: "Los Angeles", kind: "hvdc", mw: 3100, startLat: 45.60, startLng: -121.10, endLat: 34.05, endLng: -118.24 },
   { from: "Québec", to: "New England", kind: "hvdc", mw: 2000, startLat: 45.50, startLng: -73.57, endLat: 42.36, endLng: -71.06 },
-  { from: "Nelson River (Bipoles I–III)", to: "Winnipeg", kind: "hvdc", mw: 3895, startLat: 56.00, startLng: -97.00, endLat: 49.90, endLng: -97.14 },
+  { from: "Nelson River (Bipoles I–III)", to: "Winnipeg", kind: "hvdc", mw: 3895, startLat: 56.37, startLng: -94.70, endLat: 49.90, endLng: -97.14 },
 
   // ── Europe — interconnectors ──
   { from: "North Sea Link", to: "United Kingdom", kind: "hvdc", mw: 1400, startLat: 59.00, startLng: 6.60, endLat: 55.01, endLng: -1.45 },

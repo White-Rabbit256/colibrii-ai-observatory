@@ -388,6 +388,8 @@ function FloatingShare({ en }) {
     <button
       onClick={share}
       aria-label={en ? "Copy link to this analysis" : "Copiar enlace de este análisis"}
+      tabIndex={show ? 0 : -1}
+      aria-hidden={!show}
       style={{
         position: "fixed", right: "max(16px, env(safe-area-inset-right))", bottom: "max(18px, env(safe-area-inset-bottom))",
         zIndex: 40, display: "inline-flex", alignItems: "center", gap: 8, minHeight: 46, padding: "10px 16px",

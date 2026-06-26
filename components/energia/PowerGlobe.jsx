@@ -362,7 +362,8 @@ export default function PowerGlobe({ en = false, compact = false }) {
     if (reduced) return 0;
     if (a.kind === "planned") return 5200;
     if (a.kind === "siepac") return 2200;
-    return a.mw > 5000 ? 2800 : a.mw > 1000 ? 4200 : 6000;
+    // Higher MW corridors animate FASTER (energy-flow metaphor): UHVDC pulses fastest.
+    return a.mw > 8000 ? 2000 : a.mw > 3000 ? 2800 : a.mw > 1000 ? 4200 : 6000;
   }, [reduced]);
 
   const toggleFuel = useCallback((k) => setFilters((f) => ({ ...f, [k]: !f[k] })), []);
