@@ -853,6 +853,20 @@ export default function PowerGlobe({ en = false, compact = false }) {
             min-height: 36px !important; padding: 7px 10px !important; font-size: 10px !important;
           }
         }
+        /* Phase 2 · Cañas anchor pulse — the SIEPAC node breathes once every
+           2.4s drawing the eye to Costa Rica without rotation interference.
+           Operates on the dual-core wrapper opacity, not transform, to avoid
+           fighting the globe's auto-rotate. */
+        @keyframes pgCanasPulse {
+          0%, 100% { box-shadow: 0 0 24px rgba(242,177,53,0.7), 0 0 8px #F2B135; }
+          50%      { box-shadow: 0 0 40px rgba(242,177,53,1.0), 0 0 16px #F2B135; }
+        }
+        .pg-cr-hub > div:first-of-type {
+          animation: pgCanasPulse 2400ms ease-in-out infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .pg-cr-hub > div:first-of-type { animation: none !important; }
+        }
       `}</style>
 
       {/* ── Skip link (first focusable child) ── */}
@@ -1129,7 +1143,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
                   border: `1px solid ${EN_ACCENT.turquoise}33`,
                 }}
               >
-                {[ ["plants", en ? "Plants" : "Plantas"], ["grid", en ? "Grid" : "Red"], ["hubs", en ? "AI hubs" : "Hubs IA"] ].map(([k, label]) => (
+                {[ ["plants", en ? "Plants" : "Plantas"], ["grid", en ? "Grid" : "Red"], ["hubs", en ? "AI hubs" : "Hubs IA"], ["storage", en ? "Storage" : "Almacenamiento"] ].map(([k, label]) => (
                   <button
                     key={k}
                     type="button"
@@ -1147,7 +1161,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 5, alignItems: "flex-end" }}>
-            {[ ["plants", en ? "Plants" : "Plantas"], ["grid", en ? "Grid" : "Red"], ["hubs", en ? "AI hubs" : "Hubs IA"] ].map(([k, label]) => (
+            {[ ["plants", en ? "Plants" : "Plantas"], ["grid", en ? "Grid" : "Red"], ["hubs", en ? "AI hubs" : "Hubs IA"], ["storage", en ? "Storage" : "Almacenamiento"] ].map(([k, label]) => (
               <button
                 key={k}
                 type="button"
@@ -1433,6 +1447,14 @@ export default function PowerGlobe({ en = false, compact = false }) {
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           <span style={{ width: DC_GLYPH[2].size, height: DC_GLYPH[2].size, transform: "rotate(45deg)", background: DC_GLYPH[2].background, border: DC_GLYPH[2].border }} />
           {DC_GLYPH[2].label[locale]}
+        </span>
+        {/* Phase 2 · Storage swatch — double-ring (storage-blue outer + Li-ion cyan inner) */}
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+          <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+            <circle cx="6" cy="6" r="5" fill="none" stroke="#60a5fa" strokeWidth="1.5" />
+            <circle cx="6" cy="6" r="2.5" fill="none" stroke="#60a5fa" strokeWidth="1.5" />
+          </svg>
+          {en ? "Storage" : "Almacenamiento"}
         </span>
       </div>
 
