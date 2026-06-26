@@ -79,6 +79,7 @@ export const ACT2_KPIS = {
 export const SRC = {
   iea2025: { name: "IEA — Energy and AI (abr 2025)", url: "https://www.iea.org/reports/energy-and-ai", date: "2026-06" },
   delloro: { name: "Dell'Oro Group — Data Center Capex FY2025 (17 mar 2026)", url: "https://www.delloro.com/news/", date: "2026-06" },
+  synergy: { name: "Synergy Research Group — Data Center Quarterly", url: "https://www.srgresearch.com/", date: "2026-06" },
   mckinsey: { name: "McKinsey — The cost of compute (abr 2025)", url: "https://www.mckinsey.com/industries/technology-media-and-telecommunications/our-insights/the-cost-of-compute-a-7-trillion-dollar-race-to-scale-data-centers", date: "2026-06" },
   dcfrontier: { name: "Data Center Frontier / Tom's Hardware (ene 2026)", url: "https://www.datacenterfrontier.com/", date: "2026-06" },
   constellation: { name: "Constellation Energy — press releases", url: "https://www.constellationenergy.com/newsroom.html", date: "2026-06" },

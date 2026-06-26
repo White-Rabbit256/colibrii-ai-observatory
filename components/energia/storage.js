@@ -45,7 +45,7 @@ export const STORAGE_SITES = [
 
   /* ── Australia (NEM frequency-services premium) ── */
   { id: "waratah-super",     lat: -32.923, lng: 151.670,  name: { es: "Waratah Super Battery",        en: "Waratah Super Battery" },        country: { es: "Australia", en: "Australia"  }, mw: 850,  mwh: 1680,  chem: "li",      status: "op",  comYear: 2025, s: "gem_gipt", lic: "cc_by_4" },
-  { id: "victorian-big",     lat: -38.014, lng: 146.403,  name: { es: "Victorian Big Battery",        en: "Victorian Big Battery" },        country: { es: "Australia", en: "Australia"  }, mw: 300,  mwh: 450,   chem: "li",      status: "op",  comYear: 2021, s: "gem_gipt", lic: "cc_by_4" },
+  { id: "victorian-big",     lat: -37.720, lng: 144.450,  name: { es: "Victorian Big Battery",        en: "Victorian Big Battery" },        country: { es: "Australia", en: "Australia"  }, mw: 300,  mwh: 450,   chem: "li",      status: "op",  comYear: 2021, s: "gem_gipt", lic: "cc_by_4" },
   { id: "hornsdale",         lat: -33.083, lng: 138.250,  name: { es: "Hornsdale Power Reserve",      en: "Hornsdale Power Reserve" },      country: { es: "Australia", en: "Australia"  }, mw: 150,  mwh: 194,   chem: "li",      status: "op",  comYear: 2017, s: "gem_gipt", lic: "cc_by_4" },
 
   /* ── China (NEA storage mandate; flow + PHS) ── */
@@ -66,7 +66,7 @@ export const STORAGE_SITES = [
   { id: "arzberg-leag",      lat: 50.050,  lng: 12.190,   name: { es: "Arzberg / LEAG BESS",          en: "Arzberg / LEAG BESS" },          country: { es: "Alemania", en: "Germany"   }, mw: 250,  mwh: 250,   chem: "li",      status: "op",  comYear: 2024, s: "iea_storage", lic: "cc_by_4" },
   { id: "terna-brindisi",    lat: 40.450,  lng: 16.670,   name: { es: "Brindisi BESS (Terna)",        en: "Brindisi BESS (Terna)" },        country: { es: "Italia",   en: "Italy"     }, mw: 250,  mwh: 1000,  chem: "li",      status: "op",  comYear: 2024, s: "iea_storage", lic: "cc_by_4" },
   { id: "vlissingen",        lat: 51.450,  lng: 3.580,    name: { es: "Vlissingen",                   en: "Vlissingen" },                   country: { es: "Países Bajos", en: "Netherlands" }, mw: 201, mwh: 401, chem: "li",     status: "op",  comYear: 2025, s: "gem_gipt", lic: "cc_by_4" },
-  { id: "zarnowiec-pge",     lat: 52.080,  lng: 20.970,   name: { es: "Żarnowiec BESS (PGE)",         en: "Żarnowiec BESS (PGE)" },         country: { es: "Polonia",  en: "Poland"    }, mw: 263,  mwh: 900,   chem: "li",      status: "op",  comYear: 2025, s: "iea_storage", lic: "cc_by_4" },
+  { id: "zarnowiec-pge",     lat: 54.785,  lng: 18.040,   name: { es: "Żarnowiec BESS (PGE)",         en: "Żarnowiec BESS (PGE)" },         country: { es: "Polonia",  en: "Poland"    }, mw: 263,  mwh: 900,   chem: "li",      status: "op",  comYear: 2025, s: "iea_storage", lic: "cc_by_4" },
 
   /* ── Latin America ── */
   { id: "andes-solar-bess",  lat: -22.750, lng: -68.230,  name: { es: "Andes Solar BESS",             en: "Andes Solar BESS" },             country: { es: "Chile",     en: "Chile"      }, mw: 112,  mwh: 624,   chem: "li",      status: "op",  comYear: 2023, s: "gem_gipt", lic: "cc_by_4" },

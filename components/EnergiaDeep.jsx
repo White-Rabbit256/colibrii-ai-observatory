@@ -602,7 +602,7 @@ function FloatingShare({ en }) {
   }, []);
   const share = async () => {
     try {
-      await navigator.clipboard.writeText("https://colibriilabs.ai/app#energia?utm_source=share&utm_medium=floating&utm_campaign=energia");
+      await navigator.clipboard.writeText("https://colibriilabs.ai/app?utm_source=share&utm_medium=floating&utm_campaign=energia#energia");
       setDone(true); setTimeout(() => setDone(false), 2000);
     } catch {}
   };
@@ -633,7 +633,7 @@ function MicroCTA({ en }) {
   const [done, setDone] = useState(false);
   const share = async () => {
     try {
-      await navigator.clipboard.writeText("https://colibriilabs.ai/app#energia?utm_source=share&utm_medium=microcta&utm_campaign=energia");
+      await navigator.clipboard.writeText("https://colibriilabs.ai/app?utm_source=share&utm_medium=microcta&utm_campaign=energia#energia");
       setDone(true); setTimeout(() => setDone(false), 2200);
     } catch {}
   };
@@ -686,7 +686,7 @@ function CTABlock({ en }) {
           <button onClick={() => copy("link", url)} style={{ ...btn, border: "none", background: `linear-gradient(135deg, ${EN_ACCENT.turquoise}, ${EN_ACCENT.glow})`, color: "#06281f", boxShadow: "0 4px 24px rgba(0,181,168,0.35)" }}>
             {copied === "link" ? (en ? "Link copied ✓" : "Enlace copiado ✓") : (en ? "Copy section link" : "Copiar enlace de la sección")}
           </button>
-          <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url + "?utm_source=linkedin&utm_medium=social&utm_campaign=energia")}`} target="_blank" rel="noopener noreferrer"
+          <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://colibriilabs.ai/app?utm_source=linkedin&utm_medium=social&utm_campaign=energia#energia")}`} target="_blank" rel="noopener noreferrer"
             style={{ ...btn, background: "rgba(241,245,249,0.08)", border: "1px solid rgba(241,245,249,0.25)", color: "#f1f5f9" }}>
             {en ? "Share on LinkedIn" : "Compartir en LinkedIn"} ↗
           </a>

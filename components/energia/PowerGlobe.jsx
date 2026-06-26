@@ -1142,12 +1142,14 @@ export default function PowerGlobe({ en = false, compact = false }) {
                 style={{
                   // Phase 2 (consensus): open BELOW the trigger, not above —
                   // the previous bottom-aligned popover clipped 73% off-canvas
-                  // on compact viewports, hiding Plants/Grid/AI hubs toggles.
+                  // on compact viewports. maxHeight resolves against the figure
+                  // via viewport units (containing block is the 44px trigger,
+                  // so calc(100% - N) would clamp to 0 and hide all toggles).
                   position: "absolute", top: "calc(100% + 6px)", right: 0,
                   display: "flex", flexDirection: "column", gap: 5, alignItems: "flex-end",
                   background: `${EN_ACCENT.navy}d0`, padding: 6, borderRadius: 10,
                   border: `1px solid ${EN_ACCENT.turquoise}33`,
-                  maxHeight: "calc(100% - 80px)", overflowY: "auto",
+                  maxHeight: "min(60vh, 240px)", overflowY: "auto",
                 }}
               >
                 {[ ["plants", en ? "Plants" : "Plantas"], ["grid", en ? "Grid" : "Red"], ["hubs", en ? "AI hubs" : "Hubs IA"], ["storage", en ? "Storage" : "Almacenamiento"] ].map(([k, label]) => (
@@ -1384,6 +1386,15 @@ export default function PowerGlobe({ en = false, compact = false }) {
         {", "}
         <a href={SRC.epr.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>SIEPAC/EPR</a>
         {")"}
+        {layers.hubs && (
+          <>
+            {en ? " · AI hubs " : " · hubs IA "}
+            <a href={SRC.synergy.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Synergy</a>
+            {", "}
+            <a href={SRC.delloro.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Dell'Oro</a>
+            {en ? " — est." : " — est."}
+          </>
+        )}
         {layers.storage && (
           <>
             {en ? " · storage " : " · almacenamiento "}
