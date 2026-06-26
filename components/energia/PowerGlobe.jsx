@@ -628,7 +628,10 @@ export default function PowerGlobe({ en = false, compact = false }) {
      fuel cylinders and DC diamonds. Size scales √(MW) clamped 8-22px.
      PHS gets a dashed outer ring; announced status drops opacity to 0.3. */
   const STORAGE_CHEM_HEX = {
-    li: "#60a5fa", flow: "#06b6d4", phs: "#3b82f6", caes: "#94a3b8", thermal: "#f97316", other: "#94a3b8",
+    // Phase 2 (consensus): Li-ion inner ring distinct from #60a5fa outer ring
+    // — otherwise the double-ring encoding collapses to monochrome on the
+    // dominant chemistry. Cyan inner matches the legend SVG swatch.
+    li: "#22d3ee", flow: "#06b6d4", phs: "#3b82f6", caes: "#94a3b8", thermal: "#f97316", other: "#94a3b8",
   };
   const makeStorage = useCallback((d) => {
     const mw = d.mw || 100;
@@ -911,8 +914,8 @@ export default function PowerGlobe({ en = false, compact = false }) {
       {/* ── figcaption (SR only) ── */}
       <figcaption id={descId} className="pg-sr">
         {en
-          ? `Global generation atlas: ${total.toLocaleString("en")} power plants sized by installed capacity, ${HV_ARCS.length} major high-voltage interconnections including the SIEPAC tie-in for Costa Rica (ENTSO-E, IEA, SIEPAC/EPR — illustrative), ${DATACENTERS.length} AI / data-centre hubs (Synergy Research, Dell'Oro — estimate). Globe engine: react-globe.gl (MIT). Basemap: NASA night lights (public domain). The 3D globe is decorative; the keyboard-accessible Costa Rica grid map is in Act 4 below.`
-          : `Atlas global de generación: ${total.toLocaleString("es")} plantas de generación dimensionadas por capacidad instalada, ${HV_ARCS.length} interconexiones de alta tensión incluida la conexión SIEPAC para Costa Rica (ENTSO-E, IEA, SIEPAC/EPR — ilustrativo), ${DATACENTERS.length} hubs IA / centros de datos (Synergy Research, Dell'Oro — estimado). Motor de globo: react-globe.gl (MIT). Base: NASA night lights (dominio público). El globo 3D es decorativo; el mapa accesible de la red de Costa Rica está en el Acto 4 abajo.`}
+          ? `Global generation atlas: ${total.toLocaleString("en")} power plants sized by installed capacity, ${HV_ARCS.length} major high-voltage interconnections including the SIEPAC tie-in for Costa Rica (ENTSO-E, IEA, SIEPAC/EPR — illustrative), ${DATACENTERS.length} AI / data-centre hubs (Synergy Research, Dell'Oro — estimate), and utility-scale storage sites (Global Energy Monitor CC-BY-4.0, IEA Energy Storage Tracker, US EIA Form 860). Globe engine: react-globe.gl (MIT). Basemap: NASA night lights (public domain). The 3D globe is decorative; the keyboard-accessible Costa Rica grid map is in Act 4 below.`
+          : `Atlas global de generación: ${total.toLocaleString("es")} plantas de generación dimensionadas por capacidad instalada, ${HV_ARCS.length} interconexiones de alta tensión incluida la conexión SIEPAC para Costa Rica (ENTSO-E, IEA, SIEPAC/EPR — ilustrativo), ${DATACENTERS.length} hubs IA / centros de datos (Synergy Research, Dell'Oro — estimado), y sitios de almacenamiento utility-scale (Global Energy Monitor CC-BY-4.0, IEA Energy Storage Tracker, US EIA Form 860). Motor de globo: react-globe.gl (MIT). Base: NASA night lights (dominio público). El globo 3D es decorativo; el mapa accesible de la red de Costa Rica está en el Acto 4 abajo.`}
       </figcaption>
 
       {/* ── Live region (SR only) ── */}
@@ -1137,10 +1140,14 @@ export default function PowerGlobe({ en = false, compact = false }) {
                 id="pg-layers"
                 ref={layersPopRef}
                 style={{
-                  position: "absolute", bottom: "calc(100% + 6px)", right: 0,
+                  // Phase 2 (consensus): open BELOW the trigger, not above —
+                  // the previous bottom-aligned popover clipped 73% off-canvas
+                  // on compact viewports, hiding Plants/Grid/AI hubs toggles.
+                  position: "absolute", top: "calc(100% + 6px)", right: 0,
                   display: "flex", flexDirection: "column", gap: 5, alignItems: "flex-end",
                   background: `${EN_ACCENT.navy}d0`, padding: 6, borderRadius: 10,
                   border: `1px solid ${EN_ACCENT.turquoise}33`,
+                  maxHeight: "calc(100% - 80px)", overflowY: "auto",
                 }}
               >
                 {[ ["plants", en ? "Plants" : "Plantas"], ["grid", en ? "Grid" : "Red"], ["hubs", en ? "AI hubs" : "Hubs IA"], ["storage", en ? "Storage" : "Almacenamiento"] ].map(([k, label]) => (
@@ -1377,6 +1384,18 @@ export default function PowerGlobe({ en = false, compact = false }) {
         {", "}
         <a href={SRC.epr.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>SIEPAC/EPR</a>
         {")"}
+        {layers.storage && (
+          <>
+            {en ? " · storage " : " · almacenamiento "}
+            <a href={SRC.gem_gipt.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>GEM</a>
+            {" ("}
+            <a href={SRC.cc_by_4.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>CC-BY-4.0</a>
+            {"), "}
+            <a href={SRC.iea_storage.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>IEA</a>
+            {", "}
+            <a href={SRC.eia860.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>EIA 860</a>
+          </>
+        )}
       </div>
 
       {/* ═══════════════════════════
@@ -1452,7 +1471,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
             <circle cx="6" cy="6" r="5" fill="none" stroke="#60a5fa" strokeWidth="1.5" />
-            <circle cx="6" cy="6" r="2.5" fill="none" stroke="#60a5fa" strokeWidth="1.5" />
+            <circle cx="6" cy="6" r="2.5" fill="none" stroke="#22d3ee" strokeWidth="1.5" />
           </svg>
           {en ? "Storage" : "Almacenamiento"}
         </span>

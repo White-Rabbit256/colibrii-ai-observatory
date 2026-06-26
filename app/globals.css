@@ -2969,6 +2969,31 @@ input[type="range"]::-moz-range-thumb {
   --enOnAccent: #0a1f3f;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   ENERGÍA — per-Act accent cascade (WCAG AA both themes)
+   Vars consumed by Act header / ActNav pills / PullStat gradient via
+   var(--act-accent). Defined in CSS (not inline) so the light-theme
+   override actually applies — inline custom-prop sets would win over
+   any cascade rule. Light variants ≥4.5:1 on white per ACT_ACCENT_LIGHT
+   in energiaData.js (matches --enTurq #067a70 / --enGold #8a5e00 precedent).
+   Light is the default (no [data-theme] prefix); dark reasserts the bright
+   palette, mirroring the .energia-scope token convention above.
+   ═══════════════════════════════════════════════════════════════ */
+.energia-scope [data-act="2"] { --act-accent: #155e75; --act-accent-2: #0f766e; --act-tint: rgba(21,94,117,0.06); }
+.energia-scope [data-act="3"] { --act-accent: #713f12; --act-accent-2: #9a3412; --act-tint: rgba(113,63,18,0.07); }
+.energia-scope [data-act="4"] { --act-accent: #155e75; --act-accent-2: #115e59; --act-tint: rgba(21,94,117,0.06); }
+.energia-scope [data-act="5"] { --act-accent: #713f12; --act-accent-2: #991b1b; --act-tint: rgba(113,63,18,0.07); }
+.energia-scope [data-act="6"] { --act-accent: #4338ca; --act-accent-2: #155e75; --act-tint: rgba(67,56,202,0.06); }
+.energia-scope [data-act="7"] { --act-accent: #155e75; --act-accent-2: #9a3412; --act-tint: rgba(21,94,117,0.06); }
+.energia-scope [data-act="8"] { --act-accent: #713f12; --act-accent-2: #065f46; --act-tint: rgba(113,63,18,0.07); }
+[data-theme="dark"] .energia-scope [data-act="2"] { --act-accent: #22d3ee; --act-accent-2: #00B5A8; --act-tint: rgba(34,211,238,0.06); }
+[data-theme="dark"] .energia-scope [data-act="3"] { --act-accent: #F2B135; --act-accent-2: #fb923c; --act-tint: rgba(242,177,53,0.07); }
+[data-theme="dark"] .energia-scope [data-act="4"] { --act-accent: #22d3ee; --act-accent-2: #0d9488; --act-tint: rgba(34,211,238,0.06); }
+[data-theme="dark"] .energia-scope [data-act="5"] { --act-accent: #F2B135; --act-accent-2: #ef4444; --act-tint: rgba(242,177,53,0.07); }
+[data-theme="dark"] .energia-scope [data-act="6"] { --act-accent: #a5b4fc; --act-accent-2: #22d3ee; --act-tint: rgba(165,180,252,0.06); }
+[data-theme="dark"] .energia-scope [data-act="7"] { --act-accent: #22d3ee; --act-accent-2: #fb923c; --act-tint: rgba(34,211,238,0.06); }
+[data-theme="dark"] .energia-scope [data-act="8"] { --act-accent: #F2B135; --act-accent-2: #10b981; --act-tint: rgba(242,177,53,0.07); }
+
 /* ═══════════════ ENERGÍA — hero mobile legibility ═══════════════ */
 .energia-scope .energia-hero-scrim {
   background: linear-gradient(100deg, rgba(6,15,34,0.96) 0%, rgba(6,15,34,0.9) 30%, rgba(6,15,34,0.58) 56%, rgba(6,15,34,0.2) 78%, rgba(6,15,34,0) 100%);

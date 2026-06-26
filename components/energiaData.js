@@ -23,7 +23,11 @@ export const EN_ACCENT = {
 };
 
 /* Phase 2 · Per-Act accent map — each Act exposes 3 CSS vars on its root via
-   data-act={n}: --act-accent, --act-accent-2, --act-tint. */
+   data-act={n}: --act-accent, --act-accent-2, --act-tint.
+   Dark-theme palette. Light-theme variants below (ACT_ACCENT_LIGHT) keep the
+   same hue family but ≥4.5:1 contrast on white, matching the --enTurq #067a70
+   / --enGold #8a5e00 precedent. Applied via [data-theme="light"] [data-act=N]
+   in globals.css — never used directly in JS. */
 export const ACT_ACCENT = {
   2: { primary: "#22d3ee", pair: "#00B5A8", tint: "rgba(34,211,238,0.06)" },
   3: { primary: "#F2B135", pair: "#fb923c", tint: "rgba(242,177,53,0.07)" },
@@ -32,6 +36,18 @@ export const ACT_ACCENT = {
   6: { primary: "#a5b4fc", pair: "#22d3ee", tint: "rgba(165,180,252,0.06)" },
   7: { primary: "#22d3ee", pair: "#fb923c", tint: "rgba(34,211,238,0.06)" },
   8: { primary: "#F2B135", pair: "#10b981", tint: "rgba(242,177,53,0.07)" },
+};
+/* WCAG AA light-theme variants (≥4.5:1 on white, ≥4.5:1 after worst-case
+   inline opacity 0.8 used by ActNav inactive pills). Hue families preserved.
+   Reference: --enTurq #067a70 (5.22:1) / --enGold #8a5e00 (5.70:1). */
+export const ACT_ACCENT_LIGHT = {
+  2: { primary: "#155e75", pair: "#0f766e", tint: "rgba(21,94,117,0.06)" },
+  3: { primary: "#713f12", pair: "#9a3412", tint: "rgba(113,63,18,0.07)" },
+  4: { primary: "#155e75", pair: "#115e59", tint: "rgba(21,94,117,0.06)" },
+  5: { primary: "#713f12", pair: "#991b1b", tint: "rgba(113,63,18,0.07)" },
+  6: { primary: "#4338ca", pair: "#155e75", tint: "rgba(67,56,202,0.06)" },
+  7: { primary: "#155e75", pair: "#9a3412", tint: "rgba(21,94,117,0.06)" },
+  8: { primary: "#713f12", pair: "#065f46", tint: "rgba(113,63,18,0.07)" },
 };
 
 /* Phase 2 · Editorial intro pulls — one italic line beneath each Act header. */
@@ -94,6 +110,11 @@ export const SRC = {
   iea_wgo: { name: "IEA — World Energy Outlook (Annex A, grid)", url: "https://www.iea.org/reports/world-energy-outlook-2024", date: "2026-06" },
   epr: { name: "EOR/CRIE — Ente Operador Regional del SIEPAC", url: "https://www.enteoperador.org/siepac/", date: "2026-06" },
   three_globe: { name: "vasturiano/three-globe — basemap (NASA night lights)", url: "https://github.com/vasturiano/three-globe", date: "2026-06" },
+  // Phase 2 · Storage layer attribution — entries cited by components/energia/storage.js
+  gem_gipt: { name: "Global Energy Monitor — Global Battery Storage Tracker (CC-BY-4.0)", url: "https://globalenergymonitor.org/projects/global-battery-storage-tracker/", date: "2026-06" },
+  eia860: { name: "US EIA — Form 860 Operable Generators", url: "https://www.eia.gov/electricity/data/eia860/", date: "2026-06" },
+  iea_storage: { name: "IEA — Energy Storage Tracker 2025", url: "https://www.iea.org/energy-system/electricity/energy-storage", date: "2026-06" },
+  public: { name: "US public domain (federal data)", url: "https://www.usa.gov/government-works", date: "2026-06" },
   enerdata: { name: "Enerdata (2024)", url: "https://www.enerdata.net/", date: "2026-06" },
   intratec: { name: "Intratec — Chile (ago 2025)", url: "https://www.intratec.us/", date: "2026-06" },
   bnef: { name: "BloombergNEF — Climatescope 2025", url: "https://www.global-climatescope.org/", date: "2026-06" },

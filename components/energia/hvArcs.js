@@ -136,29 +136,33 @@ export const HV_ARCS = [
     startLat:  -8.76, startLng: -63.90,
     endLat:   -21.79, endLng:  -48.17,
   },
-  // Pacific DC Intertie: Celilo converter (OR) → Sylmar converter (CA)
-  // Source: BPA/LADWP; 45.60°N 121.10°W → 34.05°N 118.24°W
+  // Pacific DC Intertie: Celilo converter (OR) → Sylmar LADWP converter (CA)
+  // Source: BPA/LADWP. Celilo 45.60°N 121.10°W → Sylmar 34.32°N 118.49°W
+  // (Phase 2 correction: prior endpoint named Los Angeles city centre instead
+  //  of Sylmar converter; same pattern as the Itaipú/Madeira fix in c7c02e7.)
   {
     id: "hvdc-pacific-intertie",
-    from: "Pacific DC Intertie",
-    to: "Los Angeles",
+    from: "Pacific DC Intertie (Celilo)",
+    to: "Sylmar (LADWP)",
     kind: "hvdc",
     mw: 3100,
     label: { es: "Pacific Intertie · 3.100 MW · ±500 kV HVDC", en: "Pacific Intertie · 3,100 MW · ±500 kV HVDC" },
     startLat: 45.60, startLng: -121.10,
-    endLat:   34.05, endLng:  -118.24,
+    endLat:   34.32, endLng:  -118.49,
   },
-  // Québec–New England HVDC: Nicolet converter → Sandy Pond converter (MA)
-  // Source: Hydro-Québec; 45.50°N 73.57°W → 42.36°N 71.06°W
+  // Québec–New England HVDC: Nicolet/Bécancour converter (QC) → Sandy Pond (MA)
+  // Source: Hydro-Québec. Nicolet 46.22°N 72.62°W → Sandy Pond 42.55°N 71.59°W
+  // (Phase 2 correction: prior endpoints were Montréal and Boston city centres,
+  //  30-90 km off the actual converter substations the comment contracts.)
   {
     id: "hvdc-quebec-ne",
-    from: "Québec",
-    to: "New England",
+    from: "Nicolet (QC)",
+    to: "Sandy Pond (MA)",
     kind: "hvdc",
     mw: 2000,
     label: { es: "Québec → Nueva Inglaterra · 2.000 MW · HVDC", en: "Québec → New England · 2,000 MW · HVDC" },
-    startLat: 45.50, startLng: -73.57,
-    endLat:   42.36, endLng:  -71.06,
+    startLat: 46.22, startLng: -72.62,
+    endLat:   42.55, endLng:  -71.59,
   },
   // Nelson River Bipoles I–III: Radisson converter (MB) → Dorsey converter (MB)
   // Source: Manitoba Hydro; Dorsey: 49.90°N 97.33°W

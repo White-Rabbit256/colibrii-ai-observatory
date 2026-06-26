@@ -136,19 +136,22 @@ function ActNav({ en }) {
       <div style={{ display: "flex", gap: 4, padding: "5px 8px", borderRadius: 999, background: "color-mix(in srgb, var(--card) 80%, transparent)", backdropFilter: "blur(10px)", border: "1px solid var(--border)", boxShadow: "var(--shadow-md)" }}>
         {ACT_IDS.map(n => {
           const active = current === n;
-          const acc = ACT_ACCENT[n] || ACT_ACCENT[2];
+          /* data-act={n} lets per-act CSS vars cascade from globals.css —
+             both themes defined there (WCAG AA). No inline --act-accent here
+             because inline custom-prop sets win over CSS and would block the
+             light-theme override. */
           return (
-            <button key={n} onClick={() => document.getElementById(`energia-act-${n}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+            <button key={n} data-act={n} onClick={() => document.getElementById(`energia-act-${n}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
               aria-label={`${en ? "Act" : "Acto"} ${n}`} aria-current={active ? "true" : undefined}
               style={{
                 ...mono,
                 minWidth: 44, minHeight: 44, width: 44, height: 44,
                 borderRadius: "50%",
-                border: active ? "none" : `1px solid ${acc.primary}44`,
+                border: active ? "none" : "1px solid color-mix(in srgb, var(--act-accent) 27%, transparent)",
                 cursor: "pointer", fontSize: 12, fontWeight: 800,
-                background: active ? `linear-gradient(135deg, ${acc.primary}, ${acc.pair})` : "transparent",
-                color: active ? "#06281f" : `${acc.primary}cc`,
-                boxShadow: active ? `0 0 12px ${acc.primary}55` : "none",
+                background: active ? "linear-gradient(135deg, var(--act-accent), var(--act-accent-2))" : "transparent",
+                color: active ? "var(--enOnAccent)" : "color-mix(in srgb, var(--act-accent) 80%, transparent)",
+                boxShadow: active ? "0 0 12px color-mix(in srgb, var(--act-accent) 33%, transparent)" : "none",
                 transition: "all .25s",
               }}>
               {n}
@@ -247,8 +250,11 @@ function PullStat({ v, caption, srcId }) {
    every nested PullStat / Eyebrow / ScrollReveal consume the act color
    without re-binding per-component. */
 function Act({ n, en, label, title, desc }) {
-  const a = ACT_ACCENT[n] || ACT_ACCENT[2];
   const pull = ACT_INTRO_PULL[n];
+  /* Per-act accent CSS vars (--act-accent, --act-accent-2, --act-tint) live in
+     globals.css under [data-act="N"] for both themes — light-theme variants are
+     darkened to ≥4.5:1 on white per WCAG AA. We don't set them inline because
+     inline custom-prop sets win over CSS and would block the theme override. */
   return (
     <div
       id={`energia-act-${n}`}
@@ -257,22 +263,19 @@ function Act({ n, en, label, title, desc }) {
         marginTop: "clamp(36px, 7vw, 56px)",
         marginBottom: 20,
         scrollMarginTop: 64,
-        "--act-accent":   a.primary,
-        "--act-accent-2": a.pair,
-        "--act-tint":     a.tint,
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
         <span style={{
           ...mono, fontSize: 11,
-          color: a.primary,
-          border: `1px solid ${a.primary}55`,
-          background: a.tint,
+          color: "var(--act-accent)",
+          border: "1px solid color-mix(in srgb, var(--act-accent) 33%, transparent)",
+          background: "var(--act-tint)",
           borderRadius: 6, padding: "2px 8px",
         }}>{en ? "ACT" : "ACTO"} {n}</span>
         <span style={{
           ...mono, fontSize: 11, letterSpacing: 2, textTransform: "uppercase",
-          color: a.primary, opacity: 0.85,
+          color: "var(--act-accent)", opacity: 0.85,
         }}>{label}</span>
       </div>
       <h2 style={{
@@ -288,13 +291,13 @@ function Act({ n, en, label, title, desc }) {
           fontSize: "clamp(15px, 1.8vw, 18px)",
           fontStyle: "italic",
           fontWeight: 600,
-          color: a.primary,
+          color: "var(--act-accent)",
           opacity: 0.95,
           lineHeight: 1.45,
           maxWidth: 640,
           marginTop: 14,
           paddingLeft: 14,
-          borderLeft: `2px solid ${a.primary}88`,
+          borderLeft: "2px solid color-mix(in srgb, var(--act-accent) 53%, transparent)",
         }}>{T(pull, en)}</p>
       )}
     </div>
@@ -835,9 +838,11 @@ export function EnergiaDeep({ en = false }) {
             @media (max-width: 767px) { .energia-globe-skeleton { aspect-ratio: 4 / 5; } }
             /* Phase 2 · Per-Act bg-wash — gutter behind each Act header breathes
                the act's tint (6-7% alpha). :has() gated so older browsers fall
-               back to no wash with no contrast hit. */
+               back to no wash with no contrast hit. Scoped to the Act roots
+               (id="energia-act-N") so it doesn't wash behind ActNav pills,
+               which also carry data-act for the var() cascade. */
             @supports (background: rgb(from white r g b / 0.06)) {
-              [data-act]::before {
+              [id^="energia-act-"][data-act]::before {
                 content: "";
                 position: absolute;
                 left: 50%; transform: translateX(-50%);
@@ -847,12 +852,12 @@ export function EnergiaDeep({ en = false }) {
                 pointer-events: none;
                 transition: opacity 0.6s ease;
               }
-              [data-act] { position: relative; isolation: isolate; }
+              [id^="energia-act-"][data-act] { position: relative; isolation: isolate; }
             }
             @media (prefers-reduced-motion: reduce) {
               .energia-scroll-cue div { animation: none !important; }
               [style*="energiaSwipe"] { animation: none !important; }
-              [data-act]::before { transition: none; }
+              [id^="energia-act-"][data-act]::before { transition: none; }
             }
           `}</style>
         </div>

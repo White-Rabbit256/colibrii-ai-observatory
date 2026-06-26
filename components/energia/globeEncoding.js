@@ -181,8 +181,11 @@ export const TIMING = {
 };
 
 // ── 9. LEGEND ──
+// Phase 2 (consensus): Storage removed from the fuel-chip rail — no WRI plant
+// has primary_fuel="Storage", so the chip was a no-op control. Storage layer
+// visibility is owned by the layers.storage popover toggle in PowerGlobe.jsx.
 export const FUEL_LEGEND = [
-  "Hydro","Solar","Wind","Geothermal","Nuclear","Gas","Coal","Oil","Biomass","Storage",
+  "Hydro","Solar","Wind","Geothermal","Nuclear","Gas","Coal","Oil","Biomass",
 ];
 export const FUEL_ES = {
   Hydro: "Hidro", Solar: "Solar", Wind: "Eólica", Geothermal: "Geotérmica",
