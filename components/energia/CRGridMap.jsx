@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { animate, stagger } from "animejs";
 import { CR_OUTLINE_GEO, CR_BBOX, PLANTS_GEO } from "./crGeo";
-import { EN_ACCENT } from "../energiaData";
+import { EN_ACCENT, FUEL_COLORS } from "../energiaData";
 
 /* ═══════════════════════════════════════════════════════════════
    ENERGÍA — CRGridMap (Act 4) · command-center edition v2
@@ -31,7 +31,7 @@ import { EN_ACCENT } from "../energiaData";
 const KIND = {
   hydro: EN_ACCENT.glow,       // #22d3ee cyan
   geo: EN_ACCENT.gold,         // #F2B135 gold
-  wind: EN_ACCENT.green,       // #10b981 emerald
+  wind: FUEL_COLORS.wind,      // shared single source of truth (#7dd3fc light-sky)
   solar: EN_ACCENT.solar,      // #fb923c orange
   thermal: EN_ACCENT.risk,     // #ef4444 red
   load: "#ffffff",

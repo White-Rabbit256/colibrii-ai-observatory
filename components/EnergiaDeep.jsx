@@ -24,13 +24,9 @@ const CRGridMap = dynamic(() => import("./energia/CRGridMap"), {
 });
 const PowerGlobe = dynamic(() => import("./energia/PowerGlobe"), {
   ssr: false,
-  // The loading placeholder picks its aspect-ratio from a matchMedia probe so mobile reserves 4:5
-  // (matching compact mode) and desktop reserves 16:9. Eliminates the CLS regression where the
-  // placeholder reserved 16:9 then the runtime swapped in a 4:5 mobile globe.
-  loading: () => {
-    const mobile = typeof window !== "undefined" && !window.matchMedia("(min-width: 768px)").matches;
-    return <div aria-hidden="true" style={{ aspectRatio: mobile ? "4 / 5" : "16 / 9", width: "100%", borderRadius: 16, background: "radial-gradient(130% 120% at 50% -10%, #0A1F3F, #06152e 70%, #02070f 100%)", border: "1px solid rgba(0,181,168,0.2)" }} />;
-  },
+  // Placeholder uses pure CSS (no matchMedia — that's SSR-unsafe in dynamic loading()):
+  // a class is applied that flips aspect-ratio via @media. CSS is in EnergiaDeep's global style block.
+  loading: () => <div aria-hidden="true" className="energia-globe-skeleton" />,
 });
 
 /* ═══════════════════════════════════════════════════════════════
@@ -588,6 +584,12 @@ export function EnergiaDeep({ en = false }) {
             }
             .energia-skip:focus { top: 10px; }
             .energia-skip:focus-visible { outline: 2px solid ${EN_ACCENT.glow}; outline-offset: 2px; }
+            .energia-globe-skeleton {
+              aspect-ratio: 16 / 9; width: 100%; border-radius: 16px;
+              background: radial-gradient(130% 120% at 50% -10%, #0A1F3F, #06152e 70%, #02070f 100%);
+              border: 1px solid rgba(0,181,168,0.2);
+            }
+            @media (max-width: 767px) { .energia-globe-skeleton { aspect-ratio: 4 / 5; } }
             @media (prefers-reduced-motion: reduce) { .energia-scroll-cue div { animation: none !important; } [style*="energiaSwipe"] { animation: none !important; } }
           `}</style>
         </div>

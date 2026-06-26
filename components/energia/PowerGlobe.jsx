@@ -3,7 +3,7 @@ import { useRef, useState, useEffect, useMemo, useCallback } from "react";
 import { DirectionalLight, AmbientLight } from "three";
 import Globe from "react-globe.gl";
 import { PLANTS_GEO } from "./crGeo";
-import { EN_ACCENT, SRC } from "../energiaData";
+import { EN_ACCENT, SRC, FUEL_COLORS } from "../energiaData";
 import { HV_ARCS } from "./hvArcs";
 import { DATACENTERS } from "./datacenters";
 
@@ -26,16 +26,14 @@ const NIGHT_TEX = "https://cdn.jsdelivr.net/gh/vasturiano/three-globe@v2.45.2/ex
 const MONO = "'IBM Plex Mono',monospace";
 
 /* Technology palette — categorical, distinguishable; renewables glow, fossils recede. */
+// FUEL palette routed through the shared FUEL_COLORS map in energiaData.js so PowerGlobe
+// and CRGridMap stay in lockstep on a single source of truth.
 const FUEL = {
-  // Wind moved off EN_ACCENT.green to a distinct pale azure so it no longer collides with the AC
-  // arc emerald (R6→R9 oscillation: every other panel round flipped the AC arc color; moving the
-  // FUEL token is the only fix that breaks the cycle without re-opening the HVDC adjacency complaint).
-  // Pale azure is distinct from EN_ACCENT.sky atmosphere (#38bdf8) and from Nuclear violet (#818cf8).
-  Hydro: EN_ACCENT.glow, Solar: EN_ACCENT.solar, Wind: "#facc15",
-  Geothermal: EN_ACCENT.gold, Nuclear: EN_ACCENT.violet,
-  Gas: "#d97706", Oil: "#fb7185", Coal: "#9ca3af",
-  Biomass: "#84cc16", Waste: "#a3e635", Storage: "#38bdf8",
-  Cogeneration: "#d97706", Petcoke: "#9ca3af", CSP: "#dc2626",
+  Hydro: FUEL_COLORS.hydro, Solar: FUEL_COLORS.solar, Wind: FUEL_COLORS.wind,
+  Geothermal: FUEL_COLORS.geothermal, Nuclear: FUEL_COLORS.nuclear,
+  Gas: FUEL_COLORS.gas, Oil: FUEL_COLORS.oil, Coal: FUEL_COLORS.coal,
+  Biomass: FUEL_COLORS.biomass, Waste: FUEL_COLORS.waste, Storage: FUEL_COLORS.storage,
+  Cogeneration: FUEL_COLORS.cogeneration, Petcoke: FUEL_COLORS.coal, CSP: FUEL_COLORS.csp,
   "Wave and Tidal": "#06b6d4", Other: "#94a3b8",
 };
 const LEGEND = ["Hydro", "Solar", "Wind", "Geothermal", "Nuclear", "Gas", "Coal", "Oil", "Biomass", "Storage"];
@@ -596,7 +594,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
             <span style={{ width: 3, height: Math.round(altOf(5000) / 0.14 * 14), background: EN_ACCENT.glow }} />
             <span style={{ width: 3, height: Math.round(altOf(20000) / 0.14 * 14), background: EN_ACCENT.glow }} />
           </span>
-          {en ? "Altitude ≈ √MW (500 · 5k · ≥20k MW)" : "Altura ≈ √MW (500 · 5k · ≥20k MW)"}
+          {en ? "Altitude ≈ √MW (500 · 5k · ≥15k MW)" : "Altura ≈ √MW (500 · 5k · ≥15k MW)"}
         </span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           <span style={{ width: 22, height: 3, background: EN_ACCENT.gold, borderRadius: 1 }} /> SIEPAC
