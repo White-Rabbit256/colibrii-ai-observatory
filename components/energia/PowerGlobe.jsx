@@ -76,7 +76,8 @@ const ARC_COLOR_FN = (a) => a.kind === "siepac"
     : a.kind === "ac"
       ? ["#2dd4bf", "#5eead4"]  // teal, no collision with Wind emerald
       : ["#22d3ee", "#00B5A8"];
-const ARC_STROKE_FN = (a) => a.kind === "siepac" ? 1.1 : a.kind === "planned" ? 0.45 : a.kind === "ac" ? 0.40 : 0.45;
+// Differentiation by stroke width (color alone fails for deuteranopes): SIEPAC > HVDC > AC.
+const ARC_STROKE_FN = (a) => a.kind === "siepac" ? 1.1 : a.kind === "planned" ? 0.45 : a.kind === "ac" ? 0.30 : 0.60;
 const ARC_ALT_FN = (a) => {
   const base = 0.05 + Math.min(0.17, (a.mw || 500) / 80000);
   // Kind-aware floor so editorially-central low-MW arcs (SIEPAC 300 MW, the
@@ -149,6 +150,19 @@ export default function PowerGlobe({ en = false, compact = false }) {
   const [announce, setAnnounce] = useState("");
 
   hoverCb.current = setHover;
+
+  // Pause the globe's rAF when off-screen or when the tab is hidden (perf/battery).
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const pause = () => { try { globeEl.current?.pauseAnimation?.(); } catch {} };
+    const resume = () => { try { globeEl.current?.resumeAnimation?.(); } catch {} };
+    const io = new IntersectionObserver(([e]) => { e.isIntersecting ? resume() : pause(); }, { threshold: 0.01 });
+    io.observe(el);
+    const onVis = () => { document.hidden ? pause() : resume(); };
+    document.addEventListener("visibilitychange", onVis);
+    return () => { io.disconnect(); document.removeEventListener("visibilitychange", onVis); };
+  }, []);
 
   /* size tracking */
   useEffect(() => {
@@ -350,6 +364,9 @@ export default function PowerGlobe({ en = false, compact = false }) {
   const toggleFuel = useCallback((k) => setFilters((f) => ({ ...f, [k]: !f[k] })), []);
   const toggleLayer = useCallback((k) => setLayers((l) => ({ ...l, [k]: !l[k] })), []);
   const resetFilters = useCallback(() => setFilters(Object.fromEntries(LEGEND.map((k) => [k, true]))), []);
+  // Mutual exclusivity: only one of {layers, encoding} popover open at a time.
+  const openLayers = useCallback(() => { setLayersOpen((v) => !v); setEncOpen(false); }, []);
+  const openEnc = useCallback(() => { setEncOpen((v) => !v); setLayersOpen(false); }, []);
 
   const aspect = compact ? "4 / 5" : "16 / 9";
   const titleId = "pg-title";
@@ -501,7 +518,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
 
         {compact ? (
           <>
-            <button type="button" onClick={() => setLayersOpen((v) => !v)} className="pg-btn" aria-expanded={layersOpen} aria-controls="pg-layers">
+            <button type="button" onClick={openLayers} className="pg-btn" aria-expanded={layersOpen} aria-controls="pg-layers">
               {en ? "Layers" : "Capas"} ▾
             </button>
             {layersOpen && (
@@ -544,7 +561,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
       {/* ── Encoding mini-legends (altitude · arc kind · DC tier) ──
             On compact, collapsed into a tappable "i" popover to free the bottom zone. */}
       {compact && (
-        <button type="button" onClick={() => setEncOpen((v) => !v)} aria-expanded={encOpen} aria-controls="pg-enc"
+        <button type="button" onClick={openEnc} aria-expanded={encOpen} aria-controls="pg-enc"
           aria-label={en ? "Toggle encoding legend" : "Mostrar leyenda de codificación"}
           className="pg-btn"
           style={{ position: "absolute", right: 14, bottom: 70, zIndex: 4, fontSize: 13, width: 44, height: 44 }}>
