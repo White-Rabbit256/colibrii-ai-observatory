@@ -575,13 +575,20 @@ export default function CRGridMap({ en }) {
                 minWidth: "min(150px, 44vw)", maxWidth: "min(220px, 62vw)",
                 background: `linear-gradient(160deg, ${EN_ACCENT.navy}f2, ${EN_ACCENT.navy2}f2)`,
                 backdropFilter: "blur(9px)", WebkitBackdropFilter: "blur(9px)",
-                border: `1px solid ${TURQ}59`, borderRadius: 11, padding: "10px 12px", pointerEvents: "none",
+                border: `1px solid ${TURQ}59`, borderRadius: 11, padding: "10px 12px", pointerEvents: lockedActive === n.id ? "auto" : "none",
                 boxShadow: `0 10px 30px rgba(0,0,0,0.45), 0 0 0 1px ${TURQ}1a`,
                 opacity: isActive ? 1 : 0,
                 visibility: isActive ? "visible" : "hidden",
                 transition: "opacity .18s ease, visibility .18s ease", zIndex: 5,
               }}
             >
+              {/* Close button — only when card is LOCKED (tap-latched). Mobile dead-end fix. */}
+              {lockedActive === n.id && (
+                <button type="button" onClick={() => setLockedActive(null)}
+                  aria-label={en ? "Close" : "Cerrar"}
+                  style={{ position: "absolute", top: 2, right: 2, width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center",
+                    background: "transparent", border: "none", color: "rgba(255,255,255,0.8)", cursor: "pointer", pointerEvents: "auto", padding: 0, fontSize: 16, lineHeight: 1 }}>×</button>
+              )}
               {/* connector line from card to node */}
               <span
                 aria-hidden="true"

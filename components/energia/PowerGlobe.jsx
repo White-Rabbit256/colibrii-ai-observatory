@@ -451,6 +451,9 @@ export default function PowerGlobe({ en = false, compact = false }) {
               antialias: !compact && (typeof window === "undefined" || window.devicePixelRatio <= 1.5),
               alpha: true, stencil: false,
               powerPreference: compact ? "default" : "high-performance",
+              // DPR cap applied at construction time so first frame doesn't render at 3x on
+              // iPhone 15 Pro / DPR-2 Android (was being set in onReady, after first paint).
+              pixelRatio: typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, compact ? 1.5 : 2) : 1,
             }}
             pointsData={layers.plants ? points : []}
             pointLat="lat" pointLng="lng"

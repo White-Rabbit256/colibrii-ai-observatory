@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    optimizePackageImports: ['recharts', 'framer-motion', 'react-simple-maps'],
+    optimizePackageImports: ['recharts', 'framer-motion', 'react-simple-maps', 'three', 'react-globe.gl', 'animejs', '@react-three/fiber', '@react-three/postprocessing'],
   },
   async headers() {
     return [
@@ -18,7 +18,7 @@ const nextConfig = {
           key: 'Content-Security-Policy',
           value: [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.tiktok.com https://lf16-tiktok-web.ttwstatic.com",
+            "script-src 'self' 'unsafe-inline' https://www.tiktok.com https://lf16-tiktok-web.ttwstatic.com",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "font-src 'self' https://fonts.gstatic.com",
             "img-src 'self' data: https: blob:",

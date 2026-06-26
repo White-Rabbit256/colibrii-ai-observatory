@@ -24,9 +24,13 @@ const CRGridMap = dynamic(() => import("./energia/CRGridMap"), {
 });
 const PowerGlobe = dynamic(() => import("./energia/PowerGlobe"), {
   ssr: false,
-  loading: () => (
-    <div aria-hidden="true" style={{ aspectRatio: "16 / 9", width: "100%", borderRadius: 16, background: "radial-gradient(130% 120% at 50% -10%, #0A1F3F, #06152e 70%, #02070f 100%)", border: "1px solid rgba(0,181,168,0.2)" }} />
-  ),
+  // The loading placeholder picks its aspect-ratio from a matchMedia probe so mobile reserves 4:5
+  // (matching compact mode) and desktop reserves 16:9. Eliminates the CLS regression where the
+  // placeholder reserved 16:9 then the runtime swapped in a 4:5 mobile globe.
+  loading: () => {
+    const mobile = typeof window !== "undefined" && !window.matchMedia("(min-width: 768px)").matches;
+    return <div aria-hidden="true" style={{ aspectRatio: mobile ? "4 / 5" : "16 / 9", width: "100%", borderRadius: 16, background: "radial-gradient(130% 120% at 50% -10%, #0A1F3F, #06152e 70%, #02070f 100%)", border: "1px solid rgba(0,181,168,0.2)" }} />;
+  },
 });
 
 /* ═══════════════════════════════════════════════════════════════
