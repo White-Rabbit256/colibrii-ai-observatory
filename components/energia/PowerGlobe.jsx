@@ -86,6 +86,7 @@ const ARC_ALT_FN = (a) => {
   // Darién planned link) don't render flush with the night-texture terrain.
   if (a.kind === "siepac") return Math.max(0.09, base);
   if (a.kind === "planned") return Math.max(0.12, base);
+  if (a.kind === "ac") return Math.max(0.07, base); // España-Marruecos (~46km arc) was clipping terrain
   return base; // capped < atmosphereAltitude 0.24
 };
 const ARC_DASH_LEN_FN = (a) => a.kind === "planned" ? 0.16 : 0.45;
@@ -600,17 +601,18 @@ export default function PowerGlobe({ en = false, compact = false }) {
           </span>
           {en ? "Altitude ≈ √MW (500 · 5k · ≥15k MW)" : "Altura ≈ √MW (500 · 5k · ≥15k MW)"}
         </span>
+        {/* Swatch heights now mirror ARC_STROKE_FN: SIEPAC 1.1 > HVDC 0.60 > AC 0.48 > Planned 0.30 (dashed). */}
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-          <span style={{ width: 22, height: 3, background: EN_ACCENT.gold, borderRadius: 1 }} /> SIEPAC
+          <span style={{ width: 22, height: 4, background: EN_ACCENT.gold, borderRadius: 1 }} /> SIEPAC
         </span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-          <span style={{ width: 22, height: 2, background: EN_ACCENT.glow, borderRadius: 1 }} /> HVDC
+          <span style={{ width: 22, height: 3, background: EN_ACCENT.glow, borderRadius: 1 }} /> HVDC
         </span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           <span style={{ width: 22, height: 2, background: EN_ACCENT.green, borderRadius: 1 }} /> {en ? "AC link" : "Enlace CA"}
         </span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-          <span style={{ width: 22, height: 2, background: "transparent", borderTop: `2px dashed ${EN_ACCENT.violet}` }} /> {en ? "Planned" : "Planificado"}
+          <span style={{ width: 22, height: 1, background: "transparent", borderTop: `1.5px dashed ${EN_ACCENT.violet}` }} /> {en ? "Planned" : "Planificado"}
         </span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           <span style={{ width: 10, height: 10, transform: "rotate(45deg)", background: "rgba(255,255,255,0.9)", border: `1px solid ${EN_ACCENT.glow}`, boxShadow: `0 0 8px ${EN_ACCENT.glow}` }} /> {en ? "AI hub T1" : "Hub IA T1"}
@@ -623,11 +625,11 @@ export default function PowerGlobe({ en = false, compact = false }) {
       {/* Centered empty-state overlay (when all fuel chips are off).
             ARIA: keep the live-region status SEPARATE from the interactive button. */}
       {!anyOn && (
-        <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", zIndex: 4, textAlign: "center", padding: "16px 22px", borderRadius: 12, background: `${EN_ACCENT.navy}e0`, border: `1px solid ${EN_ACCENT.glow}77`, backdropFilter: "blur(6px)" }}>
+        <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", zIndex: 4, textAlign: "center", padding: "16px 22px", borderRadius: 12, background: `${EN_ACCENT.navy}e0`, border: `1px solid ${EN_ACCENT.glow}77`, backdropFilter: "blur(6px)", pointerEvents: "none" }}>
           <div style={{ fontFamily: MONO, fontSize: 13, color: "#fff", marginBottom: 10 }}>
             {en ? "Which source powers the world?" : "¿Qué fuente mueve al mundo?"}
           </div>
-          <button type="button" onClick={resetFilters} className="pg-btn pg-btn-on" aria-label={en ? "Show all technologies" : "Mostrar todas las tecnologías"}>
+          <button type="button" onClick={resetFilters} className="pg-btn pg-btn-on" aria-label={en ? "Show all technologies" : "Mostrar todas las tecnologías"} style={{ pointerEvents: "auto" }}>
             {en ? "Show all" : "Mostrar todas"}
           </button>
         </div>
