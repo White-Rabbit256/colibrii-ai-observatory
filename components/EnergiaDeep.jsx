@@ -113,6 +113,10 @@ function ShareCard({ en, title, filename, sourceIds, children }) {
 
 /* ── Sticky act navigation (desktop) ── */
 const ACT_IDS = [2, 3, 4, 5, 6, 7, 8];
+/* Phase 2: ActNav reading dial — each pill now carries its own act accent.
+   The active pill renders in that act's gradient; inactive pills show a
+   subtle outline in the act color. Visual ladder of progress + warm/cool
+   variance even in the sticky nav. */
 function ActNav({ en }) {
   const [current, setCurrent] = useState(0);
   const [show, setShow] = useState(false);
@@ -130,17 +134,91 @@ function ActNav({ en }) {
   return (
     <nav aria-label={en ? "Section acts" : "Actos de la sección"} style={{ position: "sticky", top: 10, zIndex: 15, display: "flex", justifyContent: "center", gap: 6, marginBottom: -34 }}>
       <div style={{ display: "flex", gap: 4, padding: "5px 8px", borderRadius: 999, background: "color-mix(in srgb, var(--card) 80%, transparent)", backdropFilter: "blur(10px)", border: "1px solid var(--border)", boxShadow: "var(--shadow-md)" }}>
-        {ACT_IDS.map(n => (
-          <button key={n} onClick={() => document.getElementById(`energia-act-${n}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
-            aria-label={`${en ? "Act" : "Acto"} ${n}`} aria-current={current === n ? "true" : undefined}
-            style={{ ...mono, minWidth: 44, minHeight: 44, width: 44, height: 44, borderRadius: "50%", border: "none", cursor: "pointer", fontSize: 12, fontWeight: 800,
-              background: current === n ? `linear-gradient(135deg, ${EN_ACCENT.turquoise}, ${EN_ACCENT.glow})` : "transparent",
-              color: current === n ? "#06281f" : "var(--text3)", transition: "all .25s" }}>
-            {n}
-          </button>
-        ))}
+        {ACT_IDS.map(n => {
+          const active = current === n;
+          const acc = ACT_ACCENT[n] || ACT_ACCENT[2];
+          return (
+            <button key={n} onClick={() => document.getElementById(`energia-act-${n}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+              aria-label={`${en ? "Act" : "Acto"} ${n}`} aria-current={active ? "true" : undefined}
+              style={{
+                ...mono,
+                minWidth: 44, minHeight: 44, width: 44, height: 44,
+                borderRadius: "50%",
+                border: active ? "none" : `1px solid ${acc.primary}44`,
+                cursor: "pointer", fontSize: 12, fontWeight: 800,
+                background: active ? `linear-gradient(135deg, ${acc.primary}, ${acc.pair})` : "transparent",
+                color: active ? "#06281f" : `${acc.primary}cc`,
+                boxShadow: active ? `0 0 12px ${acc.primary}55` : "none",
+                transition: "all .25s",
+              }}>
+              {n}
+            </button>
+          );
+        })}
       </div>
     </nav>
+  );
+}
+
+/* Phase 2: Mobile reading bar — thin horizontal progress bar pinned to top
+   of viewport on compact screens. Fills with the CURRENT act's accent as the
+   reader scrolls through that act. Single rAF, no per-act listeners. */
+function MobileReadingBar() {
+  const [hide, setHide] = useState(true);
+  const [progress, setProgress] = useState(0);
+  const [actN, setActN] = useState(2);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 879px)");
+    const sync = () => setHide(!mq.matches);
+    sync(); mq.addEventListener("change", sync);
+    let raf = null;
+    const tick = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        const vh = window.innerHeight;
+        const center = vh * 0.5;
+        let foundAct = 2, foundP = 0;
+        for (const n of ACT_IDS) {
+          const el = document.getElementById(`energia-act-${n}`);
+          if (!el) continue;
+          const r = el.getBoundingClientRect();
+          if (r.top <= center) {
+            const next = document.getElementById(`energia-act-${n + 1}`);
+            const end = next ? next.getBoundingClientRect().top : r.top + vh;
+            const span = Math.max(1, end - r.top);
+            const passed = Math.max(0, Math.min(span, center - r.top));
+            foundAct = n;
+            foundP = passed / span;
+          }
+        }
+        setActN(foundAct);
+        setProgress(foundP);
+        raf = null;
+      });
+    };
+    window.addEventListener("scroll", tick, { passive: true });
+    tick();
+    return () => {
+      mq.removeEventListener("change", sync);
+      window.removeEventListener("scroll", tick);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+  if (hide) return null;
+  const acc = ACT_ACCENT[actN] || ACT_ACCENT[2];
+  return (
+    <div aria-hidden="true" style={{
+      position: "fixed", top: 0, left: 0, right: 0, height: 3, zIndex: 16,
+      background: "rgba(10,31,63,0.35)", pointerEvents: "none",
+    }}>
+      <div style={{
+        height: "100%",
+        width: `${Math.round(progress * 100)}%`,
+        background: `linear-gradient(90deg, ${acc.primary}, ${acc.pair})`,
+        boxShadow: `0 0 8px ${acc.primary}88`,
+        transition: "width 0.18s ease-out, background 0.4s ease",
+      }} />
+    </div>
   );
 }
 
@@ -647,6 +725,7 @@ export function EnergiaDeep({ en = false }) {
   return (
     <div className="energia-scope" style={{ maxWidth: 1060, margin: "0 auto" }}>
       <ScrollProgress />
+      <MobileReadingBar />
       <ActNav en={en} />
       <FloatingShare en={en} />
 
