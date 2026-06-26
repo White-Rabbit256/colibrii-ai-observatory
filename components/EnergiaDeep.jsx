@@ -127,7 +127,7 @@ function ActNav({ en }) {
         {ACT_IDS.map(n => (
           <button key={n} onClick={() => document.getElementById(`energia-act-${n}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
             aria-label={`${en ? "Act" : "Acto"} ${n}`} aria-current={current === n ? "true" : undefined}
-            style={{ ...mono, width: 30, height: 30, borderRadius: "50%", border: "none", cursor: "pointer", fontSize: 12, fontWeight: 800,
+            style={{ ...mono, minWidth: 44, minHeight: 44, width: 44, height: 44, borderRadius: "50%", border: "none", cursor: "pointer", fontSize: 12, fontWeight: 800,
               background: current === n ? `linear-gradient(135deg, ${EN_ACCENT.turquoise}, ${EN_ACCENT.glow})` : "transparent",
               color: current === n ? "#06281f" : "var(--text3)", transition: "all .25s" }}>
             {n}
@@ -414,7 +414,7 @@ function MicroCTA({ en }) {
         <span style={{ fontSize: 13, color: "var(--text2)" }}>
           {en ? "Useful so far? Send it to whoever needs these numbers." : "¿Le está sirviendo? Envíeselo a quien necesita estos números."}
         </span>
-        <button onClick={share} style={{ ...mono, minHeight: 40, padding: "8px 16px", borderRadius: 10, border: "1.5px solid var(--enTurq)", background: "transparent", color: "var(--enTurq)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+        <button onClick={share} style={{ ...mono, minHeight: 44, padding: "12px 18px", borderRadius: 10, border: "1.5px solid var(--enTurq)", background: "transparent", color: "var(--enTurq)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
           {done ? (en ? "Copied ✓" : "Copiado ✓") : (en ? "Copy link" : "Copiar enlace")}
         </button>
       </div>
@@ -579,7 +579,7 @@ export function EnergiaDeep({ en = false }) {
 
       {/* ════ ATLAS GLOBAL DE GENERACIÓN — 3D ════ */}
       <ScrollReveal>
-        <div style={{ marginTop: 16 }}>
+        <div style={{ marginTop: 16, aspectRatio: mode === "mobile3d" ? "4 / 5" : "16 / 9", width: "100%" }}>
           <PowerGlobe en={en} compact={mode === "mobile3d"} />
           <p style={{ fontSize: 12, color: "rgba(241,245,249,0.72)", lineHeight: 1.6, marginTop: 10 }}>
             {en ? (
@@ -713,7 +713,7 @@ export function EnergiaDeep({ en = false }) {
         desc={en ? "The 2025 numbers contradict two popular narratives at once: ICE is not broke, and the grid is not ready for an AI-scale demand wave." : "Los números de 2025 contradicen dos narrativas populares a la vez: el ICE no está quebrado, y la red no está lista para una ola de demanda a escala IA."} />
 
       <ScrollReveal>
-        <div id="crGridMapAnchor" tabIndex={-1} style={{ scrollMarginTop: 60, outline: "none" }}><CRGridMap en={en} /></div>
+        <div id="crGridMapAnchor" tabIndex={-1} style={{ scrollMarginTop: 60 }}><CRGridMap en={en} /></div>
       </ScrollReveal>
 
       <ScrollReveal>

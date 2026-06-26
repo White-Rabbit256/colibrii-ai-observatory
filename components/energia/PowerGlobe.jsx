@@ -72,12 +72,12 @@ const altOf = (cap) => Math.max(0.004, Math.min(0.14, 0.004 + Math.sqrt(cap || 8
 const ARC_COLOR_FN = (a) => a.kind === "siepac"
   ? ["#F2B135", "#fbbf24"]
   : a.kind === "planned"
-    ? ["rgba(242,177,53,0.78)", "rgba(242,177,53,0.55)"]
+    ? ["#818cf8", "#a5b4fc"]   // EN_ACCENT.violet — no SIEPAC gold collision
     : a.kind === "ac"
       ? ["#10b981", "#34d399"]
       : ["#22d3ee", "#00B5A8"];
 const ARC_STROKE_FN = (a) => a.kind === "siepac" ? 1.1 : a.kind === "planned" ? 0.45 : a.kind === "ac" ? 0.40 : 0.45;
-const ARC_ALT_FN = (a) => 0.05 + Math.min(0.35, (a.mw || 500) / 60000);
+const ARC_ALT_FN = (a) => 0.05 + Math.min(0.17, (a.mw || 500) / 80000); // capped < atmosphereAltitude 0.24
 const ARC_DASH_LEN_FN = (a) => a.kind === "planned" ? 0.16 : 0.45;
 const ARC_DASH_GAP_FN = (a) => a.kind === "planned" ? 0.5 : 0.12;
 const RING_COLOR_FN = () => (t) => `rgba(34,211,238,${1 - t})`;
@@ -243,6 +243,11 @@ export default function PowerGlobe({ en = false, compact = false }) {
         lightsRef.current = true;
       } catch {}
     }
+    // DPR cap — avoids 3× fragment workload on high-DPR mobiles (Lighthouse).
+    try {
+      const dpr = typeof window !== "undefined" ? (window.devicePixelRatio || 1) : 1;
+      g.renderer().setPixelRatio(Math.min(dpr, compact ? 1.5 : 2));
+    } catch {}
   }, [reduced, compact]);
 
   /* focus transitions */
@@ -273,7 +278,8 @@ export default function PowerGlobe({ en = false, compact = false }) {
     wrap.setAttribute("tabindex", "0");
     const nm = txt(d.name, en), ct = txt(d.country, en);
     wrap.setAttribute("aria-label", `${nm}, ${ct}, ${d.tier === 1 ? (en ? "Tier 1 primary AI compute hub" : "Hub IA primario Tier 1") : (en ? "Tier 2 regional hub" : "Hub regional Tier 2")}, ${d.demandMw ? `~${d.demandMw} MW` : ""}`);
-    wrap.style.cssText = "width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:none;outline:none;";
+    wrap.className = "pg-dc-btn";
+    wrap.style.cssText = "width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:none;";
     const dot = document.createElement("div");
     dot.style.cssText = `width:${s}px;height:${s}px;transform:rotate(45deg);background:rgba(255,255,255,.95);border:1px solid ${EN_ACCENT.glow};box-shadow:0 0 ${d.tier === 1 ? 12 : 7}px ${EN_ACCENT.glow};`;
     wrap.appendChild(dot);
@@ -284,16 +290,17 @@ export default function PowerGlobe({ en = false, compact = false }) {
     wrap.addEventListener("focus", show);
     wrap.addEventListener("blur", hide);
     wrap.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); show(); } });
-    wrap.addEventListener("focus", () => { dot.style.outline = `2px solid ${EN_ACCENT.glow}`; dot.style.outlineOffset = "3px"; });
-    wrap.addEventListener("blur", () => { dot.style.outline = "none"; });
     return wrap;
   }, [en]);
 
   const onArcHover = useCallback((a) => {
     if (!a) { setHover(null); return; }
     const to = txt(a.to, en);
-    const label = (KIND_LABEL[a.kind] && (en ? KIND_LABEL[a.kind].en : KIND_LABEL[a.kind].es)) || a.kind;
-    setHover({ kind: "arc", name: `${a.from} → ${to}`, sub: `${(a.mw || 0).toLocaleString(en ? "en" : "es")} MW · ${label}` });
+    // suppress "Colombia (planificado) · PLANIFICADO" tautology — the 'to' label already says planned.
+    const showLabel = !(a.kind === "planned" && typeof a.to === "object");
+    const label = showLabel ? ((KIND_LABEL[a.kind] && (en ? KIND_LABEL[a.kind].en : KIND_LABEL[a.kind].es)) || a.kind) : "";
+    const illus = en ? " · illustrative" : " · ilustrativo";
+    setHover({ kind: "arc", name: `${a.from} → ${to}`, sub: `${(a.mw || 0).toLocaleString(en ? "en" : "es")} MW${label ? " · " + label : ""}${illus}` });
   }, [en]);
 
   const arcDashAnim = useCallback((a) => {
@@ -340,6 +347,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
         }
         .pg-skip:focus { top: 10px; }
         .pg-skip:focus-visible { outline: 2px solid ${EN_ACCENT.glow}; outline-offset: 2px; }
+        .pg-dc-btn:focus-visible { outline: 2px solid ${EN_ACCENT.glow}; outline-offset: 3px; }
         .pg-sr {
           position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
           overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
@@ -431,8 +439,8 @@ export default function PowerGlobe({ en = false, compact = false }) {
           </div>
         )}
 
-        {/* Hover tooltip — always mounted (live regions inserted after mount fail in VoiceOver/JAWS) */}
-        <div aria-live="polite" aria-atomic="true"
+        {/* Hover tooltip — always mounted (visual only; the sr-only status region above is the SR announcer). */}
+        <div
           style={{ marginTop: 6, padding: hover ? "7px 10px" : 0, borderRadius: 9, background: `${EN_ACCENT.navy}e8`, border: hover ? `1px solid ${EN_ACCENT.glow}99` : "1px solid transparent", display: "inline-block", maxWidth: 340, opacity: hover ? 1 : 0, transition: "opacity .15s", pointerEvents: "none", minHeight: hover ? "auto" : 0 }}>
           {hover && <>
             <div style={{ fontSize: 12.5, fontWeight: 700, color: "#fff" }}>{hover.name}</div>
@@ -507,23 +515,24 @@ export default function PowerGlobe({ en = false, compact = false }) {
       <div id="pg-enc" style={{ position: "absolute", bottom: compact ? 122 : 56, left: 14, right: 14, zIndex: 3, display: (compact && !encOpen) ? "none" : "flex", flexWrap: "wrap", gap: 14, justifyContent: "center", fontFamily: MONO, fontSize: 10.5, color: "rgba(255,255,255,0.92)", pointerEvents: "none", background: compact ? `${EN_ACCENT.navy}d8` : "transparent", padding: compact ? "8px 10px" : 0, borderRadius: compact ? 10 : 0 }}>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           <span style={{ display: "inline-flex", alignItems: "flex-end", gap: 2, height: 14 }}>
-            <span style={{ width: 3, height: 4, background: EN_ACCENT.glow }} />
-            <span style={{ width: 3, height: 8, background: EN_ACCENT.glow }} />
-            <span style={{ width: 3, height: 13, background: EN_ACCENT.glow }} />
+            {/* Bar heights derived from the actual altOf() — legend matches render. */}
+            <span style={{ width: 3, height: Math.round(altOf(500) / 0.14 * 14), background: EN_ACCENT.glow }} />
+            <span style={{ width: 3, height: Math.round(altOf(5000) / 0.14 * 14), background: EN_ACCENT.glow }} />
+            <span style={{ width: 3, height: Math.round(altOf(20000) / 0.14 * 14), background: EN_ACCENT.glow }} />
           </span>
-          {en ? "Altitude ≈ √MW (500 · 5k · 20k MW)" : "Altura ≈ √MW (500 · 5k · 20k MW)"}
+          {en ? "Altitude ≈ √MW (500 · 5k · ≥20k MW)" : "Altura ≈ √MW (500 · 5k · ≥20k MW)"}
         </span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-          <span style={{ width: 22, height: 2, background: EN_ACCENT.gold, borderRadius: 1 }} /> SIEPAC
+          <span style={{ width: 22, height: 3, background: EN_ACCENT.gold, borderRadius: 1 }} /> SIEPAC
         </span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-          <span style={{ width: 22, height: 3, background: EN_ACCENT.glow, borderRadius: 1 }} /> HVDC
+          <span style={{ width: 22, height: 2, background: EN_ACCENT.glow, borderRadius: 1 }} /> HVDC
         </span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           <span style={{ width: 22, height: 2, background: EN_ACCENT.green, borderRadius: 1 }} /> {en ? "AC link" : "Enlace CA"}
         </span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-          <span style={{ width: 22, height: 2, background: "transparent", borderTop: `2px dashed ${EN_ACCENT.gold}` }} /> {en ? "Planned" : "Planificado"}
+          <span style={{ width: 22, height: 2, background: "transparent", borderTop: `2px dashed ${EN_ACCENT.violet}` }} /> {en ? "Planned" : "Planificado"}
         </span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           <span style={{ width: 10, height: 10, transform: "rotate(45deg)", background: "rgba(255,255,255,0.9)", border: `1px solid ${EN_ACCENT.glow}`, boxShadow: `0 0 8px ${EN_ACCENT.glow}` }} /> {en ? "AI hub T1" : "Hub IA T1"}

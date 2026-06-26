@@ -514,8 +514,9 @@ export default function CRGridMap({ en }) {
       </div>
 
       {/* ── Interactive overlay: one real <button> per plant ── */}
-      {/* SR-only announcement region: speaks the active plant on activation. */}
-      <div className="pg-sr" role="status" aria-live="polite" aria-atomic="true"
+      {/* SR-only announcement region: speaks the active plant on activation.
+            Self-contained inline styles so this component does not depend on PowerGlobe's scope. */}
+      <div role="status" aria-live="polite" aria-atomic="true"
         style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0 }}>
         {active ? (() => {
           const n = NODES.find((p) => p.id === active);

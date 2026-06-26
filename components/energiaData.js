@@ -55,7 +55,7 @@ export const SRC = {
   cc_by_4: { name: "Creative Commons Attribution 4.0 International", url: "https://creativecommons.org/licenses/by/4.0/", date: "2026-06" },
   entsoe: { name: "ENTSO-E — Statistical Factsheet (interconexiones)", url: "https://www.entsoe.eu/publications/statistics-and-data/", date: "2026-06" },
   iea_wgo: { name: "IEA — World Energy Outlook (Annex A, grid)", url: "https://www.iea.org/reports/world-energy-outlook-2024", date: "2026-06" },
-  epr: { name: "EPR / SIEPAC — Empresa Propietaria de la Red", url: "https://www.enteoperador.org/siepac/", date: "2026-06" },
+  epr: { name: "EOR/CRIE — Ente Operador Regional del SIEPAC", url: "https://www.enteoperador.org/siepac/", date: "2026-06" },
   three_globe: { name: "vasturiano/three-globe — basemap (NASA night lights)", url: "https://github.com/vasturiano/three-globe", date: "2026-06" },
   enerdata: { name: "Enerdata (2024)", url: "https://www.enerdata.net/", date: "2026-06" },
   intratec: { name: "Intratec — Chile (ago 2025)", url: "https://www.intratec.us/", date: "2026-06" },
