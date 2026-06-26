@@ -93,3 +93,32 @@ Owner on-device: "the globe/section is non-functional" (screenshot: a pale-yello
 **Hero reads-3D pass:** DEPTH 0.18→0.27 (chunkier), resting pose now `BASE_TILT -0.52` + `BASE_YAW 0.17` (3/4 view that reveals the extruded thickness instead of a flat face), compact bloom up (0.62→0.92, threshold 0.32→0.26, radius 0.5→0.62). Applied to both the animated and reduced-motion static poses.
 
 Build green, `/app` 254 kB unchanged. Preview only; owner decides "merge".
+
+**D-020 · 2026-06-26 · L99 godmode — react-globe.gl rebuild + 20-persona consensus revision**
+Owner: "page bland/boring, globe missing severe data, want opengridworks experience — run 20-expert multi-stage panel until consensus." Ran a 12-domain investigation phase (had to stop slow run after 3 reports — verdict was already unanimous + clear). Findings: switch off the hand-rolled R3F globe (was reading bland/blank) to **react-globe.gl** (vasturiano, MIT — the actual library behind the opengridworks look), add NASA night-lights basemap, size plants by **capacity_mw** (I had been discarding it), add real HV interconnection arcs (SIEPAC = the CR tie-in), add AI-datacenter hubs (the AI↔power editorial link).
+
+Implemented that rebuild on the live preview (commit 0928a58). Then ran the **20-persona review panel on the LIVE files** (PowerGlobe.jsx, hvArcs.js, datacenters.js, EnergiaDeep.jsx). Verdict: **0/20 approve · avg 69.75/100 · 85 blocking issues** across 8 themes — honesty/data-integrity (Panamá-Colombia SIEPAC arc was rendered as operational instead of planned; IFA mislabeled HVDC; Etiopía-Kenia wrong node/capacity; CR plants flat at 150 MW erasing capacity story), a11y blockers (no figure/figcaption, no aria-live, no keyboard equivalents, no focus-visible, touch targets <44px), interactivity dead zone (pointsMerge silenced plants AND arcs; DC diamonds used onmouseenter only — dead on touch), ungoverned visual encoding (altitude/arc-kind/DC-tier legends missing), mobile UX (compact POV opened on the Atlantic; legend overlap), perf/CSP/licensing (@master ref, CC-BY-4.0 attribution missing required URI), factual coordinate/capacity corrections.
+
+**Applied consensus revision** (8 blocking + highest-leverage fixes from the panel's ranked list):
+1. Panamá→Colombia reclassified `kind:'planned'` with dashed/dimmed rendering + Darién endpoint (8.0,-77.0); panel-row added.
+2. `<figure>` + visually-hidden `<figcaption>` + `<a class="pg-skip">` skip link to `#crGridMapAnchor` (anchor added in EnergiaDeep) + aria-live status region announcing focus/load/error transitions.
+3. Honest **error banner** ("Dataset completo no disponible — referencias destacadas") + mobile-aware loading copy ("CARGANDO PLANTAS DESTACADAS" vs "CONSTRUYENDO EL ATLAS").
+4. **Three mini-legends**: altitude key (√MW visual stub), arc-kind key (SIEPAC solid gold / HVDC solid cyan / Planned dashed gold), DC-tier key (large vs small diamond).
+5. **Attribution hyperlinks**: WRI + CC-BY-4.0 + ENTSO-E + IEA + SIEPAC/EPR + NASA night lights — all wrapped in `<a>` (CC-BY §3(a)(1)(A)(i)); added SRC.cc_by_4 / entsoe / iea_wgo / epr / three_globe entries.
+6. **Accessible DC buttons**: 44×44 wrapper, role=button, tabindex=0, aria-label with name/country/tier/MW; pointerenter/leave + focus/blur + keydown(Enter/Space); htmlAltitude 0.012→0.04 (floats above the merged plant cloud); hover panel now surfaces demandMw.
+7. **`.pg-btn` class** with focus-visible outline, 32px min-height chips, aria-pressed on focus + layer + fuel buttons (was missing); compact viewport collapses layer toggles into a `Capas ▾` popover.
+8. **Real CR plant capacities** added to crGeo.js PLANTS_GEO (Reventazón 305, Arenal 157, Miravalles 163, Borinquen 75, Tejona 20, Guanacaste 50, San Antonio 10, Moín 150) so CR-focus view honors the capacity dimension.
+9. **Factual corrections** to hvArcs.js: IFA→`ac` with Calais↔Portsmouth endpoints; Spain↔Morocco span widened (Tarifa↔Fnideq); Etiopía-Kenia relabeled `ac` Gilgel Gibe III↔Nairobi 1045 MW; Leyte→Naga/Ormoc converter; LANDMARKS Vogtle 4400, Hornsea complejo 2604, Taichung 5824; Noor moved to dedicated `CSP` fuel color (#dc2626).
+10. **`@master` → `@v2.45.2`** for NIGHT_TEX; mobile-aware rendererConfig (antialias gated by DPR; stencil:false; powerPreference default on compact); preserved Web-Worker-friendly parseCSV.
+11. **Capacity-proportional motion**: arc altitude `0.05 + min(0.35, mw/60000)`; arcDashAnimateTime keyed off `kind` + `mw` (SIEPAC 2.2s; HVDC scales with MW; planned 5.2s); reduced-motion zeroes dash anim AND focus tween.
+12. **Filters**: explicit boolean-keyed state initialized to all-on; empty-state copy ("Tocá una tecnología…"); `↺ Reset` chip; live filtered count in title; precomputed color/alt on parse (filter toggle no longer reallocates 35k objects).
+13. **Hoisted arc accessors** to module scope (ARC_COLOR_FN/STROKE/ALT/DASH/RING_COLOR) — react-globe.gl no longer rebuilds layers on every render. **Arc hover** wired (`onArcHover` → "{from} → {to} · {mw} MW · KIND").
+14. **Mobile compact POV** changed from {lat:18,lng:-55} (Atlantic) to **{lat:6,lng:-80,altitude:2.1}** (Americas/SIEPAC corridor opens first).
+15. (deferred to follow-up) CSP `unsafe-eval` removal — needs middleware route gating; tracked as backlog.
+16. CR-focus payoff: bridge to CRGridMap via skip link + aria-live announcement ("Enfoque en Costa Rica: 8 plantas, 5 interconexiones SIEPAC"); rings switch to focus mode (faster, fewer, brighter).
+17. (follow-up) Vercel OG image + share affordance — backlog.
+18. **atmosphereColor** turquoise→`#38bdf8` (no clash with hydro turquoise + amber basemap); FUEL palette adds `CSP` and reshuffles Gas to a cooler amber to free Geothermal gold.
+19. **Scene lighting**: DirectionalLight(0.6) + AmbientLight(0x223355,0.25) added in onReady — cinematic sun-side/dark-side separation; altitude cap 0.14 < atmosphereAltitude 0.24 so no plant punches the halo.
+20. **DC demandMw + bilingual names** added to datacenters.js; surfaced in hover panel (the AI-runs-on-electricity punchline); Bogotá + Panamá added as Tier-2 (no fabrication).
+
+Build green; `/app` First Load JS unchanged at 254 kB (all in the lazy energía chunk). Preview push: commit on `claude/zen-lovelace-5l2e7g`. Backlog (medium-priority panel items 15/17/refinement): CSP route-gated unsafe-eval removal, Energía OG image + share chip, Web-Worker CSV parse, GPU-tier gate, side-panel CR plant list on focus.

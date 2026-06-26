@@ -7,13 +7,13 @@ export const CR_BBOX = { lngMin: -85.909, latMin: 8.071, lngMax: -82.565, latMax
       Shared by Hero3D (three.js) and CRGridMap (SVG). Kind keys match EN_ACCENT
       usage: hydro/geo/wind/solar/thermal/load. ── */
 export const PLANTS_GEO = [
-  { id: "reventazon", lng: -83.55, lat: 10.10, kind: "hydro", name: "Reventazón", detail: "305 MW · hidro" },
-  { id: "arenal", lng: -84.87, lat: 10.47, kind: "hydro", name: "Arenal", detail: "complejo ARDESA" },
-  { id: "miravalles", lng: -85.15, lat: 10.72, kind: "geo", name: "Miravalles", detail: "geotérmica" },
-  { id: "borinquen", lng: -85.47, lat: 10.80, kind: "geo", name: "Borinquen I", detail: "en desarrollo · 2030" },
-  { id: "tejona", lng: -84.95, lat: 10.52, kind: "wind", name: "Tejona", detail: "eólica · repotenciación" },
-  { id: "guanacaste", lng: -85.10, lat: 10.55, kind: "wind", name: "P.E. Guanacaste", detail: "eólica" },
-  { id: "sanantonio", lng: -84.12, lat: 9.96, kind: "solar", name: "Solar San Antonio", detail: "10,3 MW · 2026" },
-  { id: "moin", lng: -83.09, lat: 10.00, kind: "thermal", name: "Moín", detail: "térmica · respaldo" },
-  { id: "gam", lng: -84.08, lat: 9.93, kind: "load", name: "GAM", detail: "centro de carga" },
+  { id: "reventazon", lng: -83.55, lat: 10.10, kind: "hydro", name: "Reventazón",      mw: 305, detail: "305 MW · hidro" },
+  { id: "arenal",     lng: -84.87, lat: 10.47, kind: "hydro", name: "Arenal (ARDESA)", mw: 157, detail: "complejo ARDESA" },
+  { id: "miravalles", lng: -85.15, lat: 10.72, kind: "geo",   name: "Miravalles",      mw: 163, detail: "geotérmica" },
+  { id: "borinquen",  lng: -85.47, lat: 10.80, kind: "geo",   name: "Borinquen I",     mw: 75,  detail: "en desarrollo · 2030" },
+  { id: "tejona",     lng: -84.95, lat: 10.52, kind: "wind",  name: "Tejona",          mw: 20,  detail: "eólica · repotenciación" },
+  { id: "guanacaste", lng: -85.10, lat: 10.55, kind: "wind",  name: "P.E. Guanacaste", mw: 50,  detail: "eólica" },
+  { id: "sanantonio", lng: -84.12, lat: 9.96,  kind: "solar", name: "Solar San Antonio", mw: 10, detail: "10,3 MW · 2026" },
+  { id: "moin",       lng: -83.09, lat: 10.00, kind: "thermal", name: "Moín",          mw: 150, detail: "térmica · respaldo" },
+  { id: "gam",        lng: -84.08, lat: 9.93,  kind: "load",  name: "GAM",                       detail: "centro de carga" },
 ];

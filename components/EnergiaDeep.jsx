@@ -576,10 +576,12 @@ export function EnergiaDeep({ en = false }) {
       <ScrollReveal>
         <div style={{ marginTop: 16 }}>
           <PowerGlobe en={en} compact={mode === "mobile3d"} />
-          <p style={{ fontSize: 12, color: "rgba(241,245,249,0.6)", lineHeight: 1.6, marginTop: 10 }}>
-            {en
-              ? "Where the world makes its electricity — drag to spin the globe, tap a technology to filter, or focus on Costa Rica. Global points: WRI Global Power Plant Database (CC-BY-4.0). An independent technical visual; marker locations are approximate."
-              : "Dónde el mundo genera su electricidad — arrastrá para girar el globo, tocá una tecnología para filtrar o enfocá Costa Rica. Puntos globales: WRI Global Power Plant Database (CC-BY-4.0). Visual técnico independiente; las ubicaciones son aproximadas."}
+          <p style={{ fontSize: 12, color: "rgba(241,245,249,0.72)", lineHeight: 1.6, marginTop: 10 }}>
+            {en ? (
+              <>Where the world makes its electricity — drag to spin the globe, tap a technology to filter, or focus on Costa Rica. Global points: <a href={SRC.wri.url} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>WRI Global Power Plant Database</a> (<a href={SRC.cc_by_4.url} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>CC-BY-4.0</a>). High-voltage interconnections illustrative — see <a href={SRC.entsoe.url} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>ENTSO-E</a>, <a href={SRC.iea_wgo.url} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>IEA</a>, <a href={SRC.epr.url} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>SIEPAC/EPR</a>. An independent technical visual; marker locations are approximate.</>
+            ) : (
+              <>Dónde el mundo genera su electricidad — arrastrá para girar el globo, tocá una tecnología para filtrar o enfocá Costa Rica. Puntos globales: <a href={SRC.wri.url} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>WRI Global Power Plant Database</a> (<a href={SRC.cc_by_4.url} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>CC-BY-4.0</a>). Interconexiones de alta tensión ilustrativas — ver <a href={SRC.entsoe.url} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>ENTSO-E</a>, <a href={SRC.iea_wgo.url} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>IEA</a>, <a href={SRC.epr.url} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>SIEPAC/EPR</a>. Visual técnico independiente; las ubicaciones son aproximadas.</>
+            )}
           </p>
         </div>
       </ScrollReveal>
@@ -706,7 +708,7 @@ export function EnergiaDeep({ en = false }) {
         desc={en ? "The 2025 numbers contradict two popular narratives at once: ICE is not broke, and the grid is not ready for an AI-scale demand wave." : "Los números de 2025 contradicen dos narrativas populares a la vez: el ICE no está quebrado, y la red no está lista para una ola de demanda a escala IA."} />
 
       <ScrollReveal>
-        <CRGridMap en={en} />
+        <div id="crGridMapAnchor"><CRGridMap en={en} /></div>
       </ScrollReveal>
 
       <ScrollReveal>

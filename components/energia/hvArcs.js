@@ -16,7 +16,7 @@ export const HV_ARCS = [
   { from: "Nicaragua", to: "Honduras", kind: "siepac", mw: 300, startLat: 12.13, startLng: -86.25, endLat: 14.10, endLng: -87.22 },
   { from: "Honduras", to: "El Salvador", kind: "siepac", mw: 300, startLat: 14.10, startLng: -87.22, endLat: 13.69, endLng: -89.19 },
   { from: "El Salvador", to: "Guatemala", kind: "siepac", mw: 300, startLat: 13.69, startLng: -89.19, endLat: 14.63, endLng: -90.51 },
-  { from: "Panamá", to: "Colombia (planned)", kind: "siepac", mw: 400, startLat: 8.98, startLng: -79.52, endLat: 4.71, endLng: -74.07 },
+  { from: "Panamá", to: { es: "Colombia (planificado)", en: "Colombia (planned)" }, kind: "planned", mw: 400, startLat: 8.98, startLng: -79.52, endLat: 8.0, endLng: -77.0 },
 
   // ── Americas — long-haul HVDC / major links ──
   { from: "Itaipú", to: "São Paulo", kind: "hvdc", mw: 6300, startLat: -25.41, startLng: -54.59, endLat: -23.55, endLng: -46.63 },
@@ -28,15 +28,15 @@ export const HV_ARCS = [
   // ── Europe — interconnectors ──
   { from: "North Sea Link", to: "United Kingdom", kind: "hvdc", mw: 1400, startLat: 59.00, startLng: 6.60, endLat: 55.01, endLng: -1.45 },
   { from: "NorNed", to: "Netherlands", kind: "hvdc", mw: 700, startLat: 58.00, startLng: 6.50, endLat: 53.22, endLng: 6.90 },
-  { from: "IFA — France", to: "United Kingdom", kind: "hvdc", mw: 2000, startLat: 50.90, startLng: 1.90, endLat: 51.00, endLng: 1.40 },
-  { from: "Spain", to: "Morocco", kind: "hvdc", mw: 900, startLat: 36.14, startLng: -5.45, endLat: 35.89, endLng: -5.36 },
+  { from: "IFA (France ↔ UK)", to: "United Kingdom", kind: "hvdc", mw: 2000, startLat: 50.94, startLng: 1.77, endLat: 50.80, endLng: -1.09 },
+  { from: "España", to: "Marruecos", kind: "ac", mw: 900, startLat: 36.01, startLng: -5.60, endLat: 35.85, endLng: -5.36 },
 
   // ── Asia / Africa / Oceania ──
   { from: "Three Gorges", to: "Shanghai", kind: "hvdc", mw: 7200, startLat: 30.82, startLng: 111.00, endLat: 31.23, endLng: 121.47 },
   { from: "Xiangjiaba", to: "Shanghai", kind: "hvdc", mw: 6400, startLat: 28.65, startLng: 104.40, endLat: 31.23, endLng: 121.47 },
   { from: "Changji", to: "Guquan (UHVDC)", kind: "hvdc", mw: 12000, startLat: 44.02, startLng: 87.30, endLat: 31.30, endLng: 118.10 },
   { from: "Inga", to: "Kolwezi", kind: "hvdc", mw: 1100, startLat: -5.52, startLng: 13.62, endLat: -10.71, endLng: 25.47 },
-  { from: "Ethiopia (GERD)", to: "Kenya", kind: "hvdc", mw: 2000, startLat: 11.21, startLng: 35.09, endLat: -1.29, endLng: 36.82 },
+  { from: "Etiopía (Gilgel Gibe III)", to: "Kenia", kind: "ac", mw: 1045, startLat: 7.00, startLng: 37.80, endLat: -1.29, endLng: 36.82 },
   { from: "Basslink", to: "Victoria", kind: "hvdc", mw: 500, startLat: -41.16, startLng: 146.36, endLat: -38.15, endLng: 147.07 },
-  { from: "Leyte", to: "Luzon", kind: "hvdc", mw: 440, startLat: 11.00, startLng: 124.60, endLat: 14.60, endLng: 121.00 },
+  { from: "Leyte (Ormoc)", to: "Luzon", kind: "hvdc", mw: 440, startLat: 11.24, startLng: 124.89, endLat: 14.60, endLng: 121.00 },
 ];
