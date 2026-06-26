@@ -8,12 +8,14 @@ import {
   TARIFFS, RENEW_SHARE, CR_MIX, CR_RENEW_POINTS, ICE_FIN, ARESEP_2026,
   PEG_TARGETS, TIMELINE, VOTE_MATH, BILL_CORE, STAKEHOLDERS,
   COMPARATIVE, ECAI, SCENARIOS, SOLAR_CURVE, AMENDMENTS, VIDEOS,
+  ACT_ACCENT, ACT_INTRO_PULL, ACT2_KPIS,
 } from "./energiaData";
 import { DCDemandChart, TariffChart, MixDonut, EcaiRadar, SolarCurveChart } from "./energia/EnergiaCharts";
 import { MediaRow } from "./energia/EnergiaMedia";
 import { EcaiExplorer, TariffComparator, ScenarioExplorer } from "./energia/EnergiaInteractive";
 // CRGridMap dynamic-imported — pulls animejs (~148 KB) out of the eager bundle.
 import { ReactorCutaway, EnergyBeam } from "./energia/EnergiaArt";
+import PeakCTA from "./energia/PeakCTA";
 import { FACTS } from "../data/facts";
 
 const GridHero = dynamic(() => import("./energia/GridHero"), { ssr: false, loading: () => null });
@@ -148,7 +150,9 @@ function PullStat({ v, caption, srcId }) {
     <ScrollReveal>
       <div style={{ textAlign: "center", margin: "44px 0 40px" }}>
         <div style={{ ...display, fontSize: "clamp(56px, 11vw, 120px)", fontWeight: 800, lineHeight: 1,
-          background: `linear-gradient(120deg, var(--enTurq), ${EN_ACCENT.glow} 50%, var(--enGold))`,
+          fontFeatureSettings: '"tnum" 1',
+          letterSpacing: "-0.022em",
+          background: `linear-gradient(120deg, var(--act-accent, var(--enTurq)) 0%, ${EN_ACCENT.glow} 48%, var(--act-accent-2, var(--enGold)) 100%)`,
           WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent", color: "transparent" }}>
           {v}
         </div>
@@ -160,16 +164,153 @@ function PullStat({ v, caption, srcId }) {
 }
 
 /* ── Act header ── */
+/* Phase 2: Act header carries per-act accent CSS cascade (--act-accent /
+   --act-accent-2 / --act-tint) plus an italic intro pull. The cascade lets
+   every nested PullStat / Eyebrow / ScrollReveal consume the act color
+   without re-binding per-component. */
 function Act({ n, en, label, title, desc }) {
+  const a = ACT_ACCENT[n] || ACT_ACCENT[2];
+  const pull = ACT_INTRO_PULL[n];
   return (
-    <div id={`energia-act-${n}`} style={{ marginTop: "clamp(36px, 7vw, 56px)", marginBottom: 20, scrollMarginTop: 64 }}>
+    <div
+      id={`energia-act-${n}`}
+      data-act={n}
+      style={{
+        marginTop: "clamp(36px, 7vw, 56px)",
+        marginBottom: 20,
+        scrollMarginTop: 64,
+        "--act-accent":   a.primary,
+        "--act-accent-2": a.pair,
+        "--act-tint":     a.tint,
+      }}
+    >
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-        <span style={{ ...mono, fontSize: 11, color: "var(--enGold)", border: `1px solid ${EN_ACCENT.gold}55`, borderRadius: 6, padding: "2px 8px" }}>{en ? "ACT" : "ACTO"} {n}</span>
-        <span style={{ ...mono, fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: "var(--enTurq)" }}>{label}</span>
+        <span style={{
+          ...mono, fontSize: 11,
+          color: a.primary,
+          border: `1px solid ${a.primary}55`,
+          background: a.tint,
+          borderRadius: 6, padding: "2px 8px",
+        }}>{en ? "ACT" : "ACTO"} {n}</span>
+        <span style={{
+          ...mono, fontSize: 11, letterSpacing: 2, textTransform: "uppercase",
+          color: a.primary, opacity: 0.85,
+        }}>{label}</span>
       </div>
-      <h2 style={{ ...display, fontSize: 26, fontWeight: 800, color: "var(--text)", lineHeight: 1.25, marginBottom: 8 }}>{title}</h2>
-      {desc && <p style={{ fontSize: 14, color: "var(--text2)", lineHeight: 1.7, maxWidth: 680 }}>{desc}</p>}
+      <h2 style={{
+        ...display, fontSize: "clamp(24px, 3.6vw, 32px)", fontWeight: 800,
+        color: "var(--text)", lineHeight: 1.18,
+        letterSpacing: "-0.012em",
+        marginBottom: 8, maxWidth: 760,
+      }}>{title}</h2>
+      {desc && <p style={{ fontSize: 14.5, color: "var(--text2)", lineHeight: 1.65, maxWidth: 680 }}>{desc}</p>}
+      {pull && (
+        <p style={{
+          ...display,
+          fontSize: "clamp(15px, 1.8vw, 18px)",
+          fontStyle: "italic",
+          fontWeight: 600,
+          color: a.primary,
+          opacity: 0.95,
+          lineHeight: 1.45,
+          maxWidth: 640,
+          marginTop: 14,
+          paddingLeft: 14,
+          borderLeft: `2px solid ${a.primary}88`,
+        }}>{T(pull, en)}</p>
+      )}
     </div>
+  );
+}
+
+/* Phase 2 · Act 2 KPI Strip — frames the globe with scale BEFORE the 3D mounts.
+   Each cell carries its own per-act accent on the 2px top border so the strip
+   itself rotates through cyan → gold → cyan → gold without monotony. */
+function KpiGlyph({ kind, color = "currentColor" }) {
+  if (kind === "plant") return (
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke={color} strokeWidth="1.5" aria-hidden="true">
+      <path d="M3 19h16M5 19V9l6-5 6 5v10M9 19v-5h4v5" strokeLinejoin="round" strokeLinecap="round"/>
+    </svg>
+  );
+  if (kind === "chip") return (
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke={color} strokeWidth="1.5" aria-hidden="true">
+      <rect x="6" y="6" width="10" height="10" rx="1.2"/>
+      <path d="M9 6V3M13 6V3M9 19v-3M13 19v-3M6 9H3M6 13H3M19 9h-3M19 13h-3" strokeLinecap="round"/>
+    </svg>
+  );
+  if (kind === "arc") return (
+    <svg width="24" height="22" viewBox="0 0 24 22" fill="none" stroke={color} strokeWidth="1.5" aria-hidden="true">
+      <path d="M2 18 C 5 6, 19 6, 22 18" strokeLinecap="round"/>
+      <circle cx="2" cy="18" r="1.6" fill={color}/>
+      <circle cx="22" cy="18" r="1.6" fill={color}/>
+    </svg>
+  );
+  if (kind === "spark") return (
+    <svg width="28" height="22" viewBox="0 0 28 22" fill="none" stroke={color} strokeWidth="1.5" aria-hidden="true">
+      <polyline points="2,17 7,14 12,15 17,9 22,7 26,3" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="26" cy="3" r="1.8" fill={color}/>
+    </svg>
+  );
+  return null;
+}
+
+function KpiStrip({ en }) {
+  const iconFor = (id) => ({ plants: "plant", arcs: "arc", hubs: "chip", growth: "spark" }[id]);
+  return (
+    <ScrollReveal>
+      <div
+        role="list"
+        aria-label={en ? "Atlas scale, 4 key figures" : "Escala del atlas, 4 cifras clave"}
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 170px), 1fr))",
+          gap: 10,
+          margin: "18px 0 6px",
+        }}
+      >
+        {ACT2_KPIS.cells.map((k) => {
+          const acc = ACT_ACCENT[k.accentKey] || ACT_ACCENT[2];
+          return (
+            <div key={k.id} role="listitem" style={{
+              background: "var(--card)",
+              border: "1px solid var(--border)",
+              borderTop: `2px solid ${acc.primary}`,
+              borderRadius: 12,
+              padding: "12px 14px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+              position: "relative",
+              overflow: "hidden",
+            }}>
+              <span aria-hidden="true" style={{ position: "absolute", right: 8, top: 8, opacity: 0.35 }}>
+                <KpiGlyph kind={iconFor(k.id)} color={acc.primary} />
+              </span>
+              <div style={{ ...mono, fontSize: 22, fontWeight: 800,
+                color: "var(--text)", lineHeight: 1.05,
+                letterSpacing: "-0.01em",
+                fontFeatureSettings: '"tnum" 1',
+              }}>
+                {T(k.v, en)}
+              </div>
+              <div style={{ fontSize: 11.5, color: "var(--text2)", lineHeight: 1.35 }}>
+                {T(k.label, en)}
+              </div>
+              <div style={{ ...mono, fontSize: 9.5, color: "var(--text3)",
+                letterSpacing: 0.4, marginTop: 2 }}>
+                {T(k.sub, en)}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <p style={{
+        fontSize: 13, color: "var(--text2)", lineHeight: 1.65,
+        maxWidth: 680, margin: "6px 0 10px",
+      }}>
+        {T(ACT2_KPIS.setup, en)}
+      </p>
+    </ScrollReveal>
   );
 }
 
@@ -556,12 +697,30 @@ export function EnergiaDeep({ en = false }) {
             {SRC[heroStat.s].name} ↗
           </a>
           <div style={{ display: "grid", gap: 10, maxWidth: 760 }}>
-            {HERO.bluf.map((b, i) => (
-              <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                <span aria-hidden="true" style={{ ...mono, flexShrink: 0, fontSize: 11, color: EN_ACCENT.turquoise, border: "1px solid rgba(0,181,168,0.4)", borderRadius: 6, padding: "1px 7px", marginTop: 2 }}>{i + 1}</span>
-                <p style={{ fontSize: 13.5, color: "rgba(241,245,249,0.92)", lineHeight: 1.6 }}>{T(b, en)}</p>
-              </div>
-            ))}
+            {/* Phase 2: BLUF #3 (the reform/arithmetic bluf) wears gold — the eye-walk
+               Acts 2 → 3 → 5 lands in under one second. Other markers stay turquoise. */}
+            {HERO.bluf.map((b, i) => {
+              const isReform = i === 2;
+              return (
+                <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                  <span aria-hidden="true" style={{
+                    ...mono, flexShrink: 0, fontSize: 11, fontWeight: 800,
+                    color: isReform ? "#06281f" : EN_ACCENT.turquoise,
+                    background: isReform
+                      ? `linear-gradient(135deg, ${EN_ACCENT.gold}, ${EN_ACCENT.solar})`
+                      : "transparent",
+                    border: isReform ? "none" : "1px solid rgba(0,181,168,0.4)",
+                    borderRadius: 6, padding: "1px 7px", marginTop: 2,
+                    boxShadow: isReform ? "0 0 12px rgba(242,177,53,0.45)" : "none",
+                  }}>{i + 1}</span>
+                  <p style={{
+                    fontSize: 13.5,
+                    color: isReform ? "rgba(255,235,200,0.96)" : "rgba(241,245,249,0.92)",
+                    lineHeight: 1.6,
+                  }}>{T(b, en)}</p>
+                </div>
+              );
+            })}
           </div>
           <div style={{ ...mono, fontSize: 11, color: "rgba(241,245,249,0.5)", marginTop: 22, display: "flex", alignItems: "center", gap: 8 }}>
             <span aria-hidden="true" style={{ width: 7, height: 7, borderRadius: "50%", background: EN_ACCENT.turquoise, display: "inline-block" }} />
@@ -604,6 +763,9 @@ export function EnergiaDeep({ en = false }) {
       <Act n={2} en={en} label={en ? "The global stake" : "La apuesta global"}
         title={en ? "AI runs on electricity — and is buying it years in advance" : "La IA corre sobre electricidad — y la está comprando con años de anticipación"}
         desc={en ? "Data-centre demand will more than double by 2030. The world's largest companies are responding with the biggest private infrastructure bet in history — including restarting nuclear plants." : "La demanda de los centros de datos se duplicará con creces al 2030. Las empresas más grandes del mundo responden con la mayor apuesta privada de infraestructura de la historia — incluida la reapertura de plantas nucleares."} />
+
+      {/* Phase 2 · KPI strip — frames the globe with scale BEFORE the 3D mounts. */}
+      <KpiStrip en={en} />
 
       {/* ════ ATLAS GLOBAL DE GENERACIÓN — 3D ════ */}
       <ScrollReveal>
@@ -737,6 +899,10 @@ export function EnergiaDeep({ en = false }) {
 
       <CRAnchor en={en}>{T(NUCLEAR_DEALS.insight, en)}</CRAnchor>
 
+      {/* Phase 2 · Peak CTA — fires once per session at the Act 2 → Act 3 handoff.
+          Routes the reader from the global stake to the local arithmetic (Act 5). */}
+      <PeakCTA variant="globe" en={en} target="#energia-act-5" />
+
       <EnergyBeam />
 
       {/* ════ ACTO 3 — LA REGIÓN ════ */}
@@ -796,6 +962,10 @@ export function EnergiaDeep({ en = false }) {
             : "Estas represas construyeron la red limpia de Costa Rica. Pero la hidro es el 68% de la capacidad en un país que debe sumar +2.495 MW al 2040 — y los ríos están casi comprometidos. Ese es el apretón."}
         </p>
       </ScrollReveal>
+
+      {/* Phase 2 · Peak CTA — fires once per session after the CR grid map.
+          Routes from the local squeeze to the legislative arithmetic (Act 5). */}
+      <PeakCTA variant="crgrid" en={en} target="#energia-act-5" />
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 290px), 1fr))", gap: 14, marginTop: 14 }}>
         <ScrollReveal>
@@ -979,6 +1149,13 @@ export function EnergiaDeep({ en = false }) {
 
       <CRAnchor en={en}>{T(ECAI.reading, en)}</CRAnchor>
 
+      {/* Phase 2 · Peak CTA — fires once per session after the ECAI radar.
+          Routes from the index reading to the 12 technical amendments (Act 8). */}
+      <PeakCTA variant="ecai" en={en} target="#energia-act-8" />
+
+      {/* MicroCTA preserved as a quieter share offer alongside the new PeakCTA;
+          the two never compete for the same scroll moment since the PeakCTA
+          self-dismisses after first interaction or session-mark. */}
       <MicroCTA en={en} />
 
       {/* ════ ACTO 8 — RECOMENDACIONES ════ */}

@@ -22,6 +22,43 @@ export const EN_ACCENT = {
   violet: "#818cf8",
 };
 
+/* Phase 2 · Per-Act accent map — each Act exposes 3 CSS vars on its root via
+   data-act={n}: --act-accent, --act-accent-2, --act-tint. */
+export const ACT_ACCENT = {
+  2: { primary: "#22d3ee", pair: "#00B5A8", tint: "rgba(34,211,238,0.06)" },
+  3: { primary: "#F2B135", pair: "#fb923c", tint: "rgba(242,177,53,0.07)" },
+  4: { primary: "#22d3ee", pair: "#0d9488", tint: "rgba(34,211,238,0.06)" },
+  5: { primary: "#F2B135", pair: "#ef4444", tint: "rgba(242,177,53,0.07)" },
+  6: { primary: "#a5b4fc", pair: "#22d3ee", tint: "rgba(165,180,252,0.06)" },
+  7: { primary: "#22d3ee", pair: "#fb923c", tint: "rgba(34,211,238,0.06)" },
+  8: { primary: "#F2B135", pair: "#10b981", tint: "rgba(242,177,53,0.07)" },
+};
+
+/* Phase 2 · Editorial intro pulls — one italic line beneath each Act header. */
+export const ACT_INTRO_PULL = {
+  2: { es: "La electricidad ya no es un costo: es el insumo que se compra primero.", en: "Electricity is no longer a cost: it is the input bought first." },
+  3: { es: "Limpio no basta. La carrera la decide el megavatio barato.", en: "Clean is not enough. The race is decided by the cheap megawatt." },
+  4: { es: "Sólido — y casi sin margen.", en: "Strong — and almost out of room." },
+  5: { es: "Treinta y ocho votos. La aritmética antes que la ideología.", en: "Thirty-eight votes. Arithmetic before ideology." },
+  6: { es: "Seis países ya pagaron las lecciones que nos faltan.", en: "Six countries already paid the lessons we still owe." },
+  7: { es: "Tres índices, una sola pregunta: ¿somos competitivos?", en: "Three indices, one question: are we competitive?" },
+  8: { es: "Enmendar — no rechazar.", en: "Amend — not reject." },
+};
+
+/* Phase 2 · Act 2 KPI strip — frames the globe with scale BEFORE the 3D mounts. */
+export const ACT2_KPIS = {
+  setup: {
+    es: "El planeta entero, con los megavatios que ya están en el suelo y los que la IA está comprando con años de anticipación. Costa Rica está marcada en oro.",
+    en: "The whole planet, with the megawatts already in the ground and the ones AI is buying years ahead. Costa Rica is marked in gold.",
+  },
+  cells: [
+    { id: "plants", v: { es: "22.000+", en: "22,000+" }, label: { es: "plantas globales mapeadas", en: "global plants mapped" }, sub: { es: "WRI ≥ 20 MW", en: "WRI ≥ 20 MW" }, accentKey: 2 },
+    { id: "arcs",   v: "22", label: { es: "interconexiones AT activas", en: "active HV interconnections" }, sub: { es: "5 segmentos SIEPAC en CR", en: "5 SIEPAC segments in CR" }, accentKey: 3 },
+    { id: "hubs",   v: "26", label: { es: "hubs de centros de datos", en: "data-centre hubs" }, sub: { es: "demanda est. 8.000+ MW", en: "est. demand 8,000+ MW" }, accentKey: 7 },
+    { id: "growth", v: { es: "415 → 945", en: "415 → 945" }, label: { es: "TWh demanda IA · 2024→2030", en: "TWh AI demand · 2024→2030" }, sub: { es: "AIE caso base", en: "IEA base case" }, accentKey: 5 },
+  ],
+};
+
 /* ── SOURCE REGISTRY ── */
 export const SRC = {
   iea2025: { name: "IEA — Energy and AI (abr 2025)", url: "https://www.iea.org/reports/energy-and-ai", date: "2026-06" },
