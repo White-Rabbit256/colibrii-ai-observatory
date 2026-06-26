@@ -172,12 +172,12 @@ export const CR_MIX = {
   s: "peg", conf: "verified",
   asOf: { es: "Capacidad instalada, dic 2023 (~3.499 MW)", en: "Installed capacity, Dec 2023 (~3,499 MW)" },
   rows: [
-    { id: "hydro", name: { es: "Hidroeléctrica", en: "Hydro" }, pct: 68, color: "#22d3ee" },
-    { id: "wind", name: { es: "Eólica", en: "Wind" }, pct: 12, color: "#00B5A8" },
-    { id: "thermal", name: { es: "Térmica (respaldo)", en: "Thermal (backup)" }, pct: 11, color: "#ef4444" },
-    { id: "geo", name: { es: "Geotérmica", en: "Geothermal" }, pct: 7, color: "#F2B135" },
-    { id: "bio", name: { es: "Biomasa", en: "Biomass" }, pct: 2, color: "#10b981" },
-    { id: "solar", name: { es: "Solar", en: "Solar" }, pct: 0.2, color: "#fbbf24" },
+    { id: "hydro",   name: { es: "Hidroeléctrica",     en: "Hydro" },             pct: 68,  color: FUEL_COLORS.hydro },
+    { id: "wind",    name: { es: "Eólica",             en: "Wind" },              pct: 12,  color: FUEL_COLORS.wind },
+    { id: "thermal", name: { es: "Térmica (respaldo)", en: "Thermal (backup)" },  pct: 11,  color: FUEL_COLORS.thermal },
+    { id: "geo",     name: { es: "Geotérmica",         en: "Geothermal" },        pct: 7,   color: FUEL_COLORS.geothermal },
+    { id: "bio",     name: { es: "Biomasa",            en: "Biomass" },           pct: 2,   color: FUEL_COLORS.biomass },
+    { id: "solar",   name: { es: "Solar",              en: "Solar" },             pct: 0.2, color: FUEL_COLORS.solar },
   ],
 };
 
