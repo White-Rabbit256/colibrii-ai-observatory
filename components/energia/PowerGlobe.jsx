@@ -277,7 +277,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
     wrap.setAttribute("role", "button");
     wrap.setAttribute("tabindex", "0");
     const nm = txt(d.name, en), ct = txt(d.country, en);
-    wrap.setAttribute("aria-label", `${nm}, ${ct}, ${d.tier === 1 ? (en ? "Tier 1 primary AI compute hub" : "Hub IA primario Tier 1") : (en ? "Tier 2 regional hub" : "Hub regional Tier 2")}, ${d.demandMw ? `~${d.demandMw} MW` : ""}`);
+    wrap.setAttribute("aria-label", `${nm}, ${ct}, ${d.tier === 1 ? (en ? "Tier 1 primary AI compute hub" : "Hub IA primario Tier 1") : (en ? "Tier 2 regional hub" : "Hub regional Tier 2")}${d.demandMw ? `, ~${d.demandMw} MW ${en ? "(est.)" : "(est.)"}` : ""}`);
     wrap.className = "pg-dc-btn";
     wrap.style.cssText = "width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:none;";
     const dot = document.createElement("div");
@@ -296,9 +296,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
   const onArcHover = useCallback((a) => {
     if (!a) { setHover(null); return; }
     const to = txt(a.to, en);
-    // Suppress tautology "Colombia (planificado) · PLANIFICADO" — the 'to' already says planned.
-    const showLabel = !(a.kind === "planned" && typeof a.to === "object");
-    const label = showLabel ? ((KIND_LABEL[a.kind] && (en ? KIND_LABEL[a.kind].en : KIND_LABEL[a.kind].es)) || a.kind) : "";
+    const label = (KIND_LABEL[a.kind] && (en ? KIND_LABEL[a.kind].en : KIND_LABEL[a.kind].es)) || a.kind;
     // Operating corridors get "coords aprox."; only planned corridors get "ilustrativo".
     const qual = a.kind === "planned"
       ? (en ? " · illustrative" : " · ilustrativo")

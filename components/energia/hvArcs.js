@@ -29,7 +29,7 @@ export const HV_ARCS = [
   { from: "North Sea Link", to: "United Kingdom", kind: "hvdc", mw: 1400, startLat: 59.00, startLng: 6.60, endLat: 55.01, endLng: -1.45 },
   { from: "NorNed", to: "Netherlands", kind: "hvdc", mw: 700, startLat: 58.00, startLng: 6.50, endLat: 53.22, endLng: 6.90 },
   { from: "IFA — Les Mandarins (FR)", to: "Sellindge (UK)", kind: "hvdc", mw: 2000, startLat: 50.94, startLng: 1.77, endLat: 51.08, endLng: 0.92 },
-  { from: "España (Tarifa)", to: "Marruecos (Fardioua)", kind: "hvdc", mw: 700, startLat: 36.01, startLng: -5.60, endLat: 35.85, endLng: -5.36 },
+  { from: "España (Tarifa)", to: "Marruecos (Fardioua)", kind: "ac", mw: 900, startLat: 36.01, startLng: -5.60, endLat: 35.85, endLng: -5.36 },
 
   // ── Asia / Africa / Oceania ──
   { from: "Three Gorges / Gezhouba corridor", to: "Shanghai", kind: "hvdc", mw: 7200, startLat: 30.82, startLng: 111.00, endLat: 31.23, endLng: 121.47 },
