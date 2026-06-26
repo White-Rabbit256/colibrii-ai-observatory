@@ -11,7 +11,7 @@
    ═══════════════════════════════════════════════════════════════ */
 export const HV_ARCS = [
   // ── Central America — SIEPAC (the Costa Rica tie-in) ──
-  { from: "Costa Rica", to: "Panamá", kind: "siepac", mw: 300, startLat: 9.93, startLng: -84.08, endLat: 8.98, endLng: -79.52 },
+  { from: "Costa Rica", to: "Panamá (Las Minas)", kind: "siepac", mw: 300, startLat: 9.93, startLng: -84.08, endLat: 7.97, endLng: -80.52 },
   { from: "Costa Rica", to: "Nicaragua", kind: "siepac", mw: 300, startLat: 9.93, startLng: -84.08, endLat: 12.13, endLng: -86.25 },
   { from: "Nicaragua", to: "Honduras", kind: "siepac", mw: 300, startLat: 12.13, startLng: -86.25, endLat: 14.10, endLng: -87.22 },
   { from: "Honduras", to: "El Salvador", kind: "siepac", mw: 300, startLat: 14.10, startLng: -87.22, endLat: 13.69, endLng: -89.19 },
@@ -28,7 +28,7 @@ export const HV_ARCS = [
   // ── Europe — interconnectors ──
   { from: "North Sea Link", to: "United Kingdom", kind: "hvdc", mw: 1400, startLat: 59.00, startLng: 6.60, endLat: 55.01, endLng: -1.45 },
   { from: "NorNed", to: "Netherlands", kind: "hvdc", mw: 700, startLat: 58.00, startLng: 6.50, endLat: 53.22, endLng: 6.90 },
-  { from: "IFA (France ↔ UK)", to: "United Kingdom", kind: "hvdc", mw: 2000, startLat: 50.94, startLng: 1.77, endLat: 50.80, endLng: -1.09 },
+  { from: "IFA — Les Mandarins (FR)", to: "Sellindge (UK)", kind: "hvdc", mw: 2000, startLat: 50.94, startLng: 1.77, endLat: 51.08, endLng: 0.92 },
   { from: "España", to: "Marruecos", kind: "ac", mw: 900, startLat: 36.01, startLng: -5.60, endLat: 35.85, endLng: -5.36 },
 
   // ── Asia / Africa / Oceania ──
@@ -38,5 +38,5 @@ export const HV_ARCS = [
   { from: "Inga", to: "Kolwezi", kind: "hvdc", mw: 1100, startLat: -5.52, startLng: 13.62, endLat: -10.71, endLng: 25.47 },
   { from: "Etiopía (Gilgel Gibe III)", to: "Kenia", kind: "ac", mw: 1045, startLat: 7.00, startLng: 37.80, endLat: -1.29, endLng: 36.82 },
   { from: "Basslink", to: "Victoria", kind: "hvdc", mw: 500, startLat: -41.16, startLng: 146.36, endLat: -38.15, endLng: 147.07 },
-  { from: "Leyte (Ormoc)", to: "Luzon", kind: "hvdc", mw: 440, startLat: 11.24, startLng: 124.89, endLat: 14.60, endLng: 121.00 },
+  { from: "Leyte (Ormoc)", to: "Naga (Cebu)", kind: "hvdc", mw: 440, startLat: 11.24, startLng: 124.89, endLat: 10.19, endLng: 123.75 },
 ];

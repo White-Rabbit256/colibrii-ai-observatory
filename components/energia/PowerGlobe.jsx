@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState, useEffect, useMemo, useCallback } from "react";
-import * as THREE from "three";
+import { DirectionalLight, AmbientLight } from "three";
 import Globe from "react-globe.gl";
 import { PLANTS_GEO } from "./crGeo";
 import { EN_ACCENT, SRC } from "../energiaData";
@@ -72,13 +72,23 @@ const altOf = (cap) => Math.max(0.004, Math.min(0.14, 0.004 + Math.sqrt(cap || 8
 const ARC_COLOR_FN = (a) => a.kind === "siepac"
   ? ["#F2B135", "#fbbf24"]
   : a.kind === "planned"
-    ? ["rgba(242,177,53,0.38)", "rgba(242,177,53,0.18)"]
-    : ["#22d3ee", "#00B5A8"];
-const ARC_STROKE_FN = (a) => a.kind === "siepac" ? 1.1 : a.kind === "planned" ? 0.18 : 0.42;
+    ? ["rgba(242,177,53,0.78)", "rgba(242,177,53,0.55)"]
+    : a.kind === "ac"
+      ? ["#10b981", "#34d399"]
+      : ["#22d3ee", "#00B5A8"];
+const ARC_STROKE_FN = (a) => a.kind === "siepac" ? 1.1 : a.kind === "planned" ? 0.45 : a.kind === "ac" ? 0.40 : 0.45;
 const ARC_ALT_FN = (a) => 0.05 + Math.min(0.35, (a.mw || 500) / 60000);
 const ARC_DASH_LEN_FN = (a) => a.kind === "planned" ? 0.16 : 0.45;
 const ARC_DASH_GAP_FN = (a) => a.kind === "planned" ? 0.5 : 0.12;
 const RING_COLOR_FN = () => (t) => `rgba(34,211,238,${1 - t})`;
+
+/* Localised arc-kind labels (no raw .toUpperCase() artifacts). */
+const KIND_LABEL = {
+  siepac: { es: "SIEPAC", en: "SIEPAC" },
+  hvdc: { es: "HVDC", en: "HVDC" },
+  ac: { es: "Enlace CA", en: "AC link" },
+  planned: { es: "PLANIFICADO", en: "PLANNED" },
+};
 
 /* Minimal CSV parser (handles quoted fields). */
 function parseCSV(text) {
@@ -118,12 +128,14 @@ export default function PowerGlobe({ en = false, compact = false }) {
   const wrapRef = useRef(null);
   const globeEl = useRef(null);
   const hoverCb = useRef(null);
+  const lightsRef = useRef(false);
   const [size, setSize] = useState({ w: 0, h: 0 });
   const [plants, setPlants] = useState(null);     // parsed WRI {lat,lng,fuel,cap,name,country,color,alt}
   const [status, setStatus] = useState("idle");   // idle·loading·ok·error
   const [filters, setFilters] = useState(() => Object.fromEntries(LEGEND.map((k) => [k, true])));
   const [layers, setLayers] = useState({ plants: true, grid: true, hubs: true });
   const [layersOpen, setLayersOpen] = useState(false);
+  const [encOpen, setEncOpen] = useState(false);
   const [focus, setFocus] = useState("global");
   const [hover, setHover] = useState(null);
   const [ready, setReady] = useState(false);
@@ -221,13 +233,16 @@ export default function PowerGlobe({ en = false, compact = false }) {
     } catch {}
     // Mobile (compact): open on the Americas/SIEPAC corridor, not the empty Atlantic.
     g.pointOfView(compact ? { lat: 6, lng: -80, altitude: 2.1 } : { lat: 18, lng: -55, altitude: 2.4 }, 0);
-    // Cinematic scene lighting
-    try {
-      const scene = g.scene();
-      const sun = new THREE.DirectionalLight(0xffffff, 0.6); sun.position.set(1, 0.4, 1);
-      const amb = new THREE.AmbientLight(0x223355, 0.25);
-      scene.add(sun); scene.add(amb);
-    } catch {}
+    // Cinematic scene lighting — guard against duplicate insertion on resize/breakpoint
+    if (!lightsRef.current) {
+      try {
+        const scene = g.scene();
+        const sun = new DirectionalLight(0xffffff, 0.6); sun.position.set(1, 0.4, 1);
+        const amb = new AmbientLight(0x223355, 0.25);
+        scene.add(sun); scene.add(amb);
+        lightsRef.current = true;
+      } catch {}
+    }
   }, [reduced, compact]);
 
   /* focus transitions */
@@ -277,7 +292,8 @@ export default function PowerGlobe({ en = false, compact = false }) {
   const onArcHover = useCallback((a) => {
     if (!a) { setHover(null); return; }
     const to = txt(a.to, en);
-    setHover({ kind: "arc", name: `${a.from} → ${to}`, sub: `${(a.mw || 0).toLocaleString(en ? "en" : "es")} MW · ${a.kind === "siepac" ? "SIEPAC" : a.kind === "planned" ? (en ? "PLANNED" : "PLANIFICADO") : a.kind.toUpperCase()}` });
+    const label = (KIND_LABEL[a.kind] && (en ? KIND_LABEL[a.kind].en : KIND_LABEL[a.kind].es)) || a.kind;
+    setHover({ kind: "arc", name: `${a.from} → ${to}`, sub: `${(a.mw || 0).toLocaleString(en ? "en" : "es")} MW · ${label}` });
   }, [en]);
 
   const arcDashAnim = useCallback((a) => {
@@ -306,23 +322,24 @@ export default function PowerGlobe({ en = false, compact = false }) {
       <style>{`
         .pg-btn {
           font-family: ${MONO}; font-size: 11px; letter-spacing: 0.4px;
-          min-height: 32px; padding: 6px 11px; border-radius: 999px; cursor: pointer;
+          min-height: 44px; min-width: 44px; padding: 10px 13px; border-radius: 999px; cursor: pointer;
           color: rgba(255,255,255,0.88); background: ${EN_ACCENT.navy}aa;
           border: 1px solid rgba(255,255,255,0.18); transition: border-color .15s, background .15s;
           backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+          display: inline-flex; align-items: center; justify-content: center;
         }
-        .pg-btn:focus { outline: none; }
         .pg-btn:focus-visible { outline: 2px solid ${EN_ACCENT.glow}; outline-offset: 2px; }
-        .pg-btn-on { color: ${EN_ACCENT.navy}; background: ${EN_ACCENT.glow}; border-color: ${EN_ACCENT.glow}; }
-        .pg-btn-chip { display: inline-flex; align-items: center; gap: 6px; }
+        .pg-btn-on { color: ${EN_ACCENT.navy}; background: ${EN_ACCENT.glow}; border-color: ${EN_ACCENT.glow}; box-shadow: 0 0 12px ${EN_ACCENT.glow}66; }
+        .pg-btn-chip { gap: 6px; }
         .pg-btn-chip[data-off="1"] { border-color: rgba(255,255,255,0.16); }
         .pg-skip {
-          position: absolute; left: 10px; top: -40px; z-index: 10;
-          background: ${EN_ACCENT.navy}; color: #fff; padding: 8px 14px; border-radius: 8px;
-          font-family: ${MONO}; font-size: 12px;
+          position: absolute; left: 10px; top: -56px; z-index: 10;
+          background: ${EN_ACCENT.navy}; color: #fff; padding: 12px 16px; border-radius: 8px;
+          font-family: ${MONO}; font-size: 12px; min-height: 44px;
           border: 1px solid ${EN_ACCENT.glow}; transition: top .15s;
         }
-        .pg-skip:focus { top: 10px; outline: none; }
+        .pg-skip:focus { top: 10px; }
+        .pg-skip:focus-visible { outline: 2px solid ${EN_ACCENT.glow}; outline-offset: 2px; }
         .pg-sr {
           position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
           overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
@@ -348,7 +365,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
             backgroundColor="rgba(0,0,0,0)"
             globeImageUrl={NIGHT_TEX}
             showAtmosphere
-            atmosphereColor="#38bdf8"
+            atmosphereColor={EN_ACCENT.sky}
             atmosphereAltitude={0.24}
             onGlobeReady={onReady}
             rendererConfig={{
@@ -414,13 +431,15 @@ export default function PowerGlobe({ en = false, compact = false }) {
           </div>
         )}
 
-        {hover && (
-          <div aria-live="polite" aria-atomic="true" style={{ marginTop: 6, padding: "7px 10px", borderRadius: 9, background: `${EN_ACCENT.navy}e8`, border: `1px solid ${EN_ACCENT.glow}99`, display: "inline-block", maxWidth: 340 }}>
+        {/* Hover tooltip — always mounted (live regions inserted after mount fail in VoiceOver/JAWS) */}
+        <div aria-live="polite" aria-atomic="true"
+          style={{ marginTop: 6, padding: hover ? "7px 10px" : 0, borderRadius: 9, background: `${EN_ACCENT.navy}e8`, border: hover ? `1px solid ${EN_ACCENT.glow}99` : "1px solid transparent", display: "inline-block", maxWidth: 340, opacity: hover ? 1 : 0, transition: "opacity .15s", pointerEvents: "none", minHeight: hover ? "auto" : 0 }}>
+          {hover && <>
             <div style={{ fontSize: 12.5, fontWeight: 700, color: "#fff" }}>{hover.name}</div>
             <div style={{ fontSize: 11, color: "rgba(255,255,255,0.8)" }}>{hover.sub}</div>
-            {hover.detail && <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.65)", marginTop: 2 }}>{hover.detail}{hover.mw ? ` · ~${hover.mw.toLocaleString(en ? "en" : "es")} MW` : ""}</div>}
-          </div>
-        )}
+            {hover.detail && <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.65)", marginTop: 2 }}>{hover.detail}{hover.mw ? ` · ~${hover.mw.toLocaleString(en ? "en" : "es")} MW (est.)` : ""}</div>}
+          </>}
+        </div>
       </div>
 
       {/* ── Top-right: focus + layers ── */}
@@ -443,7 +462,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
               <div id="pg-layers" style={{ display: "flex", flexDirection: "column", gap: 5, alignItems: "flex-end", background: `${EN_ACCENT.navy}d0`, padding: 6, borderRadius: 10, border: `1px solid ${EN_ACCENT.turquoise}33` }}>
                 {[["plants", en ? "Plants" : "Plantas"], ["grid", en ? "Grid" : "Red"], ["hubs", en ? "AI hubs" : "Hubs IA"]].map(([k, label]) => (
                   <button key={k} type="button" onClick={() => toggleLayer(k)} aria-pressed={layers[k]}
-                    className={`pg-btn${layers[k] ? "" : ""}`} data-off={layers[k] ? "0" : "1"}>
+                    className={`pg-btn${layers[k] ? " pg-btn-on" : ""}`} data-off={layers[k] ? "0" : "1"}>
                     {layers[k] ? "● " : "○ "}{label}
                   </button>
                 ))}
@@ -454,7 +473,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 5, alignItems: "flex-end" }}>
             {[["plants", en ? "Plants" : "Plantas"], ["grid", en ? "Grid" : "Red"], ["hubs", en ? "AI hubs" : "Hubs IA"]].map(([k, label]) => (
               <button key={k} type="button" onClick={() => toggleLayer(k)} aria-pressed={layers[k]}
-                className="pg-btn" data-off={layers[k] ? "0" : "1"}>
+                className={`pg-btn${layers[k] ? " pg-btn-on" : ""}`} data-off={layers[k] ? "0" : "1"}>
                 {layers[k] ? "● " : "○ "}{label}
               </button>
             ))}
@@ -476,8 +495,16 @@ export default function PowerGlobe({ en = false, compact = false }) {
         <a href={SRC.epr.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>SIEPAC/EPR</a>{")"}
       </div>
 
-      {/* ── Encoding mini-legends (altitude · arc kind · DC tier) ── */}
-      <div style={{ position: "absolute", bottom: compact ? 60 : 56, left: 14, right: 14, zIndex: 3, display: "flex", flexWrap: "wrap", gap: 14, justifyContent: "center", fontFamily: MONO, fontSize: 10.5, color: "rgba(255,255,255,0.85)", pointerEvents: "none" }}>
+      {/* ── Encoding mini-legends (altitude · arc kind · DC tier) ──
+            On compact, collapsed into a tappable "i" popover to free the bottom zone. */}
+      {compact && (
+        <button type="button" onClick={() => setEncOpen((v) => !v)} aria-expanded={encOpen} aria-controls="pg-enc"
+          className="pg-btn"
+          style={{ position: "absolute", right: 14, bottom: 70, zIndex: 4, fontSize: 13 }}>
+          i
+        </button>
+      )}
+      <div id="pg-enc" style={{ position: "absolute", bottom: compact ? 122 : 56, left: 14, right: 14, zIndex: 3, display: (compact && !encOpen) ? "none" : "flex", flexWrap: "wrap", gap: 14, justifyContent: "center", fontFamily: MONO, fontSize: 10.5, color: "rgba(255,255,255,0.92)", pointerEvents: "none", background: compact ? `${EN_ACCENT.navy}d8` : "transparent", padding: compact ? "8px 10px" : 0, borderRadius: compact ? 10 : 0 }}>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           <span style={{ display: "inline-flex", alignItems: "flex-end", gap: 2, height: 14 }}>
             <span style={{ width: 3, height: 4, background: EN_ACCENT.glow }} />
@@ -490,7 +517,10 @@ export default function PowerGlobe({ en = false, compact = false }) {
           <span style={{ width: 22, height: 2, background: EN_ACCENT.gold, borderRadius: 1 }} /> SIEPAC
         </span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-          <span style={{ width: 22, height: 2, background: EN_ACCENT.glow, borderRadius: 1 }} /> HVDC
+          <span style={{ width: 22, height: 3, background: EN_ACCENT.glow, borderRadius: 1 }} /> HVDC
+        </span>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+          <span style={{ width: 22, height: 2, background: EN_ACCENT.green, borderRadius: 1 }} /> {en ? "AC link" : "Enlace CA"}
         </span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           <span style={{ width: 22, height: 2, background: "transparent", borderTop: `2px dashed ${EN_ACCENT.gold}` }} /> {en ? "Planned" : "Planificado"}
@@ -503,13 +533,20 @@ export default function PowerGlobe({ en = false, compact = false }) {
         </span>
       </div>
 
-      {/* ── Bottom: fuel chips + reset / empty-state ── */}
+      {/* Centered empty-state overlay (when all fuel chips are off) */}
+      {!anyOn && (
+        <div role="status" style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", zIndex: 4, textAlign: "center", padding: "16px 22px", borderRadius: 12, background: `${EN_ACCENT.navy}e0`, border: `1px solid ${EN_ACCENT.glow}77`, backdropFilter: "blur(6px)" }}>
+          <div style={{ fontFamily: MONO, fontSize: 13, color: "#fff", marginBottom: 10 }}>
+            {en ? "Which source powers the world?" : "¿Qué fuente mueve al mundo?"}
+          </div>
+          <button type="button" onClick={resetFilters} className="pg-btn pg-btn-on" aria-label={en ? "Show all technologies" : "Mostrar todas las tecnologías"}>
+            {en ? "Show all" : "Mostrar todas"}
+          </button>
+        </div>
+      )}
+
+      {/* ── Bottom: fuel chips + reset ── */}
       <div style={{ position: "absolute", left: 14, bottom: 12, right: 14, zIndex: 3, display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center", justifyContent: "center" }}>
-        {!anyOn && (
-          <span style={{ fontFamily: MONO, fontSize: 11, color: "rgba(255,255,255,0.7)" }}>
-            {en ? "Tap a technology to show plants" : "Tocá una tecnología para mostrar plantas"}
-          </span>
-        )}
         {LEGEND.map((k) => {
           const on = filters[k] !== false;
           return (

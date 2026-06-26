@@ -15,6 +15,7 @@ export const EN_ACCENT = {
   turquoise: "#00B5A8",
   gold: "#F2B135",
   glow: "#22d3ee",
+  sky: "#38bdf8",        // brighter atmosphere blue — promoted to token (panel R2 #12)
   solar: "#fb923c",      // defined solar accent — warm orange, distinct from gold
   risk: "#ef4444",
   green: "#10b981",

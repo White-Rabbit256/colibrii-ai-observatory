@@ -31,7 +31,7 @@ export const DATACENTERS = [
   { name: { es: "São Paulo",               en: "São Paulo" },                country: { es: "Brasil",        en: "Brazil" },       tier: 1, lat: -23.55, lng: -46.63,  demandMw: 500 },
   { name: { es: "Querétaro",               en: "Querétaro" },                country: { es: "México",        en: "Mexico" },       tier: 2, lat: 20.59,  lng: -100.39, demandMw: 250 },
   { name: { es: "Bogotá",                  en: "Bogotá" },                   country: { es: "Colombia",      en: "Colombia" },     tier: 2, lat: 4.71,   lng: -74.07,  demandMw: 130 },
-  { name: { es: "Panamá",                  en: "Panama City" },              country: { es: "Panamá",        en: "Panama" },       tier: 2, lat: 8.98,   lng: -79.52,  demandMw: 90  },
+  { name: { es: "Panamá",                  en: "Panama City" },              country: { es: "Panamá",        en: "Panama" },       tier: 2, lat: 9.00,   lng: -79.50,  demandMw: 90  },
   { name: { es: "Santiago",                en: "Santiago" },                 country: { es: "Chile",         en: "Chile" },        tier: 2, lat: -33.45, lng: -70.67,  demandMw: 200 },
   { name: { es: "Sídney",                  en: "Sydney" },                   country: { es: "Australia",     en: "Australia" },    tier: 1, lat: -33.87, lng: 151.21,  demandMw: 600 },
   { name: { es: "Johannesburgo",           en: "Johannesburg" },             country: { es: "Sudáfrica",     en: "South Africa" }, tier: 2, lat: -26.20, lng: 28.05,   demandMw: 200 },

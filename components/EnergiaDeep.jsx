@@ -18,7 +18,12 @@ import { FACTS } from "../data/facts";
 
 const GridHero = dynamic(() => import("./energia/GridHero"), { ssr: false, loading: () => null });
 const Hero3D = dynamic(() => import("./energia/Hero3D"), { ssr: false, loading: () => null });
-const PowerGlobe = dynamic(() => import("./energia/PowerGlobe"), { ssr: false, loading: () => null });
+const PowerGlobe = dynamic(() => import("./energia/PowerGlobe"), {
+  ssr: false,
+  loading: () => (
+    <div aria-hidden="true" style={{ aspectRatio: "16 / 9", width: "100%", borderRadius: 16, background: "radial-gradient(130% 120% at 50% -10%, #0A1F3F, #06152e 70%, #02070f 100%)", border: "1px solid rgba(0,181,168,0.2)" }} />
+  ),
+});
 
 /* ═══════════════════════════════════════════════════════════════
    COLIBRII LABS — Energía · Electricidad, Competitividad & IA
@@ -708,7 +713,7 @@ export function EnergiaDeep({ en = false }) {
         desc={en ? "The 2025 numbers contradict two popular narratives at once: ICE is not broke, and the grid is not ready for an AI-scale demand wave." : "Los números de 2025 contradicen dos narrativas populares a la vez: el ICE no está quebrado, y la red no está lista para una ola de demanda a escala IA."} />
 
       <ScrollReveal>
-        <div id="crGridMapAnchor"><CRGridMap en={en} /></div>
+        <div id="crGridMapAnchor" tabIndex={-1} style={{ scrollMarginTop: 60, outline: "none" }}><CRGridMap en={en} /></div>
       </ScrollReveal>
 
       <ScrollReveal>

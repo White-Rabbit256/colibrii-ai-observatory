@@ -325,7 +325,6 @@ export default function CRGridMap({ en }) {
         .crmap-node { transition: transform .18s ease; }
         .crmap-node:hover .crmap-core, .crmap-node:focus-visible .crmap-core { transform: scale(1.34); }
         .crmap-core { transform-box: fill-box; transform-origin: center; transition: transform .18s ease; }
-        .crmap-btn:focus { outline: none; }
         .crmap-btn:focus-visible { outline: 2px solid ${GLOW}d9; outline-offset: 3px; border-radius: 50%; }
         @media (prefers-reduced-motion: reduce) {
           .crmap-flow { animation: none !important; }
@@ -515,6 +514,16 @@ export default function CRGridMap({ en }) {
       </div>
 
       {/* ── Interactive overlay: one real <button> per plant ── */}
+      {/* SR-only announcement region: speaks the active plant on activation. */}
+      <div className="pg-sr" role="status" aria-live="polite" aria-atomic="true"
+        style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0 }}>
+        {active ? (() => {
+          const n = NODES.find((p) => p.id === active);
+          if (!n) return "";
+          return `${n.name}, ${en ? DETAIL_EN[n.id] : n.detail}, ${KIND_LABEL[n.kind][en ? 1 : 0]}`;
+        })() : ""}
+      </div>
+
       <div role="group" aria-label={en ? "Power plants and load centre" : "Plantas de generación y centro de carga"} style={{ position: "absolute", inset: 0 }}>
         {NODES.map((n) => (
           <button
