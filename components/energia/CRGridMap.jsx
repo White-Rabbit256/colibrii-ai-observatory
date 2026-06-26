@@ -29,7 +29,7 @@ import { EN_ACCENT, FUEL_COLORS } from "../energiaData";
    wind moved off turquoise so plant nodes don't blend into the turquoise
    coastline/chrome; solar moved off amber so it no longer twins with geo gold. */
 const KIND = {
-  hydro: EN_ACCENT.glow,       // #22d3ee cyan
+  hydro: FUEL_COLORS.hydro,    // shared single source of truth (#0d9488 teal-green)
   geo: EN_ACCENT.gold,         // #F2B135 gold
   wind: FUEL_COLORS.wind,      // shared single source of truth (#7dd3fc light-sky)
   solar: EN_ACCENT.solar,      // #fb923c orange
@@ -317,7 +317,7 @@ export default function CRGridMap({ en }) {
       }}
     >
       <style>{`
-        @keyframes crmapFlow { to { stroke-dashoffset: -0.14; } }
+        @keyframes crmapFlow { to { stroke-dashoffset: 0.14; } }
         @keyframes crmapSweep { 0% { transform: translateX(-60%); } 100% { transform: translateX(160%); } }
         @keyframes crmapGrid { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
         @keyframes crmapPulse {

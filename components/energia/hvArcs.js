@@ -29,13 +29,13 @@ export const HV_ARCS = [
   { from: "North Sea Link", to: "United Kingdom", kind: "hvdc", mw: 1400, startLat: 59.00, startLng: 6.60, endLat: 55.01, endLng: -1.45 },
   { from: "NorNed", to: "Netherlands", kind: "hvdc", mw: 700, startLat: 58.00, startLng: 6.50, endLat: 53.22, endLng: 6.90 },
   { from: "IFA — Les Mandarins (FR)", to: "Sellindge (UK)", kind: "hvdc", mw: 2000, startLat: 50.94, startLng: 1.77, endLat: 51.08, endLng: 0.92 },
-  { from: "España (Tarifa)", to: "Marruecos (Boukhalef)", kind: "ac", mw: 900, startLat: 36.01, startLng: -5.60, endLat: 35.72, endLng: -5.90 },
+  { from: "España (Tarifa)", to: "Marruecos (Boukhalef)", kind: "ac", mw: 900, startLat: 36.01, startLng: -5.60, endLat: 35.58, endLng: -5.37 },
 
   // ── Asia / Africa / Oceania ──
   { from: "Three Gorges / Gezhouba corridor", to: "Shanghai", kind: "hvdc", mw: 7200, startLat: 30.82, startLng: 111.00, endLat: 31.23, endLng: 121.47 },
   { from: "Xiangjiaba", to: "Shanghai", kind: "hvdc", mw: 6400, startLat: 28.65, startLng: 104.40, endLat: 31.23, endLng: 121.47 },
   { from: "Changji", to: "Guquan (UHVDC)", kind: "hvdc", mw: 12000, startLat: 44.02, startLng: 87.30, endLat: 31.30, endLng: 118.10 },
-  { from: "Inga", to: "Kolwezi", kind: "hvdc", mw: 1100, startLat: -5.52, startLng: 13.62, endLat: -10.71, endLng: 25.47 },
+  { from: "Inga", to: "Kolwezi", kind: "hvdc", mw: 560, startLat: -5.52, startLng: 13.62, endLat: -10.71, endLng: 25.47 },
   { from: "Etiopía (Sodo)", to: "Kenia (Suswa)", kind: "ac", mw: 2000, startLat: 6.85, startLng: 37.76, endLat: -1.10, endLng: 36.42 },
   { from: "Basslink", to: "Victoria", kind: "hvdc", mw: 500, startLat: -41.16, startLng: 146.36, endLat: -38.15, endLng: 147.07 },
   { from: "Leyte (Ormoc)", to: "Naga (Cebu)", kind: "hvdc", mw: 440, startLat: 11.24, startLng: 124.89, endLat: 10.19, endLng: 123.75 },
