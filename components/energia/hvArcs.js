@@ -20,7 +20,7 @@ export const HV_ARCS = [
 
   // ── Americas — long-haul HVDC / major links ──
   { from: "Itaipú", to: "São Paulo", kind: "hvdc", mw: 6300, startLat: -25.41, startLng: -54.59, endLat: -23.55, endLng: -46.63 },
-  { from: "Rio Madeira", to: "São Paulo", kind: "hvdc", mw: 7100, startLat: -8.76, startLng: -63.90, endLat: -23.55, endLng: -46.63 },
+  { from: "Rio Madeira", to: "São Paulo", kind: "hvdc", mw: 6300, startLat: -8.76, startLng: -63.90, endLat: -23.55, endLng: -46.63 },
   { from: "Pacific DC Intertie", to: "Los Angeles", kind: "hvdc", mw: 3100, startLat: 45.60, startLng: -121.10, endLat: 34.05, endLng: -118.24 },
   { from: "Québec", to: "New England", kind: "hvdc", mw: 2000, startLat: 45.50, startLng: -73.57, endLat: 42.36, endLng: -71.06 },
   { from: "Nelson River (Bipoles I–III)", to: "Winnipeg", kind: "hvdc", mw: 3895, startLat: 56.37, startLng: -94.70, endLat: 49.90, endLng: -97.14 },

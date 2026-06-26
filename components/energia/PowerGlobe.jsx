@@ -601,7 +601,8 @@ export default function PowerGlobe({ en = false, compact = false }) {
           </span>
           {en ? "Altitude ≈ √MW (500 · 5k · ≥15k MW)" : "Altura ≈ √MW (500 · 5k · ≥15k MW)"}
         </span>
-        {/* Swatch heights now mirror ARC_STROKE_FN: SIEPAC 1.1 > HVDC 0.60 > AC 0.48 > Planned 0.30 (dashed). */}
+        {/* Swatch heights preserve the ARC_STROKE_FN ordinal hierarchy (SIEPAC > HVDC > AC > Planned)
+            but are amplified for legend legibility — not pixel-proportional to the on-globe strokes. */}
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           <span style={{ width: 22, height: 4, background: EN_ACCENT.gold, borderRadius: 1 }} /> SIEPAC
         </span>
@@ -618,7 +619,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
           <span style={{ width: 10, height: 10, transform: "rotate(45deg)", background: "rgba(255,255,255,0.9)", border: `1px solid ${EN_ACCENT.glow}`, boxShadow: `0 0 8px ${EN_ACCENT.glow}` }} /> {en ? "AI hub T1" : "Hub IA T1"}
         </span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-          <span style={{ width: 7, height: 7, transform: "rotate(45deg)", background: "rgba(255,255,255,0.9)", border: `1px solid ${EN_ACCENT.glow}` }} /> T2
+          <span style={{ width: 7, height: 7, transform: "rotate(45deg)", background: "rgba(255,255,255,0.9)", border: `1px solid ${EN_ACCENT.glow}` }} /> {en ? "AI hub T2" : "Hub IA T2"}
         </span>
       </div>
 
