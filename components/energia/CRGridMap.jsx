@@ -147,7 +147,9 @@ function useReducedMotion() {
 }
 
 export default function CRGridMap({ en }) {
-  const [active, setActive] = useState(null);
+  const [hoverActive, setHoverActive] = useState(null);
+  const [lockedActive, setLockedActive] = useState(null);
+  const active = lockedActive || hoverActive;
   const reduced = useReducedMotion();
 
   const rootRef = useRef(null);
@@ -289,8 +291,18 @@ export default function CRGridMap({ en }) {
     return () => { try { a.pause(); } catch {} };
   }, [active, reduced]);
 
-  const onEnter = useCallback((id) => setActive(id), []);
-  const onLeave = useCallback(() => setActive(null), []);
+  const onEnter = useCallback((id) => setHoverActive(id), []);
+  const onLeave = useCallback(() => setHoverActive(null), []);
+  // Click latches the card so a mobile tap doesn't collapse it via the
+  // immediate onBlur → setHoverActive(null) race that follows.
+  const onToggleLock = useCallback((id) => setLockedActive((a) => (a === id ? null : id)), []);
+  // Escape clears the locked card.
+  useEffect(() => {
+    if (!lockedActive) return;
+    const onKey = (e) => { if (e.key === "Escape") setLockedActive(null); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [lockedActive]);
 
   return (
     <div
@@ -538,7 +550,7 @@ export default function CRGridMap({ en }) {
             onMouseLeave={onLeave}
             onFocus={() => onEnter(n.id)}
             onBlur={onLeave}
-            onClick={() => setActive((a) => (a === n.id ? null : n.id))}
+            onClick={() => onToggleLock(n.id)}
             style={{
               position: "absolute", left: `${n.px}%`, top: `${n.py}%`,
               width: 44, height: 44, transform: "translate(-50%,-50%)", borderRadius: "50%",

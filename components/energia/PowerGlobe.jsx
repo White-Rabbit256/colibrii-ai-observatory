@@ -306,6 +306,9 @@ export default function PowerGlobe({ en = false, compact = false }) {
     const nm = txt(d.name, en), ct = txt(d.country, en);
     wrap.setAttribute("aria-label", `${nm}, ${ct}, ${d.tier === 1 ? (en ? "Tier 1 primary AI compute hub" : "Hub IA primario Tier 1") : (en ? "Tier 2 regional hub" : "Hub regional Tier 2")}${d.demandMw ? `, ~${d.demandMw} MW ${en ? "(est.)" : "(est.)"}` : ""}`);
     wrap.className = "pg-dc-btn";
+    // tabindex=-1 prevents these markers from becoming invisible focus traps
+    // inside the aria-hidden canvas wrapper (the visually-hidden <ul> below is the SR-accessible layer).
+    wrap.setAttribute("tabindex", "-1");
     wrap.style.cssText = "width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:none;";
     const dot = document.createElement("div");
     dot.style.cssText = `width:${s}px;height:${s}px;transform:rotate(45deg);background:rgba(255,255,255,.95);border:1px solid ${EN_ACCENT.glow};box-shadow:0 0 ${d.tier === 1 ? 12 : 7}px ${EN_ACCENT.glow};`;
@@ -407,6 +410,17 @@ export default function PowerGlobe({ en = false, compact = false }) {
           overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
         }
       `}</style>
+
+      {/* SR-accessible DC hub list — sits OUTSIDE the aria-hidden canvas wrapper so AT
+            can read what sighted users see on the globe. (The canvas markers are tabindex=-1.) */}
+      <ul className="pg-sr" aria-label={en ? "AI data-centre hubs shown on the globe" : "Hubs IA / centros de datos en el globo"}>
+        {dcs.map((d, i) => (
+          <li key={i}>
+            {txt(d.name, en)}, {txt(d.country, en)}, {d.tier === 1 ? (en ? "Tier 1 AI hub" : "Hub IA Tier 1") : (en ? "Tier 2 regional" : "Tier 2 regional")}
+            {d.demandMw ? ` · ~${d.demandMw} MW (est.)` : ""}
+          </li>
+        ))}
+      </ul>
 
       <figcaption id={descId} className="pg-sr">
         {en
