@@ -74,10 +74,10 @@ const ARC_COLOR_FN = (a) => a.kind === "siepac"
   : a.kind === "planned"
     ? ["#818cf8", "#a5b4fc"]   // EN_ACCENT.violet — no SIEPAC gold collision
     : a.kind === "ac"
-      ? ["#2dd4bf", "#5eead4"]  // teal, no collision with Wind emerald
+      ? ["#10b981", "#34d399"]  // emerald — R7+R8 panel majority: HVDC adjacency (arc-legend) > Wind adjacency (fuel chip)
       : ["#22d3ee", "#00B5A8"];
-// Differentiation by stroke width (color alone fails for deuteranopes): SIEPAC > HVDC > AC.
-const ARC_STROKE_FN = (a) => a.kind === "siepac" ? 1.1 : a.kind === "planned" ? 0.45 : a.kind === "ac" ? 0.30 : 0.60;
+// Differentiation by stroke width: SIEPAC (editorial anchor) > HVDC > AC > Planned (dashed).
+const ARC_STROKE_FN = (a) => a.kind === "siepac" ? 1.1 : a.kind === "planned" ? 0.30 : a.kind === "ac" ? 0.48 : 0.60;
 const ARC_ALT_FN = (a) => {
   const base = 0.05 + Math.min(0.17, (a.mw || 500) / 80000);
   // Kind-aware floor so editorially-central low-MW arcs (SIEPAC 300 MW, the
@@ -482,7 +482,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
         </div>
         <div style={{ marginTop: 4, fontFamily: MONO, fontSize: 11, color: "#fff" }}>
           {filteredCount.toLocaleString(en ? "en" : "es")} {en ? "of" : "de"} {total.toLocaleString(en ? "en" : "es")} {en ? "plants" : "plantas"}
-          <span style={{ color: "rgba(255,255,255,0.55)" }}> · {HV_ARCS.length} {en ? "interconnections" : "interconexiones"} · {DATACENTERS.length} {en ? "AI hubs" : "hubs IA"}</span>
+          <span style={{ color: "rgba(255,255,255,0.55)" }}> · {arcs.length} {en ? "interconnections" : "interconexiones"} · {dcs.length} {en ? "AI hubs" : "hubs IA"}</span>
           {status === "loading" && <span style={{ color: "rgba(255,255,255,0.55)" }}> · {en ? "loading…" : "cargando…"}</span>}
         </div>
 
@@ -585,7 +585,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
           <span style={{ width: 22, height: 2, background: EN_ACCENT.glow, borderRadius: 1 }} /> HVDC
         </span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-          <span style={{ width: 22, height: 2, background: "#2dd4bf", borderRadius: 1 }} /> {en ? "AC link" : "Enlace CA"}
+          <span style={{ width: 22, height: 2, background: EN_ACCENT.green, borderRadius: 1 }} /> {en ? "AC link" : "Enlace CA"}
         </span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           <span style={{ width: 22, height: 2, background: "transparent", borderTop: `2px dashed ${EN_ACCENT.violet}` }} /> {en ? "Planned" : "Planificado"}
