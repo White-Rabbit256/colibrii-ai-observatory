@@ -569,6 +569,17 @@ export function EnergiaDeep({ en = false }) {
             @keyframes energiaCue { 0%,100% { transform: translateY(0); opacity: 1; } 55% { transform: translateY(12px); opacity: 0.25; } }
             @keyframes energiaSwipe { 0%,100% { transform: translateX(-3px); } 50% { transform: translateX(3px); } }
             .energia-amendment-btn:focus-visible { outline: 2px solid ${EN_ACCENT.glow}; outline-offset: 2px; border-radius: 8px; }
+            .energia-skip {
+              position: absolute; left: 10px; top: -56px; z-index: 10;
+              background: ${EN_ACCENT.navy}; color: #fff;
+              padding: 12px 16px; border-radius: 8px;
+              font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+              border: 1px solid ${EN_ACCENT.glow}; min-height: 44px;
+              transition: top .15s; text-decoration: none;
+              display: inline-flex; align-items: center;
+            }
+            .energia-skip:focus { top: 10px; }
+            .energia-skip:focus-visible { outline: 2px solid ${EN_ACCENT.glow}; outline-offset: 2px; }
             @media (prefers-reduced-motion: reduce) { .energia-scroll-cue div { animation: none !important; } [style*="energiaSwipe"] { animation: none !important; } }
           `}</style>
         </div>
@@ -582,12 +593,7 @@ export function EnergiaDeep({ en = false }) {
       {/* ════ ATLAS GLOBAL DE GENERACIÓN — 3D ════ */}
       <ScrollReveal>
         <div style={{ marginTop: 16, aspectRatio: mode === "mobile3d" ? "4 / 5" : "16 / 9", width: "100%", position: "relative" }}>
-          <a href="#crGridMapAnchor"
-            style={{ position: "absolute", left: 10, top: -56, zIndex: 10, background: EN_ACCENT.navy, color: "#fff",
-              padding: "12px 16px", borderRadius: 8, fontFamily: "'IBM Plex Mono',monospace", fontSize: 12,
-              border: `1px solid ${EN_ACCENT.glow}`, minHeight: 44, transition: "top .15s", textDecoration: "none" }}
-            onFocus={(e) => { e.currentTarget.style.top = "10px"; }}
-            onBlur={(e) => { e.currentTarget.style.top = "-56px"; }}>
+          <a href="#crGridMapAnchor" className="energia-skip">
             {en ? "Skip to accessible Costa Rica map" : "Saltar al mapa accesible de Costa Rica"}
           </a>
           <PowerGlobe en={en} compact={mode === "mobile3d"} />

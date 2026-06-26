@@ -74,7 +74,7 @@ const ARC_COLOR_FN = (a) => a.kind === "siepac"
   : a.kind === "planned"
     ? ["#818cf8", "#a5b4fc"]   // EN_ACCENT.violet — no SIEPAC gold collision
     : a.kind === "ac"
-      ? ["#10b981", "#34d399"]
+      ? ["#2dd4bf", "#5eead4"]  // teal, no collision with Wind emerald
       : ["#22d3ee", "#00B5A8"];
 const ARC_STROKE_FN = (a) => a.kind === "siepac" ? 1.1 : a.kind === "planned" ? 0.45 : a.kind === "ac" ? 0.40 : 0.45;
 const ARC_ALT_FN = (a) => {
@@ -394,7 +394,9 @@ export default function PowerGlobe({ en = false, compact = false }) {
           : `Atlas global de generación: ${total.toLocaleString("es")} plantas de generación dimensionadas por capacidad instalada, ${HV_ARCS.length} interconexiones de alta tensión incluida la conexión SIEPAC para Costa Rica, ${DATACENTERS.length} hubs IA / centros de datos. El globo 3D es decorativo; el mapa accesible de la red de Costa Rica está en el Acto 4 abajo.`}
       </figcaption>
 
-      <div className="pg-sr" role="status" aria-live="polite" aria-atomic="true">{announce}</div>
+      <div className="pg-sr" role="status" aria-live="polite" aria-atomic="true">
+        {!anyOn ? (en ? "All plants hidden. Activate Show all to restore." : "Todas las plantas ocultas. Active Mostrar todas para restaurar.") : announce}
+      </div>
 
       {size.w > 0 && size.h > 0 && (
         <div aria-hidden="true" style={{ position: "absolute", inset: 0 }}>
@@ -563,7 +565,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
           <span style={{ width: 22, height: 2, background: EN_ACCENT.glow, borderRadius: 1 }} /> HVDC
         </span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-          <span style={{ width: 22, height: 2, background: EN_ACCENT.green, borderRadius: 1 }} /> {en ? "AC link" : "Enlace CA"}
+          <span style={{ width: 22, height: 2, background: "#2dd4bf", borderRadius: 1 }} /> {en ? "AC link" : "Enlace CA"}
         </span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           <span style={{ width: 22, height: 2, background: "transparent", borderTop: `2px dashed ${EN_ACCENT.violet}` }} /> {en ? "Planned" : "Planificado"}
@@ -579,19 +581,14 @@ export default function PowerGlobe({ en = false, compact = false }) {
       {/* Centered empty-state overlay (when all fuel chips are off).
             ARIA: keep the live-region status SEPARATE from the interactive button. */}
       {!anyOn && (
-        <>
-          <div className="pg-sr" role="status" aria-live="polite">
-            {en ? "All plants hidden. Activate Show all to restore." : "Todas las plantas ocultas. Active Mostrar todas para restaurar."}
+        <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", zIndex: 4, textAlign: "center", padding: "16px 22px", borderRadius: 12, background: `${EN_ACCENT.navy}e0`, border: `1px solid ${EN_ACCENT.glow}77`, backdropFilter: "blur(6px)" }}>
+          <div style={{ fontFamily: MONO, fontSize: 13, color: "#fff", marginBottom: 10 }}>
+            {en ? "Which source powers the world?" : "¿Qué fuente mueve al mundo?"}
           </div>
-          <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", zIndex: 4, textAlign: "center", padding: "16px 22px", borderRadius: 12, background: `${EN_ACCENT.navy}e0`, border: `1px solid ${EN_ACCENT.glow}77`, backdropFilter: "blur(6px)" }}>
-            <div style={{ fontFamily: MONO, fontSize: 13, color: "#fff", marginBottom: 10 }}>
-              {en ? "Which source powers the world?" : "¿Qué fuente mueve al mundo?"}
-            </div>
-            <button type="button" onClick={resetFilters} className="pg-btn pg-btn-on" aria-label={en ? "Show all technologies" : "Mostrar todas las tecnologías"}>
-              {en ? "Show all" : "Mostrar todas"}
-            </button>
-          </div>
-        </>
+          <button type="button" onClick={resetFilters} className="pg-btn pg-btn-on" aria-label={en ? "Show all technologies" : "Mostrar todas las tecnologías"}>
+            {en ? "Show all" : "Mostrar todas"}
+          </button>
+        </div>
       )}
 
       {/* ── Bottom: fuel chips + reset ── */}
