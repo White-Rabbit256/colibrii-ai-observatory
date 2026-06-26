@@ -13,7 +13,7 @@ import { DATACENTERS } from "./datacenters";
 import {
   FUEL_HEX, ARC_COLOR_FN, ARC_STROKE_FN, ARC_ALT_FN,
   ARC_DASH_LEN_FN, ARC_DASH_GAP_FN, ARC_DASH_ANIM_FN,
-  altOf, RING, DC_GLYPH, CR_HUB_GLYPH, DC_ALTITUDE,
+  altOf, RING, DC_GLYPH, CR_HUB_GLYPH, DC_ALTITUDE, DC_SCALE,
   SCENE, TIMING, FUEL_LEGEND, FUEL_ES, ARC_LEGEND_ORDER,
   ARC_KIND, KIND_LABEL,
 } from "./globeEncoding";
@@ -564,29 +564,43 @@ export default function PowerGlobe({ en = false, compact = false }) {
 
   // ── HTML element factories ──
   // makeCRHub declared first so makeDc can reference it safely
+  /* Phase 2 — dual-core diamond (gold outer + cyan inner) with a permanent
+     mono caption beneath. Only marker on the globe that carries its identity
+     visibly without focus=cr. */
   const makeCRHub = useCallback((d) => {
     const g   = CR_HUB_GLYPH;
     const nm  = txt(d.name,   en);
     const sub = txt(d.sub,    en);
     const det = txt(d.detail, en);
     const wrap = document.createElement("div");
-    wrap.className = "pg-dc-btn";
+    wrap.className = "pg-dc-btn pg-cr-hub";
     wrap.setAttribute("aria-hidden", "true");
     wrap.setAttribute("tabindex", "-1");
     wrap.title = nm;
-    wrap.style.cssText = "width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:none;";
-    const dot = document.createElement("div");
-    dot.style.cssText = `width:${g.size}px;height:${g.size}px;transform:${g.rotation};background:${g.background};border:${g.border};box-shadow:${g.boxShadow};transition:transform 120ms ease,box-shadow 120ms ease;`;
-    wrap.appendChild(dot);
+    wrap.style.cssText = "width:64px;height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:none;position:relative;";
+
+    const outer = document.createElement("div");
+    outer.style.cssText = `width:${g.outerSize}px;height:${g.outerSize}px;transform:${g.rotation};background:${g.outerBg};border:${g.border};box-shadow:${g.boxShadow};transition:transform 120ms ease,box-shadow 120ms ease;display:flex;align-items:center;justify-content:center;`;
+    const inner = document.createElement("div");
+    inner.style.cssText = `width:${g.innerSize}px;height:${g.innerSize}px;background:${g.innerBg};border-radius:50%;transform:rotate(-45deg);box-shadow:0 0 4px ${g.innerBg};`;
+    outer.appendChild(inner);
+    wrap.appendChild(outer);
+
+    const cap = document.createElement("div");
+    cap.style.cssText = `font-family:${MONO};font-size:9.5px;color:#fff;letter-spacing:0.8px;margin-top:6px;text-shadow:0 1px 4px rgba(0,0,0,0.95);white-space:nowrap;background:rgba(6,21,46,0.55);padding:2px 6px;border-radius:4px;border:1px solid ${EN_ACCENT.gold}66;text-align:center;line-height:1.2;`;
+    const capMain = en ? g.caption.en : g.caption.es;
+    const capSub  = en ? g.captionSub.en : g.captionSub.es;
+    cap.innerHTML = `<span>${capMain}</span><br><span style="color:rgba(255,255,255,0.7);font-size:8.5px;letter-spacing:0.6px;">${capSub}</span>`;
+    wrap.appendChild(cap);
+
     const show = () => hoverCb.current && hoverCb.current({ kind: "dc", name: nm, sub, detail: det });
     const hide = () => hoverCb.current && hoverCb.current(null);
-    const over = () => { dot.style.boxShadow = g.boxShadowHover; dot.style.transform = `${g.rotation} scale(1.25)`; show(); };
-    const out  = () => { dot.style.boxShadow = g.boxShadow; dot.style.transform = g.rotation; hide(); };
+    const over = () => { outer.style.boxShadow = g.boxShadowHover; outer.style.transform = `${g.rotation} scale(1.20)`; show(); };
+    const out  = () => { outer.style.boxShadow = g.boxShadow; outer.style.transform = g.rotation; hide(); };
     wrap.addEventListener("pointerenter", over);
     wrap.addEventListener("pointerleave", out);
     wrap.addEventListener("focus", show);
     wrap.addEventListener("blur",  hide);
-    // Click scrolls to act 5 (CR Info Panel CTA target)
     wrap.addEventListener("click", () => {
       document.getElementById("energia-act-5")?.scrollIntoView({
         behavior: reduced ? "instant" : "smooth",
@@ -596,33 +610,80 @@ export default function PowerGlobe({ en = false, compact = false }) {
     return wrap;
   }, [en, reduced]);
 
+  /* Phase 2 — continuous MW-scaled DC glyph: radius √(demandMw)/4 clamped 8–24px,
+     soft halo opacity scaled with MW, AI-scale gold ring at >=700 MW, top-5
+     hubs get an always-on MW badge (NoVA · 4.5 GW · est.). Addresses
+     Audit #3 "data exists, encoding is binary". */
   const makeDc = useCallback((d) => {
     if (d.kind === "siepac-hub") return makeCRHub(d);
-    const g = DC_GLYPH[d.tier] ?? DC_GLYPH[2];
-    const nm = txt(d.name, en), ct = txt(d.country, en);
+    const mw      = d.demandMw || 100;
+    const size    = DC_SCALE.size(mw);
+    const halo    = DC_SCALE.halo(mw);
+    const haloA   = DC_SCALE.haloA(mw);
+    const aiScale = DC_SCALE.aiScale(mw);
+    const nm      = txt(d.name, en);
+    const ct      = txt(d.country, en);
+    const enName  = typeof d.name === "object" ? (d.name.en || d.name.es) : d.name;
+    const isTop5  = DC_SCALE.topNames.has(enName);
+    const wrapW   = Math.max(44, halo + 8);
+
     const wrap = document.createElement("div");
     wrap.className = "pg-dc-btn";
     wrap.setAttribute("aria-hidden", "true");
     wrap.setAttribute("tabindex", "-1");
-    wrap.title = `${nm} — ${ct}`;
-    wrap.style.cssText = "width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:none;";
+    wrap.title = `${nm} — ${ct} · ~${mw.toLocaleString(en ? "en" : "es")} MW (est.)`;
+    wrap.style.cssText = `width:${wrapW}px;height:${wrapW}px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:none;position:relative;`;
+
+    const haloEl = document.createElement("div");
+    haloEl.style.cssText = `position:absolute;width:${halo}px;height:${halo}px;border-radius:50%;background:radial-gradient(circle, rgba(34,211,238,${haloA.toFixed(2)}) 0%, rgba(34,211,238,0) 70%);pointer-events:none;`;
+    wrap.appendChild(haloEl);
+
+    if (aiScale) {
+      const ring = document.createElement("div");
+      ring.style.cssText = `position:absolute;width:${size + 8}px;height:${size + 8}px;border-radius:50%;border:1.5px solid ${EN_ACCENT.gold};box-shadow:0 0 10px ${EN_ACCENT.gold}88;pointer-events:none;`;
+      wrap.appendChild(ring);
+    }
+
     const dot = document.createElement("div");
-    dot.style.cssText = `width:${g.size}px;height:${g.size}px;transform:${g.rotation};background:${g.background};border:${g.border};box-shadow:${g.boxShadow};transition:transform 120ms ease,box-shadow 120ms ease;`;
+    dot.style.cssText = `width:${size}px;height:${size}px;transform:rotate(45deg);background:rgba(255,255,255,0.95);border:1px solid ${EN_ACCENT.glow};box-shadow:0 0 ${Math.round(halo / 2)}px ${EN_ACCENT.glow};transition:transform 120ms ease,box-shadow 120ms ease;`;
     wrap.appendChild(dot);
+
+    if (isTop5 && !compact) {
+      const tag = document.createElement("div");
+      tag.style.cssText = `position:absolute;left:${(halo / 2) + 8}px;top:50%;transform:translateY(-50%);font-family:${MONO};font-size:9.5px;letter-spacing:0.3px;color:rgba(255,255,255,0.95);background:rgba(10,31,63,0.78);padding:2px 6px;border-radius:4px;border:1px solid ${EN_ACCENT.glow}66;white-space:nowrap;pointer-events:none;text-shadow:0 1px 4px rgba(0,0,0,0.85);`;
+      const mwTxt = mw >= 1000 ? `${(mw / 1000).toFixed(1)} GW` : `${mw} MW`;
+      const displayName = typeof d.name === "object" ? (en ? d.name.en : d.name.es) : d.name;
+      const shortName = DC_SCALE.topNameShort[displayName] || displayName;
+      tag.textContent = `${shortName} · ${mwTxt} · est.`;
+      wrap.appendChild(tag);
+    }
+
     const show = () => hoverCb.current && hoverCb.current({
-      kind: "dc", name: nm, sub: ct,
-      detail: d.tier === 1 ? (en ? "Tier 1 · AI hub" : "Tier 1 · hub IA") : "Tier 2 · regional",
-      mw: d.demandMw,
+      kind: "dc",
+      name: nm,
+      sub: ct,
+      detail: aiScale
+        ? (en ? "AI-scale buyer" : "Hub a escala IA")
+        : (en ? "Regional hub" : "Hub regional"),
+      mw,
     });
     const hide = () => hoverCb.current && hoverCb.current(null);
-    const over = () => { dot.style.boxShadow = `0 0 ${d.tier === 1 ? 22 : 14}px ${EN_ACCENT.glow}`; dot.style.transform = `${g.rotation} scale(1.25)`; show(); };
-    const out  = () => { dot.style.boxShadow = g.boxShadow; dot.style.transform = g.rotation; hide(); };
+    const over = () => {
+      dot.style.transform = "rotate(45deg) scale(1.25)";
+      dot.style.boxShadow = `0 0 ${halo}px ${EN_ACCENT.glow}`;
+      show();
+    };
+    const out = () => {
+      dot.style.transform = "rotate(45deg)";
+      dot.style.boxShadow = `0 0 ${Math.round(halo / 2)}px ${EN_ACCENT.glow}`;
+      hide();
+    };
     wrap.addEventListener("pointerenter", over);
     wrap.addEventListener("pointerleave", out);
     wrap.addEventListener("focus", show);
     wrap.addEventListener("blur",  hide);
     return wrap;
-  }, [en, makeCRHub]);
+  }, [en, compact, makeCRHub]);
 
   // ── Toggle helpers ──
   const toggleFuel  = useCallback((k) => setFilters((f) => ({ ...f, [k]: !f[k] })), []);
@@ -761,6 +822,19 @@ export default function PowerGlobe({ en = false, compact = false }) {
       <div className="pg-sr" role="status" aria-live="polite" aria-atomic="true">
         {liveMsg}
       </div>
+
+      {/* ── Phase 2 · CSS-only bloom + warm-cool fringe overlay ──
+           The WebGL renderer is owned by react-globe.gl (no UnrealBloomPass
+           without conflicting with its rAF loop). Instead, a radial-gradient
+           ring fakes a soft inner bloom around the planet rim, and a warm
+           lower-third tint breaks the navy-on-navy block the audit called
+           out. Both layers are pointer-events:none so they don't intercept
+           drag/zoom. */}
+      <div aria-hidden="true" style={{
+        position: "absolute", inset: 0, pointerEvents: "none", zIndex: 1,
+        background: `radial-gradient(circle at 50% 50%, transparent 36%, rgba(34,211,238,0.04) 52%, transparent 62%), linear-gradient(180deg, transparent 60%, rgba(242,177,53,0.04) 100%)`,
+        mixBlendMode: "screen",
+      }} />
 
       {/* ── Globe canvas (aria-hidden — all SR content is above) ── */}
       <div aria-hidden="true" style={{ position: "absolute", inset: 0 }}>

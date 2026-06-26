@@ -121,14 +121,39 @@ export const DC_GLYPH = {
 };
 export const DC_ALTITUDE = 0.04;
 
-// ── 6. CR HUB MARKER (Cañas SIEPAC anchor) ──
+/* Phase 2 — Cañas SIEPAC anchor. The only marker on the globe with TWO core
+   colors: gold outer + cyan inner, plus a permanent mono caption underneath.
+   The SIEPAC anchor and Expediente 23.414 are now readable without needing
+   focus=cr. Backward-compat aliases (size, background) kept for any older
+   code path that reads them. */
 export const CR_HUB_GLYPH = {
-  size:           14,
-  background:     EN_ACCENT.gold, // #F2B135
+  outerSize:      22,
+  innerSize:      6,
+  outerBg:        EN_ACCENT.gold,   // #F2B135
+  innerBg:        EN_ACCENT.glow,   // #22d3ee
   border:         "2px solid #ffffff",
-  boxShadow:      `0 0 16px ${EN_ACCENT.gold}88, 0 0 6px ${EN_ACCENT.gold}`,
-  boxShadowHover: `0 0 28px ${EN_ACCENT.gold}cc, 0 0 10px ${EN_ACCENT.gold}`,
+  boxShadow:      `0 0 24px ${EN_ACCENT.gold}aa, 0 0 8px ${EN_ACCENT.gold}`,
+  boxShadowHover: `0 0 36px ${EN_ACCENT.gold}, 0 0 14px ${EN_ACCENT.gold}`,
   rotation:       "rotate(45deg)",
+  caption:    { es: "CAÑAS · NODO SIEPAC", en: "CAÑAS · SIEPAC ANCHOR" },
+  captionSub: { es: "Exp. 23.414",         en: "Bill 23.414" },
+  // Phase 1 compatibility aliases
+  size:           22,
+  background:     EN_ACCENT.gold,
+};
+
+/* Phase 2 — Continuous MW-scaled DC glyph (replaces binary tier rendering).
+   Used by PowerGlobe makeDc to size diamonds + halos proportional to demand.
+   AI-scale threshold (>=700 MW) gets a gold ring + slow pulse. */
+export const DC_SCALE = {
+  size:    (mw) => Math.max(8,  Math.min(24, Math.sqrt(mw || 100) / 4)),
+  halo:    (mw) => Math.max(14, Math.min(40, Math.sqrt(mw || 100) / 2.2)),
+  haloA:   (mw) => 0.18 + Math.min(0.32, (mw || 0) / 12000),
+  aiScale: (mw) => (mw || 0) >= 700,
+  topNames: new Set([
+    "Northern Virginia", "Phoenix", "Singapore", "Frankfurt", "London",
+  ]),
+  topNameShort: { "Northern Virginia": "NoVA", "Santa Clara / Silicon Valley": "SV" },
 };
 
 // ── 7. SCENE CONSTANTS ──
