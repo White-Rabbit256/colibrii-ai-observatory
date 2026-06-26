@@ -10,6 +10,7 @@ import { PLANTS_GEO } from "./crGeo";
 import { EN_ACCENT, SRC } from "../energiaData";
 import { HV_ARCS } from "./hvArcs";
 import { DATACENTERS } from "./datacenters";
+import { STORAGE_SITES } from "./storage";
 import {
   FUEL_HEX, ARC_COLOR_FN, ARC_STROKE_FN, ARC_ALT_FN,
   ARC_DASH_LEN_FN, ARC_DASH_GAP_FN, ARC_DASH_ANIM_FN,
@@ -171,7 +172,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
   const [plants,              setPlants]              = useState(null);
   const [status,              setStatus]              = useState("idle");
   const [filters,             setFilters]             = useState(() => Object.fromEntries(FUEL_LEGEND.map((k) => [k, true])));
-  const [layers,              setLayers]              = useState({ plants: true, grid: true, hubs: true });
+  const [layers,              setLayers]              = useState({ plants: true, grid: true, hubs: true, storage: true });
   const [layersOpen,          setLayersOpen]          = useState(false);
   const [encOpen,             setEncOpen]             = useState(false);
   const [focus,               setFocus]               = useState("global");
@@ -339,8 +340,20 @@ export default function PowerGlobe({ en = false, compact = false }) {
 
   const arcs    = useMemo(() => (layers.grid  ? HV_ARCS    : []), [layers.grid]);
   const dcsBase = useMemo(() => (layers.hubs  ? DATACENTERS: []), [layers.hubs]);
-  // Inject Cañas hub into the HTML-elements layer (it renders as a SIEPAC gold diamond)
-  const htmlData = useMemo(() => (layers.hubs ? [...dcsBase, CANAS_HUB] : [CANAS_HUB]), [dcsBase, layers.hubs]);
+  // Phase 2 · Storage layer — 38 utility-scale battery sites tagged with kind:"storage"
+  // so makeDc dispatches to the ring-glyph factory. Top 20 by MW on mobile to keep
+  // marker count tractable on the 4:5 canvas.
+  const storageData = useMemo(() => {
+    if (!layers.storage) return [];
+    const sorted = STORAGE_SITES.slice().sort((a, b) => (b.mw || 0) - (a.mw || 0));
+    const limited = compact ? sorted.slice(0, 20) : sorted;
+    return limited.map((s) => ({ ...s, kind: "storage" }));
+  }, [layers.storage, compact]);
+  // Inject Cañas hub + storage sites into the HTML-elements layer
+  const htmlData = useMemo(() => {
+    const base = layers.hubs ? [...dcsBase, CANAS_HUB] : [CANAS_HUB];
+    return [...base, ...storageData];
+  }, [dcsBase, layers.hubs, storageData]);
 
   const ringCfg = RING.focus[focus] ?? RING.focus.global;
   const ringsData = useMemo(() => {
@@ -610,12 +623,82 @@ export default function PowerGlobe({ en = false, compact = false }) {
     return wrap;
   }, [en, reduced]);
 
+  /* Phase 2 — Storage site factory. Renders as a double-ring SVG glyph (outer
+     storage-blue + inner chemistry-tinted) so it reads as distinct from both
+     fuel cylinders and DC diamonds. Size scales √(MW) clamped 8-22px.
+     PHS gets a dashed outer ring; announced status drops opacity to 0.3. */
+  const STORAGE_CHEM_HEX = {
+    li: "#60a5fa", flow: "#06b6d4", phs: "#3b82f6", caes: "#94a3b8", thermal: "#f97316", other: "#94a3b8",
+  };
+  const makeStorage = useCallback((d) => {
+    const mw = d.mw || 100;
+    const size = Math.max(8, Math.min(22, 8 + Math.sqrt(mw) * 0.4));
+    const innerC = STORAGE_CHEM_HEX[d.chem] || STORAGE_CHEM_HEX.other;
+    const outerC = "#60a5fa";
+    const op = { op: 1.0, con: 0.55, ann: 0.30 }[d.status] ?? 1.0;
+    const isDashed = d.chem === "phs" || d.status === "ann";
+    const nm = txt(d.name, en), ct = txt(d.country, en);
+    const mwTxt = mw >= 1000 ? `${(mw / 1000).toFixed(1)} GW` : `${mw} MW`;
+    const mwhTxt = d.mwh > 0 ? ` · ${d.mwh.toLocaleString(en ? "en" : "es")} MWh` : "";
+
+    const wrap = document.createElement("div");
+    wrap.className = "pg-st-btn";
+    wrap.setAttribute("aria-hidden", "true");
+    wrap.setAttribute("tabindex", "-1");
+    wrap.title = `${nm} — ${ct} · ${mwTxt}${mwhTxt}`;
+    wrap.style.cssText = `width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:none;`;
+
+    const SVGNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(SVGNS, "svg");
+    svg.setAttribute("width", String(size));
+    svg.setAttribute("height", String(size));
+    svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
+    svg.style.cssText = `overflow:visible;opacity:${op};transition:transform 140ms ease,filter 140ms ease;filter:drop-shadow(0 0 6px ${outerC}55);`;
+    const cx = size / 2, cy = size / 2;
+    const rOuter = (size / 2) - 0.75;
+    const rInner = Math.max(2, rOuter - 2.5);
+    const outer = document.createElementNS(SVGNS, "circle");
+    outer.setAttribute("cx", String(cx));
+    outer.setAttribute("cy", String(cy));
+    outer.setAttribute("r", String(rOuter));
+    outer.setAttribute("fill", "none");
+    outer.setAttribute("stroke", outerC);
+    outer.setAttribute("stroke-width", "1.5");
+    if (isDashed) outer.setAttribute("stroke-dasharray", d.chem === "phs" ? "4 3" : "2 2");
+    const inner = document.createElementNS(SVGNS, "circle");
+    inner.setAttribute("cx", String(cx));
+    inner.setAttribute("cy", String(cy));
+    inner.setAttribute("r", String(rInner));
+    inner.setAttribute("fill", "none");
+    inner.setAttribute("stroke", innerC);
+    inner.setAttribute("stroke-width", "2");
+    svg.appendChild(outer);
+    svg.appendChild(inner);
+    wrap.appendChild(svg);
+
+    const chemLabel = { li: "Li-ion", flow: "Flow", phs: "PHS", caes: "CAES", thermal: "Thermal", other: "Other" }[d.chem] || "Battery";
+    const statusLabel = { op: en ? "Operating" : "En operación", con: en ? "Construction" : "Construcción", ann: en ? "Announced" : "Anunciada" }[d.status] || "";
+    const show = () => hoverCb.current && hoverCb.current({
+      kind: "storage", name: nm, sub: `${ct} · ${chemLabel} · ${statusLabel}`,
+      detail: `${mwTxt}${mwhTxt} · ${d.comYear}`,
+    });
+    const hide = () => hoverCb.current && hoverCb.current(null);
+    const over = () => { svg.style.transform = "scale(1.30)"; svg.style.filter = `drop-shadow(0 0 14px ${outerC}cc)`; show(); };
+    const out = () => { svg.style.transform = "scale(1)"; svg.style.filter = `drop-shadow(0 0 6px ${outerC}55)`; hide(); };
+    wrap.addEventListener("pointerenter", over);
+    wrap.addEventListener("pointerleave", out);
+    wrap.addEventListener("focus", show);
+    wrap.addEventListener("blur", hide);
+    return wrap;
+  }, [en]);
+
   /* Phase 2 — continuous MW-scaled DC glyph: radius √(demandMw)/4 clamped 8–24px,
      soft halo opacity scaled with MW, AI-scale gold ring at >=700 MW, top-5
      hubs get an always-on MW badge (NoVA · 4.5 GW · est.). Addresses
      Audit #3 "data exists, encoding is binary". */
   const makeDc = useCallback((d) => {
     if (d.kind === "siepac-hub") return makeCRHub(d);
+    if (d.kind === "storage")    return makeStorage(d);
     const mw      = d.demandMw || 100;
     const size    = DC_SCALE.size(mw);
     const halo    = DC_SCALE.halo(mw);
@@ -683,7 +766,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
     wrap.addEventListener("focus", show);
     wrap.addEventListener("blur",  hide);
     return wrap;
-  }, [en, compact, makeCRHub]);
+  }, [en, compact, makeCRHub, makeStorage]);
 
   // ── Toggle helpers ──
   const toggleFuel  = useCallback((k) => setFilters((f) => ({ ...f, [k]: !f[k] })), []);
