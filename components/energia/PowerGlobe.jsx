@@ -296,12 +296,38 @@ export default function PowerGlobe({ en = false, compact = false }) {
   const onArcHover = useCallback((a) => {
     if (!a) { setHover(null); return; }
     const to = txt(a.to, en);
-    // suppress "Colombia (planificado) · PLANIFICADO" tautology — the 'to' label already says planned.
+    // Suppress tautology "Colombia (planificado) · PLANIFICADO" — the 'to' already says planned.
     const showLabel = !(a.kind === "planned" && typeof a.to === "object");
     const label = showLabel ? ((KIND_LABEL[a.kind] && (en ? KIND_LABEL[a.kind].en : KIND_LABEL[a.kind].es)) || a.kind) : "";
-    const illus = en ? " · illustrative" : " · ilustrativo";
-    setHover({ kind: "arc", name: `${a.from} → ${to}`, sub: `${(a.mw || 0).toLocaleString(en ? "en" : "es")} MW${label ? " · " + label : ""}${illus}` });
+    // Operating corridors get "coords aprox."; only planned corridors get "ilustrativo".
+    const qual = a.kind === "planned"
+      ? (en ? " · illustrative" : " · ilustrativo")
+      : (en ? " · coords approx." : " · coords aprox.");
+    setHover({ kind: "arc", name: `${a.from} → ${to}`, sub: `${(a.mw || 0).toLocaleString(en ? "en" : "es")} MW${label ? " · " + label : ""}${qual}` });
   }, [en]);
+
+  // Touch tap on arc latches the tooltip (react-globe.gl onArcHover misses touch).
+  const onArcClick = useCallback((a) => {
+    if (!a) { setHover(null); return; }
+    const to = txt(a.to, en);
+    const showLabel = !(a.kind === "planned" && typeof a.to === "object");
+    const label = showLabel ? ((KIND_LABEL[a.kind] && (en ? KIND_LABEL[a.kind].en : KIND_LABEL[a.kind].es)) || a.kind) : "";
+    const qual = a.kind === "planned" ? (en ? " · illustrative" : " · ilustrativo") : (en ? " · coords approx." : " · coords aprox.");
+    setHover({ kind: "arc", name: `${a.from} → ${to}`, sub: `${(a.mw || 0).toLocaleString(en ? "en" : "es")} MW${label ? " · " + label : ""}${qual}` });
+  }, [en]);
+
+  // Escape closes layer + encoding popovers; outside-pointer dismisses too.
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") { setLayersOpen(false); setEncOpen(false); } };
+    const onPointer = (e) => {
+      if (!wrapRef.current) return;
+      // Close popovers if click lands outside the globe wrapper.
+      if (!wrapRef.current.contains(e.target)) { setLayersOpen(false); setEncOpen(false); }
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onPointer);
+    return () => { document.removeEventListener("keydown", onKey); document.removeEventListener("pointerdown", onPointer); };
+  }, []);
 
   const arcDashAnim = useCallback((a) => {
     if (reduced) return 0;
@@ -354,8 +380,6 @@ export default function PowerGlobe({ en = false, compact = false }) {
         }
       `}</style>
 
-      <a href="#crGridMapAnchor" className="pg-skip">{en ? "Skip to accessible Costa Rica map" : "Saltar al mapa accesible de Costa Rica"}</a>
-
       <figcaption id={descId} className="pg-sr">
         {en
           ? `Global generation atlas: ${total.toLocaleString("en")} power plants sized by installed capacity, ${HV_ARCS.length} major high-voltage interconnections including the SIEPAC tie-in for Costa Rica, ${DATACENTERS.length} AI / data-centre hubs. The 3D globe is decorative; the keyboard-accessible Costa Rica grid map is in Act 4 below.`
@@ -398,6 +422,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
             arcDashAnimateTime={arcDashAnim}
             arcsTransitionDuration={0}
             onArcHover={onArcHover}
+            onArcClick={onArcClick}
             htmlElementsData={dcs}
             htmlLat="lat" htmlLng="lng"
             htmlAltitude={0.04}
@@ -507,8 +532,9 @@ export default function PowerGlobe({ en = false, compact = false }) {
             On compact, collapsed into a tappable "i" popover to free the bottom zone. */}
       {compact && (
         <button type="button" onClick={() => setEncOpen((v) => !v)} aria-expanded={encOpen} aria-controls="pg-enc"
+          aria-label={en ? "Toggle encoding legend" : "Mostrar leyenda de codificación"}
           className="pg-btn"
-          style={{ position: "absolute", right: 14, bottom: 70, zIndex: 4, fontSize: 13 }}>
+          style={{ position: "absolute", right: 14, bottom: 70, zIndex: 4, fontSize: 13, width: 44, height: 44 }}>
           i
         </button>
       )}
@@ -542,16 +568,22 @@ export default function PowerGlobe({ en = false, compact = false }) {
         </span>
       </div>
 
-      {/* Centered empty-state overlay (when all fuel chips are off) */}
+      {/* Centered empty-state overlay (when all fuel chips are off).
+            ARIA: keep the live-region status SEPARATE from the interactive button. */}
       {!anyOn && (
-        <div role="status" style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", zIndex: 4, textAlign: "center", padding: "16px 22px", borderRadius: 12, background: `${EN_ACCENT.navy}e0`, border: `1px solid ${EN_ACCENT.glow}77`, backdropFilter: "blur(6px)" }}>
-          <div style={{ fontFamily: MONO, fontSize: 13, color: "#fff", marginBottom: 10 }}>
-            {en ? "Which source powers the world?" : "¿Qué fuente mueve al mundo?"}
+        <>
+          <div className="pg-sr" role="status" aria-live="polite">
+            {en ? "All plants hidden. Activate Show all to restore." : "Todas las plantas ocultas. Active Mostrar todas para restaurar."}
           </div>
-          <button type="button" onClick={resetFilters} className="pg-btn pg-btn-on" aria-label={en ? "Show all technologies" : "Mostrar todas las tecnologías"}>
-            {en ? "Show all" : "Mostrar todas"}
-          </button>
-        </div>
+          <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", zIndex: 4, textAlign: "center", padding: "16px 22px", borderRadius: 12, background: `${EN_ACCENT.navy}e0`, border: `1px solid ${EN_ACCENT.glow}77`, backdropFilter: "blur(6px)" }}>
+            <div style={{ fontFamily: MONO, fontSize: 13, color: "#fff", marginBottom: 10 }}>
+              {en ? "Which source powers the world?" : "¿Qué fuente mueve al mundo?"}
+            </div>
+            <button type="button" onClick={resetFilters} className="pg-btn pg-btn-on" aria-label={en ? "Show all technologies" : "Mostrar todas las tecnologías"}>
+              {en ? "Show all" : "Mostrar todas"}
+            </button>
+          </div>
+        </>
       )}
 
       {/* ── Bottom: fuel chips + reset ── */}

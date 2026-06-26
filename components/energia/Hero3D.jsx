@@ -3,7 +3,8 @@ import { useRef, useMemo, useState, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { animate } from "animejs";
-import * as THREE from "three";
+import { AdditiveBlending, CanvasTexture, Color, DoubleSide, EdgesGeometry, ExtrudeGeometry, MathUtils, QuadraticBezierCurve3, Shape, TubeGeometry, Vector3 } from "three";
+const THREE = { AdditiveBlending, CanvasTexture, Color, DoubleSide, EdgesGeometry, ExtrudeGeometry, MathUtils, QuadraticBezierCurve3, Shape, TubeGeometry, Vector3 };
 import { CR_OUTLINE_GEO, CR_BBOX, PLANTS_GEO } from "./crGeo";
 import { EN_ACCENT } from "../energiaData";
 

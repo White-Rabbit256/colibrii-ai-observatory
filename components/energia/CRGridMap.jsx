@@ -303,7 +303,7 @@ export default function CRGridMap({ en }) {
       }}
     >
       <style>{`
-        @keyframes crmapFlow { to { stroke-dashoffset: -1px; } }
+        @keyframes crmapFlow { to { stroke-dashoffset: -0.14; } }
         @keyframes crmapSweep { 0% { transform: translateX(-60%); } 100% { transform: translateX(160%); } }
         @keyframes crmapGrid { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
         @keyframes crmapPulse {

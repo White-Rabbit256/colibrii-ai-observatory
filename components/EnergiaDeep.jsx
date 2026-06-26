@@ -579,7 +579,15 @@ export function EnergiaDeep({ en = false }) {
 
       {/* ════ ATLAS GLOBAL DE GENERACIÓN — 3D ════ */}
       <ScrollReveal>
-        <div style={{ marginTop: 16, aspectRatio: mode === "mobile3d" ? "4 / 5" : "16 / 9", width: "100%" }}>
+        <div style={{ marginTop: 16, aspectRatio: mode === "mobile3d" ? "4 / 5" : "16 / 9", width: "100%", position: "relative" }}>
+          <a href="#crGridMapAnchor"
+            style={{ position: "absolute", left: 10, top: -56, zIndex: 10, background: EN_ACCENT.navy, color: "#fff",
+              padding: "12px 16px", borderRadius: 8, fontFamily: "'IBM Plex Mono',monospace", fontSize: 12,
+              border: `1px solid ${EN_ACCENT.glow}`, minHeight: 44, transition: "top .15s", textDecoration: "none" }}
+            onFocus={(e) => { e.currentTarget.style.top = "10px"; }}
+            onBlur={(e) => { e.currentTarget.style.top = "-56px"; }}>
+            {en ? "Skip to accessible Costa Rica map" : "Saltar al mapa accesible de Costa Rica"}
+          </a>
           <PowerGlobe en={en} compact={mode === "mobile3d"} />
           <p style={{ fontSize: 12, color: "rgba(241,245,249,0.72)", lineHeight: 1.6, marginTop: 10 }}>
             {en ? (
