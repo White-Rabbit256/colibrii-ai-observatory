@@ -88,7 +88,9 @@ const MARQUEE = [...LANDMARKS, ...CR_MARQUEE];
 // ── Cañas SIEPAC hub marker (separate from DATACENTERS — dispatched via kind)
 const CANAS_HUB = {
   kind: "siepac-hub",
-  lat: 10.27, lng: -85.07,
+  // Phase 2 (R3 consensus): aligned to ICE Subestación Cañas / crGeo.js Cañas
+  // canton centroid (10.43°N, 85.09°W). Prior 10.27/-85.07 was 18 km south.
+  lat: 10.43, lng: -85.09,
   name: { es: "Cañas · Nodo SIEPAC", en: "Cañas · SIEPAC Hub" },
   sub:  { es: "Punto de acoplamiento ICE–MER · 230 kV · 300 MW/seg.", en: "ICE–MER coupling point · 230 kV · 300 MW/seg." },
   detail: { es: "Expediente 23.414 — la reforma en juego", en: "Expediente 23.414 — the reform at stake" },
@@ -122,6 +124,11 @@ const txt = (v, en) => {
 // ── installLights helper (extracted so context-restore can re-run it) ──
 function installLights(g, reduced, lightsRef) {
   if (lightsRef.current) return;
+  // Phase 2 (R3 consensus): clear globe.gl's default lights (AmbientLight
+  // 0xcccccc·π + DirectionalLight 0xffffff·0.6π) before injecting the
+  // cinematic rig — otherwise the neutral defaults outweigh our brand
+  // hues by ~10× and the day/night terminator renders flat.
+  try { g.lights([]); } catch {}
   const scene = g.scene();
   if (reduced) {
     // Reduced motion: single bright ambient for legibility
@@ -1357,7 +1364,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
           ═══════════════════════════ */}
       <div style={{
         position: "absolute",
-        bottom: compact ? 100 : 96,
+        bottom: compact ? 150 : 96,
         left: 14, right: 14, zIndex: 3,
         fontFamily: MONO, fontSize: 10, letterSpacing: 0.3,
         color: "rgba(255,255,255,0.78)",

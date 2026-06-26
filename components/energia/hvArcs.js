@@ -42,7 +42,8 @@ export const HV_ARCS = [
     kind: "siepac",
     mw: 300,
     label: { es: "CR → PA · 300 MW · 230 kV", en: "CR → PA · 300 MW · 230 kV" },
-    startLat: 10.27, startLng: -85.07,
+    // R3 fix: ICE Subestación Cañas (10.43, -85.09), aligned with crGeo.js
+    startLat: 10.43, startLng: -85.09,
     endLat:    7.97, endLng:  -80.38,
   },
   // Cañas (Costa Rica) → Managua (Nicaragua): SIEPAC segment
@@ -54,7 +55,8 @@ export const HV_ARCS = [
     kind: "siepac",
     mw: 300,
     label: { es: "CR → NI · 300 MW · 230 kV", en: "CR → NI · 300 MW · 230 kV" },
-    startLat: 10.27, startLng: -85.07,
+    // R3 fix: ICE Subestación Cañas (10.43, -85.09), aligned with crGeo.js
+    startLat: 10.43, startLng: -85.09,
     endLat:   12.13, endLng:  -86.25,
   },
   // Managua (Nicaragua) → Tegucigalpa (Honduras): SIEPAC segment

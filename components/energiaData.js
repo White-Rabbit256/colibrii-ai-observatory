@@ -109,7 +109,12 @@ export const SRC = {
   cc_by_4: { name: "Creative Commons Attribution 4.0 International", url: "https://creativecommons.org/licenses/by/4.0/", date: "2026-06" },
   entsoe: { name: "ENTSO-E — Statistical Factsheet (interconexiones)", url: "https://www.entsoe.eu/publications/statistics-and-data/", date: "2026-06" },
   iea_wgo: { name: "IEA — World Energy Outlook (Annex A, grid)", url: "https://www.iea.org/reports/world-energy-outlook-2024", date: "2026-06" },
-  epr: { name: "EOR/CRIE — Ente Operador Regional del SIEPAC", url: "https://www.enteoperador.org/siepac/", date: "2026-06" },
+  // R3 (consensus): EOR (Ente Operador Regional) is the SIEPAC dispatch/coordination
+  // body; EPR (Empresa Propietaria de la Red) is the line-ownership / 230 kV / 300 MW
+  // operator. CRIE is the regulator (crie.org.gt). Previously these were conflated
+  // under a single 'epr' key — three legally distinct bodies under the Tratado Marco.
+  eor: { name: "EOR — Ente Operador Regional del SIEPAC (dispatch)", url: "https://www.enteoperador.org/", date: "2026-06" },
+  epr: { name: "EPR — Empresa Propietaria de la Red SIEPAC (230 kV line)", url: "https://eprsiepac.com/", date: "2026-06" },
   three_globe: { name: "vasturiano/three-globe — basemap (NASA night lights)", url: "https://github.com/vasturiano/three-globe", date: "2026-06" },
   // Phase 2 · Storage layer attribution — entries cited by components/energia/storage.js
   gem_gipt: { name: "Global Energy Monitor — Global Battery Storage Tracker (CC-BY-4.0)", url: "https://globalenergymonitor.org/projects/global-battery-storage-tracker/", date: "2026-06" },

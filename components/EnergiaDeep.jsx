@@ -211,7 +211,7 @@ function MobileReadingBar() {
   const acc = ACT_ACCENT[actN] || ACT_ACCENT[2];
   return (
     <div aria-hidden="true" style={{
-      position: "fixed", top: 0, left: 0, right: 0, height: 3, zIndex: 16,
+      position: "fixed", top: 0, left: 0, right: 0, height: 3, zIndex: 21,
       background: "rgba(10,31,63,0.35)", pointerEvents: "none",
     }}>
       <div style={{
@@ -1121,7 +1121,9 @@ export function EnergiaDeep({ en = false }) {
         <Card style={{ marginTop: 14 }} accent={EN_ACCENT.gold}>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "10px 24px", alignItems: "baseline" }}>
             <span style={{ ...mono, fontSize: 26, fontWeight: 800, color: "var(--enTurq)" }}>{en ? "−4.93% → −16.44%" : "−4,93% → −16,44%"}</span>
-            <span style={{ fontSize: 12.5, color: "var(--text2)" }}>ICE −14,92% · CNFL −14,55% · {en ? "generation cost factor" : "factor CVG"} −7,77%</span>
+            <span style={{ fontSize: 12.5, color: "var(--text2)" }}>{en
+              ? "ICE −14.92% · CNFL −14.55% · generation cost factor −7.77%"
+              : "ICE −14,92% · CNFL −14,55% · factor CVG −7,77%"}</span>
           </div>
           <p style={{ fontSize: 13, color: "var(--text2)", lineHeight: 1.65, marginTop: 8 }}>{T(ARESEP_2026.headline, en)}</p>
           <div style={{ ...mono, fontSize: 10, color: "var(--text3)", marginTop: 8 }}>{SRC.aresep.name}</div>
