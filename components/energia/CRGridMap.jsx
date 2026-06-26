@@ -295,8 +295,10 @@ export default function CRGridMap({ en }) {
   return (
     <div
       ref={rootRef}
+      id="crGridMapAnchor"
+      tabIndex={-1}
       style={{
-        position: "relative", aspectRatio: "16 / 10", borderRadius: 16, overflow: "hidden",
+        position: "relative", aspectRatio: "16 / 10", borderRadius: 16, overflow: "hidden", scrollMarginTop: 64,
         background: `radial-gradient(120% 120% at 30% 12%, ${EN_ACCENT.navy2}, ${EN_ACCENT.navy} 60%, ${EN_ACCENT.navyDeep} 100%)`,
         border: `1px solid ${TURQ}40`,
         boxShadow: `0 0 0 1px rgba(0,0,0,0.35), inset 0 0 70px rgba(0,0,0,0.5)`,

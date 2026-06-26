@@ -255,6 +255,9 @@ export default function PowerGlobe({ en = false, compact = false }) {
     try {
       const dpr = typeof window !== "undefined" ? (window.devicePixelRatio || 1) : 1;
       g.renderer().setPixelRatio(Math.min(dpr, compact ? 1.5 : 2));
+      // iOS Safari: allow vertical page scroll on top of the globe canvas (otherwise the WebGL
+      // canvas hijacks the swipe-up gesture).
+      g.renderer().domElement.style.touchAction = "pan-y";
     } catch {}
   }, [reduced, compact]);
 

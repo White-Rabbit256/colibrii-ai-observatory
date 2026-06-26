@@ -729,7 +729,7 @@ export function EnergiaDeep({ en = false }) {
         desc={en ? "The 2025 numbers contradict two popular narratives at once: ICE is not broke, and the grid is not ready for an AI-scale demand wave." : "Los números de 2025 contradicen dos narrativas populares a la vez: el ICE no está quebrado, y la red no está lista para una ola de demanda a escala IA."} />
 
       <ScrollReveal>
-        <div id="crGridMapAnchor" tabIndex={-1} style={{ scrollMarginTop: 60 }}><CRGridMap en={en} /></div>
+        <div tabIndex={-1} style={{ scrollMarginTop: 60 }}><CRGridMap en={en} /></div>
       </ScrollReveal>
 
       <ScrollReveal>
