@@ -11,8 +11,8 @@
    ═══════════════════════════════════════════════════════════════ */
 export const HV_ARCS = [
   // ── Central America — SIEPAC (the Costa Rica tie-in) ──
-  { from: "Costa Rica", to: "Panamá (Las Minas)", kind: "siepac", mw: 300, startLat: 9.93, startLng: -84.08, endLat: 7.97, endLng: -80.52 },
-  { from: "Costa Rica", to: "Nicaragua", kind: "siepac", mw: 300, startLat: 9.93, startLng: -84.08, endLat: 12.13, endLng: -86.25 },
+  { from: "Costa Rica (Cañas)", to: "Panamá (Las Minas)", kind: "siepac", mw: 300, startLat: 10.27, startLng: -85.07, endLat: 7.97, endLng: -80.52 },
+  { from: "Costa Rica (Cañas)", to: "Nicaragua", kind: "siepac", mw: 300, startLat: 10.27, startLng: -85.07, endLat: 12.13, endLng: -86.25 },
   { from: "Nicaragua", to: "Honduras", kind: "siepac", mw: 300, startLat: 12.13, startLng: -86.25, endLat: 14.10, endLng: -87.22 },
   { from: "Honduras", to: "El Salvador", kind: "siepac", mw: 300, startLat: 14.10, startLng: -87.22, endLat: 13.69, endLng: -89.19 },
   { from: "El Salvador", to: "Guatemala", kind: "siepac", mw: 300, startLat: 13.69, startLng: -89.19, endLat: 14.63, endLng: -90.51 },
@@ -29,7 +29,7 @@ export const HV_ARCS = [
   { from: "North Sea Link", to: "United Kingdom", kind: "hvdc", mw: 1400, startLat: 59.00, startLng: 6.60, endLat: 55.01, endLng: -1.45 },
   { from: "NorNed", to: "Netherlands", kind: "hvdc", mw: 700, startLat: 58.00, startLng: 6.50, endLat: 53.22, endLng: 6.90 },
   { from: "IFA — Les Mandarins (FR)", to: "Sellindge (UK)", kind: "hvdc", mw: 2000, startLat: 50.94, startLng: 1.77, endLat: 51.08, endLng: 0.92 },
-  { from: "España (Tarifa)", to: "Marruecos (Fardioua)", kind: "ac", mw: 900, startLat: 36.01, startLng: -5.60, endLat: 35.85, endLng: -5.36 },
+  { from: "España (Tarifa)", to: "Marruecos (Boukhalef)", kind: "ac", mw: 900, startLat: 36.01, startLng: -5.60, endLat: 35.72, endLng: -5.90 },
 
   // ── Asia / Africa / Oceania ──
   { from: "Three Gorges / Gezhouba corridor", to: "Shanghai", kind: "hvdc", mw: 7200, startLat: 30.82, startLng: 111.00, endLat: 31.23, endLng: 121.47 },

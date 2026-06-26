@@ -27,7 +27,11 @@ const MONO = "'IBM Plex Mono',monospace";
 
 /* Technology palette — categorical, distinguishable; renewables glow, fossils recede. */
 const FUEL = {
-  Hydro: EN_ACCENT.glow, Solar: EN_ACCENT.solar, Wind: EN_ACCENT.green,
+  // Wind moved off EN_ACCENT.green to a distinct pale azure so it no longer collides with the AC
+  // arc emerald (R6→R9 oscillation: every other panel round flipped the AC arc color; moving the
+  // FUEL token is the only fix that breaks the cycle without re-opening the HVDC adjacency complaint).
+  // Pale azure is distinct from EN_ACCENT.sky atmosphere (#38bdf8) and from Nuclear violet (#818cf8).
+  Hydro: EN_ACCENT.glow, Solar: EN_ACCENT.solar, Wind: "#facc15",
   Geothermal: EN_ACCENT.gold, Nuclear: EN_ACCENT.violet,
   Gas: "#d97706", Oil: "#fb7185", Coal: "#9ca3af",
   Biomass: "#84cc16", Waste: "#a3e635", Storage: "#38bdf8",
@@ -301,14 +305,13 @@ export default function PowerGlobe({ en = false, compact = false }) {
   const makeDc = useCallback((d) => {
     const s = d.tier === 1 ? 14 : 9;
     const wrap = document.createElement("div");
-    wrap.setAttribute("role", "button");
-    wrap.setAttribute("tabindex", "0");
     const nm = txt(d.name, en), ct = txt(d.country, en);
-    wrap.setAttribute("aria-label", `${nm}, ${ct}, ${d.tier === 1 ? (en ? "Tier 1 primary AI compute hub" : "Hub IA primario Tier 1") : (en ? "Tier 2 regional hub" : "Hub regional Tier 2")}${d.demandMw ? `, ~${d.demandMw} MW ${en ? "(est.)" : "(est.)"}` : ""}`);
     wrap.className = "pg-dc-btn";
-    // tabindex=-1 prevents these markers from becoming invisible focus traps
-    // inside the aria-hidden canvas wrapper (the visually-hidden <ul> below is the SR-accessible layer).
+    // The DC markers are decorative inside the aria-hidden canvas wrapper — the visually-hidden <ul>
+    // below is the SR-accessible layer (so AT users get the same info without focus traps).
+    wrap.setAttribute("aria-hidden", "true");
     wrap.setAttribute("tabindex", "-1");
+    wrap.title = `${nm} — ${ct}`;
     wrap.style.cssText = "width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:none;";
     const dot = document.createElement("div");
     dot.style.cssText = `width:${s}px;height:${s}px;transform:rotate(45deg);background:rgba(255,255,255,.95);border:1px solid ${EN_ACCENT.glow};box-shadow:0 0 ${d.tier === 1 ? 12 : 7}px ${EN_ACCENT.glow};`;
