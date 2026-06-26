@@ -75,7 +75,8 @@ export const FUEL_COLORS = {
                            // is unambiguously different from HVDC arc glow #22d3ee (R14 panel finding)
   solar: "#fb923c",
   wind: "#7dd3fc",         // light-sky — distinct from atmosphere #38bdf8 + Hydro #22d3ee
-  geothermal: "#F2B135", nuclear: "#818cf8",
+  geothermal: "#f59e0b",   // amber — distinct from SIEPAC gold #F2B135 (exact-hex collision before)
+  nuclear: "#a78bfa",       // soft violet — distinct from Planned arc #818cf8 (exact-hex collision before)
   gas: "#d97706", oil: "#fb7185", coal: "#9ca3af",
   biomass: "#84cc16", waste: "#a3e635",
   storage: "#60a5fa",      // blue-400 — distinct from atmosphere sky

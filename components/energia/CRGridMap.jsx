@@ -30,7 +30,7 @@ import { EN_ACCENT, FUEL_COLORS } from "../energiaData";
    coastline/chrome; solar moved off amber so it no longer twins with geo gold. */
 const KIND = {
   hydro: FUEL_COLORS.hydro,    // shared single source of truth (#0d9488 teal-green)
-  geo: EN_ACCENT.gold,         // #F2B135 gold
+  geo: FUEL_COLORS.geothermal, // shared single source of truth (amber #f59e0b — distinct from SIEPAC gold)
   wind: FUEL_COLORS.wind,      // shared single source of truth (#7dd3fc light-sky)
   solar: EN_ACCENT.solar,      // #fb923c orange
   thermal: EN_ACCENT.risk,     // #ef4444 red
