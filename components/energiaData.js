@@ -71,7 +71,8 @@ export const SRC = {
 /* Shared fuel/technology colors — single source of truth so PowerGlobe (3D globe),
    CRGridMap (CR map) and EnergiaCharts can't drift apart on a future palette change. */
 export const FUEL_COLORS = {
-  hydro: "#22d3ee", solar: "#fb923c",
+  hydro: "#06b6d4",        // deeper cyan — distinct from HVDC arc glow #22d3ee in adjacent legend
+  solar: "#fb923c",
   wind: "#7dd3fc",         // light-sky — distinct from atmosphere #38bdf8 + Hydro #22d3ee
   geothermal: "#F2B135", nuclear: "#818cf8",
   gas: "#d97706", oil: "#fb7185", coal: "#9ca3af",

@@ -328,12 +328,22 @@ export default function PowerGlobe({ en = false, compact = false }) {
     if (!a) { setHover(null); return; }
     const to = txt(a.to, en);
     const label = (KIND_LABEL[a.kind] && (en ? KIND_LABEL[a.kind].en : KIND_LABEL[a.kind].es)) || a.kind;
+    setAnnounce(`${a.from} → ${to}, ${(a.mw || 0).toLocaleString(en ? "en" : "es")} MW, ${label}`);
     // Operating corridors get "coords aprox."; only planned corridors get "ilustrativo".
     const qual = a.kind === "planned"
       ? (en ? " · illustrative" : " · ilustrativo")
       : (en ? " · coords approx." : " · coords aprox.");
     setHover({ kind: "arc", name: `${a.from} → ${to}`, sub: `${(a.mw || 0).toLocaleString(en ? "en" : "es")} MW${label ? " · " + label : ""}${qual}` });
   }, [en]);
+
+  // Stable rendererConfig — recreating this object on every render makes react-globe.gl
+  // think the renderer config changed and remount the WebGLRenderer (TBT/INP regression).
+  const rendererConfig = useMemo(() => ({
+    antialias: !compact && (typeof window === "undefined" || window.devicePixelRatio <= 1.5),
+    alpha: true, stencil: false,
+    powerPreference: compact ? "default" : "high-performance",
+    pixelRatio: typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, compact ? 1.5 : 2) : 1,
+  }), [compact]);
 
   // Touch tap on arc latches the tooltip (react-globe.gl onArcHover misses touch).
   const onArcClick = useCallback((a) => {
@@ -446,14 +456,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
             atmosphereColor={EN_ACCENT.sky}
             atmosphereAltitude={0.24}
             onGlobeReady={onReady}
-            rendererConfig={{
-              antialias: !compact && (typeof window === "undefined" || window.devicePixelRatio <= 1.5),
-              alpha: true, stencil: false,
-              powerPreference: compact ? "default" : "high-performance",
-              // DPR cap applied at construction time so first frame doesn't render at 3x on
-              // iPhone 15 Pro / DPR-2 Android (was being set in onReady, after first paint).
-              pixelRatio: typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, compact ? 1.5 : 2) : 1,
-            }}
+            rendererConfig={rendererConfig}
             pointsData={layers.plants ? points : []}
             pointLat="lat" pointLng="lng"
             pointColor="color"
