@@ -686,7 +686,14 @@ export default function PowerGlobe({ en = false, compact = false }) {
     svg.appendChild(inner);
     wrap.appendChild(svg);
 
-    const chemLabel = { li: "Li-ion", flow: "Flow", phs: "PHS", caes: "CAES", thermal: "Thermal", other: "Other" }[d.chem] || "Battery";
+    const chemLabel = {
+      li: "Li-ion",
+      flow: en ? "Flow" : "Flujo",
+      phs: "PHS",
+      caes: "CAES",
+      thermal: en ? "Thermal" : "Térmica",
+      other: en ? "Other" : "Otra",
+    }[d.chem] || (en ? "Battery" : "Batería");
     const statusLabel = { op: en ? "Operating" : "En operación", con: en ? "Construction" : "Construcción", ann: en ? "Announced" : "Anunciada" }[d.status] || "";
     const show = () => hoverCb.current && hoverCb.current({
       kind: "storage", name: nm, sub: `${ct} · ${chemLabel} · ${statusLabel}`,
@@ -1240,7 +1247,11 @@ export default function PowerGlobe({ en = false, compact = false }) {
           aria-label={en ? "Expand Costa Rica panel — 5 SIEPAC segments, Bill 23.414" : "Expandir panel de Costa Rica — 5 segmentos SIEPAC, Exp. 23.414"}
           style={{
             position: "absolute",
-            bottom: compact ? 130 : 108,
+            // R4: lifted above Zone D citation (bottom:150 on compact). The R3 fix
+            // that pushed Zone D up from 100 to 150 to clear the chip rail had put
+            // the citation through the teaser band; raising the teaser frees the
+            // citation rail entirely on compact.
+            bottom: compact ? 200 : 108,
             left: 14,
             zIndex: 3,
             display: "inline-flex",

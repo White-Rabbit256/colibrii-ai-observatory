@@ -120,6 +120,8 @@ export const SRC = {
   gem_gipt: { name: "Global Energy Monitor — Global Battery Storage Tracker (CC-BY-4.0)", url: "https://globalenergymonitor.org/projects/global-battery-storage-tracker/", date: "2026-06" },
   eia860: { name: "US EIA — Form 860 Operable Generators", url: "https://www.eia.gov/electricity/data/eia860/", date: "2026-06" },
   iea_storage: { name: "IEA — Energy Storage Tracker 2025", url: "https://www.iea.org/energy-system/electricity/energy-storage", date: "2026-06" },
+  // IEA data is NOT CC-BY-4.0; it is published under IEA Terms of Use.
+  iea_terms: { name: "IEA Terms of Use", url: "https://www.iea.org/terms", date: "2026-06" },
   public: { name: "US public domain (federal data)", url: "https://www.usa.gov/government-works", date: "2026-06" },
   enerdata: { name: "Enerdata (2024)", url: "https://www.enerdata.net/", date: "2026-06" },
   intratec: { name: "Intratec — Chile (ago 2025)", url: "https://www.intratec.us/", date: "2026-06" },

@@ -233,7 +233,7 @@ function PullStat({ v, caption, srcId }) {
         <div style={{ ...display, fontSize: "clamp(56px, 11vw, 120px)", fontWeight: 800, lineHeight: 1,
           fontFeatureSettings: '"tnum" 1',
           letterSpacing: "-0.022em",
-          background: `linear-gradient(120deg, var(--act-accent, var(--enTurq)) 0%, ${EN_ACCENT.glow} 48%, var(--act-accent-2, var(--enGold)) 100%)`,
+          background: `linear-gradient(120deg, var(--act-accent, var(--enTurq)) 0%, var(--enGlow) 48%, var(--act-accent-2, var(--enGold)) 100%)`,
           WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent", color: "transparent" }}>
           {v}
         </div>

@@ -299,12 +299,16 @@ export const HV_ARCS = [
   {
     id: "hvdc-basslink",
     from: "Basslink (Loy Yang, VIC)",
-    to: "Heybridge (TAS)",
+    to: "George Town / Bell Bay (TAS)",
     kind: "hvdc",
     mw: 500,
     label: { es: "Basslink · 500 MW · ±400 kV HVDC · Victoria–Tasmania", en: "Basslink · 500 MW · ±400 kV HVDC · Victoria–Tasmania" },
+    // R4 fix: Heybridge label was geocoded to inland bushland near Forest, ~25 km
+    // inland from the actual sea-cable terminus. The real converter sits at
+    // George Town / Bell Bay on the Tamar estuary (-41.11, 146.85) per Basslink
+    // Pty Ltd / AEMO. Same defect class as the R1 Sylmar/Itaipú/Madeira fixes.
     startLat: -38.21, startLng: 146.59,
-    endLat:   -41.32, endLng:  146.11,
+    endLat:   -41.11, endLng:  146.85,
   },
   // Leyte–Naga HVDC (Philippines): Ormoc converter (Leyte) → Naga (Cebu)
   // Source: NGCP; Ormoc: 11.24°N 124.62°E (correction from prior 124.89°E)
