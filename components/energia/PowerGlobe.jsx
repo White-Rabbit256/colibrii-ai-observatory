@@ -648,7 +648,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
     const op = { op: 1.0, con: 0.55, ann: 0.30 }[d.status] ?? 1.0;
     const isDashed = d.chem === "phs" || d.status === "ann";
     const nm = txt(d.name, en), ct = txt(d.country, en);
-    const mwTxt = mw >= 1000 ? `${(mw / 1000).toFixed(1)} GW` : `${mw} MW`;
+    const mwTxt = mw >= 1000 ? `${(mw / 1000).toFixed(1).replace(".", en ? "." : ",")} GW` : `${mw} MW`;
     const mwhTxt = d.mwh > 0 ? ` · ${d.mwh.toLocaleString(en ? "en" : "es")} MWh` : "";
 
     const wrap = document.createElement("div");
@@ -751,7 +751,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
     if (isTop5 && !compact) {
       const tag = document.createElement("div");
       tag.style.cssText = `position:absolute;left:${(halo / 2) + 8}px;top:50%;transform:translateY(-50%);font-family:${MONO};font-size:9.5px;letter-spacing:0.3px;color:rgba(255,255,255,0.95);background:rgba(10,31,63,0.78);padding:2px 6px;border-radius:4px;border:1px solid ${EN_ACCENT.glow}66;white-space:nowrap;pointer-events:none;text-shadow:0 1px 4px rgba(0,0,0,0.85);`;
-      const mwTxt = mw >= 1000 ? `${(mw / 1000).toFixed(1)} GW` : `${mw} MW`;
+      const mwTxt = mw >= 1000 ? `${(mw / 1000).toFixed(1).replace(".", en ? "." : ",")} GW` : `${mw} MW`;
       const displayName = typeof d.name === "object" ? (en ? d.name.en : d.name.es) : d.name;
       const shortName = DC_SCALE.topNameShort[displayName] || displayName;
       tag.textContent = `${shortName} · ${mwTxt} · est.`;
@@ -928,8 +928,8 @@ export default function PowerGlobe({ en = false, compact = false }) {
       {/* ── figcaption (SR only) ── */}
       <figcaption id={descId} className="pg-sr">
         {en
-          ? `Global generation atlas: ${total.toLocaleString("en")} power plants sized by installed capacity, ${HV_ARCS.length} major high-voltage interconnections including the SIEPAC tie-in for Costa Rica (ENTSO-E, IEA, SIEPAC/EPR — illustrative), ${DATACENTERS.length} AI / data-centre hubs (Synergy Research, Dell'Oro — estimate), and utility-scale storage sites (Global Energy Monitor CC-BY-4.0, IEA Energy Storage Tracker, US EIA Form 860). Globe engine: react-globe.gl (MIT). Basemap: NASA night lights (public domain). The 3D globe is decorative; the keyboard-accessible Costa Rica grid map is in Act 4 below.`
-          : `Atlas global de generación: ${total.toLocaleString("es")} plantas de generación dimensionadas por capacidad instalada, ${HV_ARCS.length} interconexiones de alta tensión incluida la conexión SIEPAC para Costa Rica (ENTSO-E, IEA, SIEPAC/EPR — ilustrativo), ${DATACENTERS.length} hubs IA / centros de datos (Synergy Research, Dell'Oro — estimado), y sitios de almacenamiento utility-scale (Global Energy Monitor CC-BY-4.0, IEA Energy Storage Tracker, US EIA Form 860). Motor de globo: react-globe.gl (MIT). Base: NASA night lights (dominio público). El globo 3D es decorativo; el mapa accesible de la red de Costa Rica está en el Acto 4 abajo.`}
+          ? `Global generation atlas: ${total.toLocaleString("en")} power plants sized by installed capacity, ${HV_ARCS.length} major high-voltage interconnections including the SIEPAC tie-in for Costa Rica (ENTSO-E, IEA, SIEPAC EOR/EPR — illustrative), ${DATACENTERS.length} AI / data-centre hubs (Synergy Research, Dell'Oro — estimate), and utility-scale storage sites (Global Energy Monitor CC-BY-4.0, IEA Energy Storage Tracker under IEA Terms of Use, US EIA Form 860). Globe engine: react-globe.gl (MIT). Basemap: NASA night lights (public domain). The 3D globe is decorative; the keyboard-accessible Costa Rica grid map is in Act 4 below.`
+          : `Atlas global de generación: ${total.toLocaleString("es")} plantas de generación dimensionadas por capacidad instalada, ${HV_ARCS.length} interconexiones de alta tensión incluida la conexión SIEPAC para Costa Rica (ENTSO-E, IEA, SIEPAC EOR/EPR — ilustrativo), ${DATACENTERS.length} hubs IA / centros de datos (Synergy Research, Dell'Oro — estimado), y sitios de almacenamiento utility-scale (Global Energy Monitor CC-BY-4.0, IEA Energy Storage Tracker bajo IEA Terms of Use, US EIA Form 860). Motor de globo: react-globe.gl (MIT). Base: NASA night lights (dominio público). El globo 3D es decorativo; el mapa accesible de la red de Costa Rica está en el Acto 4 abajo.`}
       </figcaption>
 
       {/* ── Live region (SR only) ── */}
@@ -1402,7 +1402,9 @@ export default function PowerGlobe({ en = false, compact = false }) {
         {", "}
         <a href={SRC.iea_wgo.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>IEA</a>
         {", "}
-        <a href={SRC.epr.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>SIEPAC/EPR</a>
+        <a href={SRC.eor.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>SIEPAC EOR</a>
+        {"/"}
+        <a href={SRC.epr.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>EPR</a>
         {")"}
         {layers.hubs && (
           <>
@@ -1421,7 +1423,9 @@ export default function PowerGlobe({ en = false, compact = false }) {
             <a href={SRC.cc_by_4.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>CC-BY-4.0</a>
             {"), "}
             <a href={SRC.iea_storage.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>IEA</a>
-            {", "}
+            {" ("}
+            <a href={SRC.iea_terms.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Terms of Use</a>
+            {"), "}
             <a href={SRC.eia860.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>EIA 860</a>
           </>
         )}
@@ -1487,14 +1491,19 @@ export default function PowerGlobe({ en = false, compact = false }) {
             </span>
           );
         })}
-        {/* DC tier swatches */}
+        {/* DC MW-scaled swatches — mirror DC_SCALE.size + AI-scale gold ring (≥700 MW) */}
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-          <span style={{ width: DC_GLYPH[1].size, height: DC_GLYPH[1].size, transform: "rotate(45deg)", background: DC_GLYPH[1].background, border: DC_GLYPH[1].border, boxShadow: DC_GLYPH[1].boxShadow }} />
-          {DC_GLYPH[1].label[locale]}
+          <span style={{ width: 14, height: 14, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ width: 8, height: 8, transform: "rotate(45deg)", background: "rgba(255,255,255,0.95)", border: `1px solid ${EN_ACCENT.glow}`, boxShadow: `0 0 6px ${EN_ACCENT.glow}` }} />
+          </span>
+          {en ? "Regional hub (≈100–500 MW)" : "Hub regional (≈100–500 MW)"}
         </span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-          <span style={{ width: DC_GLYPH[2].size, height: DC_GLYPH[2].size, transform: "rotate(45deg)", background: DC_GLYPH[2].background, border: DC_GLYPH[2].border }} />
-          {DC_GLYPH[2].label[locale]}
+          <span style={{ width: 18, height: 18, display: "inline-flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+            <span style={{ position: "absolute", width: 18, height: 18, borderRadius: "50%", border: `1.5px solid ${EN_ACCENT.gold}`, boxShadow: `0 0 6px ${EN_ACCENT.gold}88` }} />
+            <span style={{ width: 10, height: 10, transform: "rotate(45deg)", background: "rgba(255,255,255,0.95)", border: `1px solid ${EN_ACCENT.glow}`, boxShadow: `0 0 6px ${EN_ACCENT.glow}` }} />
+          </span>
+          {en ? "AI-scale hub (≥700 MW)" : "Hub a escala IA (≥700 MW)"}
         </span>
         {/* Phase 2 · Storage swatch — double-ring (storage-blue outer + Li-ion cyan inner) */}
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
