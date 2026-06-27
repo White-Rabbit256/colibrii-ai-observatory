@@ -57,7 +57,7 @@ export const ACT_INTRO_PULL = {
   4: { es: "Sólido — y casi sin margen.", en: "Strong — and almost out of room." },
   5: { es: "Treinta y ocho votos. La aritmética antes que la ideología.", en: "Thirty-eight votes. Arithmetic before ideology." },
   6: { es: "Seis países ya pagaron las lecciones que nos faltan.", en: "Six countries already paid the lessons we still owe." },
-  7: { es: "Tres índices, una sola pregunta: ¿somos competitivos?", en: "Three indices, one question: are we competitive?" },
+  7: { es: "Cuatro herramientas, una sola pregunta: ¿somos competitivos?", en: "Four tools, one question: are we competitive?" },
   8: { es: "Enmendar — no rechazar.", en: "Amend — not reject." },
 };
 

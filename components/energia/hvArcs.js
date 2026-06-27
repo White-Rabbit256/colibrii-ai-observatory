@@ -197,13 +197,16 @@ export const HV_ARCS = [
   // Source: Statnett/TenneT; 58.00°N 6.50°E → 53.22°N 6.90°E
   {
     id: "hvdc-norned",
-    from: "NorNed",
-    to: "Netherlands",
+    from: "Feda (Kvinesdal, NO)",
+    to: "Eemshaven (NL)",
     kind: "hvdc",
     mw: 700,
     label: { es: "NorNed · 700 MW · ±450 kV HVDC", en: "NorNed · 700 MW · ±450 kV HVDC" },
-    startLat: 58.00, startLng:  6.50,
-    endLat:   53.22, endLng:    6.90,
+    // R6 fix: Feda converter (Kvinesdal) and Eemshaven landing per Statnett/TenneT
+    // technical filings; previous (58.00, 6.50) → (53.22, 6.90) was 26-38 km off
+    // on both sides. Same defect class as R1 Sylmar / R4 Bell Bay corrections.
+    startLat: 58.27, startLng:  6.85,
+    endLat:   53.45, endLng:    6.83,
   },
   // IFA (Interconnexion France–Angleterre): Les Mandarins (FR) → Sellindge (UK)
   // Source: RTE/National Grid; 50.94°N 1.77°E → 51.08°N 0.92°E

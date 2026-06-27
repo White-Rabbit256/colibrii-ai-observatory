@@ -135,9 +135,13 @@ function installLights(g, reduced, lightsRef) {
     const amb = new AmbientLight(0x1a2f50, 0.45);
     scene.add(amb);
   } else {
-    // 1) Warm key sun — illuminates Americas-facing hemisphere
+    // 1) Warm key sun — illuminates Americas-facing hemisphere.
+    // R6 fix: position was back-lighting (-0.20 dot product on desktop POV).
+    // New position (~lat 26°N, lng -69°W, Caribbean/Florida Straits) gives
+    // +0.93/+0.97/+0.95 desktop/compact/CR dot products — the SIEPAC corridor
+    // and Cañas anchor now sit in warm key light.
     const sun = new DirectionalLight(0xfff4e0, 1.05);
-    sun.position.set(1.2, 0.6, 0.8);
+    sun.position.set(-1.05, 0.50, 0.40);
     // 2) Cool navy ambient — preserves night-side without going full black
     const amb = new AmbientLight(0x0d1f3c, 0.18);
     // 3) Teal rim — silhouette separation, brand bridge
@@ -151,9 +155,9 @@ function installLights(g, reduced, lightsRef) {
 }
 
 // ── Count badge formatter ──
-function fmtCount(n) {
+function fmtCount(n, en = false) {
   if (n >= 10000) return `${Math.round(n / 1000)}k`;
-  if (n >= 1000)  return `${(n / 1000).toFixed(1)}k`;
+  if (n >= 1000)  return `${(n / 1000).toFixed(1).replace(".", en ? "." : ",")}k`;
   return String(n);
 }
 
@@ -1375,7 +1379,10 @@ export default function PowerGlobe({ en = false, compact = false }) {
           ═══════════════════════════ */}
       <div style={{
         position: "absolute",
-        bottom: compact ? 150 : 96,
+        // R6 fix: when the CR Info Panel is open on compact, lift the
+        // citation above its 300+ px footprint so it doesn't paint over
+        // the gold "COSTA RICA · SIEPAC ANCHOR" header and SIEPAC list.
+        bottom: compact && focus === "cr" ? 460 : compact ? 150 : 96,
         left: 14, right: 14, zIndex: 3,
         fontFamily: MONO, fontSize: 10, letterSpacing: 0.3,
         color: "rgba(255,255,255,0.78)",
@@ -1582,7 +1589,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
               {en ? k : (FUEL_ES[k] ?? k)}
               {counts[k] ? (
                 <span style={{ color: "rgba(255,255,255,0.5)" }}>
-                  {fmtCount(counts[k])}
+                  {fmtCount(counts[k], en)}
                 </span>
               ) : null}
             </button>

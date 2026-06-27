@@ -150,7 +150,7 @@ function ActNav({ en }) {
                 border: active ? "none" : "1px solid color-mix(in srgb, var(--act-accent) 27%, transparent)",
                 cursor: "pointer", fontSize: 12, fontWeight: 800,
                 background: active ? "linear-gradient(135deg, var(--act-accent), var(--act-accent-2))" : "transparent",
-                color: active ? "var(--enOnAccent)" : "color-mix(in srgb, var(--act-accent) 80%, transparent)",
+                color: active ? "var(--enOnAccent)" : "var(--act-accent)",
                 boxShadow: active ? "0 0 12px color-mix(in srgb, var(--act-accent) 33%, transparent)" : "none",
                 transition: "all .25s",
               }}>
@@ -907,7 +907,7 @@ export function EnergiaDeep({ en = false }) {
               {", "}
               <a href={SRC.iea_wgo.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>IEA</a>
               {", "}
-              <a href={SRC.epr.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>SIEPAC/EPR</a>)
+              <a href={SRC.eor.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>SIEPAC EOR</a>{"/"}<a href={SRC.epr.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>EPR</a>)
             </>
           ) : (
             <>
@@ -921,7 +921,7 @@ export function EnergiaDeep({ en = false }) {
               {", "}
               <a href={SRC.iea_wgo.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>IEA</a>
               {", "}
-              <a href={SRC.epr.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>SIEPAC/EPR</a>)
+              <a href={SRC.eor.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>SIEPAC EOR</a>{"/"}<a href={SRC.epr.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>EPR</a>)
             </>
           )}
         </p>
