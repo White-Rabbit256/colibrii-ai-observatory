@@ -31,9 +31,11 @@ const DEEP = "#0e2a52";                 // landmass body
    readers): hydro cyan · geo gold · wind emerald · solar orange · thermal red.
    wind moved off turquoise so plant nodes don't blend into the turquoise
    chrome; solar moved off amber so it no longer twins with geo's gold. */
+/* Panel v2 fuel ramp — red is reserved for risk data, never fuels; gold is
+   the protagonist channel (GAM destination + SIEPAC only). */
 const KIND = {
-  hydro: GLOW, geo: GOLD, wind: EN_ACCENT.green, solar: EN_ACCENT.solar,
-  thermal: EN_ACCENT.risk, load: "#ffffff",
+  hydro: "#10B981", geo: "#D97706", wind: "#38BDF8", solar: "#FB923C",
+  thermal: "#94A3B8", load: GOLD,
 };
 
 /* ── Geo → scene projection (centered, aspect-corrected) ── */
@@ -46,8 +48,10 @@ const py = (lat) => (lat - cLat) * SCALE;
 
 const Z_TOP = 0.205;   // node / ring plane on the country's lit face
 const DEPTH = 0.27;    // extrusion depth (chunkier so the 3D reads on mobile)
-const BASE_TILT = -0.52; // resting pitch — shows the extruded thickness
-const BASE_YAW = 0.17;   // resting 3/4 yaw — reveals depth instead of a flat face
+/* LA PLACA VIVA pose (panel v2): crop a monument, don't float a trinket. */
+const BASE_TILT = -0.52;
+const BASE_YAW  = 0.06;
+const BASE_ROLL = 0.2;
 const easeOutCubic = (x) => 1 - Math.pow(1 - x, 3);
 const clamp01 = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
 
@@ -65,21 +69,51 @@ function useReducedMotion() {
   return reduced;
 }
 
-/* ── Radial-gradient texture for the stage glow (SSR-safe) ── */
-function makeGlowTexture() {
+/* ── "Ocean chart" backdrop texture (panel v2): nautical-blueprint plane —
+      base #071B3A, 1° graticule, three coast-offset contours from the REAL
+      outline, contact shadow, horizon band, gold counter-glow. ── */
+function makeChartTexture() {
   if (typeof document === "undefined") return null;
-  const s = 256;
+  const W = 1024, Hh = 768;
   const cv = document.createElement("canvas");
-  cv.width = cv.height = s;
+  cv.width = W; cv.height = Hh;
   const ctx = cv.getContext("2d");
   if (!ctx) return null;
-  const g = ctx.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
-  g.addColorStop(0.0, "rgba(34,211,238,0.55)");
-  g.addColorStop(0.35, "rgba(0,181,168,0.30)");
-  g.addColorStop(0.7, "rgba(10,31,63,0.10)");
-  g.addColorStop(1.0, "rgba(10,31,63,0)");
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, s, s);
+  ctx.fillStyle = "#071B3A";
+  ctx.fillRect(0, 0, W, Hh);
+  // 1° graticule (world plane spans 10×7.5 wu; 1° lng ≈ K*SCALE wu)
+  const wuPerPxX = 10 / W, wuPerPxY = 7.5 / Hh;
+  const stepX = (K * SCALE) / wuPerPxX, stepY = SCALE / wuPerPxY;
+  ctx.strokeStyle = "rgba(56,189,248,0.16)";
+  ctx.lineWidth = 3;
+  for (let x = (W / 2) % stepX; x < W; x += stepX) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, Hh); ctx.stroke(); }
+  for (let y = (Hh / 2) % stepY; y < Hh; y += stepY) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+  // three coast-offset contours (outline dilated by +0.12/+0.26/+0.44 wu)
+  const cx = W / 2, cy = Hh / 2;
+  const toPx = ([X, Y]) => [cx + X / wuPerPxX, cy - Y / wuPerPxY];
+  const centroid = OUTLINE_XY.reduce((a, p) => [a[0] + p[0], a[1] + p[1]], [0, 0]).map((v) => v / OUTLINE_XY.length);
+  const contours = [[0.12, "rgba(0,181,168,0.34)"], [0.26, "rgba(0,181,168,0.22)"], [0.44, "rgba(0,181,168,0.12)"]];
+  for (const [off, col] of contours) {
+    ctx.strokeStyle = col; ctx.lineWidth = 4; ctx.beginPath();
+    OUTLINE_XY.forEach((pt, i) => {
+      const dx = pt[0] - centroid[0], dy = pt[1] - centroid[1];
+      const d = Math.hypot(dx, dy) || 1;
+      const [px2, py2] = toPx([pt[0] + (dx / d) * off, pt[1] + (dy / d) * off]);
+      if (i === 0) ctx.moveTo(px2, py2); else ctx.lineTo(px2, py2);
+    });
+    ctx.closePath(); ctx.stroke();
+  }
+  // contact shadow under the landmass
+  const sh = ctx.createRadialGradient(cx, cy + 40, 40, cx, cy + 40, 330);
+  sh.addColorStop(0, "rgba(0,0,0,0.5)"); sh.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = sh; ctx.fillRect(0, 0, W, Hh);
+  // horizon band (top) + gold counter-glow (bottom-right)
+  const hb = ctx.createLinearGradient(0, 0, 0, Hh * 0.15);
+  hb.addColorStop(0, "rgba(34,211,238,0.20)"); hb.addColorStop(1, "rgba(34,211,238,0)");
+  ctx.fillStyle = hb; ctx.fillRect(0, 0, W, Hh * 0.15);
+  const gg = ctx.createRadialGradient(W * 0.85, Hh * 0.9, 10, W * 0.85, Hh * 0.9, 420);
+  gg.addColorStop(0, "rgba(242,177,53,0.12)"); gg.addColorStop(1, "rgba(242,177,53,0)");
+  ctx.fillStyle = gg; ctx.fillRect(0, 0, W, Hh);
   const tex = new THREE.CanvasTexture(cv);
   tex.needsUpdate = true;
   return tex;
@@ -123,7 +157,7 @@ function CountryMesh() {
       {/* Device-verified: the grain roughnessMap rendered as diagonal streaks on
           extrude UVs (read as scratches on real hardware) — removed. */}
       <mesh geometry={body} castShadow receiveShadow>
-        <meshStandardMaterial color="#123258" metalness={0.34} roughness={0.46} emissive={TURQ} emissiveIntensity={0.15} />
+        <meshStandardMaterial color="#16365F" metalness={0} roughness={0.85} emissive={TURQ} emissiveIntensity={0.10} />
       </mesh>
       {/* doubled coast: crisp cyan line + soft wide turquoise underglow */}
       <lineSegments geometry={edges} position={[0, 0, DEPTH + 0.022]}>
@@ -164,7 +198,7 @@ function CityLights({ paused, intro, compact }) {
     }
     const positions = new Float32Array(pts.length * 3);
     const colors = new Float32Array(pts.length * 3);
-    const warm = new THREE.Color("#ffe3b0");
+    const warm = new THREE.Color("#FFB65C");
     const cool = new THREE.Color(GLOW);
     pts.forEach(([x, y], i) => {
       positions[i * 3] = x;
@@ -240,30 +274,14 @@ function SiepacSpine({ paused, intro }) {
   );
 }
 
-/* ── Orbital stage ring — thin additive halo circling the country ── */
-function HorizonRing({ paused }) {
-  const ref = useRef();
-  useFrame(({ clock }) => {
-    if (paused.current || !ref.current) return;
-    ref.current.rotation.z = clock.elapsedTime * 0.05;
-    ref.current.material.opacity = 0.16 + Math.sin(clock.elapsedTime * 0.6) * 0.05;
-  });
-  return (
-    <mesh ref={ref} position={[0, -0.15, -0.03]}>
-      <ringGeometry args={[2.06, 2.085, 128]} />
-      <meshBasicMaterial color={TURQ} transparent opacity={0.18} blending={THREE.AdditiveBlending} side={THREE.DoubleSide} depthWrite={false} toneMapped={false} />
-    </mesh>
-  );
-}
-
-/* ── Stage glow disc beneath the country ── */
-function StageGlow() {
-  const tex = useMemo(makeGlowTexture, []);
+/* ── Ocean-chart backdrop plane (replaces StageGlow + HorizonRing) ── */
+function OceanChart() {
+  const tex = useMemo(makeChartTexture, []);
   if (!tex) return null;
   return (
-    <mesh position={[0.9, -0.1, -0.6]}>
-      <planeGeometry args={[8.2, 6.4]} />
-      <meshBasicMaterial map={tex} transparent opacity={0.45} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
+    <mesh position={[0, 0, -0.15]}>
+      <planeGeometry args={[10, 7.5]} />
+      <meshBasicMaterial map={tex} depthWrite={false} toneMapped={false} />
     </mesh>
   );
 }
@@ -314,9 +332,11 @@ function PlantNodes({ paused, intro }) {
     <group>
       <group ref={sphereGrp}>
         {nodes.map((n) => (
-          <mesh key={n.id} position={[n.x, n.y, Z_TOP]} scale={0.001}>
-            <sphereGeometry args={[n.isLoad ? 0.052 : 0.038, 16, 16]} />
-            <meshStandardMaterial color={n.c} emissive={n.c} emissiveIntensity={n.isLoad ? 3.0 : 2.4} toneMapped={false} />
+          <mesh key={n.id} position={[n.x, n.y, Z_TOP]} scale={0.001} rotation={n.isLoad ? [0, 0, Math.PI / 4] : [0, 0, 0]}>
+            {n.isLoad
+              ? <octahedronGeometry args={[0.075, 0]} />
+              : <sphereGeometry args={[0.038, 16, 16]} />}
+            <meshStandardMaterial color={n.c} emissive={n.c} emissiveIntensity={n.isLoad ? 2.6 : 2.4} toneMapped={false} />
           </mesh>
         ))}
       </group>
@@ -324,7 +344,7 @@ function PlantNodes({ paused, intro }) {
         {nodes.map((n) => (
           <mesh key={n.id} position={[n.x, n.y, Z_TOP + 0.002]}>
             <ringGeometry args={[n.isLoad ? 0.075 : 0.055, n.isLoad ? 0.092 : 0.068, 40]} />
-            <meshBasicMaterial color={n.isLoad ? "#ffffff" : n.c} transparent opacity={0.4} side={THREE.DoubleSide} depthWrite={false} toneMapped={false} />
+            <meshBasicMaterial color={n.isLoad ? GOLD : n.c} transparent opacity={0.4} side={THREE.DoubleSide} depthWrite={false} toneMapped={false} />
           </mesh>
         ))}
       </group>
@@ -343,11 +363,11 @@ function EnergyArcs({ paused, intro }) {
     return PLANTS_GEO.filter((p) => p.kind !== "load" && !p.inGam).map((p, i) => {
       const x = px(p.lng), y = py(p.lat);
       const dist = Math.hypot(gx - x, gy - y);
-      const lift = 0.42 + dist * 0.28 + (i % 3) * 0.08;
+      const lift = 0.55 + dist * 0.3 + (i % 3) * 0.05;
       const mid = new THREE.Vector3((x + gx) / 2, (y + gy) / 2, Z_TOP + lift);
       const curve = new THREE.QuadraticBezierCurve3(
         new THREE.Vector3(x, y, Z_TOP), mid, new THREE.Vector3(gx, gy, Z_TOP));
-      const tube = new THREE.TubeGeometry(curve, 48, 0.013, 8, false);
+      const tube = new THREE.TubeGeometry(curve, 48, 0.03, 8, false);
       return { key: p.id, tube, curve, color: new THREE.Color(KIND[p.kind] || GLOW),
         speed: 0.18 + (i % 4) * 0.035, offset: (i * 0.137) % 1 };
     });
@@ -359,7 +379,7 @@ function EnergyArcs({ paused, intro }) {
     const ip = intro.current.p;
     const draw = clamp01((ip - 0.4) / 0.45); // arcs fade in after country/nodes
     const tubes = tubeGrp.current;
-    if (tubes) for (let i = 0; i < tubes.children.length; i++) tubes.children[i].material.opacity = 0.5 * draw;
+    if (tubes) for (let i = 0; i < tubes.children.length; i++) tubes.children[i].material.opacity = 0.85 * draw;
     const grp = packetGrp.current;
     if (grp) {
       grp.visible = draw > 0.6;
@@ -425,9 +445,10 @@ function Scene({ reduced, drag, compact = false }) {
   const invalidate = useThree((s) => s.invalidate);
   const aim = useRef({ x: 0, y: 0 });
 
-  // portrait/banner tuning: country centered + slightly smaller so it never clips
-  const POS_X = compact ? 0 : 0.95;
-  const BASE_SCALE = compact ? 0.78 : 0.9;
+  // LA PLACA VIVA: monumental crop — landmass bleeds off the frame edges
+  const POS_X = compact ? -0.08 : 0.6;
+  const POS_Y = compact ? 0.05 : 0.05;
+  const BASE_SCALE = compact ? 0.84 : 0.9;
 
   useEffect(() => {
     paused.current = reduced;
@@ -442,7 +463,7 @@ function Scene({ reduced, drag, compact = false }) {
   useEffect(() => {
     if (reduced) {
       intro.current.p = 1;
-      if (group.current) { group.current.rotation.set(BASE_TILT, BASE_YAW, 0.1); group.current.position.set(POS_X, -0.05, 0); group.current.scale.setScalar(BASE_SCALE); }
+      if (group.current) { group.current.rotation.set(BASE_TILT, BASE_YAW, BASE_ROLL); group.current.position.set(POS_X, POS_Y, 0); group.current.scale.setScalar(BASE_SCALE); }
       invalidate();
       return;
     }
@@ -466,33 +487,30 @@ function Scene({ reduced, drag, compact = false }) {
     aim.current.y += (THREE.MathUtils.clamp(pointer.y, -1, 1) * CAP - aim.current.y) * 0.045;
 
     const float = ip; // motion eases in with the build-on
-    group.current.rotation.x = BASE_TILT + (Math.sin(t * 0.25) * 0.03 + aim.current.y * 0.7) * float + d.rx;
-    group.current.rotation.y = BASE_YAW + (Math.sin(t * 0.21) * 0.05 + aim.current.x) * float + d.ry;
-    group.current.rotation.z = 0.1 + Math.sin(t * 0.18) * 0.02 * float;
+    group.current.rotation.x = BASE_TILT + (Math.sin(t * 0.25) * 0.02 + aim.current.y * 0.55) * float + d.rx;
+    group.current.rotation.y = BASE_YAW + (Math.sin(t * 0.21) * 0.035 + aim.current.x * 0.8) * float + d.ry;
+    group.current.rotation.z = BASE_ROLL + Math.sin(t * 0.18) * 0.015 * float;
     group.current.position.x = POS_X;
-    group.current.position.y = -0.05 + (1 - ip) * -1.0 + Math.sin(t * 0.4) * 0.045 * float;
+    group.current.position.y = POS_Y + (1 - ip) * -0.9 + Math.sin(t * 0.4) * 0.035 * float;
     group.current.scale.setScalar(BASE_SCALE * (0.5 + 0.5 * ip));
   });
 
   return (
     <>
-      <fogExp2 attach="fog" args={[NAVY, 0.085]} />
-      <ambientLight intensity={0.42} />
-      <directionalLight position={[3, 4.5, 6]} intensity={1.15} color="#dcefff" />
-      <directionalLight position={[-3.5, 2, -4.5]} intensity={0.5} color="#7ee7f0" />
-      <pointLight position={[0, -2.6, 2.2]} intensity={1.6} color={TURQ} distance={9} />
-      <pointLight position={[2.4, 2.0, 3]} intensity={0.9} color={GOLD} distance={8} />
+      <fogExp2 attach="fog" args={[NAVY, 0.07]} />
+      <directionalLight position={[-3, 4, -2]} intensity={1.5} color="#CFE4FF" />
+      <hemisphereLight args={["#38BDF8", "#06152E", 0.25]} />
+      <pointLight position={[2.6, 1.4, -2.2]} intensity={1.15} color={TURQ} distance={6} />
 
       <ParticleLayer paused={paused} count={compact ? 100 : 140} spread={11} depth={-3.4} size={0.03} opacity={0.42} color={GLOW} speed={0.008} />
       <ParticleLayer paused={paused} count={compact ? 150 : 220} spread={9} depth={-1.6} size={0.018} opacity={0.5} color={TURQ} speed={0.016} />
       <ParticleLayer paused={paused} count={compact ? 30 : 46} spread={12} depth={-2.6} size={0.045} opacity={0.22} color={GOLD} speed={-0.006} />
-      <StageGlow />
+      <OceanChart />
 
       <group ref={group} scale={0.001}>
         <CountryMesh />
         <CityLights paused={paused} intro={intro} compact={compact} />
         <SiepacSpine paused={paused} intro={intro} />
-        <HorizonRing paused={paused} />
         <PlantNodes paused={paused} intro={intro} />
         <EnergyArcs paused={paused} intro={intro} />
       </group>
@@ -565,7 +583,7 @@ export default function Hero3D({ compact = false }) {
       <Canvas
         dpr={reduced ? 1 : [1, 2]}
         frameloop={reduced ? "demand" : "always"}
-        camera={{ position: [0, -0.4, compact ? 5.2 : 4.6], fov: 42 }}
+        camera={{ position: compact ? [0, -0.5, 4.35] : [0, -0.5, 4.55], fov: 36 }}
         gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
         style={{ position: "absolute", inset: 0 }}
         eventSource={typeof document !== "undefined" ? document.body : undefined}
