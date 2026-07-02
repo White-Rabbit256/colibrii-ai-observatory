@@ -122,6 +122,7 @@ export const SRC = {
   iea_storage: { name: "IEA — Energy Storage Tracker 2025", url: "https://www.iea.org/energy-system/electricity/energy-storage", date: "2026-06" },
   // IEA data is NOT CC-BY-4.0; it is published under IEA Terms of Use.
   iea_terms: { name: "IEA Terms of Use", url: "https://www.iea.org/terms", date: "2026-06" },
+  naturalearth: { name: "Natural Earth — land 1:110m (dominio público)", url: "https://www.naturalearthdata.com/", date: "2026-06" },
   public: { name: "US public domain (federal data)", url: "https://www.usa.gov/government-works", date: "2026-06" },
   enerdata: { name: "Enerdata (2024)", url: "https://www.enerdata.net/", date: "2026-06" },
   intratec: { name: "Intratec — Chile (ago 2025)", url: "https://www.intratec.us/", date: "2026-06" },

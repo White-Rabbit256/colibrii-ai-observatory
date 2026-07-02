@@ -827,7 +827,7 @@ export function EnergiaDeep({ en = false }) {
               transition: top .15s; text-decoration: none;
               display: inline-flex; align-items: center;
             }
-            .energia-skip:focus { top: 10px; }
+            .energia-skip:focus-visible { top: 10px; }
             .energia-skip:focus-visible { outline: 2px solid ${EN_ACCENT.glow}; outline-offset: 2px; }
             .energia-globe-skeleton {
               aspect-ratio: 16 / 9; width: 100%; border-radius: 16px;
@@ -908,6 +908,10 @@ export function EnergiaDeep({ en = false }) {
               <a href={SRC.iea_wgo.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>IEA</a>
               {", "}
               <a href={SRC.eor.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>SIEPAC EOR</a>{"/"}<a href={SRC.epr.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>EPR</a>)
+              {" · "}<a href={SRC.synergy.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Synergy</a>{", "}<a href={SRC.delloro.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Dell'Oro</a>{" (est.) · "}
+              <a href={SRC.gem_gipt.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>GEM</a>{" ("}<a href={SRC.cc_by_4.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>CC-BY-4.0</a>{"), "}
+              <a href={SRC.iea_storage.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>IEA</a>{" ("}<a href={SRC.iea_terms.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Terms</a>{"), "}
+              <a href={SRC.eia860.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>EIA 860</a>
             </>
           ) : (
             <>
@@ -922,6 +926,10 @@ export function EnergiaDeep({ en = false }) {
               <a href={SRC.iea_wgo.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>IEA</a>
               {", "}
               <a href={SRC.eor.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>SIEPAC EOR</a>{"/"}<a href={SRC.epr.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>EPR</a>)
+              {" · "}<a href={SRC.synergy.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Synergy</a>{", "}<a href={SRC.delloro.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Dell'Oro</a>{" (est.) · "}
+              <a href={SRC.gem_gipt.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>GEM</a>{" ("}<a href={SRC.cc_by_4.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>CC-BY-4.0</a>{"), "}
+              <a href={SRC.iea_storage.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>IEA</a>{" ("}<a href={SRC.iea_terms.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Terms</a>{"), "}
+              <a href={SRC.eia860.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>EIA 860</a>
             </>
           )}
         </p>

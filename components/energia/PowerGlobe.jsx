@@ -2,7 +2,11 @@
 import {
   useRef, useState, useEffect, useMemo, useCallback,
 } from "react";
-import { DirectionalLight, AmbientLight } from "three";
+import { DirectionalLight, AmbientLight, Color } from "three";
+// MUST precede react-globe.gl: unifies the dual three.js instances onto
+// window.THREE so globe.gl's `camera instanceof THREE.Camera` check passes
+// (see globeThreeShim.js for the black-canvas root-cause writeup).
+import "./globeThreeShim";
 import Globe from "react-globe.gl";
 import { AnimatePresence, motion } from "framer-motion";
 import { animate } from "animejs";
@@ -38,12 +42,14 @@ const RENDERER_MOBILE = {
   antialias: false,  // MSAA off on mobile — GPU budget
   alpha:     true,
   stencil:   false,
+  preserveDrawingBuffer: true, // FloatingShare html-to-image capture of the canvas
   // powerPreference INTENTIONALLY OMITTED on mobile
 };
 const RENDERER_DESKTOP = {
   antialias:        true,
   alpha:            true,
   stencil:          false,
+  preserveDrawingBuffer: true, // FloatingShare html-to-image capture of the canvas
   powerPreference:  "high-performance",
 };
 
@@ -130,22 +136,23 @@ function installLights(g, reduced, lightsRef) {
   // hues by ~10× and the day/night terminator renders flat.
   try { g.lights([]); } catch {}
   const scene = g.scene();
+  // Screenshot-verified fix: the previous 0.18 navy ambient left the entire
+  // scene ~17× darker than the library default it replaced — points, arcs and
+  // the untextured sphere all rendered black on real devices. Base visibility
+  // comes from a strong neutral-cool ambient; the warm sun and teal rim keep
+  // the cinematic modelling on top of it. Night-lights glow via emissiveMap
+  // (set in onReady), so they never depend on scene lighting.
   if (reduced) {
-    // Reduced motion: single bright ambient for legibility
-    const amb = new AmbientLight(0x1a2f50, 0.45);
+    const amb = new AmbientLight(0xffffff, 0.95);
     scene.add(amb);
   } else {
-    // 1) Warm key sun — illuminates Americas-facing hemisphere.
-    // R6 fix: position was back-lighting (-0.20 dot product on desktop POV).
-    // New position (~lat 26°N, lng -69°W, Caribbean/Florida Straits) gives
-    // +0.93/+0.97/+0.95 desktop/compact/CR dot products — the SIEPAC corridor
-    // and Cañas anchor now sit in warm key light.
-    const sun = new DirectionalLight(0xfff4e0, 1.05);
+    // 1) Warm key sun — Americas-facing (R6 dot products +0.93/+0.97/+0.95).
+    const sun = new DirectionalLight(0xfff4e0, 1.1);
     sun.position.set(-1.05, 0.50, 0.40);
-    // 2) Cool navy ambient — preserves night-side without going full black
-    const amb = new AmbientLight(0x0d1f3c, 0.18);
+    // 2) Cool base ambient — bright enough that geometry ALWAYS reads.
+    const amb = new AmbientLight(0xdfe9ff, 0.85);
     // 3) Teal rim — silhouette separation, brand bridge
-    const rim = new DirectionalLight(0x00b5a8, 0.28);
+    const rim = new DirectionalLight(0x00b5a8, 0.30);
     rim.position.set(-1.0, -0.2, -0.8);
     scene.add(sun);
     scene.add(amb);
@@ -153,6 +160,13 @@ function installLights(g, reduced, lightsRef) {
   }
   lightsRef.current = true;
 }
+
+// ── Land-polygon fallback styling (module scope — stable identity) ──
+// Natural Earth continents render the Earth locally; retired once the
+// night-lights texture loads.
+const LAND_CAP_COLOR_FN    = () => "rgba(45, 88, 138, 0.92)";
+const LAND_SIDE_COLOR_FN   = () => "rgba(0, 0, 0, 0)";
+const LAND_STROKE_COLOR_FN = () => "rgba(103, 199, 240, 0.45)";
 
 // ── Count badge formatter ──
 function fmtCount(n, en = false) {
@@ -193,24 +207,55 @@ export default function PowerGlobe({ en = false, compact = false }) {
   const [arcsLive,            setArcsLive]            = useState(false);
   const [ringsLive,           setRingsLive]           = useState(false);
   const [pointsTransDuration, setPointsTransDuration] = useState(0);
+  // Local-first Earth: Natural Earth land polygons (public/geo, public domain)
+  // render the continents with ZERO remote dependencies; when the NASA
+  // night-lights texture arrives it takes over and the polygons retire.
+  const [landPolys,           setLandPolys]           = useState([]);
+  const [texLive,             setTexLive]             = useState(false);
 
   // Keep hoverCb ref always up-to-date so DOM event listeners in makeDc / makeCRHub
   // don't capture stale closures.
   hoverCb.current = setHover;
+  const onReadyRef = useRef(null); // latest onReady, for the init watchdog
 
   const locale = en ? "en" : "es";
 
   // ── Pause / resume rAF when off-screen or tab hidden ──
+  // Screenshot-verified guard: calling pauseAnimation() BEFORE the globe's
+  // animation cycle has started (scene not yet initialized) left the loop
+  // permanently dead — resumeAnimation() could not restart what never ran.
+  // Only pause after init, and never leave it paused when visible.
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
-    const pause  = () => { try { globeEl.current?.pauseAnimation?.();  } catch {} };
+    const pause  = () => { if (!sceneInit.current) return; try { globeEl.current?.pauseAnimation?.();  } catch {} };
     const resume = () => { try { globeEl.current?.resumeAnimation?.(); } catch {} };
     const io = new IntersectionObserver(([e]) => { e.isIntersecting ? resume() : pause(); }, { threshold: 0.01 });
     io.observe(el);
     const onVis = () => { document.hidden ? pause() : resume(); };
     document.addEventListener("visibilitychange", onVis);
     return () => { io.disconnect(); document.removeEventListener("visibilitychange", onVis); };
+  }, []);
+
+  // ── Continents (same-origin GeoJSON — cannot be blocked by CDN/network) ──
+  useEffect(() => {
+    let dead = false;
+    fetch("/geo/land-110m.geojson")
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((geo) => { if (!dead && geo && Array.isArray(geo.features)) setLandPolys(geo.features); })
+      .catch(() => {}); // sphere + graticules still render
+    return () => { dead = true; };
+  }, []);
+
+  // ── Init watchdog — run scene init even if onGlobeReady never fires
+  //    (it doesn't when the globe texture fails to load). ──
+  useEffect(() => {
+    const t = setInterval(() => {
+      if (sceneInit.current) { clearInterval(t); return; }
+      try { if (globeEl.current && globeEl.current.renderer()) onReadyRef.current(); } catch {}
+    }, 350);
+    const stop = setTimeout(() => clearInterval(t), 20000);
+    return () => { clearInterval(t); clearTimeout(stop); };
   }, []);
 
   // ── Size tracking (ResizeObserver, but now initial state is non-zero) ──
@@ -360,11 +405,17 @@ export default function PowerGlobe({ en = false, compact = false }) {
     const limited = compact ? sorted.slice(0, 20) : sorted;
     return limited.map((s) => ({ ...s, kind: "storage" }));
   }, [layers.storage, compact]);
-  // Inject Cañas hub + storage sites into the HTML-elements layer
+  // Inject Cañas hub + storage sites into the HTML-elements layer.
+  // Gated on `ready`: mounting ~65 HTML markers while globe.gl's animation
+  // cycle is mid-init raced its per-frame isBehindGlobe visibility pass
+  // against object creation — one entry without a position crashed the pass
+  // (`t.length` on undefined) and killed the render loop → permanent black
+  // canvas on every device. Markers mount one tick after scene init instead.
   const htmlData = useMemo(() => {
+    if (!ready) return [];
     const base = layers.hubs ? [...dcsBase, CANAS_HUB] : [CANAS_HUB];
     return [...base, ...storageData];
-  }, [dcsBase, layers.hubs, storageData]);
+  }, [ready, dcsBase, layers.hubs, storageData]);
 
   const ringCfg = RING.focus[focus] ?? RING.focus.global;
   const ringsData = useMemo(() => {
@@ -405,11 +456,34 @@ export default function PowerGlobe({ en = false, compact = false }) {
     });
   }, [reduced, compact]);
 
-  // ── Globe onReady callback ──
+  // ── Scene init — MUST NOT depend on the remote texture ──
+  // Screenshot-verified failure: react-globe.gl's onGlobeReady never fires when
+  // the globe texture fails/hangs, which used to strand ALL scene setup
+  // (lights, controls, camera, intro, arcsLive) behind a remote JPEG → black
+  // canvas with a stuck "loading" overlay. initScene is idempotent and gets
+  // invoked BOTH from onGlobeReady and from a mount-effect poll, so the globe
+  // always initializes from local state alone.
+  const sceneInit = useRef(false);
   const onReady = useCallback(() => {
-    setReady(true);
+    if (sceneInit.current) return;
     const g = globeEl.current;
     if (!g) return;
+    try { if (!g.renderer() || !g.scene()) return; } catch { return; }
+    sceneInit.current = true;
+    setReady(true);
+    // Undo any pauseAnimation() that may have fired before init completed.
+    try { g.resumeAnimation?.(); } catch {}
+    // three-render-objects gates its whole object group behind
+    // `waitForLoadComplete` (scene.visible=false until the globe TEXTURE
+    // finishes loading). If the texture is slow or unreachable the entire
+    // globe — sphere, land polygons, points, arcs, everything — stays
+    // invisible forever even with a healthy render loop. Our local-first
+    // design (navy sphere + Natural Earth polygons) must not wait for a
+    // remote JPEG: force the group visible at init. Idempotent with the
+    // library's own load-complete flip.
+    try {
+      g.scene().children.forEach((o) => { if (o.type === "Group") o.visible = true; });
+    } catch {}
 
     // Camera FOV override (must run before pointOfView to match visual spec)
     try {
@@ -446,6 +520,35 @@ export default function PowerGlobe({ en = false, compact = false }) {
 
     // Lights
     try { installLights(g, reduced, lightsRef); } catch {}
+
+    // Globe material resilience — the sphere must be visible with ZERO external
+    // dependencies (screenshot-verified: when the night-lights JPEG is slow or
+    // blocked, the old setup rendered a pure-black circle). Navy base color
+    // shows immediately; when the texture arrives it is promoted to an
+    // emissiveMap so city lights literally glow, independent of scene lights.
+    try {
+      const mat = g.globeMaterial();
+      mat.color = new Color(0x1a3a63);
+      mat.shininess = 4;
+      mat.needsUpdate = true;
+      let tries = 0;
+      const texPoll = setInterval(() => {
+        tries++;
+        try {
+          if (mat.map) {
+            mat.emissiveMap = mat.map;
+            mat.emissive = new Color(0xffffff);
+            mat.emissiveIntensity = 1.0;
+            mat.color = new Color(0x2e3d58);
+            mat.needsUpdate = true;
+            setTexLive(true); // texture carries the visual now — retire the land-polygon fallback
+            clearInterval(texPoll);
+          } else if (tries > 120) {
+            clearInterval(texPoll); // 30 s — texture isn't coming; land polygons + graticules carry the visual
+          }
+        } catch { clearInterval(texPoll); }
+      }, 250);
+    } catch {}
 
     // iOS context recovery
     try {
@@ -487,6 +590,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
       );
     }
   }, [reduced, compact]);
+  onReadyRef.current = onReady;
 
   // ── Focus transitions ──
   useEffect(() => {
@@ -717,9 +821,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
      soft halo opacity scaled with MW, AI-scale gold ring at >=700 MW, top-5
      hubs get an always-on MW badge (NoVA · 4.5 GW · est.). Addresses
      Audit #3 "data exists, encoding is binary". */
-  const makeDc = useCallback((d) => {
-    if (d.kind === "siepac-hub") return makeCRHub(d);
-    if (d.kind === "storage")    return makeStorage(d);
+  const makeHub = useCallback((d) => {
     const mw      = d.demandMw || 100;
     const size    = DC_SCALE.size(mw);
     const halo    = DC_SCALE.halo(mw);
@@ -787,7 +889,28 @@ export default function PowerGlobe({ en = false, compact = false }) {
     wrap.addEventListener("focus", show);
     wrap.addEventListener("blur",  hide);
     return wrap;
-  }, [en, compact, makeCRHub, makeStorage]);
+  }, [en, compact]);
+
+  // Un-crashable HTML factory: if ANY datum's element construction throws or
+  // returns nothing, globe.gl is left with a position-less entry whose
+  // per-frame isBehindGlobe visibility pass then dies on `position.length()`
+  // — killing the entire render loop (the black-canvas root cause). The
+  // factory therefore ALWAYS returns an element, no matter what.
+  const makeDc = useCallback((d) => {
+    try {
+      const el = d.kind === "siepac-hub" ? makeCRHub(d)
+               : d.kind === "storage"    ? makeStorage(d)
+               : makeHub(d);
+      if (el) return el;
+      if (typeof console !== "undefined") console.warn("PowerGlobe: html factory returned nothing for", d && (d.id || d.kind));
+    } catch (err) {
+      if (typeof console !== "undefined") console.warn("PowerGlobe: html factory failed for", d && (d.id || d.kind), err);
+    }
+    const fallback = document.createElement("div");
+    fallback.setAttribute("aria-hidden", "true");
+    fallback.style.cssText = "width:2px;height:2px;";
+    return fallback;
+  }, [makeCRHub, makeStorage, makeHub]);
 
   // ── Toggle helpers ──
   const toggleFuel  = useCallback((k) => setFilters((f) => ({ ...f, [k]: !f[k] })), []);
@@ -862,8 +985,13 @@ export default function PowerGlobe({ en = false, compact = false }) {
           border: 1px solid #22d3ee; transition: top 150ms ease; text-decoration: none;
           display: inline-flex; align-items: center;
         }
-        .pg-skip:focus { top: 10px; }
+        .pg-skip:focus-visible { top: 10px; }
         .pg-skip:focus-visible { outline: 2px solid #22d3ee; outline-offset: 2px; }
+        .pg-chips-rail { scrollbar-width: none; -ms-overflow-style: none;
+          mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+          -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); }
+        .pg-chips-rail::-webkit-scrollbar { display: none; }
+        .pg-chips-rail > button { flex-shrink: 0; white-space: nowrap; }
         .pg-dc-btn:focus-visible { outline: 2px solid #22d3ee; outline-offset: 3px; }
         .pg-sr {
           position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
@@ -963,9 +1091,16 @@ export default function PowerGlobe({ en = false, compact = false }) {
             height={size.h}
             backgroundColor="rgba(0,0,0,0)"
             globeImageUrl={SCENE.globeImageUrl}
+            showGraticules
             showAtmosphere
             atmosphereColor={SCENE.atmosphereColor}
             atmosphereAltitude={SCENE.atmosphereAltitude}
+            polygonsData={texLive ? [] : landPolys}
+            polygonCapColor={LAND_CAP_COLOR_FN}
+            polygonSideColor={LAND_SIDE_COLOR_FN}
+            polygonStrokeColor={LAND_STROKE_COLOR_FN}
+            polygonAltitude={0.006}
+            polygonsTransitionDuration={600}
             onGlobeReady={onReady}
             rendererConfig={compact ? RENDERER_MOBILE : RENDERER_DESKTOP}
             // ── Points ──
@@ -1003,7 +1138,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
             ringsData={ringsData}
             ringLat="lat"
             ringLng="lng"
-            ringColor={RING.colorFn()}
+            ringColor={RING.colorFn}
             ringMaxRadius={ringCfg.maxRadius}
             ringPropagationSpeed={ringCfg.propagationSpeed}
             ringRepeatPeriod={ringCfg.repeatPeriod}
@@ -1030,7 +1165,10 @@ export default function PowerGlobe({ en = false, compact = false }) {
           ═══════════════════════════ */}
       <div style={{
         position: "absolute", top: 12, left: 14, zIndex: 3,
-        maxWidth: "min(64%, 360px)", pointerEvents: "none",
+        // compact: reserve the right side for the World/CR pills so the title
+        // never runs under them (screenshot-verified collision).
+        maxWidth: compact ? "calc(100% - 200px)" : "min(64%, 360px)",
+        pointerEvents: "none",
       }}>
         <div
           id={titleId}
@@ -1251,12 +1389,13 @@ export default function PowerGlobe({ en = false, compact = false }) {
           aria-label={en ? "Expand Costa Rica panel — 5 SIEPAC segments, Bill 23.414" : "Expandir panel de Costa Rica — 5 segmentos SIEPAC, Exp. 23.414"}
           style={{
             position: "absolute",
-            // R4: lifted above Zone D citation (bottom:150 on compact). The R3 fix
-            // that pushed Zone D up from 100 to 150 to clear the chip rail had put
-            // the citation through the teaser band; raising the teaser frees the
-            // citation rail entirely on compact.
-            bottom: compact ? 200 : 108,
+            // Screenshot-verified: with Zone D gone from compact and the chip
+            // rail a single row (≈46px), the teaser docks just above the rail
+            // and leaves room for the "i" button on the right.
+            bottom: compact ? 64 : 150,
             left: 14,
+            right: compact ? 66 : "auto",
+            maxWidth: compact ? "none" : "min(320px, 60%)",
             zIndex: 3,
             display: "inline-flex",
             alignItems: "center",
@@ -1301,10 +1440,12 @@ export default function PowerGlobe({ en = false, compact = false }) {
             exit={{ opacity: 0, y: 4, transition: { duration: reduced ? 0 : 0.16, ease: "easeIn" } }}
             style={{
               position: "absolute",
-              bottom: compact ? 130 : 108,
+              bottom: compact ? 64 : 150,
               left: 14,
               width: "min(340px, calc(100% - 28px))",
-              zIndex: 3,
+              maxHeight: compact ? "min(58%, 320px)" : "none",
+              overflowY: compact ? "auto" : "visible",
+              zIndex: 5,
               background: `${EN_ACCENT.navyDeep}e8`,
               border: `1px solid ${EN_ACCENT.gold}55`,
               borderRadius: 12,
@@ -1375,15 +1516,18 @@ export default function PowerGlobe({ en = false, compact = false }) {
       </AnimatePresence>
 
       {/* ═══════════════════════════
-          ZONE D — Source attribution
+          ZONE D — Source attribution (DESKTOP ONLY)
+          Screenshot-verified redesign: on compact the on-canvas citation
+          collided with the chip rail and CR teaser mid-canvas. Mobile keeps
+          full sourcing in the always-visible caption paragraph directly
+          below the globe in EnergiaDeep.jsx — in normal document flow,
+          readable and tappable. Nothing on-canvas competes with it.
           ═══════════════════════════ */}
       <div style={{
         position: "absolute",
-        // R6 fix: when the CR Info Panel is open on compact, lift the
-        // citation above its 300+ px footprint so it doesn't paint over
-        // the gold "COSTA RICA · SIEPAC ANCHOR" header and SIEPAC list.
-        bottom: compact && focus === "cr" ? 460 : compact ? 150 : 96,
+        bottom: 96,
         left: 14, right: 14, zIndex: 3,
+        display: compact ? "none" : "block",
         fontFamily: MONO, fontSize: 10, letterSpacing: 0.3,
         color: "rgba(255,255,255,0.78)",
         textShadow: "0 1px 4px rgba(0,0,0,0.85)",
@@ -1402,6 +1546,10 @@ export default function PowerGlobe({ en = false, compact = false }) {
         {en ? "basemap " : "base "}
         <a href={SRC.three_globe.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>
           NASA night lights
+        </a>
+        {" / "}
+        <a href={SRC.naturalearth.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>
+          Natural Earth
         </a>
         {" · "}
         {en ? "interconnections illustrative (" : "interconexiones ilustrativas ("}
@@ -1450,7 +1598,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
           aria-controls="pg-enc"
           aria-label={en ? "Toggle encoding legend" : "Mostrar leyenda de codificación"}
           className="pg-btn"
-          style={{ position: "absolute", right: 14, bottom: 70, zIndex: 4, fontSize: 13, width: 44, height: 44 }}
+          style={{ position: "absolute", right: 14, bottom: 64, zIndex: 4, fontSize: 13, width: 44, height: 44 }}
         >
           i
         </button>
@@ -1460,7 +1608,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
         aria-hidden={compact && !encOpen ? true : undefined}
         style={{
           position:        "absolute",
-          bottom:          compact ? 122 : 56,
+          bottom:          compact ? 116 : 56,
           left:            14, right: 14, zIndex: 3,
           display:         (compact && !encOpen) ? "none" : "flex",
           flexWrap:        "wrap",
@@ -1554,17 +1702,23 @@ export default function PowerGlobe({ en = false, compact = false }) {
       {/* ═══════════════════════════
           ZONE F — Fuel chip rail (bottom)
           ═══════════════════════════ */}
-      <div style={{
+      <div className={compact ? "pg-chips-rail" : undefined} style={{
         position:       "absolute",
-        left:           14,
-        bottom:         "max(12px, env(safe-area-inset-bottom))",
-        right:          14,
+        left:           compact ? 0 : 14,
+        bottom:         "max(10px, env(safe-area-inset-bottom))",
+        right:          compact ? 0 : 14,
         zIndex:         3,
         display:        "flex",
-        flexWrap:       "wrap",
+        // Screenshot-verified redesign: on compact the wrapped 3-row chip
+        // block climbed mid-canvas and buried the citation. One horizontal
+        // scroll rail keeps the canvas clear; desktop keeps the wrap.
+        flexWrap:       compact ? "nowrap" : "wrap",
+        overflowX:      compact ? "auto" : "visible",
+        WebkitOverflowScrolling: "touch",
+        padding:        compact ? "0 14px" : 0,
         gap:            6,
         alignItems:     "center",
-        justifyContent: "center",
+        justifyContent: compact ? "flex-start" : "center",
       }}>
         {FUEL_LEGEND.map((k) => {
           const on = filters[k] !== false;

@@ -1,7 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    optimizePackageImports: ['recharts', 'framer-motion', 'react-simple-maps', 'three', 'react-globe.gl', 'animejs', '@react-three/fiber', '@react-three/postprocessing'],
+    // 'three' MUST NOT be in this list: optimizePackageImports rewrites its
+    // barrel imports into deep per-file imports, which forks a separate copy
+    // of three.js into every consuming chunk ("Multiple instances of Three.js"
+    // warning). Dual instances break globe.gl's `camera instanceof THREE.Camera`
+    // check and killed the PowerGlobe render loop on every device.
+    optimizePackageImports: ['recharts', 'framer-motion', 'react-simple-maps', 'react-globe.gl', 'animejs', '@react-three/fiber', '@react-three/postprocessing'],
   },
   async headers() {
     return [
