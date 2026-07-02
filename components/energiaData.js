@@ -467,3 +467,45 @@ export const GRID_NODES = [
   { id: "sanjose", x: 0.54, y: 0.57, kind: "load", label: "GAM (centro de carga)" },
   { id: "moin", x: 0.70, y: 0.42, kind: "thermal", label: "Moín (respaldo)" },
 ];
+
+/* ═══════════════ V2 VISUAL LAYER — numeric restatements (append-only) ═══════════════
+   Visual-upgrade round (charts builder). RULE: no new external sources — every
+   export below cites an EXISTING SRC key and restates figures already present
+   in this module. Consumed by components/energia/EnergiaChartsV2.jsx. */
+
+/* Composition of the 24 "against" votes at first debate.
+   Numeric restatement of TIMELINE row "26 may 2026 · 21:43" (PLN 16, FA 7,
+   Dobles 1 — Dobles sits for CAC, see VOTE_MATH.blocs). No new facts. */
+export const VOTE_WAFFLE = {
+  s: "asamblea", conf: "verified", asOf: "27 may 2026",
+  againstFirstDebate: [
+    { party: "PLN", n: 16 },
+    { party: "FA", n: 7 },
+    { party: "CAC", n: 1 },
+  ],
+};
+
+/* Scale anchor for the nuclear-deals comparison.
+   ~3.499 MW, dic 2023 — same figure as CR_MIX.asOf and PEG_TARGETS label, both s:peg. */
+export const NUCLEAR_VS_CR = {
+  conf: "verified", s: "peg", crInstalledMw: 3499, approx: true,
+  basisNote: {
+    es: "Contratos: MW comprometidos u ofertados (\"hasta\", según cada acuerdo). Costa Rica: capacidad instalada total a dic 2023 (~3.499 MW, PEG). Bases distintas — comparación de escala, no de equivalencia.",
+    en: "Deals: committed or offered MW (\"up to\", per each agreement). Costa Rica: total installed capacity, Dec 2023 (~3,499 MW, PEG). Different bases — a scale comparison, not an equivalence.",
+  },
+};
+
+/* Reform-vintage timeline coordinates.
+   Numeric restatement of COMPARATIVE.rows[].year strings — no new facts.
+   Country names and tones come from COMPARATIVE.rows via code join — never duplicated here. */
+export const REFORM_YEARS = {
+  s: "cne", conf: "verified",
+  rows: [
+    { code: "CL", spans: [[1982, 1982], [2016, 2016]] },
+    { code: "UY", spans: [[2005, 2017]] },
+    { code: "CO", spans: [[1994, 1994]] },
+    { code: "BR", spans: [[2004, 2004]] },
+    { code: "NP", spans: [[1996, 1996]] },
+    { code: "TX", spans: [[1999, 2002]] },
+  ],
+};
