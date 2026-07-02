@@ -89,6 +89,55 @@ void main() {
   gl_FragColor = vec4(col * glow, glow * 0.85);
 }`;
 
+
+/* ── Earth surface shader (panel v2 grade): indigo ocean fresnel ramp,
+      Natural-Earth land tint, wrap-lambert key, amber city-light ramp,
+      in-surface cyan rim. One material, one draw call. ── */
+const EARTH_VERT = `
+varying vec3 vNormal;
+varying vec3 vView;
+varying vec2 vUv;
+void main() {
+  vNormal = normalize(normalMatrix * normal);
+  vUv = uv;
+  vec4 mv = modelViewMatrix * vec4(position, 1.0);
+  vView = normalize(-mv.xyz);
+  gl_Position = projectionMatrix * mv;
+}`;
+const EARTH_FRAG = `
+uniform sampler2D tNight;
+uniform sampler2D tLand;
+uniform float uHasNight;
+uniform float uHasLand;
+varying vec3 vNormal;
+varying vec3 vView;
+varying vec2 vUv;
+void main() {
+  // The postprocessing composer gamma-encodes at the end of the chain, so all
+  // palette constants here are pre-converted to LINEAR (pow 2.2 of the spec sRGB).
+  float F = clamp(dot(vNormal, vView), 0.0, 1.0);
+  vec3 oceanLimb   = pow(vec3(0.118,0.298,0.541), vec3(2.2)); // #1E4C8A
+  vec3 oceanFacing = pow(vec3(0.027,0.102,0.200), vec3(2.2)); // #071A33
+  vec3 landTint    = pow(vec3(0.082,0.200,0.353), vec3(2.2)); // #15335A
+  vec3 ocean = mix(oceanLimb, oceanFacing, smoothstep(0.10, 0.70, F));
+  float land = uHasLand > 0.5 ? texture2D(tLand, vUv).r : 0.0;
+  vec3 col = mix(ocean, landTint, smoothstep(0.30, 0.62, land));
+  // wrap-lambert key (upper-left)
+  float ndl = dot(vNormal, normalize(vec3(-1.5, 1.2, 2.0)));
+  float k = pow(ndl * 0.5 + 0.5, 1.4);
+  col *= mix(1.0, k * 1.6, 0.30);
+  // amber civilization ramp from the night texture (sampled linear via sRGB decode)
+  if (uHasNight > 0.5) {
+    vec3 night = texture2D(tNight, vUv).rgb;
+    float lum = dot(night, vec3(0.299, 0.587, 0.114));
+    col += mix(pow(vec3(0.706,0.325,0.035), vec3(2.2)), pow(vec3(1.0,0.851,0.627), vec3(2.2)), smoothstep(0.12, 0.8, lum))
+           * pow(lum, 1.15) * 2.4;
+  }
+  // in-surface cyan rim
+  col += pow(vec3(0.133,0.827,0.933), vec3(2.2)) * pow(1.0 - F, 3.0) * 0.5;
+  gl_FragColor = vec4(col, 1.0);
+}`;
+
 /* ── Expanding ground-pulse shader (Cañas) ── */
 const PULSE_FRAG = `
 uniform float uTime;
@@ -104,23 +153,6 @@ void main() {
 const PULSE_VERT = `
 varying vec2 vUv;
 void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
-
-/* ── graticule line geometry ── */
-function buildGraticule() {
-  const pts = [];
-  for (let lat = -60; lat <= 60; lat += 30) {
-    for (let lng = -180; lng < 180; lng += 6) {
-      pts.push(toVec(lat, lng, 0.001), toVec(lat, lng + 6, 0.001));
-    }
-  }
-  for (let lng = -180; lng < 180; lng += 30) {
-    for (let lat = -84; lat < 84; lat += 6) {
-      pts.push(toVec(lat, lng, 0.001), toVec(lat + 6, lng, 0.001));
-    }
-  }
-  const g = new BufferGeometry().setFromPoints(pts);
-  return g;
-}
 
 /* ── starfield ── */
 function buildStars(n = 340) {
@@ -144,8 +176,11 @@ export default function GlobeScene({
   const sphereMat = useRef();
   const { camera, gl, invalidate } = useThree();
   const drag = useRef({ down: false, lx: 0, ly: 0, vx: 0, resume: 0 });
-  const spin = useRef({ y: -0.175, x: -0.18 }); // start on the Americas (lng ≈ -80)
-  const zoom = useRef({ v: 4.6, target: compact ? 3.8 : 3.4 });
+  // Rest pose aims lat 16°N lon −76°W (panel framing: Cañas in the protagonist box)
+  const REST_Y = -((-76 + 90) * Math.PI) / 180;
+  const REST_X = (16 * Math.PI) / 180 * 0.9 - 0.12;
+  const spin = useRef({ y: -0.2443, x: 0.1313 });
+  const zoom = useRef({ v: 5.6, target: compact ? 4.75 : 5.4 });
   const scratch = useMemo(() => new Vector3(), []);
   const scratch2 = useMemo(() => new Vector3(), []);
   const mtx = useMemo(() => new Matrix4(), []);
@@ -153,29 +188,16 @@ export default function GlobeScene({
   const quatTarget = useMemo(() => new Quaternion(), []);
   const quatScratch = useMemo(() => new Quaternion(), []);
 
-  /* ── load night texture ourselves (local, deterministic) ── */
-  useEffect(() => {
-    let dead = false;
-    new TextureLoader().load(SCENE.globeImageUrl, (tex) => {
-      if (dead) { tex.dispose(); return; }
-      tex.colorSpace = SRGBColorSpace;
-      tex.anisotropy = Math.min(4, gl.capabilities.getMaxAnisotropy?.() || 1);
-      texRef.current = tex;
-      if (sphereMat.current) {
-        sphereMat.current.emissiveMap = tex;
-        sphereMat.current.emissive = new Color("#ffffff");
-        sphereMat.current.emissiveIntensity = 1.2;
-        sphereMat.current.needsUpdate = true;
-      }
-      invalidate();
-    });
-    return () => { dead = true; texRef.current?.dispose?.(); };
-  }, [gl, invalidate]);
-
   /* ── static geometries/materials (built once, disposed on unmount) ── */
   const statics = useMemo(() => {
-    const graticule = buildGraticule();
     const stars = buildStars();
+    const earthMat = new ShaderMaterial({
+      vertexShader: EARTH_VERT, fragmentShader: EARTH_FRAG,
+      uniforms: {
+        tNight: { value: null }, tLand: { value: null },
+        uHasNight: { value: 0 }, uHasLand: { value: 0 },
+      },
+    });
     const atmoMat = new ShaderMaterial({
       vertexShader: ATMO_VERT, fragmentShader: ATMO_FRAG, transparent: true,
       blending: AdditiveBlending, side: BackSide, depthWrite: false,
@@ -221,14 +243,36 @@ export default function GlobeScene({
       blending: AdditiveBlending, depthWrite: false, side: DoubleSide,
       uniforms: { uTime: { value: 0 }, uColor: { value: new Color(EN_ACCENT.gold) } },
     });
-    return { graticule, stars, atmoMat, kindMat, arcs, pulseMat };
+    return { stars, atmoMat, kindMat, arcs, pulseMat, earthMat };
   }, []);
   useEffect(() => () => {
-    statics.graticule.dispose(); statics.stars.dispose(); statics.atmoMat.dispose();
+    statics.stars.dispose(); statics.atmoMat.dispose(); statics.earthMat.dispose();
     Object.values(statics.kindMat).forEach((m) => m.dispose());
     statics.arcs.forEach((a) => a.geo.dispose());
     statics.pulseMat.dispose();
   }, [statics]);
+
+  /* ── load night texture ourselves (local, deterministic) ── */
+  useEffect(() => {
+    let dead = false;
+    new TextureLoader().load(SCENE.globeImageUrl, (tex) => {
+      if (dead) { tex.dispose(); return; }
+      tex.colorSpace = SRGBColorSpace;
+      tex.anisotropy = Math.min(4, gl.capabilities.getMaxAnisotropy?.() || 1);
+      texRef.current = tex;
+      statics.earthMat.uniforms.tNight.value = tex;
+      statics.earthMat.uniforms.uHasNight.value = 1;
+      invalidate();
+    });
+    new TextureLoader().load("/textures/land-mask-2k.png", (tex) => {
+      if (dead) { tex.dispose(); return; }
+      statics.earthMat.uniforms.tLand.value = tex;
+      statics.earthMat.uniforms.uHasLand.value = 1;
+      invalidate();
+    });
+    return () => { dead = true; texRef.current?.dispose?.(); };
+  }, [gl, invalidate, statics]);
+
 
   /* ── instanced plants (light columns) ── */
   const plantMesh = useRef();
@@ -266,7 +310,7 @@ export default function GlobeScene({
   const hubGeo = useMemo(() => new OctahedronGeometry(1, 0), []);
   const hubMat = useMemo(() => new MeshStandardMaterial({ color: "#eaf6ff", emissive: "#9bd8ff", emissiveIntensity: 0.9, metalness: 0.2, roughness: 0.25 }), []);
   const ringGeo = useMemo(() => new TorusGeometry(1, 0.09, 8, 40), []);
-  const ringMat = useMemo(() => new MeshBasicMaterial({ color: EN_ACCENT.gold, transparent: true, opacity: 0.85, toneMapped: false, blending: AdditiveBlending, depthWrite: false }), []);
+  const ringMat = useMemo(() => new MeshBasicMaterial({ color: "#F472B6", transparent: true, opacity: 0.85, toneMapped: false, blending: AdditiveBlending, depthWrite: false }), []);
   const hubData = useMemo(() => DATACENTERS.map((d) => ({
     ...d, size: 0.012 + Math.sqrt((d.demandMw || 100) / 4500) * 0.02,
     ai: (d.demandMw || 0) >= 700, phase: Math.random() * Math.PI * 2,
@@ -334,7 +378,7 @@ export default function GlobeScene({
 
   /* ── focus targets ── */
   useEffect(() => {
-    zoom.current.target = focus === "cr" ? (compact ? 2.65 : 2.4) : (compact ? 3.8 : 3.4);
+    zoom.current.target = focus === "cr" ? (compact ? 3.2 : 3.6) : (compact ? 4.75 : 5.4);
     if (focus === "cr") {
       // rotate so Cañas faces the camera: yaw = -(lng+90°), pitch ≈ lat
       spin.current.targetY = -((CANAS.lng + 90) * Math.PI) / 180;
@@ -364,8 +408,12 @@ export default function GlobeScene({
       s.x += (s.targetX - s.x) * Math.min(1, dt * 3.2);
     } else if (!d.down) {
       if (d.resume > 0) { d.resume -= dt; s.y += d.vx; d.vx *= 0.94; }
-      else if (!reduced) s.y += dt * 0.05;
-      s.x += (-0.18 - s.x) * Math.min(1, dt * 0.8);
+      else if (!reduced) {
+        // pendulum idle: ±6° over 44 s around the rest pose; self-restores
+        const osc = Math.sin(t * (Math.PI * 2 / 44)) * 0.1047;
+        s.y += (REST_Y + osc - s.y) * Math.min(1, dt * 0.5);
+        s.x += (REST_X - s.x) * Math.min(1, dt * 0.4);
+      }
     }
     g.rotation.set(s.x, s.y, 0);
 
@@ -457,14 +505,9 @@ export default function GlobeScene({
 
       <group ref={globeGrp}>
         {/* Earth */}
-        <mesh onPointerMissed={clearHover}>
-          <sphereGeometry args={[R, 64, 48]} />
-          <meshStandardMaterial ref={sphereMat} color="#0d2140" roughness={0.92} metalness={0.05} />
+        <mesh onPointerMissed={clearHover} material={statics.earthMat}>
+          <sphereGeometry args={[R, 96, 64]} />
         </mesh>
-        {/* graticule */}
-        <lineSegments geometry={statics.graticule}>
-          <lineBasicMaterial color={EN_ACCENT.sky} transparent opacity={0.10} depthWrite={false} />
-        </lineSegments>
         {/* atmosphere */}
         <mesh scale={1.075} material={statics.atmoMat}>
           <sphereGeometry args={[R, 48, 32]} />

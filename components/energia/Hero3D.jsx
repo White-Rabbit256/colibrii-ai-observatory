@@ -85,26 +85,6 @@ function makeGlowTexture() {
   return tex;
 }
 
-/* ── Fine grain texture — breaks the flat navy face into brushed material ── */
-function makeGrainTexture() {
-  if (typeof document === "undefined") return null;
-  const s = 128;
-  const cv = document.createElement("canvas");
-  cv.width = cv.height = s;
-  const ctx = cv.getContext("2d");
-  if (!ctx) return null;
-  const img = ctx.createImageData(s, s);
-  for (let i = 0; i < img.data.length; i += 4) {
-    const v = 150 + Math.random() * 105; // roughness variation band
-    img.data[i] = img.data[i + 1] = img.data[i + 2] = v;
-    img.data[i + 3] = 255;
-  }
-  ctx.putImageData(img, 0, 0);
-  const tex = new THREE.CanvasTexture(cv);
-  tex.needsUpdate = true;
-  return tex;
-}
-
 /* ── Point-in-polygon (ray cast) against the CR outline, in scene coords ── */
 const OUTLINE_XY = CR_OUTLINE_GEO.map(([lng, lat]) => [px(lng), py(lat)]);
 function insideCR(x, y) {
@@ -118,7 +98,6 @@ function insideCR(x, y) {
 
 /* ── Extruded country + rim-glow halo + doubled lit edge ── */
 function CountryMesh() {
-  const grain = useMemo(makeGrainTexture, []);
   const { body, halo, edges } = useMemo(() => {
     const shape = new THREE.Shape();
     CR_OUTLINE_GEO.forEach(([lng, lat], i) => {
@@ -361,7 +340,7 @@ function EnergyArcs({ paused, intro }) {
   const arcs = useMemo(() => {
     const gam = PLANTS_GEO.find((p) => p.kind === "load");
     const gx = px(gam.lng), gy = py(gam.lat);
-    return PLANTS_GEO.filter((p) => p.kind !== "load").map((p, i) => {
+    return PLANTS_GEO.filter((p) => p.kind !== "load" && !p.inGam).map((p, i) => {
       const x = px(p.lng), y = py(p.lat);
       const dist = Math.hypot(gx - x, gy - y);
       const lift = 0.42 + dist * 0.28 + (i % 3) * 0.08;
@@ -526,11 +505,11 @@ function Scene({ reduced, drag, compact = false }) {
       {!reduced && (
         <EffectComposer disableNormalPass>
           <Bloom
-            intensity={compact ? 0.98 : 1.08}
-            luminanceThreshold={compact ? 0.26 : 0.22}
+            intensity={0.85}
+            luminanceThreshold={0.75}
             luminanceSmoothing={0.32}
             mipmapBlur
-            radius={compact ? 0.62 : 0.72}
+            radius={0.6}
           />
         </EffectComposer>
       )}
@@ -584,10 +563,10 @@ export default function Hero3D({ compact = false }) {
       style={{ position: "absolute", inset: 0, pointerEvents: dragOff ? "none" : "auto", cursor: dragOff ? "default" : grabbing ? "grabbing" : "grab", touchAction: dragOff ? "auto" : "pan-y" }}
     >
       <Canvas
-        dpr={reduced ? 1 : compact ? [1, 1.5] : [1, 2]}
+        dpr={reduced ? 1 : [1, 2]}
         frameloop={reduced ? "demand" : "always"}
         camera={{ position: [0, -0.4, compact ? 5.2 : 4.6], fov: 42 }}
-        gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+        gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
         style={{ position: "absolute", inset: 0 }}
         eventSource={typeof document !== "undefined" ? document.body : undefined}
         onCreated={({ gl }) => gl.setClearColor(0x000000, 0)}

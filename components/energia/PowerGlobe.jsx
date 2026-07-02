@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useState, useEffect, useMemo, useCallback, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
+import { ACESFilmicToneMapping } from "three";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { AnimatePresence, motion } from "framer-motion";
 import { PLANTS_GEO } from "./crGeo";
@@ -281,7 +282,6 @@ export default function PowerGlobe({ en = false, compact = false }) {
   const aspect  = compact ? "4 / 5" : "16 / 9";
   const titleId = "pg-title";
   const descId  = "pg-desc";
-  const errorBanner = status === "error" && !compact;
   const liveMsg = !anyOn
     ? (en
         ? "All plants hidden. Activate Show all to restore."
@@ -420,16 +420,15 @@ export default function PowerGlobe({ en = false, compact = false }) {
       <div aria-hidden="true" style={{ position: "absolute", inset: 0 }}>
         <Canvas
           dpr={[1, 2]}
-          camera={{ fov: compact ? 46 : 42, position: [0, 0, 3.4], near: 0.1, far: 20 }}
+          camera={{ fov: compact ? 34 : 26, position: [0, 0, 5.6], near: 0.1, far: 60 }}
           gl={{
-            antialias: !compact,
+            antialias: false,
             alpha: true,
             stencil: false,
-            preserveDrawingBuffer: true,
             powerPreference: compact ? undefined : "high-performance",
           }}
           style={{ position: "absolute", inset: 0, touchAction: "pan-y" }}
-          onCreated={({ gl }) => { gl.setClearColor(0x000000, 0); gl.domElement.style.touchAction = "pan-y"; }}
+          onCreated={({ gl }) => { gl.setClearColor(0x000000, 0); gl.toneMapping = ACESFilmicToneMapping; gl.toneMappingExposure = 1.15; gl.domElement.style.touchAction = "pan-y"; }}
         >
           <Suspense fallback={null}>
             <GlobeScene
@@ -447,7 +446,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
               <EffectComposer disableNormalPass>
                 <Bloom
                   intensity={compact ? 0.75 : 0.85}
-                  luminanceThreshold={0.28}
+                  luminanceThreshold={0.5}
                   luminanceSmoothing={0.3}
                   mipmapBlur
                   radius={compact ? 0.55 : 0.65}
@@ -502,15 +501,9 @@ export default function PowerGlobe({ en = false, compact = false }) {
             {!compact && <> · {DATACENTERS.length} {en ? "AI hubs" : "hubs IA"}</>}
           </span>
           {status === "loading" && <span style={{ color: "rgba(255,255,255,0.55)" }}> · {en ? "loading…" : "cargando…"}</span>}
+          {status === "error" && <span style={{ color: "rgba(169,187,217,0.75)" }}> · {en ? "curated set" : "referencias curadas"}</span>}
         </div>
 
-        {errorBanner && (
-          <div role="alert" style={{ marginTop: 6, padding: "6px 9px", borderRadius: 9, background: "rgba(10,31,63,0.94)", border: `1px solid ${EN_ACCENT.risk}88`, fontFamily: MONO, fontSize: 10.5, color: "#fff", maxWidth: 340 }}>
-            {en
-              ? "Full dataset unavailable — showing curated reference plants. (WRI CSV could not be fetched.)"
-              : "Dataset completo no disponible — mostrando referencias destacadas. (No se pudo obtener el CSV de la WRI.)"}
-          </div>
-        )}
 
         {/* Desktop hover tooltip (top-left; compact uses the bottom card) */}
         {!compact && (
