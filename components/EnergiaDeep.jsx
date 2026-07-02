@@ -829,15 +829,19 @@ export function EnergiaDeep({ en = false }) {
             @keyframes energiaSwipe { 0%,100% { transform: translateX(-3px); } 50% { transform: translateX(3px); } }
             .energia-amendment-btn:focus-visible { outline: 2px solid ${EN_ACCENT.glow}; outline-offset: 2px; border-radius: 8px; }
             .energia-skip {
-              position: absolute; left: 10px; top: -56px; z-index: 10;
+              position: absolute; left: 10px; top: 10px; z-index: 10;
               background: ${EN_ACCENT.navy}; color: #fff;
               padding: 12px 16px; border-radius: 8px;
               font-family: 'IBM Plex Mono', monospace; font-size: 12px;
               border: 1px solid ${EN_ACCENT.glow}; min-height: 44px;
-              transition: top .15s; text-decoration: none;
+              text-decoration: none;
               display: inline-flex; align-items: center;
+              /* fully hidden until keyboard focus — the wrapper has no overflow
+                 clipping, so the old top:-56px trick leaked above the canvas
+                 (visible in device screenshots). */
+              opacity: 0; pointer-events: none;
             }
-            .energia-skip:focus-visible { top: 10px; }
+            .energia-skip:focus-visible { opacity: 1; pointer-events: auto; }
             .energia-skip:focus-visible { outline: 2px solid ${EN_ACCENT.glow}; outline-offset: 2px; }
             .energia-globe-skeleton {
               aspect-ratio: 16 / 9; width: 100%; border-radius: 16px;

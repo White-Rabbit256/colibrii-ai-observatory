@@ -715,7 +715,9 @@ export default function PowerGlobe({ en = false, compact = false }) {
     wrap.appendChild(outer);
 
     const cap = document.createElement("div");
-    cap.style.cssText = `font-family:${MONO};font-size:9.5px;color:#fff;letter-spacing:0.8px;margin-top:6px;text-shadow:0 1px 4px rgba(0,0,0,0.95);white-space:nowrap;background:rgba(6,21,46,0.55);padding:2px 6px;border-radius:4px;border:1px solid ${EN_ACCENT.gold}66;text-align:center;line-height:1.2;`;
+    // width-bounded + wrapping so the caption never clips off the canvas edge
+    // when Cañas rotates near the horizon (screenshot-verified on device).
+    cap.style.cssText = `font-family:${MONO};font-size:9px;color:#fff;letter-spacing:0.6px;margin-top:6px;text-shadow:0 1px 4px rgba(0,0,0,0.95);white-space:normal;width:96px;background:rgba(6,21,46,0.62);padding:2px 5px;border-radius:4px;border:1px solid ${EN_ACCENT.gold}66;text-align:center;line-height:1.25;`;
     const capMain = en ? g.caption.en : g.caption.es;
     const capSub  = en ? g.captionSub.en : g.captionSub.es;
     cap.innerHTML = `<span>${capMain}</span><br><span style="color:rgba(255,255,255,0.7);font-size:8.5px;letter-spacing:0.6px;">${capSub}</span>`;
@@ -854,12 +856,18 @@ export default function PowerGlobe({ en = false, compact = false }) {
     dot.style.cssText = `width:${size}px;height:${size}px;transform:rotate(45deg);background:rgba(255,255,255,0.95);border:1px solid ${EN_ACCENT.glow};box-shadow:0 0 ${Math.round(halo / 2)}px ${EN_ACCENT.glow};transition:transform 120ms ease,box-shadow 120ms ease;`;
     wrap.appendChild(dot);
 
-    if (isTop5 && !compact) {
+    // Top hubs get an always-on label; compact shows only the ≥1.2 GW pair
+    // (NoVA, Phoenix) with the short name, centered BELOW the marker so it
+    // never clips at the canvas edge (screenshot-verified on device).
+    if (isTop5 && (!compact || mw >= 1200)) {
       const tag = document.createElement("div");
-      tag.style.cssText = `position:absolute;left:${(halo / 2) + 8}px;top:50%;transform:translateY(-50%);font-family:${MONO};font-size:9.5px;letter-spacing:0.3px;color:rgba(255,255,255,0.95);background:rgba(10,31,63,0.78);padding:2px 6px;border-radius:4px;border:1px solid ${EN_ACCENT.glow}66;white-space:nowrap;pointer-events:none;text-shadow:0 1px 4px rgba(0,0,0,0.85);`;
+      const pos = compact
+        ? `left:50%;top:calc(50% + ${Math.round(halo / 2) + 3}px);transform:translateX(-50%);`
+        : `left:${(halo / 2) + 8}px;top:50%;transform:translateY(-50%);`;
+      tag.style.cssText = `position:absolute;${pos}font-family:${MONO};font-size:${compact ? 8.5 : 9.5}px;letter-spacing:0.3px;color:rgba(255,255,255,0.95);background:rgba(10,31,63,0.8);padding:2px 6px;border-radius:4px;border:1px solid ${EN_ACCENT.glow}66;white-space:nowrap;pointer-events:none;text-shadow:0 1px 4px rgba(0,0,0,0.85);`;
       const mwTxt = mw >= 1000 ? `${(mw / 1000).toFixed(1).replace(".", en ? "." : ",")} GW` : `${mw} MW`;
       const displayName = typeof d.name === "object" ? (en ? d.name.en : d.name.es) : d.name;
-      const shortName = DC_SCALE.topNameShort[displayName] || displayName;
+      const shortName = DC_SCALE.topNameShort[enName] || (compact ? displayName.split(" / ")[0] : displayName);
       tag.textContent = `${shortName} · ${mwTxt} · est.`;
       wrap.appendChild(tag);
     }

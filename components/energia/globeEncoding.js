@@ -28,8 +28,8 @@ export const FUEL_HEX = {
 export const ARC_KIND = {
   siepac: {
     label:    { es: "SIEPAC", en: "SIEPAC" },
-    color:    ["rgba(242,177,53,0.9)", "rgba(251,191,36,0.7)"],
-    stroke:   1.1,
+    color:    ["rgba(242,177,53,0.98)", "rgba(251,191,36,0.85)"],
+    stroke:   1.5,
     dashLen:  0.45,
     dashGap:  0.12,
     altFloor: 0.09,
@@ -38,8 +38,8 @@ export const ARC_KIND = {
   },
   hvdc: {
     label:    { es: "HVDC", en: "HVDC" },
-    color:    ["rgba(34,211,238,0.9)", "rgba(0,181,168,0.7)"],
-    stroke:   0.60,
+    color:    ["rgba(34,211,238,0.95)", "rgba(0,181,168,0.8)"],
+    stroke:   0.85,
     dashLen:  0.45,
     dashGap:  0.12,
     altFloor: 0.05,
@@ -48,8 +48,8 @@ export const ARC_KIND = {
   },
   ac: {
     label:    { es: "Enlace CA", en: "AC link" },
-    color:    ["rgba(16,185,129,0.85)", "rgba(52,211,153,0.65)"],
-    stroke:   0.48,
+    color:    ["rgba(16,185,129,0.9)", "rgba(52,211,153,0.75)"],
+    stroke:   0.65,
     dashLen:  0.45,
     dashGap:  0.12,
     altFloor: 0.07,
@@ -59,7 +59,7 @@ export const ARC_KIND = {
   planned: {
     label:    { es: "PLANIFICADO", en: "PLANNED" },
     color:    ["rgba(129,140,248,0.7)", "rgba(165,180,252,0.5)"],
-    stroke:   0.30,
+    stroke:   0.42,
     dashLen:  0.16,
     dashGap:  0.50,
     altFloor: 0.12,
@@ -158,10 +158,13 @@ export const DC_SCALE = {
 
 // ── 7. SCENE CONSTANTS ──
 export const SCENE = {
-  globeImageUrl:      "https://cdn.jsdelivr.net/gh/vasturiano/three-globe@v2.45.2/example/img/earth-night.jpg",
+  // Self-hosted (public/textures) — the CDN copy failed to load on real
+  // devices; same-origin makes the night-lights texture deterministic.
+  // NASA Earth at Night imagery (public domain), via three-globe's MIT repo.
+  globeImageUrl:      "/textures/earth-night.jpg",
   atmosphereColor:    EN_ACCENT.sky,    // #38bdf8
   atmosphereAltitude: 0.22,             // > ALT_CAP (0.14), > arc alt cap ~0.20
-  pointRadius:        { compact: 0.16, full: 0.13 },
+  pointRadius:        { compact: 0.22, full: 0.15 },
   pointResolution:    3,
   pointsMerge:        true,
   dprCap:             { compact: 1.5, full: 2.0 },

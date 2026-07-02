@@ -3,8 +3,8 @@ import { useRef, useMemo, useState, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { animate } from "animejs";
-import { AdditiveBlending, CanvasTexture, Color, DoubleSide, EdgesGeometry, ExtrudeGeometry, MathUtils, QuadraticBezierCurve3, Shape, TubeGeometry, Vector3 } from "three";
-const THREE = { AdditiveBlending, CanvasTexture, Color, DoubleSide, EdgesGeometry, ExtrudeGeometry, MathUtils, QuadraticBezierCurve3, Shape, TubeGeometry, Vector3 };
+import { AdditiveBlending, CanvasTexture, CatmullRomCurve3, Color, DoubleSide, EdgesGeometry, ExtrudeGeometry, MathUtils, QuadraticBezierCurve3, Shape, TubeGeometry, Vector3 } from "three";
+const THREE = { AdditiveBlending, CanvasTexture, CatmullRomCurve3, Color, DoubleSide, EdgesGeometry, ExtrudeGeometry, MathUtils, QuadraticBezierCurve3, Shape, TubeGeometry, Vector3 };
 import { CR_OUTLINE_GEO, CR_BBOX, PLANTS_GEO } from "./crGeo";
 import { EN_ACCENT } from "../energiaData";
 
@@ -85,8 +85,40 @@ function makeGlowTexture() {
   return tex;
 }
 
-/* ── Extruded country + rim-glow halo + lit top edge ── */
+/* ── Fine grain texture — breaks the flat navy face into brushed material ── */
+function makeGrainTexture() {
+  if (typeof document === "undefined") return null;
+  const s = 128;
+  const cv = document.createElement("canvas");
+  cv.width = cv.height = s;
+  const ctx = cv.getContext("2d");
+  if (!ctx) return null;
+  const img = ctx.createImageData(s, s);
+  for (let i = 0; i < img.data.length; i += 4) {
+    const v = 150 + Math.random() * 105; // roughness variation band
+    img.data[i] = img.data[i + 1] = img.data[i + 2] = v;
+    img.data[i + 3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.needsUpdate = true;
+  return tex;
+}
+
+/* ── Point-in-polygon (ray cast) against the CR outline, in scene coords ── */
+const OUTLINE_XY = CR_OUTLINE_GEO.map(([lng, lat]) => [px(lng), py(lat)]);
+function insideCR(x, y) {
+  let inside = false;
+  for (let i = 0, j = OUTLINE_XY.length - 1; i < OUTLINE_XY.length; j = i++) {
+    const [xi, yi] = OUTLINE_XY[i], [xj, yj] = OUTLINE_XY[j];
+    if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+
+/* ── Extruded country + rim-glow halo + doubled lit edge ── */
 function CountryMesh() {
+  const grain = useMemo(makeGrainTexture, []);
   const { body, halo, edges } = useMemo(() => {
     const shape = new THREE.Shape();
     CR_OUTLINE_GEO.forEach(([lng, lat], i) => {
@@ -110,12 +142,133 @@ function CountryMesh() {
         <meshBasicMaterial color={TURQ} transparent opacity={0.14} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
       </mesh>
       <mesh geometry={body} castShadow receiveShadow>
-        <meshStandardMaterial color={DEEP} metalness={0.42} roughness={0.4} emissive={TURQ} emissiveIntensity={0.12} />
+        <meshStandardMaterial color="#123258" metalness={0.38} roughness={0.5} roughnessMap={grain || undefined} emissive={TURQ} emissiveIntensity={0.14} />
       </mesh>
+      {/* doubled coast: crisp cyan line + soft wide turquoise underglow */}
       <lineSegments geometry={edges} position={[0, 0, DEPTH + 0.022]}>
-        <lineBasicMaterial color={GLOW} transparent opacity={0.92} toneMapped={false} />
+        <lineBasicMaterial color={GLOW} transparent opacity={0.95} toneMapped={false} />
+      </lineSegments>
+      <lineSegments geometry={edges} position={[0, 0, DEPTH + 0.016]} scale={[1.006, 1.006, 1]}>
+        <lineBasicMaterial color={TURQ} transparent opacity={0.35} toneMapped={false} />
       </lineSegments>
     </group>
+  );
+}
+
+/* ── City-lights field — warm emissive dots scattered inside the country,
+      denser around the GAM load core. ONE Points draw call. ── */
+function CityLights({ paused, intro, compact }) {
+  const ref = useRef();
+  const { positions, colors, count } = useMemo(() => {
+    const gam = PLANTS_GEO.find((p) => p.kind === "load");
+    const gx = px(gam.lng), gy = py(gam.lat);
+    const xs = OUTLINE_XY.map((p) => p[0]), ys = OUTLINE_XY.map((p) => p[1]);
+    const minX = Math.min(...xs), maxX = Math.max(...xs);
+    const minY = Math.min(...ys), maxY = Math.max(...ys);
+    const target = compact ? 300 : 430;
+    const pts = [];
+    let guard = 0;
+    while (pts.length < target && guard++ < target * 30) {
+      const x = minX + Math.random() * (maxX - minX);
+      const y = minY + Math.random() * (maxY - minY);
+      if (insideCR(x, y)) pts.push([x, y]);
+    }
+    // GAM metropolitan cluster — brighter, denser
+    const cluster = compact ? 90 : 130;
+    for (let i = 0; i < cluster; i++) {
+      const r = Math.abs(Math.random() + Math.random() - 1) * 0.34;
+      const th = Math.random() * Math.PI * 2;
+      const x = gx + Math.cos(th) * r, y = gy + Math.sin(th) * r * 0.7;
+      if (insideCR(x, y)) pts.push([x, y]);
+    }
+    const positions = new Float32Array(pts.length * 3);
+    const colors = new Float32Array(pts.length * 3);
+    const warm = new THREE.Color("#ffe3b0");
+    const cool = new THREE.Color(GLOW);
+    pts.forEach(([x, y], i) => {
+      positions[i * 3] = x;
+      positions[i * 3 + 1] = y;
+      positions[i * 3 + 2] = Z_TOP + 0.004;
+      const c = Math.random() < 0.16 ? cool : warm;
+      const dim = 0.55 + Math.random() * 0.45;
+      colors[i * 3] = c.r * dim; colors[i * 3 + 1] = c.g * dim; colors[i * 3 + 2] = c.b * dim;
+    });
+    return { positions, colors, count: pts.length };
+  }, [compact]);
+
+  useFrame(({ clock }) => {
+    if (paused.current || !ref.current) return;
+    const ip = clamp01((intro.current.p - 0.25) / 0.5);
+    ref.current.material.opacity = ip * (0.82 + Math.sin(clock.elapsedTime * 1.1) * 0.1);
+  });
+
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" count={count} array={positions} itemSize={3} />
+        <bufferAttribute attach="attributes-color" count={count} array={colors} itemSize={3} />
+      </bufferGeometry>
+      <pointsMaterial vertexColors size={0.03} transparent opacity={0} sizeAttenuation depthWrite={false} toneMapped={false} />
+    </points>
+  );
+}
+
+/* ── SIEPAC spine — the gold transmission backbone crossing the country
+      (schematic route: NI border → Cañas → GAM → PA border) with one
+      traveling gold packet. Ties the hero to the section's core motif. ── */
+function SiepacSpine({ paused, intro }) {
+  const tubeRef = useRef();
+  const packetRef = useRef();
+  const scratch = useMemo(() => new THREE.Vector3(), []);
+  const { tube, curve } = useMemo(() => {
+    const gam = PLANTS_GEO.find((p) => p.kind === "load");
+    const way = [
+      [-85.62, 11.02], [-85.09, 10.43], [-84.72, 10.12],
+      [gam.lng, gam.lat], [-83.86, 9.52], [-83.28, 9.05], [-82.78, 8.92],
+    ].map(([lng, lat]) => new THREE.Vector3(px(lng), py(lat), Z_TOP + 0.012));
+    const curve = new THREE.CatmullRomCurve3(way, false, "catmullrom", 0.35);
+    const tube = new THREE.TubeGeometry(curve, 72, 0.011, 8, false);
+    return { tube, curve };
+  }, []);
+
+  useFrame(({ clock }) => {
+    if (paused.current) return;
+    const draw = clamp01((intro.current.p - 0.3) / 0.5);
+    if (tubeRef.current) tubeRef.current.material.opacity = 0.85 * draw;
+    if (packetRef.current) {
+      packetRef.current.visible = draw > 0.7;
+      const tt = (clock.elapsedTime * 0.09) % 1;
+      curve.getPointAt(tt, scratch);
+      packetRef.current.position.copy(scratch);
+    }
+  });
+
+  return (
+    <group>
+      <mesh ref={tubeRef} geometry={tube}>
+        <meshStandardMaterial color={GOLD} emissive={GOLD} emissiveIntensity={1.7} transparent opacity={0} toneMapped={false} depthWrite={false} />
+      </mesh>
+      <group ref={packetRef} visible={false}>
+        <mesh><sphereGeometry args={[0.045, 12, 12]} /><meshBasicMaterial color="#ffe9c0" toneMapped={false} /></mesh>
+        <mesh><sphereGeometry args={[0.1, 10, 10]} /><meshBasicMaterial color={GOLD} transparent opacity={0.35} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} /></mesh>
+      </group>
+    </group>
+  );
+}
+
+/* ── Orbital stage ring — thin additive halo circling the country ── */
+function HorizonRing({ paused }) {
+  const ref = useRef();
+  useFrame(({ clock }) => {
+    if (paused.current || !ref.current) return;
+    ref.current.rotation.z = clock.elapsedTime * 0.05;
+    ref.current.material.opacity = 0.16 + Math.sin(clock.elapsedTime * 0.6) * 0.05;
+  });
+  return (
+    <mesh ref={ref} position={[0, -0.15, -0.03]}>
+      <ringGeometry args={[2.06, 2.085, 128]} />
+      <meshBasicMaterial color={TURQ} transparent opacity={0.18} blending={THREE.AdditiveBlending} side={THREE.DoubleSide} depthWrite={false} toneMapped={false} />
+    </mesh>
   );
 }
 
@@ -348,10 +501,14 @@ function Scene({ reduced, drag, compact = false }) {
 
       <ParticleLayer paused={paused} count={compact ? 100 : 140} spread={11} depth={-3.4} size={0.03} opacity={0.42} color={GLOW} speed={0.008} />
       <ParticleLayer paused={paused} count={compact ? 150 : 220} spread={9} depth={-1.6} size={0.018} opacity={0.5} color={TURQ} speed={0.016} />
+      <ParticleLayer paused={paused} count={compact ? 30 : 46} spread={12} depth={-2.6} size={0.045} opacity={0.22} color={GOLD} speed={-0.006} />
       <StageGlow />
 
       <group ref={group} scale={0.001}>
         <CountryMesh />
+        <CityLights paused={paused} intro={intro} compact={compact} />
+        <SiepacSpine paused={paused} intro={intro} />
+        <HorizonRing paused={paused} />
         <PlantNodes paused={paused} intro={intro} />
         <EnergyArcs paused={paused} intro={intro} />
       </group>
@@ -364,7 +521,7 @@ function Scene({ reduced, drag, compact = false }) {
       {!reduced && (
         <EffectComposer disableNormalPass>
           <Bloom
-            intensity={compact ? 0.92 : 1.0}
+            intensity={compact ? 0.98 : 1.08}
             luminanceThreshold={compact ? 0.26 : 0.22}
             luminanceSmoothing={0.32}
             mipmapBlur
