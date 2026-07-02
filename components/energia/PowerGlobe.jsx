@@ -1,72 +1,30 @@
 "use client";
-import {
-  useRef, useState, useEffect, useMemo, useCallback,
-} from "react";
-import { DirectionalLight, AmbientLight, Color } from "three";
-// MUST precede react-globe.gl: unifies the dual three.js instances onto
-// window.THREE so globe.gl's `camera instanceof THREE.Camera` check passes
-// (see globeThreeShim.js for the black-canvas root-cause writeup).
-import "./globeThreeShim";
-import Globe from "react-globe.gl";
+import { useRef, useState, useEffect, useMemo, useCallback, Suspense } from "react";
+import { Canvas } from "@react-three/fiber";
+import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { AnimatePresence, motion } from "framer-motion";
-import { animate } from "animejs";
 import { PLANTS_GEO } from "./crGeo";
 import { EN_ACCENT, SRC } from "../energiaData";
 import { HV_ARCS } from "./hvArcs";
 import { DATACENTERS } from "./datacenters";
-import { STORAGE_SITES } from "./storage";
+import GlobeScene from "./GlobeScene";
 import {
-  FUEL_HEX, ARC_COLOR_FN, ARC_STROKE_FN, ARC_ALT_FN,
-  ARC_DASH_LEN_FN, ARC_DASH_GAP_FN, ARC_DASH_ANIM_FN,
-  altOf, RING, DC_GLYPH, CR_HUB_GLYPH, DC_ALTITUDE, DC_SCALE,
-  SCENE, TIMING, FUEL_LEGEND, FUEL_ES, ARC_LEGEND_ORDER,
-  ARC_KIND, KIND_LABEL,
+  FUEL_HEX, altOf, FUEL_LEGEND, FUEL_ES, ARC_LEGEND_ORDER, ARC_KIND, KIND_LABEL,
 } from "./globeEncoding";
 
 /* ═══════════════════════════════════════════════════════════════
-   ENERGÍA — PowerGlobe (visual rebuild, Phase 1)
-   Spec: BUILD SPEC v1 — 20-persona panel synthesis.
-   Fixes: iOS black canvas (size init), cinematic 3-light rig,
-   atmosphere 0.22, CR Info Panel, Cañas marker, arc corrections,
-   web-worker WRI parse, chip border alpha cc, a11y pass.
+   ENERGÍA — PowerGlobe (custom R3F engine)
+   The render layer is our own @react-three/fiber scene (GlobeScene):
+   one WebGL coordinate system, instanced glyphs, shader arcs, and
+   self-projected labels — replacing react-globe.gl after its DOM
+   marker layer misprojected on real devices (owner photos: NoVA in
+   the mid-Atlantic, Cañas in the Pacific) and its texture-gated
+   visibility black-holed the canvas. All chrome (pills, chips,
+   popovers, CR panel, captions, SR layer) is preserved.
    ═══════════════════════════════════════════════════════════════ */
 
 const MONO = "'IBM Plex Mono',monospace";
 const WRI_CSV = "https://cdn.jsdelivr.net/gh/wri/global-power-plant-database@v1.3.0/output_database/global_power_plant_database.csv";
-
-// ── Renderer configs (module-scope objects — stable identity, never triggers
-//    react-globe.gl renderer remount).
-// iOS black-canvas root cause: powerPreference on mobile prevents the GPU
-// from initialising on some iOS Safari versions. OMIT it on compact.
-const RENDERER_MOBILE = {
-  antialias: false,  // MSAA off on mobile — GPU budget
-  alpha:     true,
-  stencil:   false,
-  preserveDrawingBuffer: true, // FloatingShare html-to-image capture of the canvas
-  // powerPreference INTENTIONALLY OMITTED on mobile
-};
-const RENDERER_DESKTOP = {
-  antialias:        true,
-  alpha:            true,
-  stencil:          false,
-  preserveDrawingBuffer: true, // FloatingShare html-to-image capture of the canvas
-  powerPreference:  "high-performance",
-};
-
-// ── Motion constants (mirrors TIMING from globeEncoding, but adds ramp values)
-const MT = {
-  introCameraMs:      TIMING.introCameraMs,      // 1400
-  introArcsDelayMs:   TIMING.introArcsDelayMs,   // 700
-  introRingsDelayMs:  TIMING.introRingsDelayMs,  // 1200
-  introPointsDelayMs: TIMING.introPointsDelayMs, // 350
-  focusTweenMs:       TIMING.focusTweenMs,       // 1200
-  rotResumeDelayMs:   TIMING.rotResumeDelayMs,   // 1250
-  hoverSlowMs:        600,
-  hoverRestoreMs:     900,
-  rotSpeedNormal:     0.45,
-  rotSpeedHover:      0.12,
-  cameraStartAlt:     TIMING.cameraStartAlt,     // 4.5
-};
 
 // ── Curated marquee (mobile + WRI fallback) ──
 const CR_MARQUEE = PLANTS_GEO.filter((p) => p.kind !== "load").map((p) => ({
@@ -91,16 +49,15 @@ const LANDMARKS = [
 ];
 const MARQUEE = [...LANDMARKS, ...CR_MARQUEE];
 
-// ── Cañas SIEPAC hub marker (separate from DATACENTERS — dispatched via kind)
-const CANAS_HUB = {
-  kind: "siepac-hub",
-  // Phase 2 (R3 consensus): aligned to ICE Subestación Cañas / crGeo.js Cañas
-  // canton centroid (10.43°N, 85.09°W). Prior 10.27/-85.07 was 18 km south.
-  lat: 10.43, lng: -85.09,
-  name: { es: "Cañas · Nodo SIEPAC", en: "Cañas · SIEPAC Hub" },
-  sub:  { es: "Punto de acoplamiento ICE–MER · 230 kV · 300 MW/seg.", en: "ICE–MER coupling point · 230 kV · 300 MW/seg." },
-  detail: { es: "Expediente 23.414 — la reforma en juego", en: "Expediente 23.414 — the reform at stake" },
-};
+// ── Projected label anchors (rendered by US — same math as the sphere) ──
+const LABEL_ANCHORS = [
+  { id: "canas",   lat: 10.43, lng: -85.09, alt: 0.05, gold: true,
+    text: { es: "CAÑAS · NODO SIEPAC", en: "CAÑAS · SIEPAC HUB" }, sub: "Exp. 23.414" },
+  { id: "nova",    lat: 39.04, lng: -77.49, alt: 0.045,
+    text: { es: "NoVA · 4,5 GW · est.", en: "NoVA · 4.5 GW · est." } },
+  { id: "phoenix", lat: 33.45, lng: -112.07, alt: 0.045,
+    text: { es: "Phoenix · 1,2 GW · est.", en: "Phoenix · 1.2 GW · est." } },
+];
 
 // ── prefers-reduced-motion (SSR-safe) ──
 function useReducedMotion() {
@@ -120,55 +77,12 @@ function useReducedMotion() {
   return reduced;
 }
 
-// ── Resolve bilingual {es, en} field ──
 const txt = (v, en) => {
   if (!v) return "";
   if (typeof v === "object") return (en ? v.en : v.es) || v.es || v.en || "";
   return v;
 };
 
-// ── installLights helper (extracted so context-restore can re-run it) ──
-function installLights(g, reduced, lightsRef) {
-  if (lightsRef.current) return;
-  // Phase 2 (R3 consensus): clear globe.gl's default lights (AmbientLight
-  // 0xcccccc·π + DirectionalLight 0xffffff·0.6π) before injecting the
-  // cinematic rig — otherwise the neutral defaults outweigh our brand
-  // hues by ~10× and the day/night terminator renders flat.
-  try { g.lights([]); } catch {}
-  const scene = g.scene();
-  // Screenshot-verified fix: the previous 0.18 navy ambient left the entire
-  // scene ~17× darker than the library default it replaced — points, arcs and
-  // the untextured sphere all rendered black on real devices. Base visibility
-  // comes from a strong neutral-cool ambient; the warm sun and teal rim keep
-  // the cinematic modelling on top of it. Night-lights glow via emissiveMap
-  // (set in onReady), so they never depend on scene lighting.
-  if (reduced) {
-    const amb = new AmbientLight(0xffffff, 0.95);
-    scene.add(amb);
-  } else {
-    // 1) Warm key sun — Americas-facing (R6 dot products +0.93/+0.97/+0.95).
-    const sun = new DirectionalLight(0xfff4e0, 1.1);
-    sun.position.set(-1.05, 0.50, 0.40);
-    // 2) Cool base ambient — bright enough that geometry ALWAYS reads.
-    const amb = new AmbientLight(0xdfe9ff, 0.85);
-    // 3) Teal rim — silhouette separation, brand bridge
-    const rim = new DirectionalLight(0x00b5a8, 0.30);
-    rim.position.set(-1.0, -0.2, -0.8);
-    scene.add(sun);
-    scene.add(amb);
-    scene.add(rim);
-  }
-  lightsRef.current = true;
-}
-
-// ── Land-polygon fallback styling (module scope — stable identity) ──
-// Natural Earth continents render the Earth locally; retired once the
-// night-lights texture loads.
-const LAND_CAP_COLOR_FN    = () => "rgba(45, 88, 138, 0.92)";
-const LAND_SIDE_COLOR_FN   = () => "rgba(0, 0, 0, 0)";
-const LAND_STROKE_COLOR_FN = () => "rgba(103, 199, 240, 0.45)";
-
-// ── Count badge formatter ──
 function fmtCount(n, en = false) {
   if (n >= 10000) return `${Math.round(n / 1000)}k`;
   if (n >= 1000)  return `${(n / 1000).toFixed(1).replace(".", en ? "." : ",")}k`;
@@ -176,110 +90,51 @@ function fmtCount(n, en = false) {
 }
 
 export default function PowerGlobe({ en = false, compact = false }) {
-  const reduced     = useReducedMotion();
-  const wrapRef     = useRef(null);
-  const globeEl     = useRef(null);
-  const hoverCb     = useRef(null);
-  const lightsRef   = useRef(false);
-  const introTimers = useRef([]);
-  const rotAnim     = useRef(null);
+  const reduced = useReducedMotion();
+  const wrapRef = useRef(null);
   const layerTriggerRef = useRef(null);
-  const encTriggerRef   = useRef(null);
+  const encTriggerRef = useRef(null);
+  const pausedRef = useRef(false);
+  const labelRefs = useRef(LABEL_ANCHORS.map((a) => ({ ...a, el: null })));
 
-  // CRITICAL FIX for iOS black canvas: initialize with real window dimensions so
-  // size.w > 0 && size.h > 0 on first render — the Globe mount gate was previously
-  // deferred until ResizeObserver fired (too late on iOS Safari).
-  const [size, setSize] = useState(() => ({
-    w: typeof window !== "undefined" ? Math.min(window.innerWidth, 1200) : 360,
-    h: 400,
-  }));
-
-  const [plants,              setPlants]              = useState(null);
-  const [status,              setStatus]              = useState("idle");
-  const [filters,             setFilters]             = useState(() => Object.fromEntries(FUEL_LEGEND.map((k) => [k, true])));
-  const [layers,              setLayers]              = useState({ plants: true, grid: true, hubs: true, storage: true });
-  const [layersOpen,          setLayersOpen]          = useState(false);
-  const [encOpen,             setEncOpen]             = useState(false);
-  const [focus,               setFocus]               = useState("global");
-  const [hover,               setHover]               = useState(null);
-  const [ready,               setReady]               = useState(false);
-  const [announce,            setAnnounce]            = useState("");
-  const [arcsLive,            setArcsLive]            = useState(false);
-  const [ringsLive,           setRingsLive]           = useState(false);
-  const [pointsTransDuration, setPointsTransDuration] = useState(0);
-  // Local-first Earth: Natural Earth land polygons (public/geo, public domain)
-  // render the continents with ZERO remote dependencies; when the NASA
-  // night-lights texture arrives it takes over and the polygons retire.
-  const [landPolys,           setLandPolys]           = useState([]);
-  const [texLive,             setTexLive]             = useState(false);
-
-  // Keep hoverCb ref always up-to-date so DOM event listeners in makeDc / makeCRHub
-  // don't capture stale closures.
-  hoverCb.current = setHover;
-  const onReadyRef = useRef(null); // latest onReady, for the init watchdog
+  const [plants,     setPlants]     = useState(null);
+  const [status,     setStatus]     = useState("idle");
+  const [filters,    setFilters]    = useState(() => Object.fromEntries(FUEL_LEGEND.map((k) => [k, true])));
+  const [layers,     setLayers]     = useState({ plants: true, grid: true, hubs: true, storage: true });
+  const [layersOpen, setLayersOpen] = useState(false);
+  const [encOpen,    setEncOpen]    = useState(false);
+  const [focus,      setFocus]      = useState("global");
+  const [hover,      setHover]      = useState(null);
+  const [ready,      setReady]      = useState(false);
+  const [announce,   setAnnounce]   = useState("");
+  const [arcsLive,   setArcsLive]   = useState(false);
 
   const locale = en ? "en" : "es";
 
-  // ── Pause / resume rAF when off-screen or tab hidden ──
-  // Screenshot-verified guard: calling pauseAnimation() BEFORE the globe's
-  // animation cycle has started (scene not yet initialized) left the loop
-  // permanently dead — resumeAnimation() could not restart what never ran.
-  // Only pause after init, and never leave it paused when visible.
+  // ── Pause the R3F frame work when off-screen or tab hidden ──
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
-    const pause  = () => { if (!sceneInit.current) return; try { globeEl.current?.pauseAnimation?.();  } catch {} };
-    const resume = () => { try { globeEl.current?.resumeAnimation?.(); } catch {} };
-    const io = new IntersectionObserver(([e]) => { e.isIntersecting ? resume() : pause(); }, { threshold: 0.01 });
+    const io = new IntersectionObserver(([e]) => { pausedRef.current = !e.isIntersecting; }, { threshold: 0.01 });
     io.observe(el);
-    const onVis = () => { document.hidden ? pause() : resume(); };
+    const onVis = () => { pausedRef.current = document.hidden; };
     document.addEventListener("visibilitychange", onVis);
     return () => { io.disconnect(); document.removeEventListener("visibilitychange", onVis); };
   }, []);
 
-  // ── Continents (same-origin GeoJSON — cannot be blocked by CDN/network) ──
+  // ── Ready + intro staging (no texture dependency — the scene is local) ──
   useEffect(() => {
-    let dead = false;
-    fetch("/geo/land-110m.geojson")
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then((geo) => { if (!dead && geo && Array.isArray(geo.features)) setLandPolys(geo.features); })
-      .catch(() => {}); // sphere + graticules still render
-    return () => { dead = true; };
-  }, []);
-
-  // ── Init watchdog — run scene init even if onGlobeReady never fires
-  //    (it doesn't when the globe texture fails to load). ──
-  useEffect(() => {
-    const t = setInterval(() => {
-      if (sceneInit.current) { clearInterval(t); return; }
-      try { if (globeEl.current && globeEl.current.renderer()) onReadyRef.current(); } catch {}
-    }, 350);
-    const stop = setTimeout(() => clearInterval(t), 20000);
-    return () => { clearInterval(t); clearTimeout(stop); };
-  }, []);
-
-  // ── Size tracking (ResizeObserver, but now initial state is non-zero) ──
-  useEffect(() => {
-    const el = wrapRef.current;
-    if (!el || typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(() => setSize({ w: el.clientWidth, h: el.clientHeight }));
-    ro.observe(el);
-    // Force a synchronous read on mount (catches cases where the container is
-    // already sized before the observer fires).
-    const { clientWidth: w, clientHeight: h } = el;
-    if (w > 0 && h > 0) setSize({ w, h });
-    return () => ro.disconnect();
-  }, []);
-
-  // ── Intro timer cleanup on unmount ──
-  useEffect(() => () => { introTimers.current.forEach(clearTimeout); }, []);
+    const t1 = setTimeout(() => setReady(true), 120);
+    const t2 = setTimeout(() => setArcsLive(true), reduced ? 0 : 650);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [reduced]);
 
   // ── WRI Web Worker fetch (desktop only, lazy) ──
   useEffect(() => {
     if (compact || reduced) return;
     const el = wrapRef.current;
     if (!el) return;
-    let done   = false;
+    let done = false;
     let worker = null;
 
     const handleErr = (err) => {
@@ -291,85 +146,29 @@ export default function PowerGlobe({ en = false, compact = false }) {
       );
     };
 
-    // Main-thread fallback parse (if Worker unavailable)
-    const parseMainThread = (text) => {
-      const rows = [];
-      let field = "", row = [], inQ = false;
-      for (let i = 0; i < text.length; i++) {
-        const c = text[i];
-        if (inQ) {
-          if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else inQ = false; }
-          else field += c;
-        } else if (c === '"') inQ = true;
-        else if (c === ",") { row.push(field); field = ""; }
-        else if (c === "\n") { row.push(field); rows.push(row); row = []; field = ""; }
-        else if (c !== "\r") field += c;
-      }
-      if (field.length || row.length) { row.push(field); rows.push(row); }
-      const head  = rows[0].map((h) => h.trim());
-      const iLat  = head.indexOf("latitude"), iLng = head.indexOf("longitude");
-      const iFuel = head.indexOf("primary_fuel"), iCap = head.indexOf("capacity_mw");
-      const iName = head.indexOf("name"), iCtry = head.indexOf("country_long");
-      if (iLat < 0 || iLng < 0 || iFuel < 0) { handleErr(new Error("schema")); return; }
-      const out = [];
-      for (let r = 1; r < rows.length; r++) {
-        const rw  = rows[r];
-        const lat = parseFloat(rw[iLat]), lng = parseFloat(rw[iLng]);
-        if (!isFinite(lat) || !isFinite(lng)) continue;
-        const fuelRaw = (rw[iFuel] || "Other").trim();
-        const fuel    = FUEL_HEX[fuelRaw] ? fuelRaw : "Other";
-        const cap     = parseFloat(rw[iCap]) || 8;
-        out.push({
-          lat, lng, fuel, cap, alt: altOf(cap),
-          name: rw[iName] || "", country: iCtry >= 0 ? rw[iCtry] : "",
-          color: FUEL_HEX[fuel],
-        });
-      }
-      setPlants(out);
-      setStatus("ok");
-      setAnnounce(
-        en ? `Atlas ready: ${out.length.toLocaleString("en")} plants loaded.`
-           : `Atlas listo: ${out.length.toLocaleString("es")} plantas cargadas.`,
-      );
-    };
-
     const run = () => {
       if (done) return;
       done = true;
       setStatus("loading");
-      setAnnounce(
-        en ? "Loading 35,000 plants from WRI…"
-           : "Cargando 35.000 plantas WRI…",
-      );
-
+      setAnnounce(en ? "Loading 35,000 plants from WRI…" : "Cargando 35.000 plantas WRI…");
       try {
         worker = new Worker("/workers/wri-parse.worker.js");
       } catch {
-        // Worker unavailable (edge runtime or CSP) — fall back to main thread
-        fetch(WRI_CSV)
-          .then((r) => (r.ok ? r.text() : Promise.reject(new Error(String(r.status)))))
-          .then(parseMainThread)
-          .catch(handleErr);
+        handleErr(new Error("worker"));
         return;
       }
-
       fetch(WRI_CSV)
         .then((r) => (r.ok ? r.text() : Promise.reject(new Error(String(r.status)))))
         .then((text) => worker.postMessage({ text, fuelKeys: Object.keys(FUEL_HEX) }))
         .catch(handleErr);
-
       worker.onmessage = (e) => {
         worker.terminate();
         if (e.data.error) { handleErr(new Error("schema")); return; }
-        const out = e.data.plants.map((p) => ({
-          ...p,
-          color: FUEL_HEX[p.fuel] || FUEL_HEX.Other,
-        }));
-        setPlants(out);
+        setPlants(e.data.plants);
         setStatus("ok");
         setAnnounce(
-          en ? `Atlas ready: ${out.length.toLocaleString("en")} plants loaded.`
-             : `Atlas listo: ${out.length.toLocaleString("es")} plantas cargadas.`,
+          en ? `Atlas ready: ${e.data.plants.length.toLocaleString("en")} plants loaded.`
+             : `Atlas listo: ${e.data.plants.length.toLocaleString("es")} plantas cargadas.`,
         );
       };
       worker.onerror = () => { worker.terminate(); handleErr(new Error("worker")); };
@@ -382,46 +181,15 @@ export default function PowerGlobe({ en = false, compact = false }) {
     return () => { io.disconnect(); if (worker) try { worker.terminate(); } catch {} };
   }, [compact, reduced, en]);
 
-  // ── Decorated marquee (stable — only depends on static MARQUEE) ──
+  // ── Derived display data ──
   const decoratedMarquee = useMemo(
     () => MARQUEE.map((p) => ({ ...p, color: FUEL_HEX[p.fuel] || FUEL_HEX.Other, alt: altOf(p.cap) })),
     [],
   );
-
-  // ── Derived display data ──
   const points = useMemo(() => {
     const src = plants || decoratedMarquee;
     return src.filter((p) => filters[p.fuel] !== false);
   }, [plants, decoratedMarquee, filters]);
-
-  const arcs    = useMemo(() => (layers.grid  ? HV_ARCS    : []), [layers.grid]);
-  const dcsBase = useMemo(() => (layers.hubs  ? DATACENTERS: []), [layers.hubs]);
-  // Phase 2 · Storage layer — 38 utility-scale battery sites tagged with kind:"storage"
-  // so makeDc dispatches to the ring-glyph factory. Top 20 by MW on mobile to keep
-  // marker count tractable on the 4:5 canvas.
-  const storageData = useMemo(() => {
-    if (!layers.storage) return [];
-    const sorted = STORAGE_SITES.slice().sort((a, b) => (b.mw || 0) - (a.mw || 0));
-    const limited = compact ? sorted.slice(0, 20) : sorted;
-    return limited.map((s) => ({ ...s, kind: "storage" }));
-  }, [layers.storage, compact]);
-  // Inject Cañas hub + storage sites into the HTML-elements layer.
-  // Gated on `ready`: mounting ~65 HTML markers while globe.gl's animation
-  // cycle is mid-init raced its per-frame isBehindGlobe visibility pass
-  // against object creation — one entry without a position crashed the pass
-  // (`t.length` on undefined) and killed the render loop → permanent black
-  // canvas on every device. Markers mount one tick after scene init instead.
-  const htmlData = useMemo(() => {
-    if (!ready) return [];
-    const base = layers.hubs ? [...dcsBase, CANAS_HUB] : [CANAS_HUB];
-    return [...base, ...storageData];
-  }, [ready, dcsBase, layers.hubs, storageData]);
-
-  const ringCfg = RING.focus[focus] ?? RING.focus.global;
-  const ringsData = useMemo(() => {
-    if (reduced || !ringsLive) return [];
-    return CR_MARQUEE.slice(0, ringCfg.count);
-  }, [reduced, ringsLive, ringCfg.count]);
 
   const counts = useMemo(() => {
     const c = {};
@@ -433,207 +201,27 @@ export default function PowerGlobe({ en = false, compact = false }) {
   const filteredCount = points.length;
   const anyOn         = FUEL_LEGEND.some((k) => filters[k] !== false);
 
-  // ── Hover slow-rotation (desktop only) ──
-  const slowRotation = useCallback(() => {
-    if (!globeEl.current || reduced || compact) return;
-    const ctrl = globeEl.current.controls();
-    if (rotAnim.current) rotAnim.current.pause();
-    const proxy = { v: ctrl.autoRotateSpeed };
-    rotAnim.current = animate(proxy, {
-      v: MT.rotSpeedHover, duration: MT.hoverSlowMs, ease: "outQuad",
-      onUpdate: () => { ctrl.autoRotateSpeed = proxy.v; },
-    });
-  }, [reduced, compact]);
-
-  const restoreRotation = useCallback(() => {
-    if (!globeEl.current || reduced || compact) return;
-    const ctrl = globeEl.current.controls();
-    if (rotAnim.current) rotAnim.current.pause();
-    const proxy = { v: ctrl.autoRotateSpeed };
-    rotAnim.current = animate(proxy, {
-      v: MT.rotSpeedNormal, duration: MT.hoverRestoreMs, ease: "inOutQuad",
-      onUpdate: () => { ctrl.autoRotateSpeed = proxy.v; },
-    });
-  }, [reduced, compact]);
-
-  // ── Scene init — MUST NOT depend on the remote texture ──
-  // Screenshot-verified failure: react-globe.gl's onGlobeReady never fires when
-  // the globe texture fails/hangs, which used to strand ALL scene setup
-  // (lights, controls, camera, intro, arcsLive) behind a remote JPEG → black
-  // canvas with a stuck "loading" overlay. initScene is idempotent and gets
-  // invoked BOTH from onGlobeReady and from a mount-effect poll, so the globe
-  // always initializes from local state alone.
-  const sceneInit = useRef(false);
-  const onReady = useCallback(() => {
-    if (sceneInit.current) return;
-    const g = globeEl.current;
-    if (!g) return;
-    try { if (!g.renderer() || !g.scene()) return; } catch { return; }
-    sceneInit.current = true;
-    setReady(true);
-    // Undo any pauseAnimation() that may have fired before init completed.
-    try { g.resumeAnimation?.(); } catch {}
-    // three-render-objects gates its whole object group behind
-    // `waitForLoadComplete` (scene.visible=false until the globe TEXTURE
-    // finishes loading). If the texture is slow or unreachable the entire
-    // globe — sphere, land polygons, points, arcs, everything — stays
-    // invisible forever even with a healthy render loop. Our local-first
-    // design (navy sphere + Natural Earth polygons) must not wait for a
-    // remote JPEG: force the group visible at init. Idempotent with the
-    // library's own load-complete flip.
-    try {
-      g.scene().children.forEach((o) => { if (o.type === "Group") o.visible = true; });
-    } catch {}
-
-    // Camera FOV override (must run before pointOfView to match visual spec)
-    try {
-      const cam = g.camera();
-      cam.fov = compact ? 50 : 45;
-      cam.updateProjectionMatrix();
-    } catch {}
-
-    // OrbitControls (locked spec values)
-    try {
-      const c = g.controls();
-      c.autoRotate       = !reduced;
-      c.autoRotateSpeed  = MT.rotSpeedNormal;
-      c.enableZoom       = false;
-      c.enablePan        = false;
-      c.enableDamping    = true;
-      c.dampingFactor    = 0.08;
-      c.minDistance      = 200;
-      c.maxDistance      = 500;
-      c.minPolarAngle    = Math.PI * 0.18;
-      c.maxPolarAngle    = Math.PI * 0.82;
-    } catch {}
-
-    // DPR cap
-    try {
-      const rawDpr = typeof window !== "undefined" ? (window.devicePixelRatio || 1) : 1;
-      // Low-mem device hint (Chrome only; silent no-op on Safari)
-      const memHint = typeof navigator !== "undefined" && navigator.deviceMemory < 4;
-      const dprCap  = memHint ? 1.0 : (compact ? SCENE.dprCap.compact : SCENE.dprCap.full);
-      g.renderer().setPixelRatio(Math.min(rawDpr, dprCap));
-      // iOS Safari: allow vertical page scroll over the canvas
-      g.renderer().domElement.style.touchAction = "pan-y";
-    } catch {}
-
-    // Lights
-    try { installLights(g, reduced, lightsRef); } catch {}
-
-    // Globe material resilience — the sphere must be visible with ZERO external
-    // dependencies (screenshot-verified: when the night-lights JPEG is slow or
-    // blocked, the old setup rendered a pure-black circle). Navy base color
-    // shows immediately; when the texture arrives it is promoted to an
-    // emissiveMap so city lights literally glow, independent of scene lights.
-    try {
-      const mat = g.globeMaterial();
-      mat.color = new Color(0x1a3a63);
-      mat.shininess = 4;
-      mat.needsUpdate = true;
-      let tries = 0;
-      const texPoll = setInterval(() => {
-        tries++;
-        try {
-          if (mat.map) {
-            mat.emissiveMap = mat.map;
-            mat.emissive = new Color(0xffffff);
-            mat.emissiveIntensity = 1.0;
-            mat.color = new Color(0x2e3d58);
-            mat.needsUpdate = true;
-            setTexLive(true); // texture carries the visual now — retire the land-polygon fallback
-            clearInterval(texPoll);
-          } else if (tries > 120) {
-            clearInterval(texPoll); // 30 s — texture isn't coming; land polygons + graticules carry the visual
-          }
-        } catch { clearInterval(texPoll); }
-      }, 250);
-    } catch {}
-
-    // iOS context recovery
-    try {
-      const canvas = g.renderer().domElement;
-      canvas.addEventListener("webglcontextlost", (e) => {
-        e.preventDefault();
-        lightsRef.current = false;
-      });
-      canvas.addEventListener("webglcontextrestored", () => {
-        try { installLights(g, reduced, lightsRef); } catch {};
-      });
-    } catch {}
-
-    // Intro build-on choreography
-    const initialPOV = compact
-      ? { lat: 6,  lng: -80, altitude: 2.0 }
-      : { lat: 18, lng: -55, altitude: 2.2 };
-
-    if (reduced) {
-      g.pointOfView(initialPOV, 0);
-      setArcsLive(true);
-      setRingsLive(false);
-      setPointsTransDuration(0);
-    } else {
-      // Start zoomed out, ease in via animejs proxy
-      g.pointOfView({ ...initialPOV, altitude: MT.cameraStartAlt }, 0);
-      const proxy = { t: 0 };
-      animate(proxy, {
-        t: 1, duration: MT.introCameraMs, ease: "outCubic",
-        onUpdate: () => {
-          const a = MT.cameraStartAlt - (MT.cameraStartAlt - initialPOV.altitude) * proxy.t;
-          try { g.pointOfView({ ...initialPOV, altitude: a }, 0); } catch {}
-        },
-      });
-      introTimers.current.push(
-        setTimeout(() => setPointsTransDuration(700), TIMING.introPointsDelayMs),
-        setTimeout(() => setArcsLive(true),           TIMING.introArcsDelayMs),
-        setTimeout(() => setRingsLive(true),           TIMING.introRingsDelayMs),
-      );
-    }
-  }, [reduced, compact]);
-  onReadyRef.current = onReady;
-
-  // ── Focus transitions ──
+  // ── Focus announce ──
   useEffect(() => {
-    const g = globeEl.current;
-    if (!g || !ready) return;
-    const initialPOV = compact
-      ? { lat: 6,  lng: -80, altitude: 2.0 }
-      : { lat: 18, lng: -55, altitude: 2.2 };
-    const tweenMs = reduced ? 0 : MT.focusTweenMs;
-    try {
-      const c = g.controls();
-      if (focus === "cr") {
-        c.autoRotate = false;
-        g.pointOfView({ lat: 10.0, lng: -86.5, altitude: 1.8 }, tweenMs);
-        const siepacCount = HV_ARCS.filter((a) => a.kind === "siepac").length;
-        setAnnounce(
-          en ? `Focus on Costa Rica: ${CR_MARQUEE.length} plants, ${siepacCount} SIEPAC interconnections.`
-             : `Enfoque en Costa Rica: ${CR_MARQUEE.length} plantas, ${siepacCount} interconexiones SIEPAC.`,
-        );
-      } else {
-        g.pointOfView(initialPOV, tweenMs);
-        const t = setTimeout(() => {
-          try { g.controls().autoRotate = !reduced; } catch {}
-        }, reduced ? 0 : MT.rotResumeDelayMs);
-        setAnnounce(en ? "Global view." : "Vista global.");
-        return () => clearTimeout(t);
-      }
-    } catch {}
-  }, [focus, ready, reduced, compact, en]);
+    if (!ready) return;
+    if (focus === "cr") {
+      const siepacCount = HV_ARCS.filter((a) => a.kind === "siepac").length;
+      setAnnounce(
+        en ? `Focus on Costa Rica: ${CR_MARQUEE.length} plants, ${siepacCount} SIEPAC interconnections.`
+           : `Enfoque en Costa Rica: ${CR_MARQUEE.length} plantas, ${siepacCount} interconexiones SIEPAC.`,
+      );
+    } else {
+      setAnnounce(en ? "Global view." : "Vista global.");
+    }
+  }, [focus, ready, en]);
 
   // ── Keyboard / pointer dismissal of popovers ──
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") {
-        if (layersOpen) {
-          setLayersOpen(false);
-          layerTriggerRef.current?.focus();
-        } else if (encOpen) {
-          setEncOpen(false);
-          encTriggerRef.current?.focus();
-        } else if (hover) {
-          setHover(null);
-        }
+        if (layersOpen) { setLayersOpen(false); layerTriggerRef.current?.focus(); }
+        else if (encOpen) { setEncOpen(false); encTriggerRef.current?.focus(); }
+        else if (hover) setHover(null);
       }
     };
     const onPointer = (e) => {
@@ -648,7 +236,6 @@ export default function PowerGlobe({ en = false, compact = false }) {
     };
   }, [layersOpen, encOpen, hover]);
 
-  // ── Focus the first layer button when popover opens ──
   const layersPopRef = useRef(null);
   useEffect(() => {
     if (layersOpen && layersPopRef.current) {
@@ -657,285 +244,44 @@ export default function PowerGlobe({ en = false, compact = false }) {
     }
   }, [layersOpen]);
 
-  // ── Arc hover / click callbacks ──
-  const onArcHover = useCallback((a) => {
-    if (!a) { setHover(null); return; }
-    const to    = txt(a.to, en);
-    const label = KIND_LABEL[a.kind]?.[locale] ?? a.kind;
-    const qual  = a.kind === "planned"
-      ? (en ? " · illustrative" : " · ilustrativo")
-      : (en ? " · coords approx." : " · coords aprox.");
-    setAnnounce(`${a.from} → ${to}, ${(a.mw || 0).toLocaleString(locale)} MW, ${label}`);
-    setHover({
-      kind: "arc",
-      name: `${a.from} → ${to}`,
-      sub:  `${(a.mw || 0).toLocaleString(locale)} MW · ${label}${qual}`,
-    });
-  }, [en, locale]);
-
-  const onArcClick = useCallback((a) => {
-    if (!a) { setHover(null); return; }
-    const to   = txt(a.to, en);
-    const label= KIND_LABEL[a.kind]?.[locale] ?? a.kind;
-    const qual = a.kind === "planned"
-      ? (en ? " · illustrative" : " · ilustrativo")
-      : (en ? " · coords approx." : " · coords aprox.");
-    setHover({
-      kind: "arc",
-      name: `${a.from} → ${to}`,
-      sub:  `${(a.mw || 0).toLocaleString(locale)} MW · ${label}${qual}`,
-    });
-  }, [en, locale]);
-
-  // ── Arc dash animation callback (stable) ──
-  const arcDashAnim = useCallback((a) => ARC_DASH_ANIM_FN(a, reduced), [reduced]);
-
-  // ── HTML element factories ──
-  // makeCRHub declared first so makeDc can reference it safely
-  /* Phase 2 — dual-core diamond (gold outer + cyan inner) with a permanent
-     mono caption beneath. Only marker on the globe that carries its identity
-     visibly without focus=cr. */
-  const makeCRHub = useCallback((d) => {
-    const g   = CR_HUB_GLYPH;
-    const nm  = txt(d.name,   en);
-    const sub = txt(d.sub,    en);
-    const det = txt(d.detail, en);
-    const wrap = document.createElement("div");
-    wrap.className = "pg-dc-btn pg-cr-hub";
-    wrap.setAttribute("aria-hidden", "true");
-    wrap.setAttribute("tabindex", "-1");
-    wrap.title = nm;
-    wrap.style.cssText = "width:64px;height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:none;position:relative;";
-
-    const outer = document.createElement("div");
-    outer.style.cssText = `width:${g.outerSize}px;height:${g.outerSize}px;transform:${g.rotation};background:${g.outerBg};border:${g.border};box-shadow:${g.boxShadow};transition:transform 120ms ease,box-shadow 120ms ease;display:flex;align-items:center;justify-content:center;`;
-    const inner = document.createElement("div");
-    inner.style.cssText = `width:${g.innerSize}px;height:${g.innerSize}px;background:${g.innerBg};border-radius:50%;transform:rotate(-45deg);box-shadow:0 0 4px ${g.innerBg};`;
-    outer.appendChild(inner);
-    wrap.appendChild(outer);
-
-    const cap = document.createElement("div");
-    // width-bounded + wrapping so the caption never clips off the canvas edge
-    // when Cañas rotates near the horizon (screenshot-verified on device).
-    cap.style.cssText = `font-family:${MONO};font-size:9px;color:#fff;letter-spacing:0.6px;margin-top:6px;text-shadow:0 1px 4px rgba(0,0,0,0.95);white-space:normal;width:96px;background:rgba(6,21,46,0.62);padding:2px 5px;border-radius:4px;border:1px solid ${EN_ACCENT.gold}66;text-align:center;line-height:1.25;`;
-    const capMain = en ? g.caption.en : g.caption.es;
-    const capSub  = en ? g.captionSub.en : g.captionSub.es;
-    cap.innerHTML = `<span>${capMain}</span><br><span style="color:rgba(255,255,255,0.7);font-size:8.5px;letter-spacing:0.6px;">${capSub}</span>`;
-    wrap.appendChild(cap);
-
-    const show = () => hoverCb.current && hoverCb.current({ kind: "dc", name: nm, sub, detail: det });
-    const hide = () => hoverCb.current && hoverCb.current(null);
-    const over = () => { outer.style.boxShadow = g.boxShadowHover; outer.style.transform = `${g.rotation} scale(1.20)`; show(); };
-    const out  = () => { outer.style.boxShadow = g.boxShadow; outer.style.transform = g.rotation; hide(); };
-    wrap.addEventListener("pointerenter", over);
-    wrap.addEventListener("pointerleave", out);
-    wrap.addEventListener("focus", show);
-    wrap.addEventListener("blur",  hide);
-    wrap.addEventListener("click", () => {
-      document.getElementById("energia-act-5")?.scrollIntoView({
-        behavior: reduced ? "instant" : "smooth",
-        block: "start",
+  // ── Hover bridge from the scene (hubs + arcs) ──
+  const onSceneHover = useCallback((h) => {
+    if (!h) { setHover(null); return; }
+    if (h.kind === "arc") {
+      const a = h.d;
+      const to    = txt(a.to, en);
+      const label = KIND_LABEL[a.kind]?.[locale] ?? a.kind;
+      const qual  = a.kind === "planned"
+        ? (en ? " · illustrative" : " · ilustrativo")
+        : (en ? " · coords approx." : " · coords aprox.");
+      setAnnounce(`${a.from} → ${to}, ${(a.mw || 0).toLocaleString(locale)} MW, ${label}`);
+      setHover({
+        kind: "arc",
+        name: `${a.from} → ${to}`,
+        sub:  `${(a.mw || 0).toLocaleString(locale)} MW · ${label}${qual}`,
       });
-    });
-    return wrap;
-  }, [en, reduced]);
-
-  /* Phase 2 — Storage site factory. Renders as a double-ring SVG glyph (outer
-     storage-blue + inner chemistry-tinted) so it reads as distinct from both
-     fuel cylinders and DC diamonds. Size scales √(MW) clamped 8-22px.
-     PHS gets a dashed outer ring; announced status drops opacity to 0.3. */
-  const STORAGE_CHEM_HEX = {
-    // Phase 2 (consensus): Li-ion inner ring distinct from #60a5fa outer ring
-    // — otherwise the double-ring encoding collapses to monochrome on the
-    // dominant chemistry. Cyan inner matches the legend SVG swatch.
-    li: "#22d3ee", flow: "#06b6d4", phs: "#3b82f6", caes: "#94a3b8", thermal: "#f97316", other: "#94a3b8",
-  };
-  const makeStorage = useCallback((d) => {
-    const mw = d.mw || 100;
-    const size = Math.max(8, Math.min(22, 8 + Math.sqrt(mw) * 0.4));
-    const innerC = STORAGE_CHEM_HEX[d.chem] || STORAGE_CHEM_HEX.other;
-    const outerC = "#60a5fa";
-    const op = { op: 1.0, con: 0.55, ann: 0.30 }[d.status] ?? 1.0;
-    const isDashed = d.chem === "phs" || d.status === "ann";
-    const nm = txt(d.name, en), ct = txt(d.country, en);
-    const mwTxt = mw >= 1000 ? `${(mw / 1000).toFixed(1).replace(".", en ? "." : ",")} GW` : `${mw} MW`;
-    const mwhTxt = d.mwh > 0 ? ` · ${d.mwh.toLocaleString(en ? "en" : "es")} MWh` : "";
-
-    const wrap = document.createElement("div");
-    wrap.className = "pg-st-btn";
-    wrap.setAttribute("aria-hidden", "true");
-    wrap.setAttribute("tabindex", "-1");
-    wrap.title = `${nm} — ${ct} · ${mwTxt}${mwhTxt}`;
-    wrap.style.cssText = `width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:none;`;
-
-    const SVGNS = "http://www.w3.org/2000/svg";
-    const svg = document.createElementNS(SVGNS, "svg");
-    svg.setAttribute("width", String(size));
-    svg.setAttribute("height", String(size));
-    svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
-    svg.style.cssText = `overflow:visible;opacity:${op};transition:transform 140ms ease,filter 140ms ease;filter:drop-shadow(0 0 6px ${outerC}55);`;
-    const cx = size / 2, cy = size / 2;
-    const rOuter = (size / 2) - 0.75;
-    const rInner = Math.max(2, rOuter - 2.5);
-    const outer = document.createElementNS(SVGNS, "circle");
-    outer.setAttribute("cx", String(cx));
-    outer.setAttribute("cy", String(cy));
-    outer.setAttribute("r", String(rOuter));
-    outer.setAttribute("fill", "none");
-    outer.setAttribute("stroke", outerC);
-    outer.setAttribute("stroke-width", "1.5");
-    if (isDashed) outer.setAttribute("stroke-dasharray", d.chem === "phs" ? "4 3" : "2 2");
-    const inner = document.createElementNS(SVGNS, "circle");
-    inner.setAttribute("cx", String(cx));
-    inner.setAttribute("cy", String(cy));
-    inner.setAttribute("r", String(rInner));
-    inner.setAttribute("fill", "none");
-    inner.setAttribute("stroke", innerC);
-    inner.setAttribute("stroke-width", "2");
-    svg.appendChild(outer);
-    svg.appendChild(inner);
-    wrap.appendChild(svg);
-
-    const chemLabel = {
-      li: "Li-ion",
-      flow: en ? "Flow" : "Flujo",
-      phs: "PHS",
-      caes: "CAES",
-      thermal: en ? "Thermal" : "Térmica",
-      other: en ? "Other" : "Otra",
-    }[d.chem] || (en ? "Battery" : "Batería");
-    const statusLabel = { op: en ? "Operating" : "En operación", con: en ? "Construction" : "Construcción", ann: en ? "Announced" : "Anunciada" }[d.status] || "";
-    const show = () => hoverCb.current && hoverCb.current({
-      kind: "storage", name: nm, sub: `${ct} · ${chemLabel} · ${statusLabel}`,
-      detail: `${mwTxt}${mwhTxt} · ${d.comYear}`,
-    });
-    const hide = () => hoverCb.current && hoverCb.current(null);
-    const over = () => { svg.style.transform = "scale(1.30)"; svg.style.filter = `drop-shadow(0 0 14px ${outerC}cc)`; show(); };
-    const out = () => { svg.style.transform = "scale(1)"; svg.style.filter = `drop-shadow(0 0 6px ${outerC}55)`; hide(); };
-    wrap.addEventListener("pointerenter", over);
-    wrap.addEventListener("pointerleave", out);
-    wrap.addEventListener("focus", show);
-    wrap.addEventListener("blur", hide);
-    return wrap;
-  }, [en]);
-
-  /* Phase 2 — continuous MW-scaled DC glyph: radius √(demandMw)/4 clamped 8–24px,
-     soft halo opacity scaled with MW, AI-scale gold ring at >=700 MW, top-5
-     hubs get an always-on MW badge (NoVA · 4.5 GW · est.). Addresses
-     Audit #3 "data exists, encoding is binary". */
-  const makeHub = useCallback((d) => {
-    const mw      = d.demandMw || 100;
-    const size    = DC_SCALE.size(mw);
-    const halo    = DC_SCALE.halo(mw);
-    const haloA   = DC_SCALE.haloA(mw);
-    const aiScale = DC_SCALE.aiScale(mw);
-    const nm      = txt(d.name, en);
-    const ct      = txt(d.country, en);
-    const enName  = typeof d.name === "object" ? (d.name.en || d.name.es) : d.name;
-    const isTop5  = DC_SCALE.topNames.has(enName);
-    const wrapW   = Math.max(44, halo + 8);
-
-    const wrap = document.createElement("div");
-    wrap.className = "pg-dc-btn";
-    wrap.setAttribute("aria-hidden", "true");
-    wrap.setAttribute("tabindex", "-1");
-    wrap.title = `${nm} — ${ct} · ~${mw.toLocaleString(en ? "en" : "es")} MW (est.)`;
-    wrap.style.cssText = `width:${wrapW}px;height:${wrapW}px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:none;position:relative;`;
-
-    const haloEl = document.createElement("div");
-    haloEl.style.cssText = `position:absolute;width:${halo}px;height:${halo}px;border-radius:50%;background:radial-gradient(circle, rgba(34,211,238,${haloA.toFixed(2)}) 0%, rgba(34,211,238,0) 70%);pointer-events:none;`;
-    wrap.appendChild(haloEl);
-
-    if (aiScale) {
-      const ring = document.createElement("div");
-      ring.style.cssText = `position:absolute;width:${size + 8}px;height:${size + 8}px;border-radius:50%;border:1.5px solid ${EN_ACCENT.gold};box-shadow:0 0 10px ${EN_ACCENT.gold}88;pointer-events:none;`;
-      wrap.appendChild(ring);
+    } else if (h.kind === "dc") {
+      const d = h.d;
+      setHover({
+        kind: "dc",
+        name: txt(d.name, en),
+        sub:  txt(d.country, en),
+        detail: d.tier === 1 ? (en ? "Tier 1 · AI hub" : "Tier 1 · hub IA") : (en ? "Tier 2 · regional" : "Tier 2 · regional"),
+        mw: d.demandMw,
+      });
     }
+  }, [en, locale]);
 
-    const dot = document.createElement("div");
-    dot.style.cssText = `width:${size}px;height:${size}px;transform:rotate(45deg);background:rgba(255,255,255,0.95);border:1px solid ${EN_ACCENT.glow};box-shadow:0 0 ${Math.round(halo / 2)}px ${EN_ACCENT.glow};transition:transform 120ms ease,box-shadow 120ms ease;`;
-    wrap.appendChild(dot);
+  const toggleFuel   = useCallback((k) => setFilters((f) => ({ ...f, [k]: !f[k] })), []);
+  const toggleLayer  = useCallback((k) => setLayers((l) => ({ ...l, [k]: !l[k] })), []);
+  const resetFilters = useCallback(() => setFilters(Object.fromEntries(FUEL_LEGEND.map((k) => [k, true]))), []);
+  const openLayers   = useCallback(() => { setLayersOpen((v) => !v); setEncOpen(false); }, []);
+  const openEnc      = useCallback(() => { setEncOpen((v) => !v); setLayersOpen(false); }, []);
 
-    // Top hubs get an always-on label; compact shows only the ≥1.2 GW pair
-    // (NoVA, Phoenix) with the short name, centered BELOW the marker so it
-    // never clips at the canvas edge (screenshot-verified on device).
-    if (isTop5 && (!compact || mw >= 1200)) {
-      const tag = document.createElement("div");
-      const pos = compact
-        ? `left:50%;top:calc(50% + ${Math.round(halo / 2) + 3}px);transform:translateX(-50%);`
-        : `left:${(halo / 2) + 8}px;top:50%;transform:translateY(-50%);`;
-      tag.style.cssText = `position:absolute;${pos}font-family:${MONO};font-size:${compact ? 8.5 : 9.5}px;letter-spacing:0.3px;color:rgba(255,255,255,0.95);background:rgba(10,31,63,0.8);padding:2px 6px;border-radius:4px;border:1px solid ${EN_ACCENT.glow}66;white-space:nowrap;pointer-events:none;text-shadow:0 1px 4px rgba(0,0,0,0.85);`;
-      const mwTxt = mw >= 1000 ? `${(mw / 1000).toFixed(1).replace(".", en ? "." : ",")} GW` : `${mw} MW`;
-      const displayName = typeof d.name === "object" ? (en ? d.name.en : d.name.es) : d.name;
-      const shortName = DC_SCALE.topNameShort[enName] || (compact ? displayName.split(" / ")[0] : displayName);
-      tag.textContent = `${shortName} · ${mwTxt} · est.`;
-      wrap.appendChild(tag);
-    }
-
-    const show = () => hoverCb.current && hoverCb.current({
-      kind: "dc",
-      name: nm,
-      sub: ct,
-      detail: aiScale
-        ? (en ? "AI-scale buyer" : "Hub a escala IA")
-        : (en ? "Regional hub" : "Hub regional"),
-      mw,
-    });
-    const hide = () => hoverCb.current && hoverCb.current(null);
-    const over = () => {
-      dot.style.transform = "rotate(45deg) scale(1.25)";
-      dot.style.boxShadow = `0 0 ${halo}px ${EN_ACCENT.glow}`;
-      show();
-    };
-    const out = () => {
-      dot.style.transform = "rotate(45deg)";
-      dot.style.boxShadow = `0 0 ${Math.round(halo / 2)}px ${EN_ACCENT.glow}`;
-      hide();
-    };
-    wrap.addEventListener("pointerenter", over);
-    wrap.addEventListener("pointerleave", out);
-    wrap.addEventListener("focus", show);
-    wrap.addEventListener("blur",  hide);
-    return wrap;
-  }, [en, compact]);
-
-  // Un-crashable HTML factory: if ANY datum's element construction throws or
-  // returns nothing, globe.gl is left with a position-less entry whose
-  // per-frame isBehindGlobe visibility pass then dies on `position.length()`
-  // — killing the entire render loop (the black-canvas root cause). The
-  // factory therefore ALWAYS returns an element, no matter what.
-  const makeDc = useCallback((d) => {
-    try {
-      const el = d.kind === "siepac-hub" ? makeCRHub(d)
-               : d.kind === "storage"    ? makeStorage(d)
-               : makeHub(d);
-      if (el) return el;
-      if (typeof console !== "undefined") console.warn("PowerGlobe: html factory returned nothing for", d && (d.id || d.kind));
-    } catch (err) {
-      if (typeof console !== "undefined") console.warn("PowerGlobe: html factory failed for", d && (d.id || d.kind), err);
-    }
-    const fallback = document.createElement("div");
-    fallback.setAttribute("aria-hidden", "true");
-    fallback.style.cssText = "width:2px;height:2px;";
-    return fallback;
-  }, [makeCRHub, makeStorage, makeHub]);
-
-  // ── Toggle helpers ──
-  const toggleFuel  = useCallback((k) => setFilters((f) => ({ ...f, [k]: !f[k] })), []);
-  const toggleLayer = useCallback((k) => setLayers((l) => ({ ...l, [k]: !l[k] })), []);
-  const resetFilters= useCallback(() => setFilters(Object.fromEntries(FUEL_LEGEND.map((k) => [k, true]))), []);
-  const openLayers  = useCallback(() => { setLayersOpen((v) => !v); setEncOpen(false); }, []);
-  const openEnc     = useCallback(() => { setEncOpen((v) => !v); setLayersOpen(false); }, []);
-
-  const aspect      = compact ? "4 / 5" : "16 / 9";
-  const titleId     = "pg-title";
-  const descId      = "pg-desc";
+  const aspect  = compact ? "4 / 5" : "16 / 9";
+  const titleId = "pg-title";
+  const descId  = "pg-desc";
   const errorBanner = status === "error" && !compact;
-
-  // ── CR info panel data ──
-  const siepacArcs = HV_ARCS.filter((a) => a.kind === "siepac");
-
-  // ── Live-region content (empty state takes precedence) ──
   const liveMsg = !anyOn
     ? (en
         ? "All plants hidden. Activate Show all to restore."
@@ -949,8 +295,6 @@ export default function PowerGlobe({ en = false, compact = false }) {
       lang={en ? "en" : "es"}
       aria-labelledby={titleId}
       aria-describedby={descId}
-      onPointerEnter={slowRotation}
-      onPointerLeave={restoreRotation}
       style={{
         position:     "relative",
         aspectRatio:  aspect,
@@ -963,7 +307,6 @@ export default function PowerGlobe({ en = false, compact = false }) {
         touchAction:  "pan-y",
       }}
     >
-      {/* ── CSS (scoped to figure; no postcss dependency) ── */}
       <style>{`
         .pg-btn {
           font-family: ${MONO}; font-size: 11px; letter-spacing: 0.4px;
@@ -987,20 +330,19 @@ export default function PowerGlobe({ en = false, compact = false }) {
         .pg-btn-chip { gap: 6px; flex-shrink: 0; }
         .pg-btn-chip[data-off="1"] { border-color: rgba(255,255,255,0.18); }
         .pg-skip {
-          position: absolute; left: 10px; top: -56px; z-index: 10;
+          position: absolute; left: 10px; top: 10px; z-index: 10;
           background: #0A1F3F; color: #fff; padding: 12px 16px; border-radius: 8px;
           font-family: ${MONO}; font-size: 12px; min-height: 44px;
-          border: 1px solid #22d3ee; transition: top 150ms ease; text-decoration: none;
+          border: 1px solid #22d3ee; text-decoration: none;
           display: inline-flex; align-items: center;
+          opacity: 0; pointer-events: none;
         }
-        .pg-skip:focus-visible { top: 10px; }
-        .pg-skip:focus-visible { outline: 2px solid #22d3ee; outline-offset: 2px; }
+        .pg-skip:focus-visible { opacity: 1; pointer-events: auto; outline: 2px solid #22d3ee; outline-offset: 2px; }
         .pg-chips-rail { scrollbar-width: none; -ms-overflow-style: none;
           mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
           -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); }
         .pg-chips-rail::-webkit-scrollbar { display: none; }
         .pg-chips-rail > button { flex-shrink: 0; white-space: nowrap; }
-        .pg-dc-btn:focus-visible { outline: 2px solid #22d3ee; outline-offset: 3px; }
         .pg-sr {
           position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
           overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
@@ -1010,20 +352,17 @@ export default function PowerGlobe({ en = false, compact = false }) {
             min-height: 36px !important; padding: 7px 10px !important; font-size: 10px !important;
           }
         }
-        /* Phase 2 · Cañas anchor pulse — the SIEPAC node breathes once every
-           2.4s drawing the eye to Costa Rica without rotation interference.
-           Operates on the dual-core wrapper opacity, not transform, to avoid
-           fighting the globe's auto-rotate. */
-        @keyframes pgCanasPulse {
-          0%, 100% { box-shadow: 0 0 24px rgba(242,177,53,0.7), 0 0 8px #F2B135; }
-          50%      { box-shadow: 0 0 40px rgba(242,177,53,1.0), 0 0 16px #F2B135; }
+        .pg-anchor-label {
+          position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none;
+          font-family: ${MONO}; font-size: 9px; letter-spacing: 0.6px; line-height: 1.25;
+          color: #fff; text-align: center; white-space: nowrap;
+          background: rgba(6,21,46,0.66); border-radius: 4px; padding: 2px 6px;
+          border: 1px solid rgba(34,211,238,0.4);
+          text-shadow: 0 1px 4px rgba(0,0,0,0.95);
+          transition: opacity 200ms ease; will-change: transform;
         }
-        .pg-cr-hub > div:first-of-type {
-          animation: pgCanasPulse 2400ms ease-in-out infinite;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .pg-cr-hub > div:first-of-type { animation: none !important; }
-        }
+        .pg-anchor-label[data-gold="1"] { border-color: rgba(242,177,53,0.55); }
+        .pg-anchor-label b { color: ${EN_ACCENT.gold}; font-weight: 700; }
       `}</style>
 
       {/* ── Skip link (first focusable child) ── */}
@@ -1031,13 +370,13 @@ export default function PowerGlobe({ en = false, compact = false }) {
         {en ? "Skip to Costa Rica map" : "Saltar al mapa de Costa Rica"}
       </a>
 
-      {/* ── SR: DC hub list (semantic alternative to aria-hidden canvas markers) ── */}
+      {/* ── SR: DC hub list ── */}
       <ul
         id="pg-data"
         className="pg-sr"
         aria-label={en ? "AI data-centre hubs shown on the globe" : "Hubs IA / centros de datos en el globo"}
       >
-        {dcsBase.map((d, i) => (
+        {DATACENTERS.map((d, i) => (
           <li key={i}>
             {txt(d.name, en)}, {txt(d.country, en)},
             {d.tier === 1 ? (en ? " Tier 1 AI hub" : " Hub IA Tier 1") : (en ? " Tier 2 regional" : " Tier 2 regional")}
@@ -1068,8 +407,8 @@ export default function PowerGlobe({ en = false, compact = false }) {
       {/* ── figcaption (SR only) ── */}
       <figcaption id={descId} className="pg-sr">
         {en
-          ? `Global generation atlas: ${total.toLocaleString("en")} power plants sized by installed capacity, ${HV_ARCS.length} major high-voltage interconnections including the SIEPAC tie-in for Costa Rica (ENTSO-E, IEA, SIEPAC EOR/EPR — illustrative), ${DATACENTERS.length} AI / data-centre hubs (Synergy Research, Dell'Oro — estimate), and utility-scale storage sites (Global Energy Monitor CC-BY-4.0, IEA Energy Storage Tracker under IEA Terms of Use, US EIA Form 860). Globe engine: react-globe.gl (MIT). Basemap: NASA night lights (public domain). The 3D globe is decorative; the keyboard-accessible Costa Rica grid map is in Act 4 below.`
-          : `Atlas global de generación: ${total.toLocaleString("es")} plantas de generación dimensionadas por capacidad instalada, ${HV_ARCS.length} interconexiones de alta tensión incluida la conexión SIEPAC para Costa Rica (ENTSO-E, IEA, SIEPAC EOR/EPR — ilustrativo), ${DATACENTERS.length} hubs IA / centros de datos (Synergy Research, Dell'Oro — estimado), y sitios de almacenamiento utility-scale (Global Energy Monitor CC-BY-4.0, IEA Energy Storage Tracker bajo IEA Terms of Use, US EIA Form 860). Motor de globo: react-globe.gl (MIT). Base: NASA night lights (dominio público). El globo 3D es decorativo; el mapa accesible de la red de Costa Rica está en el Acto 4 abajo.`}
+          ? `Global generation atlas: ${total.toLocaleString("en")} power plants as light columns sized by installed capacity, ${HV_ARCS.length} major high-voltage interconnections including the SIEPAC tie-in for Costa Rica (ENTSO-E, IEA, SIEPAC EOR/EPR — illustrative), ${DATACENTERS.length} AI / data-centre hubs (Synergy Research, Dell'Oro — estimate), and utility-scale storage sites (Global Energy Monitor CC-BY-4.0, IEA Energy Storage Tracker under IEA Terms of Use, US EIA Form 860). Basemap: NASA night lights (public domain). The 3D globe is decorative; the keyboard-accessible Costa Rica grid map is in Act 4 below.`
+          : `Atlas global de generación: ${total.toLocaleString("es")} plantas de generación como columnas de luz dimensionadas por capacidad instalada, ${HV_ARCS.length} interconexiones de alta tensión incluida la conexión SIEPAC para Costa Rica (ENTSO-E, IEA, SIEPAC EOR/EPR — ilustrativo), ${DATACENTERS.length} hubs IA / centros de datos (Synergy Research, Dell'Oro — estimado), y sitios de almacenamiento utility-scale (Global Energy Monitor CC-BY-4.0, IEA Energy Storage Tracker bajo IEA Terms of Use, US EIA Form 860). Base: NASA night lights (dominio público). El globo 3D es decorativo; el mapa accesible de la red de Costa Rica está en el Acto 4 abajo.`}
       </figcaption>
 
       {/* ── Live region (SR only) ── */}
@@ -1077,93 +416,68 @@ export default function PowerGlobe({ en = false, compact = false }) {
         {liveMsg}
       </div>
 
-      {/* ── Phase 2 · CSS-only bloom + warm-cool fringe overlay ──
-           The WebGL renderer is owned by react-globe.gl (no UnrealBloomPass
-           without conflicting with its rAF loop). Instead, a radial-gradient
-           ring fakes a soft inner bloom around the planet rim, and a warm
-           lower-third tint breaks the navy-on-navy block the audit called
-           out. Both layers are pointer-events:none so they don't intercept
-           drag/zoom. */}
-      <div aria-hidden="true" style={{
-        position: "absolute", inset: 0, pointerEvents: "none", zIndex: 1,
-        background: `radial-gradient(circle at 50% 50%, transparent 36%, rgba(34,211,238,0.04) 52%, transparent 62%), linear-gradient(180deg, transparent 60%, rgba(242,177,53,0.04) 100%)`,
-        mixBlendMode: "screen",
-      }} />
-
       {/* ── Globe canvas (aria-hidden — all SR content is above) ── */}
       <div aria-hidden="true" style={{ position: "absolute", inset: 0 }}>
-        {size.w > 0 && size.h > 0 && (
-          <Globe
-            ref={globeEl}
-            width={size.w}
-            height={size.h}
-            backgroundColor="rgba(0,0,0,0)"
-            globeImageUrl={SCENE.globeImageUrl}
-            showGraticules
-            showAtmosphere
-            atmosphereColor={SCENE.atmosphereColor}
-            atmosphereAltitude={SCENE.atmosphereAltitude}
-            polygonsData={texLive ? [] : landPolys}
-            polygonCapColor={LAND_CAP_COLOR_FN}
-            polygonSideColor={LAND_SIDE_COLOR_FN}
-            polygonStrokeColor={LAND_STROKE_COLOR_FN}
-            polygonAltitude={0.006}
-            polygonsTransitionDuration={600}
-            onGlobeReady={onReady}
-            rendererConfig={compact ? RENDERER_MOBILE : RENDERER_DESKTOP}
-            // ── Points ──
-            pointsData={layers.plants ? points : []}
-            pointLat="lat"
-            pointLng="lng"
-            pointColor="color"
-            pointAltitude="alt"
-            pointRadius={compact ? SCENE.pointRadius.compact : SCENE.pointRadius.full}
-            pointResolution={SCENE.pointResolution}
-            pointsMerge={SCENE.pointsMerge}
-            pointsTransitionDuration={pointsTransDuration}
-            // ── Arcs ──
-            arcsData={arcsLive ? arcs : []}
-            arcStartLat="startLat"
-            arcStartLng="startLng"
-            arcEndLat="endLat"
-            arcEndLng="endLng"
-            arcColor={ARC_COLOR_FN}
-            arcStroke={ARC_STROKE_FN}
-            arcAltitude={ARC_ALT_FN}
-            arcDashLength={ARC_DASH_LEN_FN}
-            arcDashGap={ARC_DASH_GAP_FN}
-            arcDashAnimateTime={arcDashAnim}
-            arcsTransitionDuration={0}
-            onArcHover={onArcHover}
-            onArcClick={onArcClick}
-            // ── HTML markers ──
-            htmlElementsData={htmlData}
-            htmlLat="lat"
-            htmlLng="lng"
-            htmlAltitude={DC_ALTITUDE}
-            htmlElement={makeDc}
-            // ── Rings ──
-            ringsData={ringsData}
-            ringLat="lat"
-            ringLng="lng"
-            ringColor={RING.colorFn}
-            ringMaxRadius={ringCfg.maxRadius}
-            ringPropagationSpeed={ringCfg.propagationSpeed}
-            ringRepeatPeriod={ringCfg.repeatPeriod}
-            // ── Globe click: dismiss tooltip on tap ──
-            onGlobeClick={() => setHover(null)}
-          />
-        )}
+        <Canvas
+          dpr={[1, 2]}
+          camera={{ fov: compact ? 46 : 42, position: [0, 0, 3.4], near: 0.1, far: 20 }}
+          gl={{
+            antialias: !compact,
+            alpha: true,
+            stencil: false,
+            preserveDrawingBuffer: true,
+            powerPreference: compact ? undefined : "high-performance",
+          }}
+          style={{ position: "absolute", inset: 0, touchAction: "pan-y" }}
+          onCreated={({ gl }) => { gl.setClearColor(0x000000, 0); gl.domElement.style.touchAction = "pan-y"; }}
+        >
+          <Suspense fallback={null}>
+            <GlobeScene
+              compact={compact}
+              reduced={reduced}
+              focus={focus}
+              layers={layers}
+              points={points}
+              arcsLive={arcsLive}
+              onHover={onSceneHover}
+              labelRefs={labelRefs}
+              pausedRef={pausedRef}
+            />
+            {!reduced && (
+              <EffectComposer disableNormalPass>
+                <Bloom
+                  intensity={compact ? 0.75 : 0.85}
+                  luminanceThreshold={0.28}
+                  luminanceSmoothing={0.3}
+                  mipmapBlur
+                  radius={compact ? 0.55 : 0.65}
+                />
+              </EffectComposer>
+            )}
+          </Suspense>
+        </Canvas>
+
+        {/* Anchor labels — projected each frame by GlobeScene (same math as the sphere) */}
+        {LABEL_ANCHORS.map((a, i) => (
+          <div
+            key={a.id}
+            ref={(el) => { labelRefs.current[i].el = el; }}
+            className="pg-anchor-label"
+            data-gold={a.gold ? "1" : "0"}
+            style={{ opacity: 0 }}
+          >
+            {a.gold
+              ? (<><b>{txt(a.text, en)}</b><br />{a.sub}</>)
+              : txt(a.text, en)}
+          </div>
+        ))}
       </div>
 
-      {/* ── Loading overlay (while WebGL initializes) ──
-           aria-hidden: the same message is already announced via the live region. */}
+      {/* ── Loading shimmer until first frame staged ── */}
       {!ready && (
         <div aria-hidden="true" style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
           <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: 2, color: `${EN_ACCENT.glow}cc` }}>
-            {compact
-              ? (en ? "LOADING CURATED PLANTS…" : "CARGANDO PLANTAS DESTACADAS…")
-              : (en ? "BUILDING THE ATLAS…"    : "CONSTRUYENDO EL ATLAS…")}
+            {en ? "BUILDING THE ATLAS…" : "CONSTRUYENDO EL ATLAS…"}
           </span>
         </div>
       )}
@@ -1173,89 +487,47 @@ export default function PowerGlobe({ en = false, compact = false }) {
           ═══════════════════════════ */}
       <div style={{
         position: "absolute", top: 12, left: 14, zIndex: 3,
-        // compact: reserve the right side for the World/CR pills so the title
-        // never runs under them (screenshot-verified collision).
         maxWidth: compact ? "calc(100% - 200px)" : "min(64%, 360px)",
         pointerEvents: "none",
       }}>
-        <div
-          id={titleId}
-          style={{ fontFamily: MONO, fontSize: 10, letterSpacing: 2, color: EN_ACCENT.glow }}
-        >
+        <div id={titleId} style={{ fontFamily: MONO, fontSize: 10, letterSpacing: 2, color: EN_ACCENT.glow }}>
           {en ? "GLOBAL GENERATION ATLAS" : "ATLAS GLOBAL DE GENERACIÓN"}
         </div>
-
         <div style={{ marginTop: 4, fontFamily: MONO, fontSize: 11, color: "#fff" }}>
-          {compact && status === "idle" && !plants ? (
-            <>
-              <span style={{ color: "rgba(255,255,255,0.75)" }}>
-                {en ? "Curated highlights" : "Destacados seleccionados"}
-              </span>
-              <span style={{ color: "rgba(255,255,255,0.55)" }}>
-                {" · "}{decoratedMarquee.length} {en ? "plants" : "plantas"}
-                {" · "}{arcs.length} {en ? "interconnections" : "interconexiones"}
-              </span>
-            </>
-          ) : (
-            <>
-              {filteredCount.toLocaleString(locale)}
-              {" "}{en ? "of" : "de"}{" "}
-              {total.toLocaleString(locale)}
-              {" "}{en ? "plants" : "plantas"}
-              <span style={{ color: "rgba(255,255,255,0.55)" }}>
-                {" · "}{arcs.length} {en ? "interconnections" : "interconexiones"}
-                {" · "}{dcsBase.length} {en ? "AI hubs" : "hubs IA"}
-              </span>
-              {status === "loading" && (
-                <span style={{ color: "rgba(255,255,255,0.55)" }}>
-                  {en ? " · loading WRI…" : " · cargando WRI…"}
-                </span>
-              )}
-            </>
-          )}
+          {plants
+            ? <>{filteredCount.toLocaleString(locale)} {en ? "of" : "de"} {total.toLocaleString(locale)} {en ? "plants" : "plantas"}</>
+            : <>{en ? "Curated highlights" : "Destacados seleccionados"} · {filteredCount.toLocaleString(locale)} {en ? "plants" : "plantas"}</>}
+          <span style={{ color: "rgba(255,255,255,0.55)" }}>
+            {" · "}{HV_ARCS.length} {en ? "interconnections" : "interconexiones"}
+            {!compact && <> · {DATACENTERS.length} {en ? "AI hubs" : "hubs IA"}</>}
+          </span>
+          {status === "loading" && <span style={{ color: "rgba(255,255,255,0.55)" }}> · {en ? "loading…" : "cargando…"}</span>}
         </div>
 
-        {/* Error banner (desktop only; role=alert for assertive ARIA) */}
         {errorBanner && (
-          <div
-            role="alert"
-            style={{
-              marginTop: 6, padding: "6px 9px", borderRadius: 9,
-              background: `${EN_ACCENT.navy}f0`, border: `1px solid ${EN_ACCENT.risk}88`,
-              fontFamily: MONO, fontSize: 10.5, color: "#fff", maxWidth: 340,
-            }}
-          >
+          <div role="alert" style={{ marginTop: 6, padding: "6px 9px", borderRadius: 9, background: "rgba(10,31,63,0.94)", border: `1px solid ${EN_ACCENT.risk}88`, fontFamily: MONO, fontSize: 10.5, color: "#fff", maxWidth: 340 }}>
             {en
               ? "Full dataset unavailable — showing curated reference plants. (WRI CSV could not be fetched.)"
               : "Dataset completo no disponible — mostrando referencias destacadas. (No se pudo obtener el CSV de la WRI.)"}
           </div>
         )}
 
-        {/* Desktop hover tooltip (top-left, pointer-events none) */}
+        {/* Desktop hover tooltip (top-left; compact uses the bottom card) */}
         {!compact && (
-          <div
-            style={{
-              marginTop: 6,
-              padding: hover ? "7px 10px" : 0,
-              borderRadius: 9,
-              background: `${EN_ACCENT.navy}e8`,
-              border: hover ? `1px solid ${EN_ACCENT.glow}99` : "1px solid transparent",
-              display: "inline-block",
-              maxWidth: 340,
-              opacity: hover ? 1 : 0,
-              transition: "opacity 150ms ease",
-              pointerEvents: "none",
-              minHeight: hover ? "auto" : 0,
-            }}
-          >
+          <div style={{
+            marginTop: 6, padding: hover ? "7px 10px" : 0, borderRadius: 9,
+            background: "rgba(10,31,63,0.91)",
+            border: hover ? `1px solid ${EN_ACCENT.glow}99` : "1px solid transparent",
+            display: "inline-block", maxWidth: 340,
+            opacity: hover ? 1 : 0, transition: "opacity 150ms ease", pointerEvents: "none",
+          }}>
             {hover && (
               <>
                 <div style={{ fontSize: 12.5, fontWeight: 700, color: "#fff" }}>{hover.name}</div>
                 <div style={{ fontSize: 11, color: "rgba(255,255,255,0.8)" }}>{hover.sub}</div>
                 {hover.detail && (
                   <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.65)", marginTop: 2 }}>
-                    {hover.detail}
-                    {hover.mw ? ` · ~${hover.mw.toLocaleString(locale)} MW (est.)` : ""}
+                    {hover.detail}{hover.mw ? ` · ~${hover.mw.toLocaleString(locale)} MW (est.)` : ""}
                   </div>
                 )}
               </>
@@ -1265,130 +537,80 @@ export default function PowerGlobe({ en = false, compact = false }) {
       </div>
 
       {/* ═══════════════════════════
-          ZONE B — Top-right: focus pills + layer controls
+          ZONE B — Top-right: focus pills + layer toggles
           ═══════════════════════════ */}
-      <div style={{
-        position: "absolute", top: 12, right: 14, zIndex: 3,
-        display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-end",
-      }}>
-        {/* Focus pills */}
+      <div style={{ position: "absolute", top: 12, right: 14, zIndex: 4, display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-end" }}>
         <div style={{ display: "flex", gap: 6 }}>
-          {[ ["global", en ? "World" : "Mundo"], ["cr", "Costa Rica"] ].map(([k, label]) => (
-            <button
-              key={k}
-              type="button"
-              onClick={() => setFocus(k)}
-              className={`pg-btn${focus === k ? " pg-btn-on" : ""}`}
-              aria-pressed={focus === k}
-            >
+          {[["global", en ? "World" : "Mundo"], ["cr", "Costa Rica"]].map(([k, label]) => (
+            <button key={k} type="button" onClick={() => setFocus(k)}
+              className={`pg-btn${focus === k ? " pg-btn-on" : ""}`} aria-pressed={focus === k}>
               {label}
             </button>
           ))}
         </div>
 
-        {/* Layer controls */}
         {compact ? (
-          <div style={{ position: "relative" }}>
-            <button
-              ref={layerTriggerRef}
-              type="button"
-              onClick={openLayers}
-              className="pg-btn"
-              aria-expanded={layersOpen}
-              aria-controls="pg-layers"
-            >
-              {en ? "Layers ▾" : "Capas ▾"}
+          <>
+            <button ref={layerTriggerRef} type="button" onClick={openLayers} className="pg-btn"
+              aria-expanded={layersOpen} aria-controls="pg-layers">
+              {en ? "Layers" : "Capas"} <span aria-hidden="true">▾</span>
             </button>
             {layersOpen && (
-              <div
-                id="pg-layers"
-                ref={layersPopRef}
-                style={{
-                  // Phase 2 (consensus): open BELOW the trigger, not above —
-                  // the previous bottom-aligned popover clipped 73% off-canvas
-                  // on compact viewports. maxHeight resolves against the figure
-                  // via viewport units (containing block is the 44px trigger,
-                  // so calc(100% - N) would clamp to 0 and hide all toggles).
-                  position: "absolute", top: "calc(100% + 6px)", right: 0,
-                  display: "flex", flexDirection: "column", gap: 5, alignItems: "flex-end",
-                  background: `${EN_ACCENT.navy}d0`, padding: 6, borderRadius: 10,
-                  border: `1px solid ${EN_ACCENT.turquoise}33`,
-                  maxHeight: "min(60vh, 240px)", overflowY: "auto",
-                }}
-              >
-                {[ ["plants", en ? "Plants" : "Plantas"], ["grid", en ? "Grid" : "Red"], ["hubs", en ? "AI hubs" : "Hubs IA"], ["storage", en ? "Storage" : "Almacenamiento"] ].map(([k, label]) => (
-                  <button
-                    key={k}
-                    type="button"
-                    onClick={() => toggleLayer(k)}
-                    aria-pressed={layers[k]}
-                    className={`pg-btn${layers[k] ? " pg-btn-on" : ""}`}
-                    data-off={layers[k] ? "0" : "1"}
-                  >
-                    <span aria-hidden="true">{layers[k] ? "● " : "○ "}</span>
-                    {label}
+              <div id="pg-layers" ref={layersPopRef} style={{
+                position: "absolute", top: "calc(100% + 6px)", right: 0,
+                display: "flex", flexDirection: "column", gap: 5, alignItems: "flex-end",
+                background: "rgba(10,31,63,0.82)", padding: 6, borderRadius: 10,
+                border: `1px solid ${EN_ACCENT.turquoise}33`,
+                maxHeight: "min(60vh, 240px)", overflowY: "auto",
+              }}>
+                {[["plants", en ? "Plants" : "Plantas"], ["grid", en ? "Grid" : "Red"], ["hubs", en ? "AI hubs" : "Hubs IA"], ["storage", en ? "Storage" : "Almacenamiento"]].map(([k, label]) => (
+                  <button key={k} type="button" onClick={() => toggleLayer(k)} aria-pressed={layers[k]}
+                    className={`pg-btn${layers[k] ? " pg-btn-on" : ""}`} data-off={layers[k] ? "0" : "1"}>
+                    <span aria-hidden="true">{layers[k] ? "● " : "○ "}</span>{label}
                   </button>
                 ))}
               </div>
             )}
-          </div>
+          </>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 5, alignItems: "flex-end" }}>
-            {[ ["plants", en ? "Plants" : "Plantas"], ["grid", en ? "Grid" : "Red"], ["hubs", en ? "AI hubs" : "Hubs IA"], ["storage", en ? "Storage" : "Almacenamiento"] ].map(([k, label]) => (
-              <button
-                key={k}
-                type="button"
-                onClick={() => toggleLayer(k)}
-                aria-pressed={layers[k]}
-                className={`pg-btn${layers[k] ? " pg-btn-on" : ""}`}
-                data-off={layers[k] ? "0" : "1"}
-              >
-                <span aria-hidden="true">{layers[k] ? "● " : "○ "}</span>
-                {label}
+            {[["plants", en ? "Plants" : "Plantas"], ["grid", en ? "Grid" : "Red"], ["hubs", en ? "AI hubs" : "Hubs IA"], ["storage", en ? "Storage" : "Almacenamiento"]].map(([k, label]) => (
+              <button key={k} type="button" onClick={() => toggleLayer(k)} aria-pressed={layers[k]}
+                className={`pg-btn${layers[k] ? " pg-btn-on" : ""}`} data-off={layers[k] ? "0" : "1"}>
+                <span aria-hidden="true">{layers[k] ? "● " : "○ "}</span>{label}
               </button>
             ))}
           </div>
         )}
       </div>
 
-      {/* ═══════════════════════════
-          Compact tooltip (bottom, above chip rail)
-          ═══════════════════════════ */}
+      {/* ── Compact hover card (bottom, above teaser) ── */}
       {compact && hover && (
         <div style={{
-          position: "absolute", bottom: 56, left: 14, right: 14, zIndex: 4,
-          padding: "7px 10px", borderRadius: 9,
-          background: `${EN_ACCENT.navy}e8`,
-          border: `1px solid ${EN_ACCENT.glow}99`,
-          pointerEvents: "auto",
+          position: "absolute", left: 14, right: 66, bottom: 116, zIndex: 5,
+          background: "rgba(6,21,46,0.92)", border: `1px solid ${EN_ACCENT.glow}88`,
+          borderRadius: 10, padding: "8px 30px 8px 10px", pointerEvents: "auto",
         }}>
           <button
             type="button"
             onClick={() => setHover(null)}
-            aria-label={en ? "Close tooltip" : "Cerrar"}
-            style={{
-              position: "absolute", top: 4, right: 6, background: "none", border: "none",
-              color: "rgba(255,255,255,0.7)", cursor: "pointer", fontSize: 14, lineHeight: 1,
-              padding: "2px 4px", minHeight: 24,
-            }}
+            aria-label={en ? "Dismiss" : "Cerrar"}
+            style={{ position: "absolute", right: 2, top: 2, width: 26, height: 26, background: "transparent", border: "none", color: "rgba(255,255,255,0.75)", fontSize: 14, cursor: "pointer" }}
           >
             ×
           </button>
-          <div style={{ fontSize: 11.5, fontWeight: 700, color: "#fff", paddingRight: 24 }}>{hover.name}</div>
+          <div style={{ fontSize: 11.5, fontWeight: 700, color: "#fff", fontFamily: MONO }}>{hover.name}</div>
           <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.8)", marginTop: 2 }}>{hover.sub}</div>
           {hover.detail && (
             <div style={{ fontSize: 10, color: "rgba(255,255,255,0.65)", marginTop: 2 }}>
-              {hover.detail}
-              {hover.mw ? ` · ~${hover.mw.toLocaleString(locale)} MW (est.)` : ""}
+              {hover.detail}{hover.mw ? ` · ~${hover.mw.toLocaleString(locale)} MW (est.)` : ""}
             </div>
           )}
         </div>
       )}
 
       {/* ═══════════════════════════
-          Phase 2 · CR Teaser strip — permanent, always-visible bottom-left
-          when focus !== "cr". Auto-expands the full CR Info Panel on click.
-          Closes Audit #5 "CR Info Panel buried behind a click".
+          CR Teaser strip — always-visible path into the CR story
           ═══════════════════════════ */}
       {focus !== "cr" && (
         <button
@@ -1397,9 +619,6 @@ export default function PowerGlobe({ en = false, compact = false }) {
           aria-label={en ? "Expand Costa Rica panel — 5 SIEPAC segments, Bill 23.414" : "Expandir panel de Costa Rica — 5 segmentos SIEPAC, Exp. 23.414"}
           style={{
             position: "absolute",
-            // Screenshot-verified: with Zone D gone from compact and the chip
-            // rail a single row (≈46px), the teaser docks just above the rail
-            // and leaves room for the "i" button on the right.
             bottom: compact ? 64 : 150,
             left: 14,
             right: compact ? 66 : "auto",
@@ -1408,7 +627,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
             display: "inline-flex",
             alignItems: "center",
             gap: 8,
-            background: `${EN_ACCENT.navyDeep}d8`,
+            background: "rgba(6,21,46,0.85)",
             border: `1px solid ${EN_ACCENT.gold}88`,
             borderRadius: 999,
             padding: "8px 12px",
@@ -1421,23 +640,18 @@ export default function PowerGlobe({ en = false, compact = false }) {
             fontSize: 10.5,
             letterSpacing: 0.6,
             minHeight: 36,
-            maxWidth: "min(280px, calc(100% - 28px))",
           }}
         >
-          <span aria-hidden="true" style={{
-            width: 10, height: 10, transform: "rotate(45deg)",
-            background: EN_ACCENT.gold, flexShrink: 0,
-            boxShadow: `0 0 8px ${EN_ACCENT.gold}`,
-          }} />
-          <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-            {en ? "COSTA RICA · 5 SIEPAC · EXP. 23.414" : "COSTA RICA · 5 SIEPAC · EXP. 23.414"}
+          <span aria-hidden="true" style={{ width: 10, height: 10, transform: "rotate(45deg)", background: EN_ACCENT.gold, boxShadow: `0 0 8px ${EN_ACCENT.gold}`, flexShrink: 0 }} />
+          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            COSTA RICA · 5 SIEPAC · EXP. 23.414
           </span>
-          <span aria-hidden="true" style={{ color: EN_ACCENT.gold, fontSize: 12, marginLeft: 2 }}>→</span>
+          <span aria-hidden="true" style={{ color: EN_ACCENT.gold, flexShrink: 0 }}>→</span>
         </button>
       )}
 
       {/* ═══════════════════════════
-          CR Info Panel (focus === "cr")
+          CR Info Panel (focus = cr)
           ═══════════════════════════ */}
       <AnimatePresence>
         {focus === "cr" && (
@@ -1454,7 +668,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
               maxHeight: compact ? "min(58%, 320px)" : "none",
               overflowY: compact ? "auto" : "visible",
               zIndex: 5,
-              background: `${EN_ACCENT.navyDeep}e8`,
+              background: "rgba(6,21,46,0.91)",
               border: `1px solid ${EN_ACCENT.gold}55`,
               borderRadius: 12,
               padding: "10px 12px",
@@ -1463,56 +677,40 @@ export default function PowerGlobe({ en = false, compact = false }) {
               pointerEvents: "auto",
             }}
           >
-            <div style={{
-              fontFamily: MONO, fontSize: 10, letterSpacing: 2,
-              color: EN_ACCENT.gold, marginBottom: 8,
-            }}>
+            <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: 2, color: EN_ACCENT.gold, marginBottom: 8 }}>
               {en ? "COSTA RICA · SIEPAC ANCHOR" : "COSTA RICA · NODO SIEPAC"}
             </div>
             <ul style={{ listStyle: "none", padding: 0, margin: "0 0 8px", display: "flex", flexDirection: "column", gap: 4 }}>
-              {siepacArcs.map((a, i) => (
+              {HV_ARCS.filter((a) => a.kind === "siepac").map((a, i) => (
                 <li key={a.id ?? i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <span style={{ display: "inline-block", width: 16, height: 2, background: EN_ACCENT.gold, flexShrink: 0 }} aria-hidden="true" />
-                  <span style={{ fontFamily: MONO, fontSize: 10.5, color: "rgba(255,255,255,0.92)", textTransform: "uppercase", letterSpacing: 0.3 }}>
-                    {txt(a.label, en)}
+                  <span style={{ fontFamily: MONO, fontSize: 10.5, color: "rgba(255,255,255,0.9)" }}>
+                    {txt(a.label, en) || `${a.from} → ${txt(a.to, en)}`}
                   </span>
                 </li>
               ))}
             </ul>
-            {/* Expediente 23.414 chip */}
             <div style={{
-              display: "inline-block",
-              background: `${EN_ACCENT.gold}22`,
-              border: `1px solid ${EN_ACCENT.gold}77`,
-              borderRadius: 6, padding: "3px 8px", marginBottom: 6,
-              fontFamily: MONO, fontSize: 10, color: EN_ACCENT.gold, letterSpacing: 1,
+              display: "inline-block", fontFamily: MONO, fontSize: 10, color: "#06152e",
+              background: EN_ACCENT.gold, borderRadius: 5, padding: "2px 7px", fontWeight: 700, marginBottom: 6,
             }}>
               EXP. 23.414
             </div>
-            <div style={{ fontFamily: MONO, fontSize: 10.5, color: "rgba(255,255,255,0.85)", marginBottom: 8 }}>
+            <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.85)", lineHeight: 1.5, margin: "0 0 8px" }}>
               {en
-                ? "Electricity reform (27-24 first debate, withdrawn May 27 2026 — 8 votes short of 38)"
-                : "Reforma eléctrica (27-24 en primer debate, desconvocada 27 may 2026 — faltan 8 votos de 38)"}
-            </div>
-            {/* CTA link */}
+                ? "Costa Rica couples to the regional market (MER) at Cañas. The 23.414 reform decides how this grid buys, sells and expands."
+                : "Costa Rica se acopla al mercado regional (MER) en Cañas. La reforma 23.414 decide cómo esta red compra, vende y se expande."}
+            </p>
             <a
               href="#energia-act-5"
-              onClick={(e) => {
-                e.preventDefault();
-                document.getElementById("energia-act-5")?.scrollIntoView({
-                  behavior: reduced ? "instant" : "smooth",
-                  block: "start",
-                });
-              }}
               style={{
-                display: "inline-block",
+                display: "inline-flex", alignItems: "center", gap: 6, minHeight: 34,
                 fontFamily: MONO, fontSize: 10.5, color: EN_ACCENT.glow,
                 textDecoration: "underline", marginBottom: 6,
               }}
             >
               {en ? "Full 23.414 analysis ↓" : "Análisis completo 23.414 ↓"}
             </a>
-            {/* Sources */}
             <div style={{ fontFamily: MONO, fontSize: 9.5, color: "rgba(255,255,255,0.45)", marginTop: 4 }}>
               {en ? "Source: " : "Fuente: "}
               <a href={SRC.epr.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff" }}>EPR/SIEPAC</a>
@@ -1524,16 +722,12 @@ export default function PowerGlobe({ en = false, compact = false }) {
       </AnimatePresence>
 
       {/* ═══════════════════════════
-          ZONE D — Source attribution (DESKTOP ONLY)
-          Screenshot-verified redesign: on compact the on-canvas citation
-          collided with the chip rail and CR teaser mid-canvas. Mobile keeps
-          full sourcing in the always-visible caption paragraph directly
-          below the globe in EnergiaDeep.jsx — in normal document flow,
-          readable and tappable. Nothing on-canvas competes with it.
+          ZONE D — Source attribution (DESKTOP ONLY; mobile citation lives
+          in the always-visible caption below the globe in EnergiaDeep)
           ═══════════════════════════ */}
       <div style={{
         position: "absolute",
-        bottom: 96,
+        bottom: 118,
         left: 14, right: 14, zIndex: 3,
         display: compact ? "none" : "block",
         fontFamily: MONO, fontSize: 10, letterSpacing: 0.3,
@@ -1547,17 +741,11 @@ export default function PowerGlobe({ en = false, compact = false }) {
           WRI Global Power Plant Database
         </a>
         {" ("}
-        <a href={SRC.cc_by_4.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>
-          CC-BY-4.0
-        </a>
+        <a href={SRC.cc_by_4.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>CC-BY-4.0</a>
         {") · "}
         {en ? "basemap " : "base "}
         <a href={SRC.three_globe.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>
           NASA night lights
-        </a>
-        {" / "}
-        <a href={SRC.naturalearth.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>
-          Natural Earth
         </a>
         {" · "}
         {en ? "interconnections illustrative (" : "interconexiones ilustrativas ("}
@@ -1595,7 +783,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
       </div>
 
       {/* ═══════════════════════════
-          ZONE E — Encoding legend
+          ZONE E — Encoding legend ("i" popover on compact)
           ═══════════════════════════ */}
       {compact && (
         <button
@@ -1616,7 +804,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
         aria-hidden={compact && !encOpen ? true : undefined}
         style={{
           position:        "absolute",
-          bottom:          compact ? 116 : 56,
+          bottom:          compact ? 116 : 76,
           left:            14, right: 14, zIndex: 3,
           display:         (compact && !encOpen) ? "none" : "flex",
           flexWrap:        "wrap",
@@ -1626,71 +814,60 @@ export default function PowerGlobe({ en = false, compact = false }) {
           fontSize:        10.5,
           color:           "rgba(255,255,255,0.92)",
           pointerEvents:   "none",
-          background:      compact ? `${EN_ACCENT.navy}d8` : "transparent",
+          background:      compact ? "rgba(6,21,46,0.9)" : "transparent",
           padding:         compact ? "8px 10px" : 0,
           borderRadius:    compact ? 10 : 0,
         }}
       >
-        {/* Altitude legend */}
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           <span style={{ display: "inline-flex", alignItems: "flex-end", gap: 2, height: 14 }}>
-            <span style={{ width: 3, height: Math.round(altOf(500)   / 0.14 * 14), background: EN_ACCENT.glow }} />
-            <span style={{ width: 3, height: Math.round(altOf(5000)  / 0.14 * 14), background: EN_ACCENT.glow }} />
-            <span style={{ width: 3, height: Math.round(altOf(20000) / 0.14 * 14), background: EN_ACCENT.glow }} />
+            {[500, 5000, 15000].map((mw) => (
+              <span key={mw} style={{ width: 3, height: Math.round((altOf(mw) / 0.14) * 14), background: EN_ACCENT.glow }} />
+            ))}
           </span>
-          {en ? "Altitude ≈ √MW (500 · 5k · ≥15k MW)" : "Altura ≈ √MW (500 · 5k · ≥15k MW)"}
+          {en ? "Column ≈ √MW (500 · 5k · ≥15k)" : "Columna ≈ √MW (500 · 5k · ≥15k)"}
         </span>
-        {/* Arc kind swatches */}
-        {ARC_LEGEND_ORDER.map((kind) => {
-          const k = ARC_KIND[kind];
-          return (
-            <span key={kind} style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-              {k.legendSwatch.style === "dashed" ? (
-                <span style={{ width: k.legendSwatch.width, height: k.legendSwatch.height, background: "transparent", borderTop: `1.5px dashed ${k.legendSwatch.color}` }} />
-              ) : (
-                <span style={{ width: k.legendSwatch.width, height: k.legendSwatch.height, background: k.legendSwatch.color, borderRadius: 1 }} />
-              )}
-              {k.label[locale]}
-            </span>
-          );
-        })}
-        {/* DC MW-scaled swatches — mirror DC_SCALE.size + AI-scale gold ring (≥700 MW) */}
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-          <span style={{ width: 14, height: 14, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ width: 8, height: 8, transform: "rotate(45deg)", background: "rgba(255,255,255,0.95)", border: `1px solid ${EN_ACCENT.glow}`, boxShadow: `0 0 6px ${EN_ACCENT.glow}` }} />
+        {ARC_LEGEND_ORDER.map((k) => (
+          <span key={k} style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+            {ARC_KIND[k].legendSwatch.style === "dashed" ? (
+              <span style={{ width: 22, height: 1, background: "transparent", borderTop: `1.5px dashed ${ARC_KIND[k].legendSwatch.color}` }} />
+            ) : (
+              <span style={{ width: ARC_KIND[k].legendSwatch.width, height: ARC_KIND[k].legendSwatch.height, background: ARC_KIND[k].legendSwatch.color, borderRadius: 1 }} />
+            )}
+            {KIND_LABEL[k][locale]}
           </span>
-          {en ? "Regional hub (≈100–500 MW)" : "Hub regional (≈100–500 MW)"}
+        ))}
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+          <span style={{ width: 9, height: 9, transform: "rotate(45deg)", background: "rgba(255,255,255,0.9)", border: `1px solid ${EN_ACCENT.glow}` }} />
+          {en ? "AI hub (≈100–500 MW)" : "Hub IA (≈100–500 MW)"}
         </span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-          <span style={{ width: 18, height: 18, display: "inline-flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-            <span style={{ position: "absolute", width: 18, height: 18, borderRadius: "50%", border: `1.5px solid ${EN_ACCENT.gold}`, boxShadow: `0 0 6px ${EN_ACCENT.gold}88` }} />
-            <span style={{ width: 10, height: 10, transform: "rotate(45deg)", background: "rgba(255,255,255,0.95)", border: `1px solid ${EN_ACCENT.glow}`, boxShadow: `0 0 6px ${EN_ACCENT.glow}` }} />
+          <span style={{ position: "relative", width: 18, height: 18, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ position: "absolute", inset: 0, borderRadius: "50%", border: `1.5px solid ${EN_ACCENT.gold}`, boxShadow: `0 0 6px ${EN_ACCENT.gold}88` }} />
+            <span style={{ width: 10, height: 10, transform: "rotate(45deg)", background: "rgba(255,255,255,0.95)", border: `1px solid ${EN_ACCENT.glow}` }} />
           </span>
-          {en ? "AI-scale hub (≥700 MW)" : "Hub a escala IA (≥700 MW)"}
+          {en ? "AI-scale (≥700 MW)" : "Escala IA (≥700 MW)"}
         </span>
-        {/* Phase 2 · Storage swatch — double-ring (storage-blue outer + Li-ion cyan inner) */}
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
-            <circle cx="6" cy="6" r="5" fill="none" stroke="#60a5fa" strokeWidth="1.5" />
+            <circle cx="6" cy="6" r="5" fill="none" stroke="#7cb8ff" strokeWidth="1.5" />
             <circle cx="6" cy="6" r="2.5" fill="none" stroke="#22d3ee" strokeWidth="1.5" />
           </svg>
           {en ? "Storage" : "Almacenamiento"}
         </span>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+          <span style={{ width: 10, height: 10, transform: "rotate(45deg)", background: EN_ACCENT.gold, boxShadow: `0 0 6px ${EN_ACCENT.gold}` }} />
+          {en ? "Cañas · SIEPAC beacon" : "Cañas · faro SIEPAC"}
+        </span>
       </div>
 
-      {/* ═══════════════════════════
-          Empty-state overlay (when all fuel chips off)
-          ═══════════════════════════ */}
+      {/* ── Empty state (all fuel chips off) ── */}
       {!anyOn && (
         <div style={{
-          position: "absolute", left: "50%", top: "50%",
-          transform: "translate(-50%,-50%)",
-          zIndex: 4, textAlign: "center",
-          padding: "16px 22px", borderRadius: 12,
-          background: `${EN_ACCENT.navy}e0`,
-          border: `1px solid ${EN_ACCENT.glow}77`,
-          backdropFilter: "blur(6px)",
-          pointerEvents: "none",
+          position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)",
+          zIndex: 4, textAlign: "center", padding: "16px 22px", borderRadius: 12,
+          background: "rgba(10,31,63,0.88)", border: `1px solid ${EN_ACCENT.glow}77`,
+          backdropFilter: "blur(6px)", pointerEvents: "none",
         }}>
           <div style={{ fontFamily: MONO, fontSize: 13, color: "#fff", marginBottom: 10 }}>
             {en ? "Which source powers the world?" : "¿Qué fuente mueve al mundo?"}
@@ -1699,7 +876,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
             type="button"
             onClick={resetFilters}
             className="pg-btn pg-btn-on"
-            aria-label={en ? `Show all ${total.toLocaleString("en")} plants` : `Mostrar todas las ${total.toLocaleString("es")} plantas`}
+            aria-label={en ? `Show all technologies (${total.toLocaleString("en")} plants)` : `Mostrar todas las tecnologías (${total.toLocaleString("es")} plantas)`}
             style={{ pointerEvents: "auto" }}
           >
             {en ? "Show all" : "Mostrar todas"}
@@ -1717,9 +894,6 @@ export default function PowerGlobe({ en = false, compact = false }) {
         right:          compact ? 0 : 14,
         zIndex:         3,
         display:        "flex",
-        // Screenshot-verified redesign: on compact the wrapped 3-row chip
-        // block climbed mid-canvas and buried the citation. One horizontal
-        // scroll rail keeps the canvas clear; desktop keeps the wrap.
         flexWrap:       compact ? "nowrap" : "wrap",
         overflowX:      compact ? "auto" : "visible",
         WebkitOverflowScrolling: "touch",
@@ -1736,8 +910,6 @@ export default function PowerGlobe({ en = false, compact = false }) {
               type="button"
               onClick={() => toggleFuel(k)}
               aria-pressed={on}
-              // Spec: active border alpha cc (80%) for WCAG 1.4.11 compliance
-              // (Hydro/Gas/Oil at 60% failed contrast threshold)
               className={`pg-btn pg-btn-chip${compact ? " pg-btn-compact-chip" : ""}`}
               data-off={on ? "0" : "1"}
               style={{ borderColor: on ? `${FUEL_HEX[k]}cc` : "rgba(255,255,255,0.18)" }}
@@ -1760,7 +932,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
         <button
           type="button"
           onClick={resetFilters}
-          className="pg-btn"
+          className={`pg-btn${compact ? " pg-btn-compact-chip" : ""}`}
           aria-label={en ? "Reset filters" : "Restablecer filtros"}
         >
           <span aria-hidden="true">↺</span>

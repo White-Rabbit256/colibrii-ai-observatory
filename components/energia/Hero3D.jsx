@@ -141,8 +141,10 @@ function CountryMesh() {
       <mesh geometry={halo} position={[0, 0, -0.06]} scale={[1.035, 1.035, 1]}>
         <meshBasicMaterial color={TURQ} transparent opacity={0.14} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
       </mesh>
+      {/* Device-verified: the grain roughnessMap rendered as diagonal streaks on
+          extrude UVs (read as scratches on real hardware) — removed. */}
       <mesh geometry={body} castShadow receiveShadow>
-        <meshStandardMaterial color="#123258" metalness={0.38} roughness={0.5} roughnessMap={grain || undefined} emissive={TURQ} emissiveIntensity={0.14} />
+        <meshStandardMaterial color="#123258" metalness={0.34} roughness={0.46} emissive={TURQ} emissiveIntensity={0.15} />
       </mesh>
       {/* doubled coast: crisp cyan line + soft wide turquoise underglow */}
       <lineSegments geometry={edges} position={[0, 0, DEPTH + 0.022]}>
@@ -208,7 +210,9 @@ function CityLights({ paused, intro, compact }) {
         <bufferAttribute attach="attributes-position" count={count} array={positions} itemSize={3} />
         <bufferAttribute attach="attributes-color" count={count} array={colors} itemSize={3} />
       </bufferGeometry>
-      <pointsMaterial vertexColors size={0.03} transparent opacity={0} sizeAttenuation depthWrite={false} toneMapped={false} />
+      {/* Device-verified: 0.03 non-additive points were ~1px and invisible on a
+          DPR-3 phone — bigger + additive so bloom catches them. */}
+      <pointsMaterial vertexColors size={0.058} transparent opacity={0} sizeAttenuation depthWrite={false} toneMapped={false} blending={THREE.AdditiveBlending} />
     </points>
   );
 }
@@ -227,7 +231,8 @@ function SiepacSpine({ paused, intro }) {
       [gam.lng, gam.lat], [-83.86, 9.52], [-83.28, 9.05], [-82.78, 8.92],
     ].map(([lng, lat]) => new THREE.Vector3(px(lng), py(lat), Z_TOP + 0.012));
     const curve = new THREE.CatmullRomCurve3(way, false, "catmullrom", 0.35);
-    const tube = new THREE.TubeGeometry(curve, 72, 0.011, 8, false);
+    // Device-verified: 0.011 radius was sub-pixel on phones — doubled.
+    const tube = new THREE.TubeGeometry(curve, 72, 0.02, 8, false);
     return { tube, curve };
   }, []);
 
