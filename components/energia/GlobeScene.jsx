@@ -330,7 +330,7 @@ export default function GlobeScene({
     if (!mesh) return;
     for (let i = 0; i < stoData.length; i++) {
       const s = stoData[i];
-      toVec(s.lat, s.lng, 0.006, scratch);
+      toVec(s.lat, s.lng, 0.014, scratch);
       scratch2.copy(scratch).normalize();
       dummy.position.copy(scratch);
       dummy.quaternion.setFromUnitVectors(new Vector3(0, 0, 1), scratch2);
@@ -550,7 +550,7 @@ export default function GlobeScene({
               <meshBasicMaterial color={EN_ACCENT.gold} transparent opacity={0.35} blending={AdditiveBlending} depthWrite={false} toneMapped={false} side={DoubleSide} />
             </mesh>
           </group>
-          <mesh rotation={[-Math.PI / 2, 0, 0]} material={statics.pulseMat}>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.006, 0]} material={statics.pulseMat}>
             <planeGeometry args={[0.34, 0.34]} />
           </mesh>
         </group>

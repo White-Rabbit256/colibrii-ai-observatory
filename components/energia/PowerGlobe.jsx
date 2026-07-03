@@ -419,16 +419,16 @@ export default function PowerGlobe({ en = false, compact = false }) {
       {/* ── Globe canvas (aria-hidden — all SR content is above) ── */}
       <div aria-hidden="true" style={{ position: "absolute", inset: 0 }}>
         <Canvas
-          dpr={[1, 2]}
+          dpr={[1, compact ? 1.75 : 2]}
           camera={{ fov: compact ? 34 : 26, position: [0, 0, 5.6], near: 0.1, far: 60 }}
           gl={{
             antialias: false,
-            alpha: true,
+            alpha: false,
             stencil: false,
             powerPreference: compact ? undefined : "high-performance",
           }}
           style={{ position: "absolute", inset: 0, touchAction: "pan-y" }}
-          onCreated={({ gl }) => { gl.setClearColor(0x000000, 0); gl.toneMapping = ACESFilmicToneMapping; gl.toneMappingExposure = 1.15; gl.domElement.style.touchAction = "pan-y"; }}
+          onCreated={({ gl }) => { gl.setClearColor(0x06152e, 1); gl.toneMapping = ACESFilmicToneMapping; gl.toneMappingExposure = 1.15; gl.domElement.style.touchAction = "pan-y"; }}
         >
           <Suspense fallback={null}>
             <GlobeScene
