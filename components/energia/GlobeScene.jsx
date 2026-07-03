@@ -3,7 +3,7 @@ import { useRef, useMemo, useEffect, useCallback } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import {
   AdditiveBlending, BackSide, BufferAttribute, BufferGeometry, CatmullRomCurve3,
-  Color, CylinderGeometry, DoubleSide, Group, InstancedMesh, LineBasicMaterial,
+  CircleGeometry, Color, CylinderGeometry, DoubleSide, Group, InstancedMesh, LineBasicMaterial,
   LineSegments, MathUtils, Matrix4, MeshBasicMaterial, MeshStandardMaterial,
   Object3D, OctahedronGeometry, Quaternion, RingGeometry, ShaderMaterial,
   SphereGeometry, SRGBColorSpace, TextureLoader, TorusGeometry, TubeGeometry,
@@ -120,19 +120,13 @@ void main() {
   vec3 oceanFacing = pow(vec3(0.027,0.102,0.200), vec3(2.2)); // #071A33
   vec3 landTint    = pow(vec3(0.082,0.200,0.353), vec3(2.2)); // #15335A
   vec3 ocean = mix(oceanLimb, oceanFacing, smoothstep(0.10, 0.70, F));
+  // faint land shadow under the dot-matrix (grounds the dots without competing)
   float land = uHasLand > 0.5 ? texture2D(tLand, vUv).r : 0.0;
-  vec3 col = mix(ocean, landTint, smoothstep(0.30, 0.62, land));
+  vec3 col = mix(ocean, landTint * 0.55, smoothstep(0.30, 0.62, land) * 0.6);
   // wrap-lambert key (upper-left)
   float ndl = dot(vNormal, normalize(vec3(-1.5, 1.2, 2.0)));
   float k = pow(ndl * 0.5 + 0.5, 1.4);
   col *= mix(1.0, k * 1.6, 0.30);
-  // amber civilization ramp from the night texture (sampled linear via sRGB decode)
-  if (uHasNight > 0.5) {
-    vec3 night = texture2D(tNight, vUv).rgb;
-    float lum = dot(night, vec3(0.299, 0.587, 0.114));
-    col += mix(pow(vec3(0.706,0.325,0.035), vec3(2.2)), pow(vec3(1.0,0.851,0.627), vec3(2.2)), smoothstep(0.12, 0.8, lum))
-           * pow(lum, 1.15) * 2.4;
-  }
   // in-surface cyan rim
   col += pow(vec3(0.133,0.827,0.933), vec3(2.2)) * pow(1.0 - F, 3.0) * 0.5;
   gl_FragColor = vec4(col, 1.0);
@@ -164,6 +158,107 @@ function buildStars(n = 340) {
   const g = new BufferGeometry();
   g.setAttribute("position", new BufferAttribute(arr, 3));
   return g;
+}
+
+
+/* ── Dot-matrix landmass (GitHub-globe technique, maker-documented) ──
+   Latitude-row sampling: for each latitude row, dots are spaced evenly along
+   the row's circumference and kept only where the Natural-Earth land mask has
+   land. Each kept dot is tinted by real NASA night-light luminance at its
+   coordinate (steel-blue land → amber civilization). ONE InstancedMesh,
+   five-sided circles, flat colors — the premium dark-globe grammar. */
+function DotEarth({ compact, onReady }) {
+  const ref = useRef();
+  const built = useRef(false);
+  useEffect(() => {
+    if (built.current) return;
+    let dead = false;
+    const maskImg = new Image();
+    const nightImg = new Image();
+    let loaded = 0;
+    const tryBuild = () => {
+      if (dead || ++loaded < 2) return;
+      const mc = document.createElement("canvas");
+      mc.width = 512; mc.height = 256;
+      const mctx = mc.getContext("2d", { willReadFrequently: true });
+      mctx.drawImage(maskImg, 0, 0, 512, 256);
+      const mask = mctx.getImageData(0, 0, 512, 256).data;
+      const nc = document.createElement("canvas");
+      nc.width = 256; nc.height = 128;
+      const nctx = nc.getContext("2d", { willReadFrequently: true });
+      nctx.drawImage(nightImg, 0, 0, 256, 128);
+      const night = nctx.getImageData(0, 0, 256, 128).data;
+
+      const isLand = (lat, lng) => {
+        const x = Math.min(511, Math.max(0, Math.round(((lng + 180) / 360) * 512)));
+        const y = Math.min(255, Math.max(0, Math.round(((90 - lat) / 180) * 256)));
+        return mask[(y * 512 + x) * 4] >= 110;
+      };
+      const cityLum = (lat, lng) => {
+        const x = Math.min(255, Math.max(0, Math.round(((lng + 180) / 360) * 256)));
+        const y = Math.min(127, Math.max(0, Math.round(((90 - lat) / 180) * 128)));
+        const i = (y * 256 + x) * 4;
+        return (night[i] + night[i + 1] + night[i + 2]) / 765;
+      };
+
+      const rows = compact ? 130 : 170;          // GitHub tiering: ~0.65× density on weak GPUs
+      const density = compact ? 15 : 19;         // dots per world-unit of circumference
+      const step = 180 / rows;
+      const positions = [];
+      const lums = [];
+      for (let lat = -90 + step / 2; lat < 90; lat += step) {
+        const rowR = Math.cos(Math.abs(lat) * (Math.PI / 180)) * R;
+        const circ = 2 * Math.PI * rowR;
+        const n = Math.max(1, Math.floor(circ * density));
+        for (let j = 0; j < n; j++) {
+          const lng = -180 + (j / n) * 360;
+          if (!isLand(lat, lng)) continue;
+          positions.push([lat, lng]);
+          lums.push(cityLum(lat, lng));
+        }
+      }
+      const mesh = ref.current;
+      if (!mesh) return;
+      const count = Math.min(positions.length, mesh.instanceMatrix.count);
+      const d = new Object3D();
+      const v = new Vector3();
+      const base = new Color("#54749E").convertSRGBToLinear();
+      const city = new Color("#FFD9A0").convertSRGBToLinear();
+      const cTmp = new Color();
+      for (let i = 0; i < count; i++) {
+        const [lat, lng] = positions[i];
+        toVec(lat, lng, 0.0045, v);
+        d.position.copy(v);
+        d.quaternion.setFromUnitVectors(new Vector3(0, 0, 1), v.clone().normalize());
+        d.scale.setScalar(1);
+        d.updateMatrix();
+        mesh.setMatrixAt(i, d.matrix);
+        const t = Math.min(1, Math.pow(lums[i], 0.9) * 1.75);
+        cTmp.copy(base).lerp(city, t);
+        mesh.setColorAt(i, cTmp);
+      }
+      mesh.count = count;
+      mesh.instanceMatrix.needsUpdate = true;
+      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+      built.current = true;
+      onReady?.();
+    };
+    maskImg.onload = tryBuild;
+    nightImg.onload = tryBuild;
+    maskImg.src = "/textures/land-mask-2k.png";
+    nightImg.src = SCENE.globeImageUrl;
+    return () => { dead = true; };
+  }, [compact, onReady]);
+
+  const geo = useMemo(() => {
+    return new CircleGeometry(0.0056 * R, 5); // five-sided, per the GitHub recipe
+  }, []);
+  const mat = useMemo(() => new MeshBasicMaterial({ toneMapped: false }), []);
+  useEffect(() => () => { geo.dispose(); mat.dispose(); }, [geo, mat]);
+
+  return (
+    <instancedMesh ref={ref} args={[geo, mat, 16000]} frustumCulled={false} raycast={() => null} />
+  );
 }
 
 const CANAS = { lat: 10.43, lng: -85.09 };
@@ -508,6 +603,7 @@ export default function GlobeScene({
         <mesh onPointerMissed={clearHover} material={statics.earthMat}>
           <sphereGeometry args={[R, 96, 64]} />
         </mesh>
+        <DotEarth compact={compact} />
         {/* atmosphere */}
         <mesh scale={1.075} material={statics.atmoMat}>
           <sphereGeometry args={[R, 48, 32]} />
