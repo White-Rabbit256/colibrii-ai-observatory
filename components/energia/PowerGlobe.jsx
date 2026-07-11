@@ -9,6 +9,7 @@ import { EN_ACCENT, SRC } from "../energiaData";
 import { HV_ARCS } from "./hvArcs";
 import { DATACENTERS } from "./datacenters";
 import GlobeScene from "./GlobeScene";
+import useFrameloopGate, { armContextRecovery } from "./useFrameloopGate";
 import {
   FUEL_HEX, altOf, FUEL_LEGEND, FUEL_ES, ARC_LEGEND_ORDER, ARC_KIND, KIND_LABEL,
 } from "./globeEncoding";
@@ -97,6 +98,9 @@ export default function PowerGlobe({ en = false, compact = false }) {
   const encTriggerRef = useRef(null);
   const pausedRef = useRef(false);
   const labelRefs = useRef(LABEL_ANCHORS.map((a) => ({ ...a, el: null })));
+  // Section-wide arbiter: only the most-visible Energía canvas runs "always"
+  // (two live composers at once drove iOS context eviction — the flicker).
+  const frameloop = useFrameloopGate(wrapRef, reduced);
 
   const [plants,     setPlants]     = useState(null);
   const [status,     setStatus]     = useState("idle");
@@ -420,6 +424,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
       <div aria-hidden="true" style={{ position: "absolute", inset: 0 }}>
         <Canvas
           dpr={[1, compact ? 1.75 : 2]}
+          frameloop={frameloop}
           camera={{ fov: compact ? 34 : 26, position: [0, 0, 5.6], near: 0.1, far: 60 }}
           gl={{
             antialias: false,
@@ -428,7 +433,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
             powerPreference: compact ? undefined : "high-performance",
           }}
           style={{ position: "absolute", inset: 0, touchAction: "pan-y" }}
-          onCreated={({ gl }) => { gl.setClearColor(0x06152e, 1); gl.toneMapping = ACESFilmicToneMapping; gl.toneMappingExposure = 1.15; gl.domElement.style.touchAction = "pan-y"; }}
+          onCreated={({ gl, invalidate }) => { gl.setClearColor(0x06152e, 1); gl.toneMapping = ACESFilmicToneMapping; gl.toneMappingExposure = 1.15; gl.domElement.style.touchAction = "pan-y"; armContextRecovery(gl, invalidate); }}
         >
           <Suspense fallback={null}>
             <GlobeScene
@@ -442,8 +447,10 @@ export default function PowerGlobe({ en = false, compact = false }) {
               labelRefs={labelRefs}
               pausedRef={pausedRef}
             />
+            {/* multisampling=0: the default 8×MSAA composer buffers were the
+                main GPU-memory driver behind iOS context eviction. */}
             {!reduced && (
-              <EffectComposer disableNormalPass>
+              <EffectComposer disableNormalPass multisampling={0}>
                 <Bloom
                   intensity={compact ? 0.75 : 0.85}
                   luminanceThreshold={0.5}

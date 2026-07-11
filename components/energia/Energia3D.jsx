@@ -8,6 +8,7 @@ import {
   QuadraticBezierCurve3, Shape, TubeGeometry, Vector3,
 } from "three";
 import { EN_ACCENT, CR_MIX, PEG_TARGETS, SRC } from "../energiaData";
+import useFrameloopGate from "./useFrameloopGate";
 
 /* ═══════════════════════════════════════════════════════════════
    ENERGÍA — Energia3D · HydroDamCutaway (Act 4 vignette)
@@ -388,6 +389,10 @@ function DamScene({ reduced, active, hidden, spot }) {
 export default function HydroDamCutaway({ en = false, compact = false }) {
   const reduced = useReducedMotion();
   const wrapRef = useRef(null);
+  /* Section-wide arbiter (useFrameloopGate): only the most-visible Energía
+     canvas runs "always" — replaces the local active/hidden frameloop wiring
+     so this canvas can't render concurrently with the hero or the globe. */
+  const gateLoop = useFrameloopGate(wrapRef, reduced);
   const [webgl, setWebgl] = useState(false);   // probed on mount; on fail Canvas never mounts
   const [mounted, setMounted] = useState(false); // IO-A: mount-once, 200px early
   const [active, setActive] = useState(false);   // IO-B: ticking at ≥5% visible
@@ -507,7 +512,7 @@ export default function HydroDamCutaway({ en = false, compact = false }) {
         {webgl && mounted && (
           <Canvas
             dpr={reduced ? 1 : compact ? [1, 1.5] : [1, 2]}
-            frameloop={reduced ? "demand" : active && !hidden ? "always" : "never"}
+            frameloop={gateLoop}
             camera={{ position: [2.6, 1.05, 4.2], fov: 40 }}
             gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
             style={{ position: "absolute", inset: 0 }}

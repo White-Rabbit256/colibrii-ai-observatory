@@ -560,6 +560,7 @@ export default function GlobeScene({
     // label projection (anchors → screen space, same math as the sphere)
     if (labelRefs?.current) {
       const rect = gl.domElement.getBoundingClientRect();
+      const placed = [];
       for (const L of labelRefs.current) {
         if (!L.el) continue;
         if (L.id !== "canas" && !layers.hubs) { L.el.style.opacity = "0"; continue; }
@@ -568,10 +569,24 @@ export default function GlobeScene({
         const facing = scratch.clone().normalize().dot(camera.position.clone().normalize());
         scratch.project(camera);
         const x = Math.min(rect.width - 84, Math.max(84, (scratch.x * 0.5 + 0.5) * rect.width));
-        const y = (-scratch.y * 0.5 + 0.5) * rect.height;
-        const visible = facing > 0.18 && scratch.z < 1;
+        let y = (-scratch.y * 0.5 + 0.5) * rect.height + 10;
+        let visible = facing > 0.18 && scratch.z < 1;
+        if (visible) {
+          // De-overlap: x-clamped labels pile up at the frame edge (owner
+          // photo IMG_1378: NoVA over Phoenix). Priority = anchor order
+          // (Cañas first); later labels stack below, or hide if crowded out.
+          for (const p of placed) {
+            const gap = p.tall || L.sub ? 34 : 24;
+            if (Math.abs(x - p.x) < 110 && Math.abs(y - p.y) < gap) y = p.y + gap;
+          }
+          for (const p of placed) {
+            if (Math.abs(x - p.x) < 110 && Math.abs(y - p.y) < 22) { visible = false; break; }
+          }
+          if (visible && y > rect.height - 18) visible = false;
+          if (visible) placed.push({ x, y, tall: !!L.sub });
+        }
         L.el.style.opacity = visible ? "1" : "0";
-        L.el.style.transform = `translate(-50%, 0) translate(${x.toFixed(1)}px, ${(y + 10).toFixed(1)}px)`;
+        L.el.style.transform = `translate(-50%, 0) translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
       }
     }
   });
