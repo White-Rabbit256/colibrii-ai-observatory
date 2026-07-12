@@ -11,18 +11,75 @@
 export const EN_ACCENT = {
   navy: "#0A1F3F",
   navy2: "#10294f",
+  navyDeep: "#06152e",   // deepest panel base (was a one-off #050f24)
   turquoise: "#00B5A8",
   gold: "#F2B135",
   glow: "#22d3ee",
+  sky: "#38bdf8",        // brighter atmosphere blue — promoted to token (panel R2 #12)
+  solar: "#fb923c",      // defined solar accent — warm orange, distinct from gold
   risk: "#ef4444",
   green: "#10b981",
   violet: "#818cf8",
+};
+
+/* Phase 2 · Per-Act accent map — each Act exposes 3 CSS vars on its root via
+   data-act={n}: --act-accent, --act-accent-2, --act-tint.
+   Dark-theme palette. Light-theme variants below (ACT_ACCENT_LIGHT) keep the
+   same hue family but ≥4.5:1 contrast on white, matching the --enTurq #067a70
+   / --enGold #8a5e00 precedent. Applied via [data-theme="light"] [data-act=N]
+   in globals.css — never used directly in JS. */
+export const ACT_ACCENT = {
+  2: { primary: "#22d3ee", pair: "#00B5A8", tint: "rgba(34,211,238,0.06)" },
+  3: { primary: "#F2B135", pair: "#fb923c", tint: "rgba(242,177,53,0.07)" },
+  4: { primary: "#22d3ee", pair: "#0d9488", tint: "rgba(34,211,238,0.06)" },
+  5: { primary: "#F2B135", pair: "#ef4444", tint: "rgba(242,177,53,0.07)" },
+  6: { primary: "#a5b4fc", pair: "#22d3ee", tint: "rgba(165,180,252,0.06)" },
+  7: { primary: "#22d3ee", pair: "#fb923c", tint: "rgba(34,211,238,0.06)" },
+  8: { primary: "#F2B135", pair: "#10b981", tint: "rgba(242,177,53,0.07)" },
+};
+/* WCAG AA light-theme variants (≥4.5:1 on white, ≥4.5:1 after worst-case
+   inline opacity 0.8 used by ActNav inactive pills). Hue families preserved.
+   Reference: --enTurq #067a70 (5.22:1) / --enGold #8a5e00 (5.70:1). */
+export const ACT_ACCENT_LIGHT = {
+  2: { primary: "#155e75", pair: "#0f766e", tint: "rgba(21,94,117,0.06)" },
+  3: { primary: "#713f12", pair: "#9a3412", tint: "rgba(113,63,18,0.07)" },
+  4: { primary: "#155e75", pair: "#115e59", tint: "rgba(21,94,117,0.06)" },
+  5: { primary: "#713f12", pair: "#991b1b", tint: "rgba(113,63,18,0.07)" },
+  6: { primary: "#4338ca", pair: "#155e75", tint: "rgba(67,56,202,0.06)" },
+  7: { primary: "#155e75", pair: "#9a3412", tint: "rgba(21,94,117,0.06)" },
+  8: { primary: "#713f12", pair: "#065f46", tint: "rgba(113,63,18,0.07)" },
+};
+
+/* Phase 2 · Editorial intro pulls — one italic line beneath each Act header. */
+export const ACT_INTRO_PULL = {
+  2: { es: "La electricidad ya no es un costo: es el insumo que se compra primero.", en: "Electricity is no longer a cost: it is the input bought first." },
+  3: { es: "Limpio no basta. La carrera la decide el megavatio barato.", en: "Clean is not enough. The race is decided by the cheap megawatt." },
+  4: { es: "Sólido — y casi sin margen.", en: "Strong — and almost out of room." },
+  5: { es: "Treinta y ocho votos. La aritmética antes que la ideología.", en: "Thirty-eight votes. Arithmetic before ideology." },
+  6: { es: "Seis países ya pagaron las lecciones que nos faltan.", en: "Six countries already paid the lessons we still owe." },
+  7: { es: "Cuatro herramientas, una sola pregunta: ¿somos competitivos?", en: "Four tools, one question: are we competitive?" },
+  8: { es: "Enmendar — no rechazar.", en: "Amend — not reject." },
+};
+
+/* Phase 2 · Act 2 KPI strip — frames the globe with scale BEFORE the 3D mounts. */
+export const ACT2_KPIS = {
+  setup: {
+    es: "El planeta entero, con los megavatios que ya están en el suelo y los que la IA está comprando con años de anticipación. Costa Rica está marcada en oro.",
+    en: "The whole planet, with the megawatts already in the ground and the ones AI is buying years ahead. Costa Rica is marked in gold.",
+  },
+  cells: [
+    { id: "plants", v: { es: "22.000+", en: "22,000+" }, label: { es: "plantas globales mapeadas", en: "global plants mapped" }, sub: { es: "WRI ≥ 20 MW", en: "WRI ≥ 20 MW" }, accentKey: 2 },
+    { id: "arcs",   v: "22", label: { es: "interconexiones AT activas", en: "active HV interconnections" }, sub: { es: "5 segmentos SIEPAC en CR", en: "5 SIEPAC segments in CR" }, accentKey: 3 },
+    { id: "hubs",   v: "26", label: { es: "hubs de centros de datos", en: "data-centre hubs" }, sub: { es: "demanda est. 8.000+ MW", en: "est. demand 8,000+ MW" }, accentKey: 7 },
+    { id: "growth", v: { es: "415 → 945", en: "415 → 945" }, label: { es: "TWh demanda IA · 2024→2030", en: "TWh AI demand · 2024→2030" }, sub: { es: "AIE caso base", en: "IEA base case" }, accentKey: 5 },
+  ],
 };
 
 /* ── SOURCE REGISTRY ── */
 export const SRC = {
   iea2025: { name: "IEA — Energy and AI (abr 2025)", url: "https://www.iea.org/reports/energy-and-ai", date: "2026-06" },
   delloro: { name: "Dell'Oro Group — Data Center Capex FY2025 (17 mar 2026)", url: "https://www.delloro.com/news/", date: "2026-06" },
+  synergy: { name: "Synergy Research Group — Data Center Quarterly", url: "https://www.srgresearch.com/", date: "2026-06" },
   mckinsey: { name: "McKinsey — The cost of compute (abr 2025)", url: "https://www.mckinsey.com/industries/technology-media-and-telecommunications/our-insights/the-cost-of-compute-a-7-trillion-dollar-race-to-scale-data-centers", date: "2026-06" },
   dcfrontier: { name: "Data Center Frontier / Tom's Hardware (ene 2026)", url: "https://www.datacenterfrontier.com/", date: "2026-06" },
   constellation: { name: "Constellation Energy — press releases", url: "https://www.constellationenergy.com/newsroom.html", date: "2026-06" },
@@ -47,6 +104,26 @@ export const SRC = {
   observador: { name: "El Observador CR (27 may 2026)", url: "https://observador.cr/", date: "2026-06" },
   seg: { name: "SEG Ingeniería — comparativo tarifario regional (2025)", url: "https://segingenieria.com/", date: "2026-06" },
   eia: { name: "US EIA — Form 861, Table 4 (2024)", url: "https://www.eia.gov/electricity/", date: "2026-06" },
+  wri: { name: "WRI — Global Power Plant Database (CC-BY-4.0)", url: "https://datasets.wri.org/dataset/globalpowerplantdatabase", date: "2026-06" },
+  osm: { name: "OpenStreetMap contributors (ODbL) / Global Energy Monitor", url: "https://www.openstreetmap.org/copyright", date: "2026-06" },
+  cc_by_4: { name: "Creative Commons Attribution 4.0 International", url: "https://creativecommons.org/licenses/by/4.0/", date: "2026-06" },
+  entsoe: { name: "ENTSO-E — Statistical Factsheet (interconexiones)", url: "https://www.entsoe.eu/publications/statistics-and-data/", date: "2026-06" },
+  iea_wgo: { name: "IEA — World Energy Outlook (Annex A, grid)", url: "https://www.iea.org/reports/world-energy-outlook-2024", date: "2026-06" },
+  // R3 (consensus): EOR (Ente Operador Regional) is the SIEPAC dispatch/coordination
+  // body; EPR (Empresa Propietaria de la Red) is the line-ownership / 230 kV / 300 MW
+  // operator. CRIE is the regulator (crie.org.gt). Previously these were conflated
+  // under a single 'epr' key — three legally distinct bodies under the Tratado Marco.
+  eor: { name: "EOR — Ente Operador Regional del SIEPAC (dispatch)", url: "https://www.enteoperador.org/", date: "2026-06" },
+  epr: { name: "EPR — Empresa Propietaria de la Red SIEPAC (230 kV line)", url: "https://eprsiepac.com/", date: "2026-06" },
+  three_globe: { name: "vasturiano/three-globe — basemap (NASA night lights)", url: "https://github.com/vasturiano/three-globe", date: "2026-06" },
+  // Phase 2 · Storage layer attribution — entries cited by components/energia/storage.js
+  gem_gipt: { name: "Global Energy Monitor — Global Battery Storage Tracker (CC-BY-4.0)", url: "https://globalenergymonitor.org/projects/global-battery-storage-tracker/", date: "2026-06" },
+  eia860: { name: "US EIA — Form 860 Operable Generators", url: "https://www.eia.gov/electricity/data/eia860/", date: "2026-06" },
+  iea_storage: { name: "IEA — Energy Storage Tracker 2025", url: "https://www.iea.org/energy-system/electricity/energy-storage", date: "2026-06" },
+  // IEA data is NOT CC-BY-4.0; it is published under IEA Terms of Use.
+  iea_terms: { name: "IEA Terms of Use", url: "https://www.iea.org/terms", date: "2026-06" },
+  naturalearth: { name: "Natural Earth — land 1:110m (dominio público)", url: "https://www.naturalearthdata.com/", date: "2026-06" },
+  public: { name: "US public domain (federal data)", url: "https://www.usa.gov/government-works", date: "2026-06" },
   enerdata: { name: "Enerdata (2024)", url: "https://www.enerdata.net/", date: "2026-06" },
   intratec: { name: "Intratec — Chile (ago 2025)", url: "https://www.intratec.us/", date: "2026-06" },
   bnef: { name: "BloombergNEF — Climatescope 2025", url: "https://www.global-climatescope.org/", date: "2026-06" },
@@ -56,6 +133,22 @@ export const SRC = {
   owid: { name: "Our World in Data / Swanson's Law (serie histórica solar)", url: "https://ourworldindata.org/grapher/solar-pv-prices", date: "2026-06" },
   colibrii: { name: "Colibrii Labs — metodología propia (ECAI-CR / escenarios)", url: "https://colibriilabs.ai", date: "2026-06" },
   presidencia: { name: "Presidencia de la República / Decreto 45807-MP (27 may 2026)", url: "https://www.presidencia.go.cr/", date: "2026-06" },
+};
+
+/* Shared fuel/technology colors — single source of truth so PowerGlobe (3D globe),
+   CRGridMap (CR map) and EnergiaCharts can't drift apart on a future palette change. */
+export const FUEL_COLORS = {
+  hydro: "#0d9488",        // teal-green — moved out of cyan family entirely so Hydro fuel chip
+                           // is unambiguously different from HVDC arc glow #22d3ee (R14 panel finding)
+  solar: "#fb923c",
+  wind: "#7dd3fc",         // light-sky — distinct from atmosphere #38bdf8 + Hydro #22d3ee
+  geothermal: "#f59e0b",   // amber — distinct from SIEPAC gold #F2B135 (exact-hex collision before)
+  nuclear: "#a78bfa",       // soft violet — distinct from Planned arc #818cf8 (exact-hex collision before)
+  gas: "#d97706", oil: "#fb7185", coal: "#9ca3af",
+  biomass: "#84cc16", waste: "#a3e635",
+  storage: "#60a5fa",      // blue-400 — distinct from atmosphere sky
+  cogeneration: "#d97706", // gas family
+  csp: "#dc2626", thermal: "#ef4444", load: "#ffffff",
 };
 
 /* ═══════════════ ACTO 1 — COLD OPEN ═══════════════ */
@@ -149,12 +242,12 @@ export const CR_MIX = {
   s: "peg", conf: "verified",
   asOf: { es: "Capacidad instalada, dic 2023 (~3.499 MW)", en: "Installed capacity, Dec 2023 (~3,499 MW)" },
   rows: [
-    { id: "hydro", name: { es: "Hidroeléctrica", en: "Hydro" }, pct: 68, color: "#22d3ee" },
-    { id: "wind", name: { es: "Eólica", en: "Wind" }, pct: 12, color: "#00B5A8" },
-    { id: "thermal", name: { es: "Térmica (respaldo)", en: "Thermal (backup)" }, pct: 11, color: "#ef4444" },
-    { id: "geo", name: { es: "Geotérmica", en: "Geothermal" }, pct: 7, color: "#F2B135" },
-    { id: "bio", name: { es: "Biomasa", en: "Biomass" }, pct: 2, color: "#10b981" },
-    { id: "solar", name: { es: "Solar", en: "Solar" }, pct: 0.2, color: "#fbbf24" },
+    { id: "hydro",   name: { es: "Hidroeléctrica",     en: "Hydro" },             pct: 68,  color: FUEL_COLORS.hydro },
+    { id: "wind",    name: { es: "Eólica",             en: "Wind" },              pct: 12,  color: FUEL_COLORS.wind },
+    { id: "thermal", name: { es: "Térmica (respaldo)", en: "Thermal (backup)" },  pct: 11,  color: FUEL_COLORS.thermal },
+    { id: "geo",     name: { es: "Geotérmica",         en: "Geothermal" },        pct: 7,   color: FUEL_COLORS.geothermal },
+    { id: "bio",     name: { es: "Biomasa",            en: "Biomass" },           pct: 2,   color: FUEL_COLORS.biomass },
+    { id: "solar",   name: { es: "Solar",              en: "Solar" },             pct: 0.2, color: FUEL_COLORS.solar },
   ],
 };
 
@@ -374,3 +467,45 @@ export const GRID_NODES = [
   { id: "sanjose", x: 0.54, y: 0.57, kind: "load", label: "GAM (centro de carga)" },
   { id: "moin", x: 0.70, y: 0.42, kind: "thermal", label: "Moín (respaldo)" },
 ];
+
+/* ═══════════════ V2 VISUAL LAYER — numeric restatements (append-only) ═══════════════
+   Visual-upgrade round (charts builder). RULE: no new external sources — every
+   export below cites an EXISTING SRC key and restates figures already present
+   in this module. Consumed by components/energia/EnergiaChartsV2.jsx. */
+
+/* Composition of the 24 "against" votes at first debate.
+   Numeric restatement of TIMELINE row "26 may 2026 · 21:43" (PLN 16, FA 7,
+   Dobles 1 — Dobles sits for CAC, see VOTE_MATH.blocs). No new facts. */
+export const VOTE_WAFFLE = {
+  s: "asamblea", conf: "verified", asOf: "27 may 2026",
+  againstFirstDebate: [
+    { party: "PLN", n: 16 },
+    { party: "FA", n: 7 },
+    { party: "CAC", n: 1 },
+  ],
+};
+
+/* Scale anchor for the nuclear-deals comparison.
+   ~3.499 MW, dic 2023 — same figure as CR_MIX.asOf and PEG_TARGETS label, both s:peg. */
+export const NUCLEAR_VS_CR = {
+  conf: "verified", s: "peg", crInstalledMw: 3499, approx: true,
+  basisNote: {
+    es: "Contratos: MW comprometidos u ofertados (\"hasta\", según cada acuerdo). Costa Rica: capacidad instalada total a dic 2023 (~3.499 MW, PEG). Bases distintas — comparación de escala, no de equivalencia.",
+    en: "Deals: committed or offered MW (\"up to\", per each agreement). Costa Rica: total installed capacity, Dec 2023 (~3,499 MW, PEG). Different bases — a scale comparison, not an equivalence.",
+  },
+};
+
+/* Reform-vintage timeline coordinates.
+   Numeric restatement of COMPARATIVE.rows[].year strings — no new facts.
+   Country names and tones come from COMPARATIVE.rows via code join — never duplicated here. */
+export const REFORM_YEARS = {
+  s: "cne", conf: "verified",
+  rows: [
+    { code: "CL", spans: [[1982, 1982], [2016, 2016]] },
+    { code: "UY", spans: [[2005, 2017]] },
+    { code: "CO", spans: [[1994, 1994]] },
+    { code: "BR", spans: [[2004, 2004]] },
+    { code: "NP", spans: [[1996, 1996]] },
+    { code: "TX", spans: [[1999, 2002]] },
+  ],
+};

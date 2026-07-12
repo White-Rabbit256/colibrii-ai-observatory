@@ -65,13 +65,13 @@ export const metadata = {
     title: "Colibrii Labs — AI Observatory Costa Rica | Agile Intelligence",
     description: "Real-time strategic AI intelligence. 20-country composite index, 25+ data sources, WEF 2026 risk data with EOS per-country analysis, 10 proprietary algorithms. Policy simulator, country profiles, 55-term glossary.",
     siteName: "Colibrii Labs",
-    images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "Colibrii Labs — AI Observatory Costa Rica" }]
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Colibrii Labs — AI Observatory Costa Rica" }]
   },
   twitter: {
     card: "summary_large_image",
     title: "Colibrii Labs — AI Observatory Costa Rica | Agile Intelligence",
     description: "Real-time strategic AI intelligence for Costa Rica's positioning in the global AI transformation. By Andrés Alpízar.",
-    images: ["/og-image.svg"]
+    images: ["/og-image.png"]
   },
   alternates: {
     canonical: "https://colibriilabs.ai",

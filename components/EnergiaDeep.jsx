@@ -8,16 +8,56 @@ import {
   TARIFFS, RENEW_SHARE, CR_MIX, CR_RENEW_POINTS, ICE_FIN, ARESEP_2026,
   PEG_TARGETS, TIMELINE, VOTE_MATH, BILL_CORE, STAKEHOLDERS,
   COMPARATIVE, ECAI, SCENARIOS, SOLAR_CURVE, AMENDMENTS, VIDEOS,
+  ACT_ACCENT, ACT_INTRO_PULL, ACT2_KPIS,
 } from "./energiaData";
 import { DCDemandChart, TariffChart, MixDonut, EcaiRadar, SolarCurveChart } from "./energia/EnergiaCharts";
 import { MediaRow } from "./energia/EnergiaMedia";
 import { EcaiExplorer, TariffComparator, ScenarioExplorer } from "./energia/EnergiaInteractive";
-import CRGridMap from "./energia/CRGridMap";
+// CRGridMap dynamic-imported — pulls animejs (~148 KB) out of the eager bundle.
 import { ReactorCutaway, EnergyBeam } from "./energia/EnergiaArt";
+import PeakCTA from "./energia/PeakCTA";
 import { FACTS } from "../data/facts";
 
 const GridHero = dynamic(() => import("./energia/GridHero"), { ssr: false, loading: () => null });
 const Hero3D = dynamic(() => import("./energia/Hero3D"), { ssr: false, loading: () => null });
+const CRGridMap = dynamic(() => import("./energia/CRGridMap"), {
+  ssr: false,
+  loading: () => <div aria-hidden="true" style={{ aspectRatio: "16 / 10", width: "100%", borderRadius: 16, background: "#06152e", border: "1px solid rgba(0,181,168,0.2)" }} />,
+});
+const PowerGlobe = dynamic(() => import("./energia/PowerGlobe"), {
+  ssr: false,
+  // Placeholder uses pure CSS (no matchMedia — that's SSR-unsafe in dynamic loading()):
+  // a class is applied that flips aspect-ratio via @media. CSS is in EnergiaDeep's global style block.
+  loading: () => <div aria-hidden="true" className="energia-globe-skeleton" />,
+});
+
+/* ── Phase 3 · Visual layer — every new component rides the lazy Energía chunk
+   (next/dynamic ssr:false + CLS-safe reserved boxes, PowerGlobe idiom).
+   Chart bodies mount inside theme-aware ShareCards → neutral var() skeletons;
+   fixed-dark illustration/3D panels → navy skeletons matching their chrome.
+   Skeleton heights flip at 639px via classes in the global style block below
+   (matchMedia is SSR-unsafe inside dynamic loading()). ── */
+const chartSkeleton = (minHeight) => function ChartSkeleton() {
+  return <div aria-hidden="true" style={{ minHeight, borderRadius: 12, background: "var(--surface)", border: "1px solid var(--border)" }} />;
+};
+const HydroDamCutaway = dynamic(() => import("./energia/Energia3D"), {
+  ssr: false,
+  loading: () => <div aria-hidden="true" className="energia-dam-skeleton" />,
+});
+const VoteWaffle57 = dynamic(() => import("./energia/EnergiaChartsV2").then(m => m.VoteWaffle57), { ssr: false, loading: chartSkeleton(300) });
+const NuclearScaleBar = dynamic(() => import("./energia/EnergiaChartsV2").then(m => m.NuclearScaleBar), { ssr: false, loading: chartSkeleton(280) });
+const ReformStrip = dynamic(() => import("./energia/EnergiaChartsV2").then(m => m.ReformStrip), { ssr: false, loading: chartSkeleton(300) });
+const GridToChipFlow = dynamic(() => import("./energia/EnergiaIllustrations").then(m => m.GridToChipFlow), {
+  ssr: false,
+  loading: () => <div aria-hidden="true" className="energia-illus-skeleton energia-illus-flow" />,
+});
+const Ruta23414 = dynamic(() => import("./energia/EnergiaIllustrations").then(m => m.Ruta23414), {
+  ssr: false,
+  loading: () => <div aria-hidden="true" className="energia-illus-skeleton energia-illus-ruta" />,
+});
+/* ActJumpRow renders null until its <880px matchMedia arms — a null loader is CLS-exact. */
+const ActJumpRow = dynamic(() => import("./energia/EnergiaFlowNav").then(m => m.ActJumpRow), { ssr: false, loading: () => null });
+const ExploreRail = dynamic(() => import("./energia/EnergiaFlowNav").then(m => m.ExploreRail), { ssr: false, loading: chartSkeleton(240) });
 
 /* ═══════════════════════════════════════════════════════════════
    COLIBRII LABS — Energía · Electricidad, Competitividad & IA
@@ -72,10 +112,12 @@ function CRAnchor({ en, children }) {
 }
 
 /* ── Shareable card wrapper (ref + ShareBtn header) ── */
-function ShareCard({ en, title, filename, sourceIds, children }) {
+/* Phase 3: optional `id` — anchor target for ExploreRail / in-page jumps.
+   scrollMarginTop clears the sticky chrome (portal header + ActJumpRow). */
+function ShareCard({ en, title, filename, sourceIds, id, children }) {
   const ref = useRef(null);
   return (
-    <div className="card" ref={ref} style={{ padding: 20 }}>
+    <div className="card" ref={ref} id={id} style={{ padding: 20, scrollMarginTop: id ? 110 : undefined }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10, marginBottom: 12 }}>
         <h3 style={{ fontSize: 15.5, fontWeight: 700, color: "var(--text)", lineHeight: 1.4 }}>{title}</h3>
         <ShareBtn cardRef={ref} en={en} filename={filename} />
@@ -101,6 +143,10 @@ function ShareCard({ en, title, filename, sourceIds, children }) {
 
 /* ── Sticky act navigation (desktop) ── */
 const ACT_IDS = [2, 3, 4, 5, 6, 7, 8];
+/* Phase 2: ActNav reading dial — each pill now carries its own act accent.
+   The active pill renders in that act's gradient; inactive pills show a
+   subtle outline in the act color. Visual ladder of progress + warm/cool
+   variance even in the sticky nav. */
 function ActNav({ en }) {
   const [current, setCurrent] = useState(0);
   const [show, setShow] = useState(false);
@@ -118,17 +164,94 @@ function ActNav({ en }) {
   return (
     <nav aria-label={en ? "Section acts" : "Actos de la sección"} style={{ position: "sticky", top: 10, zIndex: 15, display: "flex", justifyContent: "center", gap: 6, marginBottom: -34 }}>
       <div style={{ display: "flex", gap: 4, padding: "5px 8px", borderRadius: 999, background: "color-mix(in srgb, var(--card) 80%, transparent)", backdropFilter: "blur(10px)", border: "1px solid var(--border)", boxShadow: "var(--shadow-md)" }}>
-        {ACT_IDS.map(n => (
-          <button key={n} onClick={() => document.getElementById(`energia-act-${n}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
-            aria-label={`${en ? "Act" : "Acto"} ${n}`} aria-current={current === n ? "true" : undefined}
-            style={{ ...mono, width: 30, height: 30, borderRadius: "50%", border: "none", cursor: "pointer", fontSize: 12, fontWeight: 800,
-              background: current === n ? `linear-gradient(135deg, ${EN_ACCENT.turquoise}, ${EN_ACCENT.glow})` : "transparent",
-              color: current === n ? "#06281f" : "var(--text3)", transition: "all .25s" }}>
-            {n}
-          </button>
-        ))}
+        {ACT_IDS.map(n => {
+          const active = current === n;
+          /* data-act={n} lets per-act CSS vars cascade from globals.css —
+             both themes defined there (WCAG AA). No inline --act-accent here
+             because inline custom-prop sets win over CSS and would block the
+             light-theme override. */
+          return (
+            <button key={n} data-act={n} onClick={() => document.getElementById(`energia-act-${n}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+              aria-label={`${en ? "Act" : "Acto"} ${n}`} aria-current={active ? "true" : undefined}
+              style={{
+                ...mono,
+                minWidth: 44, minHeight: 44, width: 44, height: 44,
+                borderRadius: "50%",
+                border: active ? "none" : "1px solid color-mix(in srgb, var(--act-accent) 27%, transparent)",
+                cursor: "pointer", fontSize: 12, fontWeight: 800,
+                background: active ? "linear-gradient(135deg, var(--act-accent), var(--act-accent-2))" : "transparent",
+                color: active ? "var(--enOnAccent)" : "var(--act-accent)",
+                boxShadow: active ? "0 0 12px color-mix(in srgb, var(--act-accent) 33%, transparent)" : "none",
+                transition: "all .25s",
+              }}>
+              {n}
+            </button>
+          );
+        })}
       </div>
     </nav>
+  );
+}
+
+/* Phase 2: Mobile reading bar — thin horizontal progress bar pinned to top
+   of viewport on compact screens. Fills with the CURRENT act's accent as the
+   reader scrolls through that act. Single rAF, no per-act listeners. */
+function MobileReadingBar() {
+  const [hide, setHide] = useState(true);
+  const [progress, setProgress] = useState(0);
+  const [actN, setActN] = useState(2);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 879px)");
+    const sync = () => setHide(!mq.matches);
+    sync(); mq.addEventListener("change", sync);
+    let raf = null;
+    const tick = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        const vh = window.innerHeight;
+        const center = vh * 0.5;
+        let foundAct = 2, foundP = 0;
+        for (const n of ACT_IDS) {
+          const el = document.getElementById(`energia-act-${n}`);
+          if (!el) continue;
+          const r = el.getBoundingClientRect();
+          if (r.top <= center) {
+            const next = document.getElementById(`energia-act-${n + 1}`);
+            const end = next ? next.getBoundingClientRect().top : r.top + vh;
+            const span = Math.max(1, end - r.top);
+            const passed = Math.max(0, Math.min(span, center - r.top));
+            foundAct = n;
+            foundP = passed / span;
+          }
+        }
+        setActN(foundAct);
+        setProgress(foundP);
+        raf = null;
+      });
+    };
+    window.addEventListener("scroll", tick, { passive: true });
+    tick();
+    return () => {
+      mq.removeEventListener("change", sync);
+      window.removeEventListener("scroll", tick);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+  if (hide) return null;
+  const acc = ACT_ACCENT[actN] || ACT_ACCENT[2];
+  return (
+    <div aria-hidden="true" style={{
+      position: "fixed", top: 0, left: 0, right: 0, height: 3, zIndex: 21,
+      background: "rgba(10,31,63,0.35)", pointerEvents: "none",
+    }}>
+      <div style={{
+        height: "100%",
+        width: `${Math.round(progress * 100)}%`,
+        background: `linear-gradient(90deg, ${acc.primary}, ${acc.pair})`,
+        boxShadow: `0 0 8px ${acc.primary}88`,
+        transition: "width 0.18s ease-out, background 0.4s ease",
+      }} />
+    </div>
   );
 }
 
@@ -138,7 +261,9 @@ function PullStat({ v, caption, srcId }) {
     <ScrollReveal>
       <div style={{ textAlign: "center", margin: "44px 0 40px" }}>
         <div style={{ ...display, fontSize: "clamp(56px, 11vw, 120px)", fontWeight: 800, lineHeight: 1,
-          background: `linear-gradient(120deg, var(--enTurq), ${EN_ACCENT.glow} 50%, var(--enGold))`,
+          fontFeatureSettings: '"tnum" 1',
+          letterSpacing: "-0.022em",
+          background: `linear-gradient(120deg, var(--act-accent, var(--enTurq)) 0%, var(--enGlow) 48%, var(--act-accent-2, var(--enGold)) 100%)`,
           WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent", color: "transparent" }}>
           {v}
         </div>
@@ -150,16 +275,153 @@ function PullStat({ v, caption, srcId }) {
 }
 
 /* ── Act header ── */
+/* Phase 2: Act header carries per-act accent CSS cascade (--act-accent /
+   --act-accent-2 / --act-tint) plus an italic intro pull. The cascade lets
+   every nested PullStat / Eyebrow / ScrollReveal consume the act color
+   without re-binding per-component. */
 function Act({ n, en, label, title, desc }) {
+  const pull = ACT_INTRO_PULL[n];
+  /* Per-act accent CSS vars (--act-accent, --act-accent-2, --act-tint) live in
+     globals.css under [data-act="N"] for both themes — light-theme variants are
+     darkened to ≥4.5:1 on white per WCAG AA. We don't set them inline because
+     inline custom-prop sets win over CSS and would block the theme override. */
   return (
-    <div id={`energia-act-${n}`} style={{ marginTop: "clamp(36px, 7vw, 56px)", marginBottom: 20, scrollMarginTop: 64 }}>
+    <div
+      id={`energia-act-${n}`}
+      data-act={n}
+      style={{
+        marginTop: "clamp(36px, 7vw, 56px)",
+        marginBottom: 20,
+        scrollMarginTop: 64,
+      }}
+    >
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-        <span style={{ ...mono, fontSize: 11, color: "var(--enGold)", border: `1px solid ${EN_ACCENT.gold}55`, borderRadius: 6, padding: "2px 8px" }}>{en ? "ACT" : "ACTO"} {n}</span>
-        <span style={{ ...mono, fontSize: 11, letterSpacing: 2, textTransform: "uppercase", color: "var(--enTurq)" }}>{label}</span>
+        <span style={{
+          ...mono, fontSize: 11,
+          color: "var(--act-accent)",
+          border: "1px solid color-mix(in srgb, var(--act-accent) 33%, transparent)",
+          background: "var(--act-tint)",
+          borderRadius: 6, padding: "2px 8px",
+        }}>{en ? "ACT" : "ACTO"} {n}</span>
+        <span style={{
+          ...mono, fontSize: 11, letterSpacing: 2, textTransform: "uppercase",
+          color: "var(--act-accent)", opacity: 0.85,
+        }}>{label}</span>
       </div>
-      <h2 style={{ ...display, fontSize: 26, fontWeight: 800, color: "var(--text)", lineHeight: 1.25, marginBottom: 8 }}>{title}</h2>
-      {desc && <p style={{ fontSize: 14, color: "var(--text2)", lineHeight: 1.7, maxWidth: 680 }}>{desc}</p>}
+      <h2 style={{
+        ...display, fontSize: "clamp(24px, 3.6vw, 32px)", fontWeight: 800,
+        color: "var(--text)", lineHeight: 1.18,
+        letterSpacing: "-0.012em",
+        marginBottom: 8, maxWidth: 760,
+      }}>{title}</h2>
+      {desc && <p style={{ fontSize: 14.5, color: "var(--text2)", lineHeight: 1.65, maxWidth: 680 }}>{desc}</p>}
+      {pull && (
+        <p style={{
+          ...display,
+          fontSize: "clamp(15px, 1.8vw, 18px)",
+          fontStyle: "italic",
+          fontWeight: 600,
+          color: "var(--act-accent)",
+          opacity: 0.95,
+          lineHeight: 1.45,
+          maxWidth: 640,
+          marginTop: 14,
+          paddingLeft: 14,
+          borderLeft: "2px solid color-mix(in srgb, var(--act-accent) 53%, transparent)",
+        }}>{T(pull, en)}</p>
+      )}
     </div>
+  );
+}
+
+/* Phase 2 · Act 2 KPI Strip — frames the globe with scale BEFORE the 3D mounts.
+   Each cell carries its own per-act accent on the 2px top border so the strip
+   itself rotates through cyan → gold → cyan → gold without monotony. */
+function KpiGlyph({ kind, color = "currentColor" }) {
+  if (kind === "plant") return (
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke={color} strokeWidth="1.5" aria-hidden="true">
+      <path d="M3 19h16M5 19V9l6-5 6 5v10M9 19v-5h4v5" strokeLinejoin="round" strokeLinecap="round"/>
+    </svg>
+  );
+  if (kind === "chip") return (
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke={color} strokeWidth="1.5" aria-hidden="true">
+      <rect x="6" y="6" width="10" height="10" rx="1.2"/>
+      <path d="M9 6V3M13 6V3M9 19v-3M13 19v-3M6 9H3M6 13H3M19 9h-3M19 13h-3" strokeLinecap="round"/>
+    </svg>
+  );
+  if (kind === "arc") return (
+    <svg width="24" height="22" viewBox="0 0 24 22" fill="none" stroke={color} strokeWidth="1.5" aria-hidden="true">
+      <path d="M2 18 C 5 6, 19 6, 22 18" strokeLinecap="round"/>
+      <circle cx="2" cy="18" r="1.6" fill={color}/>
+      <circle cx="22" cy="18" r="1.6" fill={color}/>
+    </svg>
+  );
+  if (kind === "spark") return (
+    <svg width="28" height="22" viewBox="0 0 28 22" fill="none" stroke={color} strokeWidth="1.5" aria-hidden="true">
+      <polyline points="2,17 7,14 12,15 17,9 22,7 26,3" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="26" cy="3" r="1.8" fill={color}/>
+    </svg>
+  );
+  return null;
+}
+
+function KpiStrip({ en }) {
+  const iconFor = (id) => ({ plants: "plant", arcs: "arc", hubs: "chip", growth: "spark" }[id]);
+  return (
+    <ScrollReveal>
+      <div
+        role="list"
+        aria-label={en ? "Atlas scale, 4 key figures" : "Escala del atlas, 4 cifras clave"}
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 170px), 1fr))",
+          gap: 10,
+          margin: "18px 0 6px",
+        }}
+      >
+        {ACT2_KPIS.cells.map((k) => {
+          const acc = ACT_ACCENT[k.accentKey] || ACT_ACCENT[2];
+          return (
+            <div key={k.id} role="listitem" style={{
+              background: "var(--card)",
+              border: "1px solid var(--border)",
+              borderTop: `2px solid ${acc.primary}`,
+              borderRadius: 12,
+              padding: "12px 14px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+              position: "relative",
+              overflow: "hidden",
+            }}>
+              <span aria-hidden="true" style={{ position: "absolute", right: 8, top: 8, opacity: 0.35 }}>
+                <KpiGlyph kind={iconFor(k.id)} color={acc.primary} />
+              </span>
+              <div style={{ ...mono, fontSize: 22, fontWeight: 800,
+                color: "var(--text)", lineHeight: 1.05,
+                letterSpacing: "-0.01em",
+                fontFeatureSettings: '"tnum" 1',
+              }}>
+                {T(k.v, en)}
+              </div>
+              <div style={{ fontSize: 11.5, color: "var(--text2)", lineHeight: 1.35 }}>
+                {T(k.label, en)}
+              </div>
+              <div style={{ ...mono, fontSize: 9.5, color: "var(--text3)",
+                letterSpacing: 0.4, marginTop: 2 }}>
+                {T(k.sub, en)}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <p style={{
+        fontSize: 13, color: "var(--text2)", lineHeight: 1.65,
+        maxWidth: 680, margin: "6px 0 10px",
+      }}>
+        {T(ACT2_KPIS.setup, en)}
+      </p>
+    </ScrollReveal>
   );
 }
 
@@ -190,46 +452,12 @@ const STANCE = {
   "lean-pro": { c: "var(--enGold)", es: "Inclinación a favor", en: "Leaning in favour" },
 };
 function VoteMath({ en }) {
-  const fd = VOTE_MATH.firstDebate;
-  const segs = [
-    { n: fd.favor, c: "var(--enTurq)", tx: "var(--enOnAccent)", l: en ? "In favour" : "A favor" },
-    { n: fd.against, c: "var(--enViolet)", tx: "var(--enOnAccent)", l: en ? "Against" : "En contra" },
-    { n: fd.absent, c: "var(--border2)", tx: "var(--text)", l: en ? "Absent" : "Ausencias" },
-  ];
-  const effectivePro = VOTE_MATH.blocs.find(b => b.party === "PPSO").effective;
   return (
     <div>
-      {/* First debate result */}
-      <div style={{ ...mono, fontSize: 11, letterSpacing: 1.5, textTransform: "uppercase", color: "var(--text3)", marginBottom: 8 }}>
-        {en ? "First debate — 26 May 2026" : "Primer debate — 26 may 2026"}
-      </div>
-      <div style={{ display: "flex", height: 34, borderRadius: 8, overflow: "hidden", border: "1px solid var(--border)" }} role="img"
-        aria-label={en ? `First debate: ${fd.favor} in favour, ${fd.against} against, ${fd.absent} absent` : `Primer debate: ${fd.favor} a favor, ${fd.against} en contra, ${fd.absent} ausencias`}>
-        {segs.map((s, i) => (
-          <div key={i} style={{ width: `${(s.n / VOTE_MATH.totalSeats) * 100}%`, background: s.c, display: "flex", alignItems: "center", justifyContent: "center", color: s.tx, fontSize: 13, fontWeight: 800, ...mono }}>{s.n}</div>
-        ))}
-      </div>
-      <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginTop: 8 }}>
-        {segs.map((s, i) => (
-          <span key={i} style={{ fontSize: 11.5, color: "var(--text2)", display: "inline-flex", alignItems: "center", gap: 5 }}>
-            <span aria-hidden="true" style={{ width: 9, height: 9, borderRadius: 3, background: s.c, display: "inline-block" }} />{s.l}
-          </span>
-        ))}
-      </div>
-
-      {/* Second debate arithmetic */}
-      <div style={{ ...mono, fontSize: 11, letterSpacing: 1.5, textTransform: "uppercase", color: "var(--text3)", margin: "22px 0 8px" }}>
-        {en ? "Second debate — the 38-vote wall" : "Segundo debate — el muro de los 38 votos"}
-      </div>
-      <div style={{ position: "relative", height: 34, borderRadius: 8, overflow: "hidden", border: "1px solid var(--border)", background: "var(--surface)" }} role="img"
-        aria-label={en ? `${effectivePro} effective government votes of ${VOTE_MATH.needed} required` : `${effectivePro} votos efectivos del oficialismo de ${VOTE_MATH.needed} requeridos`}>
-        <div style={{ position: "absolute", inset: 0, width: `${(effectivePro / VOTE_MATH.totalSeats) * 100}%`, background: "var(--enTurq)" }} />
-        <div style={{ position: "absolute", top: 0, bottom: 0, left: `${(VOTE_MATH.needed / VOTE_MATH.totalSeats) * 100}%`, width: 0, borderLeft: `3px dashed ${EN_ACCENT.gold}` }} />
-        <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--enOnAccent)", fontSize: 12.5, fontWeight: 800, ...mono }}>{effectivePro}</span>
-      </div>
-      <div style={{ ...mono, fontSize: 11, color: "var(--enGold)", marginTop: 6 }}>
-        {en ? "▮ 38 = qualified two-thirds majority required (of 57 seats)" : "▮ 38 = mayoría calificada de dos tercios requerida (de 57 escaños)"}
-      </div>
+      {/* Phase 3: seat-by-seat waffle replaces the two proportion bars — same
+          VOTE_MATH figures at seat granularity (38-wall rule + 8-seat bracket,
+          bloc/roll-call views). Lazy chart body; bloc cards + insight stay. */}
+      <VoteWaffle57 en={en} />
       <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))", gap: 8 }}>
         {VOTE_MATH.blocs.map((b, i) => (
           <div key={i} style={{ background: "var(--surface)", borderRadius: 10, padding: "10px 12px", borderTop: `3px solid ${STANCE[b.stance].c}` }}>
@@ -326,6 +554,7 @@ function AmendmentCard({ a, en }) {
       <button
         onClick={() => setOpen(o => !o)}
         aria-expanded={open}
+        className="energia-amendment-btn"
         style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", background: "transparent", border: "none", cursor: "pointer", padding: "14px 16px", color: "var(--text)", minHeight: 48 }}
       >
         <span aria-hidden="true" style={{ ...mono, flexShrink: 0, width: 30, height: 30, borderRadius: 8, background: `${EN_ACCENT.turquoise}1a`, color: "var(--enTurq)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800 }}>{a.n}</span>
@@ -369,7 +598,7 @@ function FloatingShare({ en }) {
   }, []);
   const share = async () => {
     try {
-      await navigator.clipboard.writeText("https://colibriilabs.ai/app#energia?utm_source=share&utm_medium=floating&utm_campaign=energia");
+      await navigator.clipboard.writeText("https://colibriilabs.ai/app?utm_source=share&utm_medium=floating&utm_campaign=energia#energia");
       setDone(true); setTimeout(() => setDone(false), 2000);
     } catch {}
   };
@@ -377,6 +606,8 @@ function FloatingShare({ en }) {
     <button
       onClick={share}
       aria-label={en ? "Copy link to this analysis" : "Copiar enlace de este análisis"}
+      tabIndex={show ? 0 : -1}
+      aria-hidden={!show}
       style={{
         position: "fixed", right: "max(16px, env(safe-area-inset-right))", bottom: "max(18px, env(safe-area-inset-bottom))",
         zIndex: 40, display: "inline-flex", alignItems: "center", gap: 8, minHeight: 46, padding: "10px 16px",
@@ -398,7 +629,7 @@ function MicroCTA({ en }) {
   const [done, setDone] = useState(false);
   const share = async () => {
     try {
-      await navigator.clipboard.writeText("https://colibriilabs.ai/app#energia?utm_source=share&utm_medium=microcta&utm_campaign=energia");
+      await navigator.clipboard.writeText("https://colibriilabs.ai/app?utm_source=share&utm_medium=microcta&utm_campaign=energia#energia");
       setDone(true); setTimeout(() => setDone(false), 2200);
     } catch {}
   };
@@ -408,7 +639,7 @@ function MicroCTA({ en }) {
         <span style={{ fontSize: 13, color: "var(--text2)" }}>
           {en ? "Useful so far? Send it to whoever needs these numbers." : "¿Le está sirviendo? Envíeselo a quien necesita estos números."}
         </span>
-        <button onClick={share} style={{ ...mono, minHeight: 40, padding: "8px 16px", borderRadius: 10, border: "1.5px solid var(--enTurq)", background: "transparent", color: "var(--enTurq)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+        <button onClick={share} style={{ ...mono, minHeight: 44, padding: "12px 18px", borderRadius: 10, border: "1.5px solid var(--enTurq)", background: "transparent", color: "var(--enTurq)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
           {done ? (en ? "Copied ✓" : "Copiado ✓") : (en ? "Copy link" : "Copiar enlace")}
         </button>
       </div>
@@ -451,7 +682,7 @@ function CTABlock({ en }) {
           <button onClick={() => copy("link", url)} style={{ ...btn, border: "none", background: `linear-gradient(135deg, ${EN_ACCENT.turquoise}, ${EN_ACCENT.glow})`, color: "#06281f", boxShadow: "0 4px 24px rgba(0,181,168,0.35)" }}>
             {copied === "link" ? (en ? "Link copied ✓" : "Enlace copiado ✓") : (en ? "Copy section link" : "Copiar enlace de la sección")}
           </button>
-          <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url + "?utm_source=linkedin&utm_medium=social&utm_campaign=energia")}`} target="_blank" rel="noopener noreferrer"
+          <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://colibriilabs.ai/app?utm_source=linkedin&utm_medium=social&utm_campaign=energia#energia")}`} target="_blank" rel="noopener noreferrer"
             style={{ ...btn, background: "rgba(241,245,249,0.08)", border: "1px solid rgba(241,245,249,0.25)", color: "#f1f5f9" }}>
             {en ? "Share on LinkedIn" : "Compartir en LinkedIn"} ↗
           </a>
@@ -471,31 +702,65 @@ function CTABlock({ en }) {
 /* ═══════════════ MAIN VIEW ═══════════════ */
 export function EnergiaDeep({ en = false }) {
   const heroStat = HERO.stat;
-  /* 3D hero on capable desktops; 2D canvas fallback on mobile / reduced-motion */
-  const [use3d, setUse3d] = useState(false);
+  /* Hero visual mode: desktop overlay 3D · mobile 3D banner · 2D fallback (no-webgl / reduced-motion) */
+  const [mode, setMode] = useState("fallback2d");
   const [scrolled, setScrolled] = useState(false);
+  /* Reserved for Phase 2 FloatingShare screenshot — do not remove */
+  const globeContainerRef = useRef(null);
+  /* Phase 3 · HeroGate — Hero3D runs frameloop="always" and only self-pauses
+     on tab hide, so its rAF/GPU work would otherwise run for the whole read.
+     One IO on the hero section unmounts the canvas once the hero is >600px
+     out of view and remounts it (chunk already cached) before it returns.
+     The reserved boxes/scrims stay mounted → CLS 0. Independently revertible. */
+  const heroRef = useRef(null);
+  const [heroLive, setHeroLive] = useState(true);
+  useEffect(() => {
+    const el = heroRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([e]) => setHeroLive(e.isIntersecting), { rootMargin: "600px 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
   useEffect(() => {
     const wide = window.matchMedia("(min-width: 768px)").matches;
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    setUse3d(wide && !still);
+    let gl = false;
+    try {
+      const c = document.createElement("canvas");
+      gl = !!(window.WebGLRenderingContext && (c.getContext("webgl") || c.getContext("experimental-webgl")));
+    } catch { gl = false; }
+    setMode(still || !gl ? "fallback2d" : wide ? "desktop3d" : "mobile3d");
     const onFirstScroll = () => { if (window.scrollY > 90) { setScrolled(true); window.removeEventListener("scroll", onFirstScroll); } };
     window.addEventListener("scroll", onFirstScroll, { passive: true });
     return () => window.removeEventListener("scroll", onFirstScroll);
   }, []);
+  const is3d = mode !== "fallback2d";
   return (
     <div className="energia-scope" style={{ maxWidth: 1060, margin: "0 auto" }}>
       <ScrollProgress />
+      <MobileReadingBar />
       <ActNav en={en} />
       <FloatingShare en={en} />
 
       {/* ════ ACTO 1 — COLD OPEN ════ */}
-      <section aria-label={en ? "Opening" : "Apertura"} style={{ position: "relative", borderRadius: "var(--radius)", overflow: "hidden", background: `linear-gradient(160deg, ${EN_ACCENT.navy} 0%, ${EN_ACCENT.navy2} 55%, #0a1830 100%)`, border: "1px solid rgba(0,181,168,0.25)", marginTop: 14 }}>
-        {use3d ? <Hero3D /> : <GridHero />}
-        {/* Legibility scrim — solid navy under the text column, fading to reveal the 3D on the right (near-solid on mobile, see globals.css) */}
-        <div aria-hidden="true" className="energia-hero-scrim" style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none" }} />
-        <div aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
-          background: "linear-gradient(0deg, rgba(6,15,34,0.7) 0%, rgba(6,15,34,0) 40%)" }} />
-        <div style={{ position: "relative", zIndex: 2, padding: "clamp(32px, 6vw, 64px) clamp(24px, 5vw, 56px)" }}>
+      <section ref={heroRef} aria-label={en ? "Opening" : "Apertura"} style={{ position: "relative", borderRadius: "var(--radius)", overflow: "hidden", background: `linear-gradient(160deg, ${EN_ACCENT.navy} 0%, ${EN_ACCENT.navy2} 55%, #0a1830 100%)`, border: "1px solid rgba(0,181,168,0.25)", marginTop: 14 }}>
+        {mode === "mobile3d" ? (
+          /* Mobile: dedicated 3D banner ON TOP, text flows cleanly below it */
+          <div style={{ position: "relative", width: "100%", height: "clamp(280px, 46vh, 380px)" }}>
+            {heroLive && <Hero3D compact />}
+            <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none",
+              background: "linear-gradient(180deg, rgba(6,15,34,0) 55%, rgba(6,15,34,0.6) 80%, rgba(10,31,63,1) 100%)" }} />
+          </div>
+        ) : (
+          <>
+            {heroLive && (mode === "desktop3d" ? <Hero3D /> : <GridHero />)}
+            {/* Legibility scrim — solid navy under the text column, fading to reveal the 3D on the right */}
+            <div aria-hidden="true" className="energia-hero-scrim" style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none" }} />
+            <div aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
+              background: "linear-gradient(0deg, rgba(6,15,34,0.7) 0%, rgba(6,15,34,0) 40%)" }} />
+          </>
+        )}
+        <div style={{ position: "relative", zIndex: 2, padding: "clamp(28px, 6vw, 64px) clamp(24px, 5vw, 56px)" }}>
           <div style={{ ...mono, fontSize: 11, letterSpacing: 2.5, color: EN_ACCENT.turquoise, marginBottom: 14 }}>{T(HERO.eyebrow, en)}</div>
           <h1 style={{ ...display, fontSize: "clamp(28px, 5vw, 50px)", fontWeight: 800, lineHeight: 1.14, maxWidth: 760, marginBottom: 22,
             background: "linear-gradient(115deg, #ffffff 30%, #9beef0 68%, #F2B135 105%)",
@@ -514,16 +779,34 @@ export function EnergiaDeep({ en = false }) {
             {SRC[heroStat.s].name} ↗
           </a>
           <div style={{ display: "grid", gap: 10, maxWidth: 760 }}>
-            {HERO.bluf.map((b, i) => (
-              <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                <span aria-hidden="true" style={{ ...mono, flexShrink: 0, fontSize: 11, color: EN_ACCENT.turquoise, border: "1px solid rgba(0,181,168,0.4)", borderRadius: 6, padding: "1px 7px", marginTop: 2 }}>{i + 1}</span>
-                <p style={{ fontSize: 13.5, color: "rgba(241,245,249,0.92)", lineHeight: 1.6 }}>{T(b, en)}</p>
-              </div>
-            ))}
+            {/* Phase 2: BLUF #3 (the reform/arithmetic bluf) wears gold — the eye-walk
+               Acts 2 → 3 → 5 lands in under one second. Other markers stay turquoise. */}
+            {HERO.bluf.map((b, i) => {
+              const isReform = i === 2;
+              return (
+                <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                  <span aria-hidden="true" style={{
+                    ...mono, flexShrink: 0, fontSize: 11, fontWeight: 800,
+                    color: isReform ? "#06281f" : EN_ACCENT.turquoise,
+                    background: isReform
+                      ? `linear-gradient(135deg, ${EN_ACCENT.gold}, ${EN_ACCENT.solar})`
+                      : "transparent",
+                    border: isReform ? "none" : "1px solid rgba(0,181,168,0.4)",
+                    borderRadius: 6, padding: "1px 7px", marginTop: 2,
+                    boxShadow: isReform ? "0 0 12px rgba(242,177,53,0.45)" : "none",
+                  }}>{i + 1}</span>
+                  <p style={{
+                    fontSize: 13.5,
+                    color: isReform ? "rgba(255,235,200,0.96)" : "rgba(241,245,249,0.92)",
+                    lineHeight: 1.6,
+                  }}>{T(b, en)}</p>
+                </div>
+              );
+            })}
           </div>
           <div style={{ ...mono, fontSize: 11, color: "rgba(241,245,249,0.5)", marginTop: 22, display: "flex", alignItems: "center", gap: 8 }}>
             <span aria-hidden="true" style={{ width: 7, height: 7, borderRadius: "50%", background: EN_ACCENT.turquoise, display: "inline-block" }} />
-            {T(HERO.disclaimer, en)}{use3d ? (en ? " · Illustrative 3D visual (geography: Natural Earth)" : " · Visual 3D ilustrativo (geografía: Natural Earth)") : ""}
+            {T(HERO.disclaimer, en)}{is3d ? (en ? " · Illustrative 3D visual (geography: Natural Earth)" : " · Visual 3D ilustrativo (geografía: Natural Earth)") : ""}
           </div>
           {/* Scroll cue */}
           <div aria-hidden="true" style={{ display: "flex", justifyContent: "center", marginTop: 26, opacity: scrolled ? 0 : 1, transition: "opacity .6s ease" }}>
@@ -533,15 +816,153 @@ export function EnergiaDeep({ en = false }) {
           </div>
           <style>{`
             @keyframes energiaCue { 0%,100% { transform: translateY(0); opacity: 1; } 55% { transform: translateY(12px); opacity: 0.25; } }
-            @media (prefers-reduced-motion: reduce) { .energia-scroll-cue div { animation: none !important; } }
+            @keyframes energiaSwipe { 0%,100% { transform: translateX(-3px); } 50% { transform: translateX(3px); } }
+            .energia-amendment-btn:focus-visible { outline: 2px solid ${EN_ACCENT.glow}; outline-offset: 2px; border-radius: 8px; }
+            .energia-skip {
+              position: absolute; left: 10px; top: 10px; z-index: 10;
+              background: ${EN_ACCENT.navy}; color: #fff;
+              padding: 12px 16px; border-radius: 8px;
+              font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+              border: 1px solid ${EN_ACCENT.glow}; min-height: 44px;
+              text-decoration: none;
+              display: inline-flex; align-items: center;
+              /* fully hidden until keyboard focus — the wrapper has no overflow
+                 clipping, so the old top:-56px trick leaked above the canvas
+                 (visible in device screenshots). */
+              opacity: 0; pointer-events: none;
+            }
+            .energia-skip:focus-visible { opacity: 1; pointer-events: auto; }
+            .energia-skip:focus-visible { outline: 2px solid ${EN_ACCENT.glow}; outline-offset: 2px; }
+            .energia-globe-skeleton {
+              aspect-ratio: 16 / 9; width: 100%; border-radius: 16px;
+              background: radial-gradient(130% 120% at 50% -10%, #0A1F3F, #06152e 70%, #02070f 100%);
+              border: 1px solid rgba(0,181,168,0.2);
+              min-height: 200px;
+            }
+            @media (max-width: 767px) { .energia-globe-skeleton { aspect-ratio: 4 / 5; } }
+            /* Phase 3 skeletons — reserved boxes for the lazy visual layer.
+               Navy chrome mirrors the fixed-dark panels they stand in for;
+               heights flip at the panels' own 639px wide/compact swap. */
+            .energia-dam-skeleton {
+              min-height: 430px; border-radius: 14px;
+              background: linear-gradient(165deg, #0A1F3F 0%, #0d2240 100%);
+              border: 1px solid rgba(0,181,168,0.25);
+            }
+            @media (max-width: 639px) { .energia-dam-skeleton { min-height: 460px; } }
+            .energia-illus-skeleton {
+              border-radius: 14px;
+              background: linear-gradient(165deg, #0A1F3F 0%, #0d2240 100%);
+              border: 1px solid rgba(0,181,168,0.25);
+            }
+            .energia-illus-flow { min-height: 520px; }
+            .energia-illus-ruta { min-height: 500px; }
+            @media (max-width: 639px) {
+              .energia-illus-flow { min-height: 680px; }
+              .energia-illus-ruta { min-height: 700px; }
+            }
+            /* Phase 2 · Per-Act bg-wash — gutter behind each Act header breathes
+               the act's tint (6-7% alpha). :has() gated so older browsers fall
+               back to no wash with no contrast hit. Scoped to the Act roots
+               (id="energia-act-N") so it doesn't wash behind ActNav pills,
+               which also carry data-act for the var() cascade. */
+            @supports (background: rgb(from white r g b / 0.06)) {
+              [id^="energia-act-"][data-act]::before {
+                content: "";
+                position: absolute;
+                left: 50%; transform: translateX(-50%);
+                width: 100vw; height: 100%;
+                background: var(--act-tint, transparent);
+                z-index: -1;
+                pointer-events: none;
+                transition: opacity 0.6s ease;
+              }
+              [id^="energia-act-"][data-act] { position: relative; isolation: isolate; }
+            }
+            @media (prefers-reduced-motion: reduce) {
+              .energia-scroll-cue div { animation: none !important; }
+              [style*="energiaSwipe"] { animation: none !important; }
+              [id^="energia-act-"][data-act]::before { transition: none; }
+            }
           `}</style>
         </div>
       </section>
+
+      {/* Phase 3 · Mobile act jump rail — <880px counterpart of ActNav (its
+          matchMedia gates are exact inverses, so exactly one act nav renders
+          at any width). Sticky below the portal header; null loader = CLS 0. */}
+      <ActJumpRow en={en} />
 
       {/* ════ ACTO 2 — LA APUESTA GLOBAL ════ */}
       <Act n={2} en={en} label={en ? "The global stake" : "La apuesta global"}
         title={en ? "AI runs on electricity — and is buying it years in advance" : "La IA corre sobre electricidad — y la está comprando con años de anticipación"}
         desc={en ? "Data-centre demand will more than double by 2030. The world's largest companies are responding with the biggest private infrastructure bet in history — including restarting nuclear plants." : "La demanda de los centros de datos se duplicará con creces al 2030. Las empresas más grandes del mundo responden con la mayor apuesta privada de infraestructura de la historia — incluida la reapertura de plantas nucleares."} />
+
+      {/* Phase 2 · KPI strip — frames the globe with scale BEFORE the 3D mounts. */}
+      <KpiStrip en={en} />
+
+      {/* ════ ATLAS GLOBAL DE GENERACIÓN — 3D ════ */}
+      <ScrollReveal>
+        {/* globeContainerRef reserved for Phase 2 FloatingShare screenshot */}
+        <div
+          ref={globeContainerRef}
+          data-section="act2-globe"
+          style={{
+            marginTop: 16,
+            aspectRatio: mode === "mobile3d" ? "4 / 5" : "16 / 9",
+            width: "100%",
+            position: "relative",
+            maxHeight: mode === "mobile3d" ? "clamp(340px, 80svh, 540px)" : "none",
+          }}
+        >
+          <a href="#crGridMapAnchor" className="energia-skip">
+            {en ? "Skip to Costa Rica map" : "Saltar al mapa de Costa Rica"}
+          </a>
+          <PowerGlobe en={en} compact={mode === "mobile3d"} />
+        </div>
+        {/* Zone D: sourced attribution caption — spec §14 / sourcing §3 */}
+        <p style={{
+          fontSize: 12, color: "rgba(241,245,249,0.72)", lineHeight: 1.6, marginTop: 10,
+          textShadow: "0 1px 4px rgba(0,0,0,0.85)",
+        }}>
+          {en ? (
+            <>
+              Plants:{" "}
+              <a href={SRC.wri.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>WRI Global Power Plant Database</a>
+              {" "}(<a href={SRC.cc_by_4.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>CC-BY-4.0</a>)
+              {" · "}basemap{" "}
+              <a href={SRC.three_globe.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>NASA night lights</a>
+              {" · "}interconnections illustrative (
+              <a href={SRC.entsoe.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>ENTSO-E</a>
+              {", "}
+              <a href={SRC.iea_wgo.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>IEA</a>
+              {", "}
+              <a href={SRC.eor.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>SIEPAC EOR</a>{"/"}<a href={SRC.epr.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>EPR</a>)
+              {" · "}<a href={SRC.synergy.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Synergy</a>{", "}<a href={SRC.delloro.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Dell'Oro</a>{" (est.) · "}
+              <a href={SRC.gem_gipt.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>GEM</a>{" ("}<a href={SRC.cc_by_4.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>CC-BY-4.0</a>{"), "}
+              <a href={SRC.iea_storage.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>IEA</a>{" ("}<a href={SRC.iea_terms.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Terms</a>{"), "}
+              <a href={SRC.eia860.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>EIA 860</a>
+            </>
+          ) : (
+            <>
+              Plantas:{" "}
+              <a href={SRC.wri.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>WRI Global Power Plant Database</a>
+              {" "}(<a href={SRC.cc_by_4.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>CC-BY-4.0</a>)
+              {" · "}base{" "}
+              <a href={SRC.three_globe.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>NASA night lights</a>
+              {" · "}interconexiones ilustrativas (
+              <a href={SRC.entsoe.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>ENTSO-E</a>
+              {", "}
+              <a href={SRC.iea_wgo.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>IEA</a>
+              {", "}
+              <a href={SRC.eor.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>SIEPAC EOR</a>{"/"}<a href={SRC.epr.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>EPR</a>)
+              {" · "}<a href={SRC.synergy.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Synergy</a>{", "}<a href={SRC.delloro.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Dell'Oro</a>{" (est.) · "}
+              <a href={SRC.gem_gipt.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>GEM</a>{" ("}<a href={SRC.cc_by_4.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>CC-BY-4.0</a>{"), "}
+              <a href={SRC.iea_storage.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>IEA</a>{" ("}<a href={SRC.iea_terms.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Terms</a>{"), "}
+              <a href={SRC.eia860.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>EIA 860</a>
+            </>
+          )}
+        </p>
+      </ScrollReveal>
 
       <ScrollReveal>
         <MediaRow en={en} ids={["datacenter", "tmi"]} height={260} />
@@ -552,6 +973,14 @@ export function EnergiaDeep({ en = false }) {
           title={en ? "Data-centre electricity demand, 2020-2035 (TWh)" : "Demanda eléctrica de centros de datos, 2020-2035 (TWh)"}>
           <DCDemandChart en={en} />
         </ShareCard>
+      </ScrollReveal>
+
+      {/* Phase 3 · Grid-to-chip schematic — the physical journey behind the
+          demand curve above (self-captioned, sourced, fixed-dark panel). */}
+      <ScrollReveal>
+        <div style={{ marginTop: 14 }}>
+          <GridToChipFlow en={en} />
+        </div>
       </ScrollReveal>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 230px), 1fr))", gap: 12, marginTop: 14 }}>
@@ -596,6 +1025,18 @@ export function EnergiaDeep({ en = false }) {
         </Card>
       </ScrollReveal>
 
+      {/* Phase 3 · Scale bar — the five deals above vs. CR's whole grid on ONE
+          MW axis (mixed-basis caveat rendered inside the figure). */}
+      <ScrollReveal>
+        <div style={{ marginTop: 14 }}>
+          <ShareCard en={en} filename="colibrii-energia-nuclear-vs-cr"
+            sourceIds={["constellation", "talen", "google", "terrapower", "peg"]}
+            title={en ? "Five nuclear deals vs. Costa Rica's entire grid" : "Cinco contratos nucleares vs. toda la red de Costa Rica"}>
+            <NuclearScaleBar en={en} />
+          </ShareCard>
+        </div>
+      </ScrollReveal>
+
       <ScrollReveal>
         <div style={{ marginTop: 14 }}><ReactorCutaway en={en} /></div>
       </ScrollReveal>
@@ -618,6 +1059,10 @@ export function EnergiaDeep({ en = false }) {
       </ScrollReveal>
 
       <CRAnchor en={en}>{T(NUCLEAR_DEALS.insight, en)}</CRAnchor>
+
+      {/* Phase 2 · Peak CTA — fires once per session at the Act 2 → Act 3 handoff.
+          Routes the reader from the global stake to the local arithmetic (Act 5). */}
+      <PeakCTA variant="globe" en={en} target="#energia-act-5" />
 
       <EnergyBeam />
 
@@ -665,7 +1110,7 @@ export function EnergiaDeep({ en = false }) {
         desc={en ? "The 2025 numbers contradict two popular narratives at once: ICE is not broke, and the grid is not ready for an AI-scale demand wave." : "Los números de 2025 contradicen dos narrativas populares a la vez: el ICE no está quebrado, y la red no está lista para una ola de demanda a escala IA."} />
 
       <ScrollReveal>
-        <CRGridMap en={en} />
+        <div><CRGridMap en={en} /></div>
       </ScrollReveal>
 
       <ScrollReveal>
@@ -678,6 +1123,19 @@ export function EnergiaDeep({ en = false }) {
             : "Estas represas construyeron la red limpia de Costa Rica. Pero la hidro es el 68% de la capacidad en un país que debe sumar +2.495 MW al 2040 — y los ríos están casi comprometidos. Ese es el apretón."}
         </p>
       </ScrollReveal>
+
+      {/* Phase 3 · Hydro-dam 3D cutaway — the squeeze paragraph above reads as
+          this vignette's interpretation. Only new WebGL canvas this round:
+          frameloop "never" until 5% visible, static frame under reduced motion. */}
+      <ScrollReveal>
+        <div style={{ marginTop: 14 }}>
+          <HydroDamCutaway en={en} compact={mode === "mobile3d"} />
+        </div>
+      </ScrollReveal>
+
+      {/* Phase 2 · Peak CTA — fires once per session after the CR grid map.
+          Routes from the local squeeze to the legislative arithmetic (Act 5). */}
+      <PeakCTA variant="crgrid" en={en} target="#energia-act-5" />
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 290px), 1fr))", gap: 14, marginTop: 14 }}>
         <ScrollReveal>
@@ -729,7 +1187,9 @@ export function EnergiaDeep({ en = false }) {
         <Card style={{ marginTop: 14 }} accent={EN_ACCENT.gold}>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "10px 24px", alignItems: "baseline" }}>
             <span style={{ ...mono, fontSize: 26, fontWeight: 800, color: "var(--enTurq)" }}>{en ? "−4.93% → −16.44%" : "−4,93% → −16,44%"}</span>
-            <span style={{ fontSize: 12.5, color: "var(--text2)" }}>ICE −14,92% · CNFL −14,55% · {en ? "generation cost factor" : "factor CVG"} −7,77%</span>
+            <span style={{ fontSize: 12.5, color: "var(--text2)" }}>{en
+              ? "ICE −14.92% · CNFL −14.55% · generation cost factor −7.77%"
+              : "ICE −14,92% · CNFL −14,55% · factor CVG −7,77%"}</span>
           </div>
           <p style={{ fontSize: 13, color: "var(--text2)", lineHeight: 1.65, marginTop: 8 }}>{T(ARESEP_2026.headline, en)}</p>
           <div style={{ ...mono, fontSize: 10, color: "var(--text3)", marginTop: 8 }}>{SRC.aresep.name}</div>
@@ -784,12 +1244,20 @@ export function EnergiaDeep({ en = false }) {
           </Card>
         </ScrollReveal>
         <ScrollReveal delay={80}>
-          <ShareCard en={en} filename="colibrii-energia-38-votos" sourceIds={["asamblea", "semanario"]}
+          <ShareCard en={en} id="energia-votemath" filename="colibrii-energia-38-votos" sourceIds={["asamblea", "semanario"]}
             title={en ? "The vote arithmetic" : "La aritmética de los votos"}>
             <VoteMath en={en} />
           </ShareCard>
         </ScrollReveal>
       </div>
+
+      {/* Phase 3 · Metro-map of the bill's route — where the arithmetic above
+          sits in the procedural calendar (self-captioned, fixed-dark panel). */}
+      <ScrollReveal>
+        <div style={{ marginTop: 14 }}>
+          <Ruta23414 en={en} />
+        </div>
+      </ScrollReveal>
 
       <ScrollReveal>
         <div style={{ marginTop: 18 }}>
@@ -803,6 +1271,17 @@ export function EnergiaDeep({ en = false }) {
       <Act n={6} en={en} label={en ? "Comparative lessons" : "Lecciones comparadas"}
         title={en ? "Six countries already ran this experiment" : "Seis países ya corrieron este experimento"}
         desc={en ? "Electricity market reform has four decades of evidence. The designs that worked — and the two cautionary tales every diputado should know." : "La reforma de mercados eléctricos tiene cuatro décadas de evidencia. Los diseños que funcionaron — y las dos historias de advertencia que todo diputado debería conocer."} />
+
+      {/* Phase 3 · Reform vintages — when each of the six experiments ran,
+          on one time axis, before the case cards detail them. */}
+      <ScrollReveal>
+        <div style={{ marginBottom: 14 }}>
+          <ShareCard en={en} filename="colibrii-energia-reformas-comparadas" sourceIds={["cne", "asamblea"]}
+            title={en ? "Four decades of reform, two warnings" : "Cuatro décadas de reformas, dos advertencias"}>
+            <ReformStrip en={en} />
+          </ShareCard>
+        </div>
+      </ScrollReveal>
 
       <ScrollReveal><ComparativeRail en={en} /></ScrollReveal>
       <KeyInsight text={T(COMPARATIVE.netAssessment, en)} color={EN_ACCENT.turquoise} />
@@ -829,7 +1308,7 @@ export function EnergiaDeep({ en = false }) {
           </ShareCard>
         </ScrollReveal>
         <ScrollReveal delay={80}>
-          <ShareCard en={en} filename="colibrii-ecai-explorer" sourceIds={["colibrii"]}
+          <ShareCard en={en} id="energia-tool-ecai" filename="colibrii-ecai-explorer" sourceIds={["colibrii"]}
             title={en ? "ECAI-CR — adjust the weights" : "ECAI-CR — ajuste los pesos"}>
             <EcaiExplorer en={en} />
           </ShareCard>
@@ -837,7 +1316,7 @@ export function EnergiaDeep({ en = false }) {
       </div>
 
       <ScrollReveal>
-        <ShareCard en={en} filename="colibrii-escenarios-2050" sourceIds={["colibrii", "peg"]}
+        <ShareCard en={en} id="energia-tool-escenarios" filename="colibrii-escenarios-2050" sourceIds={["colibrii", "peg"]}
           title={en ? "Demand scenarios to 2050 (index, 2024 = 100)" : "Escenarios de demanda al 2050 (índice, 2024 = 100)"}>
           <div style={{ marginTop: 4 }}><ScenarioExplorer en={en} /></div>
         </ShareCard>
@@ -845,7 +1324,7 @@ export function EnergiaDeep({ en = false }) {
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 310px), 1fr))", gap: 14, marginTop: 14 }}>
         <ScrollReveal>
-          <ShareCard en={en} filename="colibrii-comparador-tarifario" sourceIds={["seg", "eia", "cicr"]}
+          <ShareCard en={en} id="energia-tool-tarifas" filename="colibrii-comparador-tarifario" sourceIds={["seg", "eia", "cicr"]}
             title={en ? "What would your megawatts cost?" : "¿Cuánto costarían sus megavatios?"}>
             <TariffComparator en={en} />
           </ShareCard>
@@ -861,6 +1340,13 @@ export function EnergiaDeep({ en = false }) {
 
       <CRAnchor en={en}>{T(ECAI.reading, en)}</CRAnchor>
 
+      {/* Phase 2 · Peak CTA — fires once per session after the ECAI radar.
+          Routes from the index reading to the 12 technical amendments (Act 8). */}
+      <PeakCTA variant="ecai" en={en} target="#energia-act-8" />
+
+      {/* MicroCTA preserved as a quieter share offer alongside the new PeakCTA;
+          the two never compete for the same scroll moment since the PeakCTA
+          self-dismisses after first interaction or session-mark. */}
       <MicroCTA en={en} />
 
       {/* ════ ACTO 8 — RECOMENDACIONES ════ */}
@@ -904,6 +1390,12 @@ export function EnergiaDeep({ en = false }) {
       </div>
 
       <CTABlock en={en} />
+
+      {/* Phase 3 · Exit retention — terminal "keep exploring" rail: whole-card
+          jumps back to the three tools + the vote chart, visited chips, and
+          the first in-flow mobile share affordance. Never displaces sharing —
+          it renders BELOW the CTA block. */}
+      <ExploreRail en={en} />
     </div>
   );
 }
