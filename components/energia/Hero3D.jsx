@@ -6,31 +6,25 @@ import { CR_OUTLINE_GEO, CR_BBOX, PLANTS_GEO } from "./crGeo";
 import { EN_ACCENT } from "../energiaData";
 
 /* ═══════════════════════════════════════════════════════════════
-   ENERGÍA — Hero3D (cinematic command-center edition)
-   Extruded Costa Rica in deep navy with a turquoise rim-glow
-   silhouette over a luminous stage disc in a fogged void; energy
-   streams along glowing tube-arcs from every plant into the GAM
-   load core, pulsing rings mark each node, twin parallax particle
-   layers add depth. Float + auto-rotate + eased pointer parallax.
-   Honours prefers-reduced-motion (one static lit frame) and pauses
-   when hidden. Lazy (ssr:false); guards all window/document use.
+   ENERGÍA — Hero3D (holographic command-table edition)
+   Extruded Costa Rica resting on a fine holo-grid table: crisp
+   cyan coastline, thin low-lift energy arcs with comet packets
+   converging on the GAM load core (the single gold element),
+   soft contact shadow, one sparse particle layer. Framing is
+   aspect-aware — top-centered stage on phones, contained right-
+   side object on wide screens — and every node/arc/line size is
+   computed in CSS pixels so the asset reads identically at any
+   viewport. Honours prefers-reduced-motion (one static frame)
+   and pauses when hidden. Lazy (ssr:false); SSR-safe.
    ═══════════════════════════════════════════════════════════════ */
 
-/* ── Palette (harmonised with EN_ACCENT) ── */
+/* ── Palette: navy/cyan family only; gold reserved for the GAM core ── */
 const NAVY = EN_ACCENT.navy;            // #0A1F3F
 const TURQ = EN_ACCENT.turquoise;       // #00B5A8
 const GLOW = EN_ACCENT.glow;            // #22d3ee
 const GOLD = EN_ACCENT.gold;            // #F2B135
-const DEEP = "#0e2a52";                 // landmass body
-
-const KIND = {
-  hydro: GLOW,
-  geo: GOLD,
-  wind: TURQ,
-  solar: "#fbbf24",
-  thermal: EN_ACCENT.risk,
-  load: "#ffffff",
-};
+const BODY = "#0d2547";                 // landmass body
+const NODE = "#7df3ff";                 // plant nodes
 
 /* ── Geo → scene projection (centered, aspect-corrected) ── */
 const cLng = (CR_BBOX.lngMin + CR_BBOX.lngMax) / 2;
@@ -40,9 +34,17 @@ const SCALE = 1.42;
 const px = (lng) => (lng - cLng) * K * SCALE;
 const py = (lat) => (lat - cLat) * SCALE;
 
-const Z_MAP = 0.0;     // map plane (top of extrusion sits a hair above)
-const Z_TOP = 0.205;   // node / ring plane on the country's lit face
-const DEPTH = 0.18;    // extrusion depth
+const DEPTH = 0.16;            // extrusion depth
+const BEVEL = 0.02;
+const Z_TOP = DEPTH + BEVEL + 0.012;   // node plane on the lit face
+const TILT = -0.46;            // base X rotation of the whole table
+const FOV = 42;
+const CAM_DIST = 4.62;
+
+/* Country footprint in scene units (pre-scale) */
+const W0 = (CR_BBOX.lngMax - CR_BBOX.lngMin) * K * SCALE;              // ≈ 4.68
+const H0 = (CR_BBOX.latMax - CR_BBOX.latMin) * SCALE;                  // ≈ 4.43
+const H_TILTED = H0 * Math.cos(TILT) + 0.5;  // projected height + arc headroom
 
 /* ── prefers-reduced-motion (SSR-safe) ── */
 function useReducedMotion() {
@@ -62,19 +64,50 @@ function useReducedMotion() {
   return reduced;
 }
 
-/* ── Radial-gradient texture for the stage glow (SSR-safe) ── */
+/* ── Aspect-aware framing: scale + position of the table group.
+      pxU converts a CSS-pixel target into group-local units, so
+      strokes/nodes keep a constant on-screen size everywhere. ── */
+function useFraming() {
+  const size = useThree((s) => s.size);
+  return useMemo(() => {
+    const h = Math.max(1, size.height);
+    const visH = 2 * Math.tan((FOV * Math.PI) / 360) * CAM_DIST;
+    const visW = visH * (size.width / h);
+    const u = visH / h; // scene units per CSS px
+    const compact = size.width <= 720;
+    let s, x, y;
+    if (compact) {
+      // Phones / narrow: country top-centered in its own stage band.
+      const wPx = Math.min(size.width * 0.9, 560);
+      s = (wPx * u) / W0;
+      x = 0;
+      y = visH / 2 - 52 * u - (H_TILTED * s) / 2;
+    } else {
+      // Wide: contained object on the right of the text column.
+      s = Math.min(0.85, (visW * 0.54) / W0, (visH * 0.9) / H_TILTED);
+      // 1.06: headroom for the z-sway + perspective widening the footprint
+      x = Math.min(visW * 0.21, visW / 2 - (W0 * 1.06 * s) / 2 - 56 * u);
+      y = -0.05;
+    }
+    // Mild size factor so nodes/arcs grow a little with the rendered map
+    const em = THREE.MathUtils.clamp((W0 * s) / u / 620, 1, 1.5);
+    return { s, x, y, pxU: (u / s) * em, visW, visH, u };
+  }, [size.width, size.height]);
+}
+
+/* ── Canvas textures (SSR-safe) ── */
 function makeGlowTexture() {
   if (typeof document === "undefined") return null;
-  const s = 256;
+  const s = 128;
   const cv = document.createElement("canvas");
   cv.width = cv.height = s;
   const ctx = cv.getContext("2d");
   if (!ctx) return null;
   const g = ctx.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
-  g.addColorStop(0.0, "rgba(34,211,238,0.55)");
-  g.addColorStop(0.35, "rgba(0,181,168,0.30)");
-  g.addColorStop(0.7, "rgba(10,31,63,0.10)");
-  g.addColorStop(1.0, "rgba(10,31,63,0)");
+  g.addColorStop(0, "rgba(255,255,255,1)");
+  g.addColorStop(0.25, "rgba(255,255,255,0.5)");
+  g.addColorStop(0.6, "rgba(255,255,255,0.12)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, s, s);
   const tex = new THREE.CanvasTexture(cv);
@@ -82,9 +115,66 @@ function makeGlowTexture() {
   return tex;
 }
 
-/* ── Extruded country + rim-glow halo + lit top edge ── */
+/* Fine graticule fading radially — the "holo table" surface. */
+function makeFloorTexture() {
+  if (typeof document === "undefined") return null;
+  const s = 1024;
+  const cv = document.createElement("canvas");
+  cv.width = cv.height = s;
+  const ctx = cv.getContext("2d");
+  if (!ctx) return null;
+  const cell = s / 26;
+  ctx.strokeStyle = "rgba(103,232,249,0.55)";
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 26; i++) {
+    const p = Math.round(i * cell) + 0.5;
+    ctx.beginPath(); ctx.moveTo(p, 0); ctx.lineTo(p, s); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, p); ctx.lineTo(s, p); ctx.stroke();
+  }
+  // soft center lift so the table has a light source
+  const lift = ctx.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s * 0.42);
+  lift.addColorStop(0, "rgba(34,211,238,0.30)");
+  lift.addColorStop(1, "rgba(34,211,238,0)");
+  ctx.fillStyle = lift;
+  ctx.fillRect(0, 0, s, s);
+  // radial alpha mask — grid dissolves toward the edges
+  ctx.globalCompositeOperation = "destination-in";
+  const mask = ctx.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+  mask.addColorStop(0, "rgba(0,0,0,0.85)");
+  mask.addColorStop(0.55, "rgba(0,0,0,0.45)");
+  mask.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = mask;
+  ctx.fillRect(0, 0, s, s);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.needsUpdate = true;
+  return tex;
+}
+
+/* ── Holo table: graticule plane + contact shadow under the country ── */
+function HoloFloor({ shadowShape }) {
+  const tex = useMemo(makeFloorTexture, []);
+  return (
+    <group>
+      {tex && (
+        <mesh position={[0, 0, -0.05]}>
+          <planeGeometry args={[9.5, 9.5]} />
+          <meshBasicMaterial
+            map={tex} transparent opacity={0.5}
+            blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false}
+          />
+        </mesh>
+      )}
+      {/* Contact shadow: darkened silhouette grounding the landmass */}
+      <mesh geometry={shadowShape} position={[0, 0, -0.045]} scale={[1.045, 1.045, 1]}>
+        <meshBasicMaterial color="#04101f" transparent opacity={0.55} depthWrite={false} />
+      </mesh>
+    </group>
+  );
+}
+
+/* ── Extruded country: navy body, crisp coastline, faint inset line ── */
 function CountryMesh() {
-  const { body, halo, edges } = useMemo(() => {
+  const { body, coast, inset, flat } = useMemo(() => {
     const shape = new THREE.Shape();
     CR_OUTLINE_GEO.forEach(([lng, lat], i) => {
       const x = px(lng), y = py(lat);
@@ -93,196 +183,189 @@ function CountryMesh() {
     shape.closePath();
     const body = new THREE.ExtrudeGeometry(shape, {
       depth: DEPTH, bevelEnabled: true,
-      bevelThickness: 0.022, bevelSize: 0.016, bevelSegments: 2,
+      bevelThickness: BEVEL, bevelSize: 0.014, bevelSegments: 2,
     });
-    // Slightly inflated silhouette for the rim glow behind the body.
-    const halo = new THREE.ExtrudeGeometry(shape, {
-      depth: DEPTH * 0.6, bevelEnabled: true,
-      bevelThickness: 0.05, bevelSize: 0.08, bevelSegments: 1,
-    });
-    const edges = new THREE.EdgesGeometry(body, 22);
-    return { body, halo, edges };
+    const pts = CR_OUTLINE_GEO.map(([lng, lat]) => new THREE.Vector3(px(lng), py(lat), 0));
+    const coast = new THREE.BufferGeometry().setFromPoints(pts);
+    const inset = new THREE.BufferGeometry().setFromPoints(
+      pts.map((p) => new THREE.Vector3(p.x * 0.955, p.y * 0.955, 0))
+    );
+    const flat = new THREE.ShapeGeometry(shape);
+    return { body, coast, inset, flat };
   }, []);
 
   return (
     <group>
-      {/* Rim-glow silhouette (additive, behind & beneath the body) */}
-      <mesh geometry={halo} position={[0, 0, -0.06]} scale={[1.035, 1.035, 1]}>
-        <meshBasicMaterial
-          color={TURQ} transparent opacity={0.14}
-          blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false}
-        />
-      </mesh>
-      {/* The landmass body */}
-      <mesh geometry={body} castShadow receiveShadow>
+      <HoloFloor shadowShape={flat} />
+      <mesh geometry={body}>
         <meshStandardMaterial
-          color={DEEP} metalness={0.42} roughness={0.4}
-          emissive={TURQ} emissiveIntensity={0.12}
+          color={BODY} metalness={0.3} roughness={0.5}
+          emissive={TURQ} emissiveIntensity={0.1}
         />
       </mesh>
-      {/* Bright beveled top edge */}
-      <lineSegments geometry={edges} position={[0, 0, DEPTH + 0.022]}>
-        <lineBasicMaterial color={GLOW} transparent opacity={0.92} toneMapped={false} />
-      </lineSegments>
+      {/* Crisp coastline on the lit face */}
+      <lineLoop geometry={coast} position={[0, 0, DEPTH + BEVEL + 0.004]}>
+        <lineBasicMaterial color={GLOW} transparent opacity={0.85} toneMapped={false} />
+      </lineLoop>
+      {/* Cartographic inset echo */}
+      <lineLoop geometry={inset} position={[0, 0, DEPTH + BEVEL + 0.004]}>
+        <lineBasicMaterial color={TURQ} transparent opacity={0.16} toneMapped={false} />
+      </lineLoop>
     </group>
   );
 }
 
-/* ── Stage glow disc beneath the country ── */
-function StageGlow() {
-  const tex = useMemo(makeGlowTexture, []);
-  if (!tex) return null;
-  return (
-    <mesh position={[0.9, -0.1, -0.6]} rotation={[0, 0, 0]}>
-      <planeGeometry args={[8.2, 6.4]} />
-      <meshBasicMaterial
-        map={tex} transparent opacity={0.45}
-        blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false}
-      />
-    </mesh>
-  );
-}
-
-/* ── Glowing plant nodes + pulsing rings ── */
-function PlantNodes({ paused }) {
-  const sphereGrp = useRef();
-  const ringGrp = useRef();
-  const nodes = useMemo(() => PLANTS_GEO.map((p, i) => ({
-    ...p,
-    x: px(p.lng), y: py(p.lat),
-    phase: i * 0.85,
-    isLoad: p.kind === "load",
-    c: new THREE.Color(KIND[p.kind] || "#ffffff"),
+/* ── Plant nodes (cyan) + GAM load core (the only gold element) ── */
+function PlantNodes({ paused, pxU }) {
+  const ringA = useRef();
+  const ringB = useRef();
+  const glowTex = useMemo(makeGlowTexture, []);
+  const nodes = useMemo(() => PLANTS_GEO.map((p) => ({
+    ...p, x: px(p.lng), y: py(p.lat), isLoad: p.kind === "load",
   })), []);
+  const gam = nodes.find((n) => n.isLoad);
+
+  const rCore = 4.6 * pxU;   // plant dot radius ≈ 4.6px
+  const rLoad = 6.8 * pxU;
+  const glowW = 26 * pxU;    // additive halo sprite ≈ 26px
+  const glowL = 44 * pxU;
+  const ringIn = 10 * pxU, ringOut = 11.4 * pxU;
 
   useFrame(({ clock }) => {
     if (paused.current) return;
     const t = clock.elapsedTime;
-    const spheres = sphereGrp.current;
-    const rings = ringGrp.current;
-    if (spheres) {
-      for (let i = 0; i < spheres.children.length; i++) {
-        const n = nodes[i];
-        const s = 1 + Math.sin(t * 2 + n.phase) * 0.22;
-        spheres.children[i].scale.setScalar(n.isLoad ? s * 1.2 : s);
-      }
-    }
-    if (rings) {
-      for (let i = 0; i < rings.children.length; i++) {
-        const n = nodes[i];
-        const m = rings.children[i];
-        if (n.isLoad) {
-          // GAM: larger expanding-and-fading pulse
-          const cyc = (t * 0.7 + 0.0) % 1;
-          const sc = 1 + cyc * 3.4;
-          m.scale.set(sc, sc, sc);
-          m.material.opacity = (1 - cyc) * 0.7;
-        } else {
-          const sc = 1 + (Math.sin(t * 2.2 + n.phase) * 0.5 + 0.5) * 0.9;
-          m.scale.set(sc, sc, sc);
-          m.material.opacity = 0.28 + Math.sin(t * 2.2 + n.phase) * 0.18;
-        }
-      }
-    }
+    [ringA.current, ringB.current].forEach((m, k) => {
+      if (!m) return;
+      const cyc = (t * 0.42 + k * 0.5) % 1;
+      const sc = 1 + cyc * 2.6;
+      m.scale.set(sc, sc, 1);
+      m.material.opacity = (1 - cyc) * 0.45;
+    });
   });
 
   return (
     <group>
-      <group ref={sphereGrp}>
-        {nodes.map((n) => (
-          <mesh key={n.id} position={[n.x, n.y, Z_TOP]}>
-            <sphereGeometry args={[n.isLoad ? 0.052 : 0.038, 16, 16]} />
-            <meshStandardMaterial
-              color={n.c} emissive={n.c}
-              emissiveIntensity={n.isLoad ? 3.0 : 2.4} toneMapped={false}
-            />
+      {nodes.map((n) => (
+        <group key={n.id} position={[n.x, n.y, Z_TOP]}>
+          <mesh>
+            <sphereGeometry args={[n.isLoad ? rLoad : rCore, 16, 16]} />
+            <meshBasicMaterial color={n.isLoad ? GOLD : NODE} toneMapped={false} />
           </mesh>
-        ))}
-      </group>
-      <group ref={ringGrp}>
-        {nodes.map((n) => (
-          <mesh key={n.id} position={[n.x, n.y, Z_TOP + 0.002]}>
-            <ringGeometry args={[n.isLoad ? 0.075 : 0.055, n.isLoad ? 0.092 : 0.068, 40]} />
-            <meshBasicMaterial
-              color={n.isLoad ? "#ffffff" : n.c} transparent opacity={0.4}
-              side={THREE.DoubleSide} depthWrite={false} toneMapped={false}
-            />
-          </mesh>
-        ))}
-      </group>
+          {glowTex && (
+            <sprite scale={[n.isLoad ? glowL : glowW, n.isLoad ? glowL : glowW, 1]}>
+              <spriteMaterial
+                map={glowTex} color={n.isLoad ? GOLD : GLOW}
+                transparent opacity={n.isLoad ? 0.55 : 0.4}
+                blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false}
+              />
+            </sprite>
+          )}
+        </group>
+      ))}
+      {/* GAM: twin expanding rings — the scene's single focal pulse */}
+      {gam && [ringA, ringB].map((r, k) => (
+        <mesh key={k} ref={r} position={[gam.x, gam.y, Z_TOP + 0.002]}>
+          <ringGeometry args={[ringIn, ringOut, 48]} />
+          <meshBasicMaterial
+            color="#ffe9b8" transparent opacity={0}
+            side={THREE.DoubleSide} depthWrite={false} toneMapped={false}
+          />
+        </mesh>
+      ))}
     </group>
   );
 }
 
-/* ── Energy tube-arcs + traveling glow packets (plant → GAM) ── */
-function EnergyArcs({ paused }) {
-  const packetGrp = useRef();
+/* ── Thin low-lift arcs + comet packets (plant → GAM) ── */
+function EnergyArcs({ paused, pxU }) {
+  const headGrp = useRef();
+  const tailGrp = useRef();
   const scratch = useMemo(() => new THREE.Vector3(), []);
+  const glowTex = useMemo(makeGlowTexture, []);
+  const cTurq = useMemo(() => new THREE.Color(TURQ), []);
+  const cGlow = useMemo(() => new THREE.Color(GLOW), []);
+
   const arcs = useMemo(() => {
     const gam = PLANTS_GEO.find((p) => p.kind === "load");
     const gx = px(gam.lng), gy = py(gam.lat);
-    return PLANTS_GEO.filter((p) => p.kind !== "load").map((p, i) => {
+    const feeders = PLANTS_GEO.filter((p) => p.kind !== "load");
+    return feeders.map((p, i) => {
       const x = px(p.lng), y = py(p.lat);
       const dist = Math.hypot(gx - x, gy - y);
-      const lift = 0.42 + dist * 0.28 + (i % 3) * 0.08;
+      const lift = 0.14 + dist * 0.14; // hug the surface
       const mid = new THREE.Vector3((x + gx) / 2, (y + gy) / 2, Z_TOP + lift);
       const curve = new THREE.QuadraticBezierCurve3(
         new THREE.Vector3(x, y, Z_TOP),
         mid,
         new THREE.Vector3(gx, gy, Z_TOP)
       );
-      const tube = new THREE.TubeGeometry(curve, 44, 0.012, 8, false);
+      const tube = new THREE.TubeGeometry(curve, 48, Math.max(0.004, 1.2 * pxU), 6, false);
       return {
-        key: p.id,
-        tube,
-        curve,
-        color: new THREE.Color(KIND[p.kind] || GLOW),
-        speed: 0.18 + (i % 4) * 0.035,
+        key: p.id, tube, curve,
+        color: cTurq.clone().lerp(cGlow, feeders.length > 1 ? i / (feeders.length - 1) : 0),
+        speed: 0.11 + (i % 4) * 0.02,
         offset: (i * 0.137) % 1,
       };
     });
-  }, []);
+  }, [pxU, cTurq, cGlow]);
+
+  useEffect(() => () => arcs.forEach((a) => a.tube.dispose()), [arcs]);
 
   useFrame(({ clock }) => {
     if (paused.current) return;
     const t = clock.elapsedTime;
-    const grp = packetGrp.current;
-    if (!grp) return;
+    const heads = headGrp.current, tails = tailGrp.current;
+    if (!heads || !tails) return;
     for (let i = 0; i < arcs.length; i++) {
       const a = arcs[i];
       const tt = (t * a.speed + a.offset) % 1;
       a.curve.getPointAt(tt, scratch);
-      const m = grp.children[i];
-      m.position.copy(scratch);
-      // brighten as the packet nears the capital
-      m.scale.setScalar(0.7 + tt * 0.8);
+      heads.children[i].position.copy(scratch);
+      a.curve.getPointAt(Math.max(0, tt - 0.035), scratch);
+      tails.children[i].position.copy(scratch);
     }
   });
 
+  const headW = 18 * pxU, tailW = 11 * pxU, coreR = 2.2 * pxU;
   return (
     <group>
       {arcs.map((a) => (
         <mesh key={a.key} geometry={a.tube}>
-          <meshStandardMaterial
-            color={a.color} emissive={a.color} emissiveIntensity={1.1}
-            transparent opacity={0.5} toneMapped={false}
-            depthWrite={false}
+          <meshBasicMaterial
+            color={a.color} transparent opacity={0.38}
+            blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false}
           />
         </mesh>
       ))}
-      <group ref={packetGrp}>
+      <group ref={headGrp}>
         {arcs.map((a) => (
-          <group key={a.key} position={[0, 0, Z_TOP]}>
-            {/* bright core */}
+          <group key={a.key}>
             <mesh>
-              <sphereGeometry args={[0.046, 14, 14]} />
-              <meshBasicMaterial color={a.color} toneMapped={false} />
+              <sphereGeometry args={[coreR, 10, 10]} />
+              <meshBasicMaterial color="#eaffff" toneMapped={false} />
             </mesh>
-            {/* additive halo for visual weight */}
-            <mesh>
-              <sphereGeometry args={[0.1, 12, 12]} />
-              <meshBasicMaterial color={a.color} transparent opacity={0.28} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
-            </mesh>
+            {glowTex && (
+              <sprite scale={[headW, headW, 1]}>
+                <spriteMaterial
+                  map={glowTex} color={GLOW} transparent opacity={0.8}
+                  blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false}
+                />
+              </sprite>
+            )}
+          </group>
+        ))}
+      </group>
+      <group ref={tailGrp}>
+        {arcs.map((a) => (
+          <group key={a.key}>
+            {glowTex && (
+              <sprite scale={[tailW, tailW, 1]}>
+                <spriteMaterial
+                  map={glowTex} color={TURQ} transparent opacity={0.3}
+                  blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false}
+                />
+              </sprite>
+            )}
           </group>
         ))}
       </group>
@@ -290,43 +373,47 @@ function EnergyArcs({ paused }) {
   );
 }
 
-/* ── Parallax particle layer ── */
-function ParticleLayer({ count, spread, depth, size, opacity, color, speed, paused }) {
+/* ── One sparse ambient particle layer, sized to the viewport ── */
+function ParticleLayer({ paused, visW, visH, u }) {
   const ref = useRef();
+  const spread = Math.max(visW, visH) * 1.25;
+  const count = Math.max(24, Math.min(80, Math.round((visW * visH) / 0.32)));
   const positions = useMemo(() => {
     const arr = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
       arr[i * 3] = (Math.random() - 0.5) * spread;
-      arr[i * 3 + 1] = (Math.random() - 0.5) * spread * 0.68;
-      arr[i * 3 + 2] = depth - Math.random() * 2.2;
+      arr[i * 3 + 1] = (Math.random() - 0.5) * spread;
+      arr[i * 3 + 2] = -0.6 - Math.random() * 2.4;
     }
     return arr;
-  }, [count, spread, depth]);
+  }, [count, spread]);
   useFrame(({ clock }) => {
     if (paused.current) return;
-    if (ref.current) ref.current.rotation.z = clock.elapsedTime * speed;
+    if (ref.current) ref.current.rotation.z = clock.elapsedTime * 0.01;
   });
   return (
-    <points ref={ref}>
+    <points ref={ref} key={`${count}-${spread.toFixed(2)}`}>
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" count={count} array={positions} itemSize={3} />
       </bufferGeometry>
       <pointsMaterial
-        color={color} size={size} transparent opacity={opacity}
+        color={TURQ} size={3.2 * u} transparent opacity={0.35}
         sizeAttenuation depthWrite={false}
       />
     </points>
   );
 }
 
-/* ── Scene root: float + auto-rotate + eased pointer parallax ── */
+/* ── Scene root: framing + slow sway + eased pointer parallax ── */
 function Scene({ reduced }) {
   const group = useRef();
   const paused = useRef(false);
   const hidden = useRef(false);
   const invalidate = useThree((s) => s.invalidate);
+  const f = useFraming();
+  const fRef = useRef(f);
+  fRef.current = f;
 
-  // Eased pointer targets (no per-frame allocation; capped amplitude).
   const aim = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -341,50 +428,44 @@ function Scene({ reduced }) {
     return () => document.removeEventListener("visibilitychange", onVis);
   }, [reduced, invalidate]);
 
-  // Render exactly one lit, motionless frame when reduced-motion is on.
+  // Reduced motion: one static, correctly-framed frame.
   useEffect(() => {
-    if (reduced) {
-      if (group.current) {
-        group.current.rotation.set(-0.42, 0.0, 0.1);
-        group.current.position.set(0.95, -0.05, 0);
-      }
+    if (reduced && group.current) {
+      group.current.rotation.set(TILT, 0, 0.05);
+      group.current.position.set(f.x, f.y, 0);
+      group.current.scale.setScalar(f.s);
       invalidate();
     }
-  }, [reduced, invalidate]);
+  }, [reduced, invalidate, f]);
 
-  const CAP = 0.09; // hard cap on pointer-driven rotation (rad)
+  const CAP = 0.06; // pointer-driven rotation cap (rad)
 
   useFrame(({ clock, pointer }) => {
     if (paused.current || hidden.current || !group.current) return;
     const t = clock.elapsedTime;
-    // ease toward capped pointer target
-    aim.current.x += (THREE.MathUtils.clamp(pointer.x, -1, 1) * CAP - aim.current.x) * 0.045;
-    aim.current.y += (THREE.MathUtils.clamp(pointer.y, -1, 1) * CAP - aim.current.y) * 0.045;
-    group.current.rotation.x = -0.42 + Math.sin(t * 0.25) * 0.03 + aim.current.y * 0.7;
-    group.current.rotation.y = Math.sin(t * 0.21) * 0.05 + aim.current.x;
-    group.current.rotation.z = 0.1 + Math.sin(t * 0.18) * 0.02;
-    group.current.position.x = 0.95;
-    group.current.position.y = -0.05 + Math.sin(t * 0.4) * 0.045;
+    const fr = fRef.current;
+    aim.current.x += (THREE.MathUtils.clamp(pointer.x, -1, 1) * CAP - aim.current.x) * 0.04;
+    aim.current.y += (THREE.MathUtils.clamp(pointer.y, -1, 1) * CAP - aim.current.y) * 0.04;
+    group.current.rotation.x = TILT + Math.sin(t * 0.22) * 0.018 + aim.current.y * 0.5;
+    group.current.rotation.y = Math.sin(t * 0.19) * 0.03 + aim.current.x;
+    group.current.rotation.z = 0.05 + Math.sin(t * 0.16) * 0.012;
+    group.current.position.set(fr.x, fr.y + Math.sin(t * 0.35) * 0.03, 0);
+    group.current.scale.setScalar(fr.s);
   });
 
   return (
     <>
-      <fogExp2 attach="fog" args={[NAVY, 0.085]} />
-      {/* key + rim + accents for dramatic edge separation */}
-      <ambientLight intensity={0.42} />
-      <directionalLight position={[3, 4.5, 6]} intensity={1.15} color="#dcefff" />
-      <directionalLight position={[-3.5, 2, -4.5]} intensity={0.5} color="#7ee7f0" />
-      <pointLight position={[0, -2.6, 2.2]} intensity={1.6} color={TURQ} distance={9} />
-      <pointLight position={[2.4, 2.0, 3]} intensity={0.9} color={GOLD} distance={8} />
+      <fogExp2 attach="fog" args={[NAVY, 0.055]} />
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[2.5, 4, 6]} intensity={1.1} color="#dceeff" />
+      <directionalLight position={[-4, -1, 3]} intensity={0.4} color="#6fe0d8" />
 
-      <ParticleLayer paused={paused} count={140} spread={11} depth={-3.4} size={0.03} opacity={0.42} color={GLOW} speed={0.008} />
-      <ParticleLayer paused={paused} count={220} spread={9} depth={-1.6} size={0.018} opacity={0.5} color={TURQ} speed={0.016} />
-      <StageGlow />
+      <ParticleLayer paused={paused} visW={f.visW} visH={f.visH} u={f.u} />
 
-      <group ref={group} scale={0.9}>
+      <group ref={group} position={[f.x, f.y, 0]} scale={f.s} rotation={[TILT, 0, 0.05]}>
         <CountryMesh />
-        <PlantNodes paused={paused} />
-        <EnergyArcs paused={paused} />
+        <PlantNodes paused={paused} pxU={f.pxU} />
+        <EnergyArcs paused={paused} pxU={f.pxU} />
       </group>
     </>
   );
@@ -397,7 +478,7 @@ export default function Hero3D() {
       <Canvas
         dpr={reduced ? 1 : [1, 2]}
         frameloop={reduced ? "demand" : "always"}
-        camera={{ position: [0, -0.4, 4.6], fov: 42 }}
+        camera={{ position: [0, -0.35, 4.6], fov: FOV }}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
         style={{ position: "absolute", inset: 0 }}
         eventSource={typeof document !== "undefined" ? document.body : undefined}
@@ -405,12 +486,12 @@ export default function Hero3D() {
       >
         <Scene reduced={reduced} />
       </Canvas>
-      {/* Vignette + depth glow so the 3D melts into the navy hero band */}
+      {/* Soft vignette so the table melts into the navy hero band */}
       <div
         style={{
           position: "absolute", inset: 0, pointerEvents: "none",
           background:
-            "radial-gradient(135% 100% at 32% 18%, transparent 38%, rgba(10,31,63,0.45) 72%, rgba(4,12,28,0.78) 100%)",
+            "radial-gradient(130% 100% at 50% 28%, transparent 52%, rgba(6,15,34,0.28) 80%, rgba(6,15,34,0.5) 100%)",
         }}
       />
     </div>

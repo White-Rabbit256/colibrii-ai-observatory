@@ -471,13 +471,18 @@ function CTABlock({ en }) {
 /* ═══════════════ MAIN VIEW ═══════════════ */
 export function EnergiaDeep({ en = false }) {
   const heroStat = HERO.stat;
-  /* 3D hero on capable desktops; 2D canvas fallback on mobile / reduced-motion */
+  /* 3D hero everywhere it can run (Hero3D is aspect-aware and sizes itself
+     in CSS px); 2D canvas fallback for reduced-motion or missing WebGL */
   const [use3d, setUse3d] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
-    const wide = window.matchMedia("(min-width: 768px)").matches;
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    setUse3d(wide && !still);
+    let webgl = false;
+    try {
+      const c = document.createElement("canvas");
+      webgl = !!(c.getContext("webgl2") || c.getContext("webgl"));
+    } catch {}
+    setUse3d(webgl && !still);
     const onFirstScroll = () => { if (window.scrollY > 90) { setScrolled(true); window.removeEventListener("scroll", onFirstScroll); } };
     window.addEventListener("scroll", onFirstScroll, { passive: true });
     return () => window.removeEventListener("scroll", onFirstScroll);
@@ -495,7 +500,7 @@ export function EnergiaDeep({ en = false }) {
         <div aria-hidden="true" className="energia-hero-scrim" style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none" }} />
         <div aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
           background: "linear-gradient(0deg, rgba(6,15,34,0.7) 0%, rgba(6,15,34,0) 40%)" }} />
-        <div style={{ position: "relative", zIndex: 2, padding: "clamp(32px, 6vw, 64px) clamp(24px, 5vw, 56px)" }}>
+        <div className="energia-hero-content" style={{ position: "relative", zIndex: 2 }}>
           <div style={{ ...mono, fontSize: 11, letterSpacing: 2.5, color: EN_ACCENT.turquoise, marginBottom: 14 }}>{T(HERO.eyebrow, en)}</div>
           <h1 style={{ ...display, fontSize: "clamp(28px, 5vw, 50px)", fontWeight: 800, lineHeight: 1.14, maxWidth: 760, marginBottom: 22,
             background: "linear-gradient(115deg, #ffffff 30%, #9beef0 68%, #F2B135 105%)",
