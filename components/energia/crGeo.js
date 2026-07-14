@@ -6,14 +6,21 @@ export const CR_BBOX = { lngMin: -85.909, latMin: 8.071, lngMax: -82.565, latMax
 /* ── Generation plants & load centre — approximate real coordinates [lng, lat].
       Shared by Hero3D (three.js) and CRGridMap (SVG). Kind keys match EN_ACCENT
       usage: hydro/geo/wind/solar/thermal/load. ── */
+/* Coordinates fact-checked (panel audit, jul 2026) against GEM/gem.wiki,
+   Global Energy Observatory, ICE press and La Nación — corrections noted. */
 export const PLANTS_GEO = [
-  { id: "reventazon", lng: -83.55, lat: 10.10, kind: "hydro", name: "Reventazón", detail: "305 MW · hidro" },
-  { id: "arenal", lng: -84.87, lat: 10.47, kind: "hydro", name: "Arenal", detail: "complejo ARDESA" },
-  { id: "miravalles", lng: -85.15, lat: 10.72, kind: "geo", name: "Miravalles", detail: "geotérmica" },
-  { id: "borinquen", lng: -85.47, lat: 10.80, kind: "geo", name: "Borinquen I", detail: "en desarrollo · 2030" },
-  { id: "tejona", lng: -84.95, lat: 10.52, kind: "wind", name: "Tejona", detail: "eólica · repotenciación" },
-  { id: "guanacaste", lng: -85.10, lat: 10.55, kind: "wind", name: "P.E. Guanacaste", detail: "eólica" },
-  { id: "sanantonio", lng: -84.12, lat: 9.96, kind: "solar", name: "Solar San Antonio", detail: "10,3 MW · 2026" },
-  { id: "moin", lng: -83.09, lat: 10.00, kind: "thermal", name: "Moín", detail: "térmica · respaldo" },
-  { id: "gam", lng: -84.08, lat: 9.93, kind: "load", name: "GAM", detail: "centro de carga" },
+  // was (9.87,-83.67): landed on PH Angostura; powerhouse is ~8 km SW of Siquirres
+  { id: "reventazon", lng: -83.58, lat: 10.08, kind: "hydro", name: "Reventazón",      mw: 305, detail: "305 MW · hidro" },
+  { id: "arenal",     lng: -84.87, lat: 10.47, kind: "hydro", name: "Complejo ARDESA",  mw: 363, detail: "Arenal + Corobicí + Sandillal · ~363 MW (ICE PEG)" },
+  { id: "miravalles", lng: -85.15, lat: 10.72, kind: "geo",   name: "Miravalles",      mw: 163, detail: "geotérmica" },
+  { id: "borinquen",  lng: -85.47, lat: 10.80, kind: "geo",   name: "Borinquen I",     mw: 55,  detail: "fase 1 · 2030 (PEG 2024-2040)" },
+  { id: "tejona",     lng: -84.95, lat: 10.52, kind: "wind",  name: "Tejona",          mw: 20,  detail: "20 MW · repotenciación a 42 MW · retorno 2026" },
+  // was (10.55,-85.10): actual farm is at Mogote/Guayabo de Bagaces (GEO 43645)
+  { id: "guanacaste", lng: -85.26, lat: 10.72, kind: "wind",  name: "P.E. Guanacaste", mw: 50,  detail: "eólica · 49,5 MW" },
+  // was placed in Cañas, Guanacaste — ICE builds it in La Uruca, San José (inside
+  // the GAM: Hero3D renders it beside the load node, with no plant→GAM arc)
+  { id: "sanantonio", lng: -84.12, lat: 9.96, kind: "solar", name: "Solar San Antonio", mw: 10, detail: "10,3 MW · La Uruca (San José) · 2026", inGam: true },
+  // was 150 MW: only ~108 MW (Moín II+III) is ICE-owned per public record
+  { id: "moin",       lng: -83.09, lat: 10.00, kind: "thermal", name: "Moín",          mw: 108, detail: "térmica · respaldo · Moín II+III ≈108 MW" },
+  { id: "gam",        lng: -84.08, lat: 9.93,  kind: "load",  name: "GAM",                       detail: "centro de carga" },
 ];

@@ -1,26 +1,39 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { animate, stagger } from "animejs";
 import { CR_OUTLINE_GEO, CR_BBOX, PLANTS_GEO } from "./crGeo";
-import { EN_ACCENT } from "../energiaData";
+import { EN_ACCENT, FUEL_COLORS } from "../energiaData";
 
 /* ═══════════════════════════════════════════════════════════════
-   ENERGÍA — CRGridMap (Act 4) · command-center edition
+   ENERGÍA — CRGridMap (Act 4) · command-center edition v2
    Premium interactive SVG map of Costa Rica (Natural Earth outline,
    public domain). Equirectangular projection, smoothed organic
-   coastline (Catmull-Rom → cubic Bézier), layered depth, graticule
-   + diagonal scan sweep, glowing animated transmission flow into the
-   GAM load centre, concentric pulsing plant nodes, and a fully
-   keyboard-accessible HTML <button> overlay with edge-clamped info
-   cards. Colors derive from EN_ACCENT.
+   coastline (Catmull-Rom → cubic Bézier), layered luminous depth,
+   animated graticule + diagonal scan sweep, glowing animated
+   transmission flow into the GAM load centre, concentric pulsing
+   plant nodes, and a fully keyboard-accessible HTML <button> overlay
+   with edge-clamped info cards.
+
+   WOW SEQUENCE (anime.js v4, fired once on scroll-into-view via a
+   single IntersectionObserver): the coastline DRAWS ON via
+   stroke-dashoffset (~1400ms easeOutCubic) → plant nodes POP IN
+   staggered (anime stagger) → transmission lines DRAW/FADE in →
+   energy starts FLOWING. Honours prefers-reduced-motion: the whole
+   sequence is skipped and the final lit state is shown statically.
+   All anime instances are tracked and paused on unmount.
+   Colors derive from EN_ACCENT.
    ═══════════════════════════════════════════════════════════════ */
 
-/* Kind palette — from EN_ACCENT (solar/load are local accents). */
+/* Kind palette — every kind a distinguishable hue (incl. for colour-blind
+   readers): hydro cyan · geo gold · wind emerald · solar orange · thermal red.
+   wind moved off turquoise so plant nodes don't blend into the turquoise
+   coastline/chrome; solar moved off amber so it no longer twins with geo gold. */
 const KIND = {
-  hydro: EN_ACCENT.glow,       // #22d3ee
-  geo: EN_ACCENT.gold,         // #F2B135
-  wind: EN_ACCENT.turquoise,   // #00B5A8
-  solar: "#F2B135",
-  thermal: EN_ACCENT.risk,     // #ef4444
+  hydro: FUEL_COLORS.hydro,    // shared single source of truth (#0d9488 teal-green)
+  geo: FUEL_COLORS.geothermal, // shared single source of truth (amber #f59e0b — distinct from SIEPAC gold)
+  wind: FUEL_COLORS.wind,      // shared single source of truth (#7dd3fc light-sky)
+  solar: EN_ACCENT.solar,      // #fb923c orange
+  thermal: EN_ACCENT.risk,     // #ef4444 red
   load: "#ffffff",
 };
 const KIND_LABEL = {
@@ -42,6 +55,11 @@ const DETAIL_EN = {
   sanantonio: "10.3 MW · 2026",
   moin: "thermal · backup",
   gam: "load centre",
+};
+/* Permanent micro-labels for the marquee nodes (the 3 biggest landmarks). */
+const PERMA_LABEL = {
+  reventazon: "REVENTAZÓN",
+  miravalles: "MIRAVALLES",
 };
 const MONO = "'IBM Plex Mono',monospace";
 const TURQ = EN_ACCENT.turquoise;
@@ -110,48 +128,221 @@ const NODES = PLANTS_GEO.map((p, i) => {
   return { ...p, i, x, y, px: pctX(x), py: pctY(y) };
 });
 const LOAD = NODES.find((n) => n.kind === "load");
+const FEEDERS = NODES.filter((n) => n.kind !== "load");
 const GRID_LATS = [9, 10, 11];
 const GRID_LNGS = [-85, -84, -83];
 
+/* ── prefers-reduced-motion (SSR-safe) ── */
+function useReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const apply = () => setReduced(!!mq.matches);
+    apply();
+    mq.addEventListener ? mq.addEventListener("change", apply) : mq.addListener(apply);
+    return () => { mq.removeEventListener ? mq.removeEventListener("change", apply) : mq.removeListener(apply); };
+  }, []);
+  return reduced;
+}
+
 export default function CRGridMap({ en }) {
-  const [active, setActive] = useState(null);
+  const [hoverActive, setHoverActive] = useState(null);
+  const [lockedActive, setLockedActive] = useState(null);
+  const active = lockedActive || hoverActive;
+  const reduced = useReducedMotion();
+
+  const rootRef = useRef(null);
+  const coastRef = useRef(null);       // luminous turquoise coastline (drawn on)
+  const coastGlowRef = useRef(null);   // blurred halo copy (drawn on with it)
+  const highlightRef = useRef(null);   // inner lit edge (drawn on with it)
+  const nodeRefs = useRef([]);         // <g.crmap-core-wrap> per node (pop-in)
+  const haloRefs = useRef([]);         // kind-colored glow halos (fade in)
+  const lineRefs = useRef([]);         // transmission lines (draw/fade in)
+  const cardRefs = useRef({});         // info card per node id (anime fade/translate)
+  const anims = useRef([]);            // every anime instance, for cleanup
+  const [flowing, setFlowing] = useState(false); // gates CSS energy flow + pulse
+
+  const track = (a) => { if (a) anims.current.push(a); return a; };
+
+  /* ── Master WOW sequence: coastline draw-on → staggered node pop-in →
+        transmission draw/fade → energy flow. One IntersectionObserver,
+        fires once. Reduced motion → snap to final lit state. ── */
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+
+    // Prepare draw-on: dash the coastline paths to their own length.
+    const drawPaths = [coastRef.current, coastGlowRef.current, highlightRef.current].filter(Boolean);
+    const lengths = drawPaths.map((p) => {
+      let len = 0;
+      try { len = p.getTotalLength() || 0; } catch { len = 0; }
+      return len;
+    });
+
+    const finalState = () => {
+      drawPaths.forEach((p, i) => {
+        const L = lengths[i];
+        if (L) { p.style.strokeDasharray = `${L}`; p.style.strokeDashoffset = "0"; }
+      });
+      nodeRefs.current.forEach((g) => { if (g) { g.style.opacity = "1"; g.style.transform = "scale(1)"; } });
+      haloRefs.current.forEach((h) => { if (h) h.style.opacity = ""; });
+      lineRefs.current.forEach((l) => { if (l) { l.style.opacity = ""; l.style.strokeDashoffset = "0"; } });
+      setFlowing(true);
+    };
+
+    // Initial hidden state (only when we will animate).
+    if (!reduced) {
+      drawPaths.forEach((p, i) => {
+        const L = lengths[i];
+        if (L) { p.style.strokeDasharray = `${L}`; p.style.strokeDashoffset = `${L}`; }
+      });
+      nodeRefs.current.forEach((g) => { if (g) { g.style.opacity = "0"; g.style.transform = "scale(0.2)"; } });
+      haloRefs.current.forEach((h) => { if (h) h.style.opacity = "0"; });
+      lineRefs.current.forEach((l) => { if (l) { l.style.opacity = "0"; } });
+    }
+
+    if (reduced) { finalState(); return; }
+
+    let fired = false;
+    const runSequence = () => {
+      if (fired) return;
+      fired = true;
+
+      // Phase 1 — coastline draws on.
+      drawPaths.forEach((p, i) => {
+        const L = lengths[i];
+        if (!L) return;
+        track(animate(p, {
+          strokeDashoffset: [L, 0],
+          duration: 1400,
+          ease: "outCubic",
+        }));
+      });
+
+      // Phase 2 — kind-colored halos bloom + nodes pop in, staggered.
+      track(animate(haloRefs.current.filter(Boolean), {
+        opacity: [0, 1],
+        duration: 600,
+        delay: stagger(70, { start: 1050 }),
+        ease: "outQuad",
+      }));
+      track(animate(nodeRefs.current.filter(Boolean), {
+        opacity: [0, 1],
+        scale: [0.2, 1],
+        duration: 620,
+        delay: stagger(80, { start: 1100 }),
+        ease: "outBack",
+        onComplete: () => {
+          // GAM load node gets one extra emphatic over-pulse.
+          const loadG = nodeRefs.current[NODES.findIndex((n) => n.kind === "load")];
+          if (loadG) track(animate(loadG, { scale: [1, 1.18, 1], duration: 520, ease: "inOutQuad" }));
+        },
+      }));
+
+      // Phase 3 — transmission lines draw + fade in, then flow begins.
+      lineRefs.current.filter(Boolean).forEach((l, i) => {
+        let L = 0;
+        try { L = l.getTotalLength() || 0; } catch { L = 0; }
+        if (L) { l.style.strokeDasharray = `${L}`; l.style.strokeDashoffset = `${L}`; }
+        track(animate(l, {
+          opacity: [0, 0.95],
+          strokeDashoffset: L ? [L, 0] : undefined,
+          duration: 700,
+          delay: 1650 + i * 60,
+          ease: "outCubic",
+          onComplete: i === 0 ? () => {
+            // Hand the dasharray back to the CSS flow rhythm.
+            lineRefs.current.filter(Boolean).forEach((ln) => { ln.style.strokeDasharray = ""; ln.style.strokeDashoffset = ""; });
+            setFlowing(true);
+          } : undefined,
+        }));
+      });
+      // Safety: ensure flow turns on even if no measurable line length.
+      const flowTimer = setTimeout(() => setFlowing(true), 2600);
+      anims.current.push({ pause: () => clearTimeout(flowTimer) });
+    };
+
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { runSequence(); io.unobserve(root); }
+    }, { threshold: 0.25 });
+    io.observe(root);
+
+    return () => {
+      io.disconnect();
+      anims.current.forEach((a) => { try { a.pause(); } catch {} });
+      anims.current = [];
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reduced]);
+
+  /* ── Info card: anime.js fade + translate on activate (reduced-motion → snap). ── */
+  useEffect(() => {
+    if (!active) return;
+    const card = cardRefs.current[active];
+    if (!card) return;
+    if (reduced) { card.style.opacity = "1"; card.style.transform = card.dataset.horiz; return; }
+    const a = track(animate(card, {
+      opacity: [0, 1],
+      translateY: [6, 0],
+      duration: 220,
+      ease: "outQuad",
+    }));
+    return () => { try { a.pause(); } catch {} };
+  }, [active, reduced]);
+
+  const onEnter = useCallback((id) => setHoverActive(id), []);
+  const onLeave = useCallback(() => setHoverActive(null), []);
+  // Click latches the card so a mobile tap doesn't collapse it via the
+  // immediate onBlur → setHoverActive(null) race that follows.
+  const onToggleLock = useCallback((id) => setLockedActive((a) => (a === id ? null : id)), []);
+  // Escape clears the locked card.
+  useEffect(() => {
+    if (!lockedActive) return;
+    const onKey = (e) => { if (e.key === "Escape") setLockedActive(null); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [lockedActive]);
 
   return (
-    <div>
     <div
+      ref={rootRef}
+      id="crGridMapAnchor"
+      tabIndex={-1}
       style={{
-        position: "relative", aspectRatio: "16 / 10", borderRadius: 16, overflow: "hidden",
-        background: `linear-gradient(150deg, ${EN_ACCENT.navy}, ${EN_ACCENT.navy2})`,
+        position: "relative", aspectRatio: "16 / 10", borderRadius: 16, overflow: "hidden", scrollMarginTop: 64,
+        background: `radial-gradient(120% 120% at 30% 12%, ${EN_ACCENT.navy2}, ${EN_ACCENT.navy} 60%, ${EN_ACCENT.navyDeep} 100%)`,
         border: `1px solid ${TURQ}40`,
-        boxShadow: `0 0 0 1px rgba(0,0,0,0.35), inset 0 0 60px rgba(0,0,0,0.45)`,
+        boxShadow: `0 0 0 1px rgba(0,0,0,0.35), inset 0 0 70px rgba(0,0,0,0.5)`,
       }}
     >
       <style>{`
-        @keyframes crmapFlow { to { stroke-dashoffset: -1px; } }
+        @keyframes crmapFlow { to { stroke-dashoffset: 0.14; } }
         @keyframes crmapSweep { 0% { transform: translateX(-60%); } 100% { transform: translateX(160%); } }
+        @keyframes crmapGrid { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
         @keyframes crmapPulse {
           0%, 100% { transform: scale(1); opacity: .42; }
           50% { transform: scale(1.95); opacity: .06; }
         }
         @keyframes crmapRing {
           0% { transform: scale(.3); opacity: .85; }
-          75%, 100% { transform: scale(2.6); opacity: 0; }
+          75%, 100% { transform: scale(2.8); opacity: 0; }
         }
-        @keyframes crmapCardIn {
-          from { opacity: 0; transform: translateY(4px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .crmap-flow { animation: crmapFlow 2.6s linear infinite; }
+        .crmap-flow { stroke-dasharray: 0.06 0.08; }
+        .crmap-flowing .crmap-flow { animation: crmapFlow 2.6s linear infinite; }
         .crmap-sweep { animation: crmapSweep 7s ease-in-out infinite; }
+        .crmap-grid { animation: crmapGrid 5.5s ease-in-out infinite; }
         .crmap-halo, .crmap-ring { transform-box: fill-box; transform-origin: center; }
-                .crmap-ring { animation: crmapRing 3s cubic-bezier(.2,.7,.4,1) infinite; }
+        .crmap-flowing .crmap-halo { animation: crmapPulse 2.6s ease-in-out infinite; }
+        .crmap-flowing .crmap-ring { animation: crmapRing 3s cubic-bezier(.2,.7,.4,1) infinite; }
+        .crmap-corewrap { transform-box: fill-box; transform-origin: center; }
         .crmap-node { transition: transform .18s ease; }
-        .crmap-node:hover .crmap-core, .crmap-node:focus-visible .crmap-core { transform: scale(1.32); }
+        .crmap-node:hover .crmap-core, .crmap-node:focus-visible .crmap-core { transform: scale(1.34); }
         .crmap-core { transform-box: fill-box; transform-origin: center; transition: transform .18s ease; }
-        .crmap-btn:focus { outline: none; }
         .crmap-btn:focus-visible { outline: 2px solid ${GLOW}d9; outline-offset: 3px; border-radius: 50%; }
         @media (prefers-reduced-motion: reduce) {
-          .crmap-flow, .crmap-sweep, .crmap-halo, .crmap-ring { animation: none !important; }
+          .crmap-flow { animation: none !important; }
+          .crmap-sweep, .crmap-grid, .crmap-halo, .crmap-ring { animation: none !important; }
           .crmap-sweep { opacity: 0 !important; }
         }
       `}</style>
@@ -161,24 +352,32 @@ export default function CRGridMap({ en }) {
         viewBox={VIEWBOX}
         preserveAspectRatio="none"
         aria-hidden="true"
+        className={flowing ? "crmap-flowing" : undefined}
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block" }}
       >
         <defs>
-          {/* vertical land gradient #123a6b → #0d2747 */}
-          <linearGradient id="crLand" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#123a6b" />
-            <stop offset="100%" stopColor="#0d2747" />
+          {/* layered land gradient — deeper, more luminous toward the lit top edge */}
+          <linearGradient id="crLand" x1="0" y1="0" x2="0.15" y2="1">
+            <stop offset="0%" stopColor="#16467f" />
+            <stop offset="45%" stopColor="#103663" />
+            <stop offset="100%" stopColor="#0a2143" />
           </linearGradient>
-          {/* transmission gradient: kind colour → turquoise (per-node start set inline) */}
-          {NODES.filter((n) => n.kind !== "load").map((n) => (
+          {/* subtle inner glow that sits over the land body */}
+          <radialGradient id="crLandGlow" cx="0.35" cy="0.28" r="0.8">
+            <stop offset="0%" stopColor={GLOW} stopOpacity="0.22" />
+            <stop offset="55%" stopColor={TURQ} stopOpacity="0.06" />
+            <stop offset="100%" stopColor={TURQ} stopOpacity="0" />
+          </radialGradient>
+          {/* transmission gradient: kind colour → turquoise (per-node, userSpaceOnUse) */}
+          {FEEDERS.map((n) => (
             <linearGradient key={`g-${n.id}`} id={`crTx-${n.id}`} gradientUnits="userSpaceOnUse" x1={n.x} y1={n.y} x2={LOAD.x} y2={LOAD.y}>
-              <stop offset="0%" stopColor={KIND[n.kind]} stopOpacity="0.85" />
-              <stop offset="100%" stopColor={TURQ} stopOpacity="0.5" />
+              <stop offset="0%" stopColor={KIND[n.kind]} stopOpacity="0.9" />
+              <stop offset="100%" stopColor={TURQ} stopOpacity="0.55" />
             </linearGradient>
           ))}
-          {/* soft outer coastline glow */}
-          <filter id="crCoastGlow" x="-25%" y="-25%" width="150%" height="150%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="0.06" />
+          {/* soft outer coastline glow (stronger) */}
+          <filter id="crCoastGlow" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.075" />
           </filter>
           {/* line / node glow */}
           <filter id="crSoft" x="-60%" y="-60%" width="220%" height="220%">
@@ -188,41 +387,64 @@ export default function CRGridMap({ en }) {
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
+          {/* brighter halo glow for node cores */}
+          <filter id="crNodeGlow" x="-120%" y="-120%" width="340%" height="340%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.03" />
+          </filter>
           {/* rounded panel clip so graticule + sweep stay inside */}
           <clipPath id="crPanel">
             <rect x={VB_X} y={VB_Y} width={VB_W} height={VB_H} rx={0.06} ry={0.06} />
           </clipPath>
+          <linearGradient id="crSweepFade" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor={TURQ} stopOpacity="0" />
+            <stop offset="50%" stopColor={TURQ} stopOpacity="0.12" />
+            <stop offset="100%" stopColor={TURQ} stopOpacity="0" />
+          </linearGradient>
         </defs>
 
         <g clipPath="url(#crPanel)">
-          {/* graticule behind the land */}
-          {GRID_LATS.map((lat) => (
-            <line key={`la${lat}`} x1={VB_X} x2={VB_X + VB_W} y1={gy(lat)} y2={gy(lat)} stroke={`${GLOW}14`} strokeWidth={0.006} />
-          ))}
-          {GRID_LNGS.map((lng) => (
-            <line key={`lo${lng}`} x1={gx(lng)} x2={gx(lng)} y1={VB_Y} y2={VB_Y + VB_H} stroke={`${GLOW}14`} strokeWidth={0.006} />
-          ))}
+          {/* faint animated graticule behind the land */}
+          <g className="crmap-grid">
+            {GRID_LATS.map((lat) => (
+              <line key={`la${lat}`} x1={VB_X} x2={VB_X + VB_W} y1={gy(lat)} y2={gy(lat)} stroke={`${GLOW}14`} strokeWidth={0.006} />
+            ))}
+            {GRID_LNGS.map((lng) => (
+              <line key={`lo${lng}`} x1={gx(lng)} x2={gx(lng)} y1={VB_Y} y2={VB_Y + VB_H} stroke={`${GLOW}14`} strokeWidth={0.006} />
+            ))}
+          </g>
 
-          {/* outer glow halo (blurred duplicate of the smoothed coast) */}
-          <path d={LAND_D} fill={TURQ} opacity={0.18} filter="url(#crCoastGlow)" />
+          {/* diagonal scan sweep band */}
+          <g className="crmap-sweep" style={{ mixBlendMode: "screen" }}>
+            <rect x={VB_X - VB_W} y={VB_Y - VB_H} width={VB_W * 0.5} height={VB_H * 3} transform={`rotate(18 ${VB_X} ${VB_Y})`} fill="url(#crSweepFade)" />
+          </g>
 
-          {/* gradient land fill */}
+          {/* outer glow halo (blurred duplicate of the smoothed coast) — drawn on */}
+          <path ref={coastGlowRef} d={LAND_D} fill="none" stroke={TURQ} strokeOpacity={0.55} strokeWidth={0.05} strokeLinejoin="round" strokeLinecap="round" filter="url(#crCoastGlow)" />
+
+          {/* gradient land fill + inner luminous wash */}
           <path d={LAND_D} fill="url(#crLand)" strokeLinejoin="round" />
+          <path d={LAND_D} fill="url(#crLandGlow)" strokeLinejoin="round" style={{ mixBlendMode: "screen" }} />
 
-          {/* inner highlight stroke (reads as a lit top edge) */}
-          <path d={LAND_D} fill="none" stroke="#ffffff" strokeOpacity={0.12} strokeWidth={0.004} strokeLinejoin="round" />
+          {/* faint topographic contour bands inside the land */}
+          {CONTOURS.map((d, i) => (
+            <path key={`ct${i}`} d={d} fill="none" stroke={GLOW} strokeWidth={0.005} opacity={0.08 - i * 0.014} strokeLinejoin="round" />
+          ))}
 
-          {/* crisp turquoise coastline on top */}
-          <path d={LAND_D} fill="none" stroke={TURQ} strokeWidth={0.011} strokeLinejoin="round" strokeLinecap="round" filter="url(#crSoft)" />
+          {/* inner highlight stroke (reads as a lit top edge) — drawn on */}
+          <path ref={highlightRef} d={LAND_D} fill="none" stroke="#ffffff" strokeOpacity={0.14} strokeWidth={0.004} strokeLinejoin="round" />
+
+          {/* crisp luminous turquoise coastline on top — drawn on */}
+          <path ref={coastRef} d={LAND_D} fill="none" stroke={TURQ} strokeWidth={0.012} strokeLinejoin="round" strokeLinecap="round" filter="url(#crSoft)" />
 
           {/* transmission network: every plant feeds the GAM (glowing, flowing) */}
-          {NODES.filter((n) => n.kind !== "load").map((n) => (
+          {FEEDERS.map((n, i) => (
             <line
               key={`tx-${n.id}`}
+              ref={(el) => { lineRefs.current[i] = el; }}
               className="crmap-flow"
               x1={n.x} y1={n.y} x2={LOAD.x} y2={LOAD.y}
-              stroke={`url(#crTx-${n.id})`} strokeWidth={0.0085}
-              strokeDasharray="0.06 0.08" strokeLinecap="round"
+              stroke={`url(#crTx-${n.id})`} strokeWidth={0.009}
+              strokeLinecap="round"
               filter="url(#crSoft)"
               style={{ animationDuration: `${2.2 + (n.i % 3) * 0.5}s` }}
             />
@@ -230,44 +452,74 @@ export default function CRGridMap({ en }) {
         </g>
 
         {/* plant nodes — concentric premium design */}
-        {NODES.map((n) => {
+        {NODES.map((n, idx) => {
           const c = KIND[n.kind] || "#fff";
           const isLoad = n.kind === "load";
           return (
             <g key={n.id} className="crmap-node">
+              {/* kind-colored glow halo (animated bloom-in, then CSS pulse) */}
               {isLoad ? (
                 <>
-                  <circle className="crmap-ring" cx={n.x} cy={n.y} r={0.09} fill="none" stroke="#fff" strokeWidth={0.009} opacity={0.4} />
-                  <circle className="crmap-halo" cx={n.x} cy={n.y} r={0.072} fill="#fff" opacity={0.16} />
+                  <circle className="crmap-ring" cx={n.x} cy={n.y} r={0.095} fill="none" stroke="#fff" strokeWidth={0.009} opacity={0.45} />
+                  <circle ref={(el) => { haloRefs.current[idx] = el; }} className="crmap-halo" cx={n.x} cy={n.y} r={0.085} fill="#fff" opacity={0.3} filter="url(#crNodeGlow)" />
                 </>
               ) : (
-                <circle className="crmap-halo" cx={n.x} cy={n.y} r={0.062} fill={c} opacity={0.16} />
+                <circle ref={(el) => { haloRefs.current[idx] = el; }} className="crmap-halo" cx={n.x} cy={n.y} r={0.068} fill={c} opacity={0.34} filter="url(#crNodeGlow)" style={{ animationDelay: `${n.i * 0.35}s` }} />
               )}
-              {/* mid ring */}
-              <circle cx={n.x} cy={n.y} r={isLoad ? 0.05 : 0.036} fill="none" stroke={c} strokeWidth={0.007} opacity={0.9} />
-              {/* coloured body + white-hot core (scales on hover/focus via .crmap-core) */}
-              <g className="crmap-core">
-                <circle cx={n.x} cy={n.y} r={isLoad ? 0.04 : 0.028} fill={c} opacity={0.95} filter="url(#crSoft)" />
-                <circle cx={n.x} cy={n.y} r={isLoad ? 0.019 : 0.012} fill="#fff" />
+              {/* pop-in wrapper (anime scales opacity+scale on this <g>) */}
+              <g ref={(el) => { nodeRefs.current[idx] = el; }} className="crmap-corewrap">
+                {/* mid ring */}
+                <circle cx={n.x} cy={n.y} r={isLoad ? 0.052 : 0.038} fill="none" stroke={c} strokeWidth={0.007} opacity={0.92} />
+                {/* coloured body + white-hot core (scales on hover/focus via .crmap-core) */}
+                <g className="crmap-core">
+                  <circle cx={n.x} cy={n.y} r={isLoad ? 0.042 : 0.029} fill={c} opacity={0.97} filter="url(#crSoft)" />
+                  <circle cx={n.x} cy={n.y} r={isLoad ? 0.02 : 0.013} fill="#fff" />
+                </g>
+                {active === n.id && (
+                  <circle cx={n.x} cy={n.y} r={isLoad ? 0.082 : 0.063} fill="none" stroke={c} strokeWidth={0.009} opacity={0.95} />
+                )}
               </g>
-              {active === n.id && (
-                <circle cx={n.x} cy={n.y} r={isLoad ? 0.078 : 0.06} fill="none" stroke={c} strokeWidth={0.009} opacity={0.95} />
-              )}
             </g>
           );
         })}
       </svg>
 
+      {/* corner crosshairs / ticks — command-center vibe */}
+      <svg aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} viewBox="0 0 100 100" preserveAspectRatio="none">
+        {[[6, 6], [94, 6], [6, 94], [94, 94]].map(([x, y], i) => (
+          <g key={i} stroke={`${TURQ}66`} strokeWidth={0.4}>
+            <line x1={x - (x < 50 ? 0 : 3)} y1={y} x2={x + (x < 50 ? 3 : 0)} y2={y} vectorEffect="non-scaling-stroke" />
+            <line x1={x} y1={y - (y < 50 ? 0 : 3)} x2={x} y2={y + (y < 50 ? 3 : 0)} vectorEffect="non-scaling-stroke" />
+          </g>
+        ))}
+      </svg>
+
       {/* inner border glow + vignette for depth */}
-      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", borderRadius: 16, boxShadow: `inset 0 0 0 1px ${TURQ}1f, inset 0 0 40px ${TURQ}14` }} />
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", borderRadius: 16, boxShadow: `inset 0 0 0 1px ${TURQ}1f, inset 0 0 44px ${TURQ}16` }} />
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(120% 100% at 32% 18%, transparent 45%, rgba(4,12,28,0.55) 100%)" }} />
+
+      {/* permanent micro-labels for the marquee plants */}
+      {NODES.filter((n) => PERMA_LABEL[n.id]).map((n) => (
+        <div
+          key={`pl-${n.id}`}
+          aria-hidden="true"
+          style={{
+            position: "absolute", left: `${Math.min(Math.max(n.px, 8), 92)}%`,
+            top: `calc(${n.py}% + 16px)`, transform: "translateX(-50%)",
+            fontFamily: MONO, fontSize: 8, letterSpacing: 1.2, color: `${GLOW}cc`,
+            textShadow: "0 1px 5px rgba(0,0,0,0.8)", pointerEvents: "none", zIndex: 2, whiteSpace: "nowrap",
+          }}
+        >
+          {PERMA_LABEL[n.id]}
+        </div>
+      ))}
 
       {/* GAM always-visible label */}
       <div
         aria-hidden="true"
         style={{
           position: "absolute", left: `${Math.min(Math.max(LOAD.px, 6), 94)}%`,
-          top: `calc(${LOAD.py}% - 22px)`, transform: "translateX(-50%)",
+          top: `calc(${LOAD.py}% - 24px)`, transform: "translateX(-50%)",
           fontFamily: MONO, fontSize: 9.5, letterSpacing: 1.5, color: "#fff",
           textShadow: "0 1px 6px rgba(0,0,0,0.7)", pointerEvents: "none", zIndex: 2,
         }}
@@ -276,6 +528,17 @@ export default function CRGridMap({ en }) {
       </div>
 
       {/* ── Interactive overlay: one real <button> per plant ── */}
+      {/* SR-only announcement region: speaks the active plant on activation.
+            Self-contained inline styles so this component does not depend on PowerGlobe's scope. */}
+      <div role="status" aria-live="polite" aria-atomic="true"
+        style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0 }}>
+        {active ? (() => {
+          const n = NODES.find((p) => p.id === active);
+          if (!n) return "";
+          return `${n.name}, ${en ? DETAIL_EN[n.id] : n.detail}, ${KIND_LABEL[n.kind][en ? 1 : 0]}`;
+        })() : ""}
+      </div>
+
       <div role="group" aria-label={en ? "Power plants and load centre" : "Plantas de generación y centro de carga"} style={{ position: "absolute", inset: 0 }}>
         {NODES.map((n) => (
           <button
@@ -283,11 +546,11 @@ export default function CRGridMap({ en }) {
             type="button"
             className="crmap-btn"
             aria-label={`${n.name} — ${en ? DETAIL_EN[n.id] : n.detail} (${KIND_LABEL[n.kind][en ? 1 : 0]})`}
-            onMouseEnter={() => setActive(n.id)}
-            onMouseLeave={() => setActive(null)}
-            onFocus={() => setActive(n.id)}
-            onBlur={() => setActive(null)}
-            onClick={() => setActive((a) => (a === n.id ? null : n.id))}
+            onMouseEnter={() => onEnter(n.id)}
+            onMouseLeave={onLeave}
+            onFocus={() => onEnter(n.id)}
+            onBlur={onLeave}
+            onClick={() => onToggleLock(n.id)}
             style={{
               position: "absolute", left: `${n.px}%`, top: `${n.py}%`,
               width: 44, height: 44, transform: "translate(-50%,-50%)", borderRadius: "50%",
@@ -296,7 +559,7 @@ export default function CRGridMap({ en }) {
           />
         ))}
 
-        {/* info cards (always mounted so they can animate in; clamped to edges) */}
+        {/* info cards (always mounted so anime can animate them in; clamped to edges) */}
         {NODES.map((n) => {
           const horiz = n.px < 26 ? "translateX(-12%)" : n.px > 74 ? "translateX(-88%)" : "translateX(-50%)";
           const vert = n.py < 30 ? { top: `calc(${n.py}% + 20px)` } : { bottom: `calc(${100 - n.py}% + 20px)` };
@@ -304,18 +567,28 @@ export default function CRGridMap({ en }) {
           return (
             <div
               key={`card-${n.id}`}
+              ref={(el) => { cardRefs.current[n.id] = el; }}
+              data-horiz={horiz}
               aria-hidden={!isActive}
               style={{
                 position: "absolute", left: `${Math.min(Math.max(n.px, 6), 94)}%`, ...vert, transform: horiz,
                 minWidth: "min(150px, 44vw)", maxWidth: "min(220px, 62vw)",
                 background: `linear-gradient(160deg, ${EN_ACCENT.navy}f2, ${EN_ACCENT.navy2}f2)`,
                 backdropFilter: "blur(9px)", WebkitBackdropFilter: "blur(9px)",
-                border: `1px solid ${TURQ}59`, borderRadius: 11, padding: "10px 12px", pointerEvents: "none",
+                border: `1px solid ${TURQ}59`, borderRadius: 11, padding: "10px 12px", pointerEvents: lockedActive === n.id ? "auto" : "none",
                 boxShadow: `0 10px 30px rgba(0,0,0,0.45), 0 0 0 1px ${TURQ}1a`,
-                opacity: isActive ? 1 : 0, animation: isActive ? "crmapCardIn .2s ease both" : "none",
-                transition: "opacity .18s ease", zIndex: 5,
+                opacity: isActive ? 1 : 0,
+                visibility: isActive ? "visible" : "hidden",
+                transition: "opacity .18s ease, visibility .18s ease", zIndex: 5,
               }}
             >
+              {/* Close button — only when card is LOCKED (tap-latched). Mobile dead-end fix. */}
+              {lockedActive === n.id && (
+                <button type="button" onClick={() => setLockedActive(null)}
+                  aria-label={en ? "Close" : "Cerrar"}
+                  style={{ position: "absolute", top: 2, right: 2, width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center",
+                    background: "transparent", border: "none", color: "rgba(255,255,255,0.8)", cursor: "pointer", pointerEvents: "auto", padding: 0, fontSize: 16, lineHeight: 1 }}>×</button>
+              )}
               {/* connector line from card to node */}
               <span
                 aria-hidden="true"
@@ -324,7 +597,10 @@ export default function CRGridMap({ en }) {
                   width: 1, height: 9, background: `${TURQ}99`, transform: "translateX(-50%)",
                 }}
               />
-              <div style={{ fontWeight: 700, fontSize: 13, color: "#fff", lineHeight: 1.25 }}>{n.name}</div>
+              <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
+                <span style={{ fontWeight: 700, fontSize: 13, color: "#fff", lineHeight: 1.25 }}>{n.name}</span>
+                <span style={{ width: 8, height: 8, flexShrink: 0, borderRadius: "50%", background: KIND[n.kind], boxShadow: `0 0 8px ${KIND[n.kind]}` }} />
+              </div>
               <div style={{ fontSize: 11.5, color: "rgba(255,255,255,0.75)", marginTop: 2 }}>
                 {en ? DETAIL_EN[n.id] : n.detail}
               </div>
@@ -345,12 +621,12 @@ export default function CRGridMap({ en }) {
       {/* ── Title chip ── */}
       <div style={{ position: "absolute", top: 12, left: 14, zIndex: 3, pointerEvents: "none" }}>
         <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: 2, color: GLOW }}>
-          {en ? "Costa Rica — electric grid" : "Costa Rica — red eléctrica"}
+          {en ? "COSTA RICA POWER GRID · INTERACTIVE" : "RED ELÉCTRICA DE COSTA RICA · INTERACTIVO"}
         </div>
         <div style={{ marginTop: 4, fontSize: 11, color: "rgba(255,255,255,0.55)", maxWidth: 420 }}>
           {en
-            ? "Geography: Natural Earth (public domain) · approximate locations"
-            : "Geografía: Natural Earth (dominio público) · ubicaciones aproximadas"}
+            ? "Geography: Natural Earth (public domain) · approximate locations · schematic transmission"
+            : "Geografía: Natural Earth (dominio público) · ubicaciones aproximadas · transmisión esquemática"}
         </div>
       </div>
 
@@ -377,37 +653,6 @@ export default function CRGridMap({ en }) {
           </span>
         ))}
       </div>
-    </div>
-
-    {/* Small screens: the Guanacaste cluster packs nodes too tightly to tap
-        reliably on the map itself — this chip row is the touch path. */}
-    <div className="crmap-picker" role="group" aria-label={en ? "Select a plant" : "Seleccione una planta"}>
-      {NODES.map((n) => (
-        <button
-          key={`pick-${n.id}`}
-          type="button"
-          onClick={() => setActive((a) => (a === n.id ? null : n.id))}
-          aria-pressed={active === n.id}
-          style={{
-            display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0,
-            fontFamily: MONO, fontSize: 10.5, letterSpacing: 0.5, minHeight: 34,
-            padding: "4px 10px", borderRadius: 6, cursor: "pointer",
-            color: active === n.id ? "var(--text)" : "var(--text2)",
-            background: active === n.id ? "var(--surface)" : "transparent",
-            border: `1px solid ${active === n.id ? KIND[n.kind] : "var(--border)"}`,
-          }}
-        >
-          <span aria-hidden="true" style={{ width: 7, height: 7, borderRadius: "50%", background: KIND[n.kind], display: "inline-block" }} />
-          {n.name}
-        </button>
-      ))}
-    </div>
-    <style>{`
-      .crmap-picker { display: none; }
-      @media (max-width: 640px) {
-        .crmap-picker { display: flex; gap: 6px; overflow-x: auto; padding: 10px 2px 2px; -webkit-overflow-scrolling: touch; }
-      }
-    `}</style>
     </div>
   );
 }
