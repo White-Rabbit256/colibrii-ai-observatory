@@ -117,6 +117,7 @@ export default function CRGridMap({ en }) {
   const [active, setActive] = useState(null);
 
   return (
+    <div>
     <div
       style={{
         position: "relative", aspectRatio: "16 / 10", borderRadius: 16, overflow: "hidden",
@@ -376,6 +377,37 @@ export default function CRGridMap({ en }) {
           </span>
         ))}
       </div>
+    </div>
+
+    {/* Small screens: the Guanacaste cluster packs nodes too tightly to tap
+        reliably on the map itself — this chip row is the touch path. */}
+    <div className="crmap-picker" role="group" aria-label={en ? "Select a plant" : "Seleccione una planta"}>
+      {NODES.map((n) => (
+        <button
+          key={`pick-${n.id}`}
+          type="button"
+          onClick={() => setActive((a) => (a === n.id ? null : n.id))}
+          aria-pressed={active === n.id}
+          style={{
+            display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0,
+            fontFamily: MONO, fontSize: 10.5, letterSpacing: 0.5, minHeight: 34,
+            padding: "4px 10px", borderRadius: 6, cursor: "pointer",
+            color: active === n.id ? "var(--text)" : "var(--text2)",
+            background: active === n.id ? "var(--surface)" : "transparent",
+            border: `1px solid ${active === n.id ? KIND[n.kind] : "var(--border)"}`,
+          }}
+        >
+          <span aria-hidden="true" style={{ width: 7, height: 7, borderRadius: "50%", background: KIND[n.kind], display: "inline-block" }} />
+          {n.name}
+        </button>
+      ))}
+    </div>
+    <style>{`
+      .crmap-picker { display: none; }
+      @media (max-width: 640px) {
+        .crmap-picker { display: flex; gap: 6px; overflow-x: auto; padding: 10px 2px 2px; -webkit-overflow-scrolling: touch; }
+      }
+    `}</style>
     </div>
   );
 }

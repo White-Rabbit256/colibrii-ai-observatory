@@ -182,6 +182,24 @@ function Act({ n, en, label, title, desc }) {
   );
 }
 
+/* ── Collapsible illustration aside — keeps acts lean by default ── */
+function ArtAside({ title, children }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="card" style={{ padding: 0, overflow: "hidden", marginTop: 14 }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        aria-expanded={open}
+        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, width: "100%", padding: "14px 18px", background: "transparent", border: "none", cursor: "pointer", color: "var(--text)", minHeight: 48, textAlign: "left" }}
+      >
+        <span style={{ fontSize: 13.5, fontWeight: 700 }}>{title}</span>
+        <span aria-hidden="true" style={{ flexShrink: 0, color: "var(--text3)", transform: open ? "rotate(180deg)" : "none", transition: "transform .25s" }}><Icon name="chevronDown" size={16} /></span>
+      </button>
+      {open && <div style={{ padding: "0 12px 12px" }}>{children}</div>}
+    </div>
+  );
+}
+
 /* ── Timeline (Act 5) ── */
 const TL_COLORS = { milestone: "#22d3ee", warning: "#F2B135", vote: "#00B5A8", decree: "#ef4444", next: "#818cf8" };
 function TimelineViz({ en }) {
@@ -567,7 +585,9 @@ export function EnergiaDeep({ en = false }) {
       </ScrollReveal>
 
       <ScrollReveal>
-        <div style={{ marginTop: 14 }}><ReactorCutaway en={en} /></div>
+        <ArtAside title={en ? "View illustration: inside the nuclear plants tech is buying" : "Ver ilustración: dentro de las plantas nucleares que compran las tecnológicas"}>
+          <ReactorCutaway en={en} />
+        </ArtAside>
       </ScrollReveal>
 
       <ScrollReveal>
