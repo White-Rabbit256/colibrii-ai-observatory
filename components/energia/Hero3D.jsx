@@ -2,6 +2,7 @@
 import { useRef, useMemo, useState, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { CR_OUTLINE_GEO, CR_BBOX, PLANTS_GEO } from "./crGeo";
 import { EN_ACCENT } from "../energiaData";
 
@@ -198,9 +199,12 @@ function CountryMesh() {
     <group>
       <HoloFloor shadowShape={flat} />
       <mesh geometry={body}>
-        <meshStandardMaterial
-          color={BODY} metalness={0.3} roughness={0.5}
-          emissive={TURQ} emissiveIntensity={0.1}
+        {/* Physical material + scene environment → polished-obsidian body */}
+        <meshPhysicalMaterial
+          color={BODY} metalness={0.5} roughness={0.34}
+          clearcoat={0.55} clearcoatRoughness={0.3}
+          envMapIntensity={0.65}
+          emissive={TURQ} emissiveIntensity={0.06}
         />
       </mesh>
       {/* Crisp coastline on the lit face */}
@@ -215,8 +219,30 @@ function CountryMesh() {
   );
 }
 
+/* ── Holo scan sweep gliding across the table ── */
+function ScanSweep({ paused }) {
+  const ref = useRef();
+  const tex = useMemo(makeGlowTexture, []);
+  useFrame(({ clock }) => {
+    if (paused.current || !ref.current) return;
+    const k = (clock.elapsedTime % 9) / 9;
+    ref.current.position.y = (0.5 - k) * H0 * 1.05;
+    ref.current.material.opacity = 0.13 * Math.sin(Math.PI * k);
+  });
+  if (!tex) return null;
+  return (
+    <mesh ref={ref} position={[0, 0, Z_TOP + 0.015]}>
+      <planeGeometry args={[W0 * 1.12, 0.05]} />
+      <meshBasicMaterial
+        map={tex} color={GLOW} transparent opacity={0}
+        blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false}
+      />
+    </mesh>
+  );
+}
+
 /* ── Plant nodes (cyan) + GAM load core (the only gold element) ── */
-function PlantNodes({ paused, pxU }) {
+function PlantNodes({ paused, pxU, sWorld }) {
   const ringA = useRef();
   const ringB = useRef();
   const glowTex = useMemo(makeGlowTexture, []);
@@ -262,6 +288,13 @@ function PlantNodes({ paused, pxU }) {
           )}
         </group>
       ))}
+      {/* Warm pool of light around the load core */}
+      {gam && (
+        <pointLight
+          position={[gam.x, gam.y, 0.55]} color={GOLD}
+          intensity={1.1} distance={2.4 * sWorld} decay={2}
+        />
+      )}
       {/* GAM: twin expanding rings — the scene's single focal pulse */}
       {gam && [ringA, ringB].map((r, k) => (
         <mesh key={k} ref={r} position={[gam.x, gam.y, Z_TOP + 0.002]}>
@@ -414,6 +447,20 @@ function Scene({ reduced }) {
   const fRef = useRef(f);
   fRef.current = f;
 
+  // Static studio environment → reflections on the physical body material
+  const gl = useThree((s) => s.gl);
+  const scene = useThree((s) => s.scene);
+  useEffect(() => {
+    const pmrem = new THREE.PMREMGenerator(gl);
+    const env = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    scene.environment = env;
+    return () => {
+      scene.environment = null;
+      env.dispose();
+      pmrem.dispose();
+    };
+  }, [gl, scene]);
+
   const aim = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -464,7 +511,8 @@ function Scene({ reduced }) {
 
       <group ref={group} position={[f.x, f.y, 0]} scale={f.s} rotation={[TILT, 0, 0.05]}>
         <CountryMesh />
-        <PlantNodes paused={paused} pxU={f.pxU} />
+        <ScanSweep paused={paused} />
+        <PlantNodes paused={paused} pxU={f.pxU} sWorld={f.s} />
         <EnergyArcs paused={paused} pxU={f.pxU} />
       </group>
     </>
@@ -474,7 +522,8 @@ function Scene({ reduced }) {
 export default function Hero3D() {
   const reduced = useReducedMotion();
   return (
-    <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+    <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", animation: "enHero3dFade 0.9s ease 0.05s both" }}>
+      <style>{`@keyframes enHero3dFade { from { opacity: 0; } to { opacity: 1; } }`}</style>
       <Canvas
         dpr={reduced ? 1 : [1, 2]}
         frameloop={reduced ? "demand" : "always"}

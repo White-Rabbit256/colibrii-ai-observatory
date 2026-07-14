@@ -154,7 +154,7 @@ export const CR_MIX = {
     { id: "thermal", name: { es: "Térmica (respaldo)", en: "Thermal (backup)" }, pct: 11, color: "#ef4444" },
     { id: "geo", name: { es: "Geotérmica", en: "Geothermal" }, pct: 7, color: "#F2B135" },
     { id: "bio", name: { es: "Biomasa", en: "Biomass" }, pct: 2, color: "#10b981" },
-    { id: "solar", name: { es: "Solar", en: "Solar" }, pct: 0.2, color: "#fbbf24" },
+    { id: "solar", name: { es: "Solar", en: "Solar" }, pct: 0.2, color: "#F2B135" },
   ],
 };
 

@@ -19,7 +19,7 @@ const KIND = {
   hydro: EN_ACCENT.glow,       // #22d3ee
   geo: EN_ACCENT.gold,         // #F2B135
   wind: EN_ACCENT.turquoise,   // #00B5A8
-  solar: "#fbbf24",
+  solar: "#F2B135",
   thermal: EN_ACCENT.risk,     // #ef4444
   load: "#ffffff",
 };
@@ -143,8 +143,7 @@ export default function CRGridMap({ en }) {
         .crmap-flow { animation: crmapFlow 2.6s linear infinite; }
         .crmap-sweep { animation: crmapSweep 7s ease-in-out infinite; }
         .crmap-halo, .crmap-ring { transform-box: fill-box; transform-origin: center; }
-        .crmap-halo { animation: crmapPulse 2.6s ease-in-out infinite; }
-        .crmap-ring { animation: crmapRing 3s cubic-bezier(.2,.7,.4,1) infinite; }
+                .crmap-ring { animation: crmapRing 3s cubic-bezier(.2,.7,.4,1) infinite; }
         .crmap-node { transition: transform .18s ease; }
         .crmap-node:hover .crmap-core, .crmap-node:focus-visible .crmap-core { transform: scale(1.32); }
         .crmap-core { transform-box: fill-box; transform-origin: center; transition: transform .18s ease; }
@@ -203,26 +202,11 @@ export default function CRGridMap({ en }) {
             <line key={`lo${lng}`} x1={gx(lng)} x2={gx(lng)} y1={VB_Y} y2={VB_Y + VB_H} stroke={`${GLOW}14`} strokeWidth={0.006} />
           ))}
 
-          {/* diagonal scan sweep band */}
-          <g className="crmap-sweep" style={{ mixBlendMode: "screen" }}>
-            <rect x={VB_X - VB_W} y={VB_Y - VB_H} width={VB_W * 0.5} height={VB_H * 3} transform={`rotate(18 ${VB_X} ${VB_Y})`} fill="url(#crSweepFade)" />
-          </g>
-          <linearGradient id="crSweepFade" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor={TURQ} stopOpacity="0" />
-            <stop offset="50%" stopColor={TURQ} stopOpacity="0.10" />
-            <stop offset="100%" stopColor={TURQ} stopOpacity="0" />
-          </linearGradient>
-
           {/* outer glow halo (blurred duplicate of the smoothed coast) */}
           <path d={LAND_D} fill={TURQ} opacity={0.18} filter="url(#crCoastGlow)" />
 
           {/* gradient land fill */}
           <path d={LAND_D} fill="url(#crLand)" strokeLinejoin="round" />
-
-          {/* faint topographic contour bands inside the land */}
-          {CONTOURS.map((d, i) => (
-            <path key={`ct${i}`} d={d} fill="none" stroke={GLOW} strokeWidth={0.005} opacity={0.07 - i * 0.012} strokeLinejoin="round" />
-          ))}
 
           {/* inner highlight stroke (reads as a lit top edge) */}
           <path d={LAND_D} fill="none" stroke="#ffffff" strokeOpacity={0.12} strokeWidth={0.004} strokeLinejoin="round" />
@@ -253,10 +237,10 @@ export default function CRGridMap({ en }) {
               {isLoad ? (
                 <>
                   <circle className="crmap-ring" cx={n.x} cy={n.y} r={0.09} fill="none" stroke="#fff" strokeWidth={0.009} opacity={0.4} />
-                  <circle className="crmap-halo" cx={n.x} cy={n.y} r={0.072} fill="#fff" opacity={0.28} />
+                  <circle className="crmap-halo" cx={n.x} cy={n.y} r={0.072} fill="#fff" opacity={0.16} />
                 </>
               ) : (
-                <circle className="crmap-halo" cx={n.x} cy={n.y} r={0.062} fill={c} opacity={0.32} style={{ animationDelay: `${n.i * 0.35}s` }} />
+                <circle className="crmap-halo" cx={n.x} cy={n.y} r={0.062} fill={c} opacity={0.16} />
               )}
               {/* mid ring */}
               <circle cx={n.x} cy={n.y} r={isLoad ? 0.05 : 0.036} fill="none" stroke={c} strokeWidth={0.007} opacity={0.9} />
@@ -271,16 +255,6 @@ export default function CRGridMap({ en }) {
             </g>
           );
         })}
-      </svg>
-
-      {/* corner crosshairs / ticks — command-center vibe */}
-      <svg aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} viewBox="0 0 100 100" preserveAspectRatio="none">
-        {[[6, 6], [94, 6], [6, 94], [94, 94]].map(([x, y], i) => (
-          <g key={i} stroke={`${TURQ}66`} strokeWidth={0.4}>
-            <line x1={x - (x < 50 ? 0 : 3)} y1={y} x2={x + (x < 50 ? 3 : 0)} y2={y} vectorEffect="non-scaling-stroke" />
-            <line x1={x} y1={y - (y < 50 ? 0 : 3)} x2={x} y2={y + (y < 50 ? 3 : 0)} vectorEffect="non-scaling-stroke" />
-          </g>
-        ))}
       </svg>
 
       {/* inner border glow + vignette for depth */}
@@ -370,7 +344,7 @@ export default function CRGridMap({ en }) {
       {/* ── Title chip ── */}
       <div style={{ position: "absolute", top: 12, left: 14, zIndex: 3, pointerEvents: "none" }}>
         <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: 2, color: GLOW }}>
-          {en ? "COSTA RICA POWER GRID · INTERACTIVE" : "RED ELÉCTRICA DE COSTA RICA · INTERACTIVO"}
+          {en ? "Costa Rica — electric grid" : "Costa Rica — red eléctrica"}
         </div>
         <div style={{ marginTop: 4, fontSize: 11, color: "rgba(255,255,255,0.55)", maxWidth: 420 }}>
           {en

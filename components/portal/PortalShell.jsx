@@ -283,8 +283,11 @@ export default function PortalShell() {
   }), [en, t, idx, crS, crR, board, news, loading, xr, govData, dark, selectedCountry]);
 
   /* ── RENDER TAB ── */
+  /* Static editorial tabs don't consume the World Bank / GDELT / FX fetches —
+     render them immediately instead of holding them behind the skeleton. */
+  const STATIC_TABS = ["energia", "ilia", "agentic", "glos", "about", "sources"];
   const renderTab = () => {
-    if (loading) return (
+    if (loading && !STATIC_TABS.includes(tab)) return (
       <div>
         <div style={{ marginBottom: 24 }}>
           <div className="skeleton" style={{ width: 120, height: 10, marginBottom: 8 }} />
