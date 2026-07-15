@@ -762,7 +762,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
             {en ? " · AI hubs " : " · hubs IA "}
             <a href={SRC.synergy.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Synergy</a>
             {", "}
-            <a href={SRC.delloro.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Dell'Oro</a>
+            <a href={SRC.delloro.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Dell&apos;Oro</a>
             {en ? " — est." : " — est."}
           </>
         )}
