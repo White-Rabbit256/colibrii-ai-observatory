@@ -62,7 +62,7 @@ varying vec3 vView;
 void main() {
   float rim = pow(1.0 - abs(dot(vNormal, vView)), 4.2);
   vec3 col = mix(uInner, uOuter, rim);
-  gl_FragColor = vec4(col, rim * 0.9);
+  gl_FragColor = vec4(col, rim * 0.72);
 }`;
 
 /* ── Animated energy-dash arc shader ── */
@@ -128,7 +128,7 @@ void main() {
   float k = pow(ndl * 0.5 + 0.5, 1.4);
   col *= mix(1.0, k * 1.6, 0.30);
   // in-surface cyan rim
-  col += pow(vec3(0.133,0.827,0.933), vec3(2.2)) * pow(1.0 - F, 3.0) * 0.5;
+  col += pow(vec3(0.133,0.827,0.933), vec3(2.2)) * pow(1.0 - F, 3.0) * 0.35;
   gl_FragColor = vec4(col, 1.0);
 }`;
 
@@ -222,7 +222,7 @@ function DotEarth({ compact, onReady }) {
       const count = Math.min(positions.length, mesh.instanceMatrix.count);
       const d = new Object3D();
       const v = new Vector3();
-      const base = new Color("#54749E").convertSRGBToLinear();
+      const base = new Color("#4A6288").convertSRGBToLinear();
       const city = new Color("#FFD9A0").convertSRGBToLinear();
       const cTmp = new Color();
       for (let i = 0; i < count; i++) {
@@ -233,7 +233,7 @@ function DotEarth({ compact, onReady }) {
         d.scale.setScalar(1);
         d.updateMatrix();
         mesh.setMatrixAt(i, d.matrix);
-        const t = Math.min(1, Math.pow(lums[i], 0.9) * 1.75);
+        const t = Math.min(1, Math.pow(lums[i], 0.8) * 1.9);
         cTmp.copy(base).lerp(city, t);
         mesh.setColorAt(i, cTmp);
       }
@@ -403,9 +403,9 @@ export default function GlobeScene({
   const hubMesh = useRef();
   const hubRing = useRef();
   const hubGeo = useMemo(() => new OctahedronGeometry(1, 0), []);
-  const hubMat = useMemo(() => new MeshStandardMaterial({ color: "#eaf6ff", emissive: "#9bd8ff", emissiveIntensity: 0.9, metalness: 0.2, roughness: 0.25 }), []);
-  const ringGeo = useMemo(() => new TorusGeometry(1, 0.09, 8, 40), []);
-  const ringMat = useMemo(() => new MeshBasicMaterial({ color: "#F472B6", transparent: true, opacity: 0.85, toneMapped: false, blending: AdditiveBlending, depthWrite: false }), []);
+  const hubMat = useMemo(() => new MeshStandardMaterial({ color: "#eaf6ff", emissive: "#9bd8ff", emissiveIntensity: 1.1, metalness: 0.2, roughness: 0.25 }), []);
+  const ringGeo = useMemo(() => new TorusGeometry(1, 0.055, 8, 40), []);
+  const ringMat = useMemo(() => new MeshBasicMaterial({ color: EN_ACCENT.gold, transparent: true, opacity: 0.55, toneMapped: false, blending: AdditiveBlending, depthWrite: false }), []);
   const hubData = useMemo(() => DATACENTERS.map((d) => ({
     ...d, size: 0.012 + Math.sqrt((d.demandMw || 100) / 4500) * 0.02,
     ai: (d.demandMw || 0) >= 700, phase: Math.random() * Math.PI * 2,
@@ -414,15 +414,18 @@ export default function GlobeScene({
 
   /* ── instanced storage (twin rings) ── */
   const stoMesh = useRef();
+  const stoCore = useRef();
   const stoGeo = useMemo(() => new TorusGeometry(1, 0.14, 6, 26), []);
   const stoMat = useMemo(() => new MeshBasicMaterial({ color: "#7cb8ff", transparent: true, opacity: 0.9, toneMapped: false, blending: AdditiveBlending, depthWrite: false }), []);
+  const stoCoreMat = useMemo(() => new MeshBasicMaterial({ color: EN_ACCENT.glow, transparent: true, opacity: 0.9, toneMapped: false, blending: AdditiveBlending, depthWrite: false }), []);
   const stoData = useMemo(() => STORAGE_SITES.slice(0, compact ? 22 : STORAGE_SITES.length).map((s) => ({
     ...s, size: 0.007 + Math.sqrt((s.mw || 50) / 900) * 0.012,
   })), [compact]);
-  useEffect(() => () => { stoGeo.dispose(); stoMat.dispose(); }, [stoGeo, stoMat]);
+  useEffect(() => () => { stoGeo.dispose(); stoMat.dispose(); stoCoreMat.dispose(); }, [stoGeo, stoMat, stoCoreMat]);
   useEffect(() => {
     const mesh = stoMesh.current;
-    if (!mesh) return;
+    const core = stoCore.current;
+    if (!mesh || !core) return;
     for (let i = 0; i < stoData.length; i++) {
       const s = stoData[i];
       toVec(s.lat, s.lng, 0.014, scratch);
@@ -432,9 +435,14 @@ export default function GlobeScene({
       dummy.scale.setScalar(s.size);
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
+      dummy.scale.setScalar(s.size * 0.42);
+      dummy.updateMatrix();
+      core.setMatrixAt(i, dummy.matrix);
     }
     mesh.count = stoData.length;
     mesh.instanceMatrix.needsUpdate = true;
+    core.count = stoData.length;
+    core.instanceMatrix.needsUpdate = true;
     invalidate();
   }, [stoData, dummy, scratch, scratch2, invalidate]);
 
@@ -610,7 +618,7 @@ export default function GlobeScene({
 
       {/* starfield (world-fixed) */}
       <points geometry={statics.stars}>
-        <pointsMaterial size={0.02} color="#9fc7e8" transparent opacity={0.7} sizeAttenuation depthWrite={false} />
+        <pointsMaterial size={0.012} color="#9fc7e8" transparent opacity={0.35} sizeAttenuation depthWrite={false} />
       </points>
 
       <group ref={globeGrp}>
@@ -644,9 +652,12 @@ export default function GlobeScene({
           </>
         )}
 
-        {/* storage */}
+        {/* storage (twin rings: blue outer, cyan core) */}
         {layers.storage && (
-          <instancedMesh ref={stoMesh} args={[stoGeo, stoMat, stoData.length]} frustumCulled={false} raycast={() => null} />
+          <>
+            <instancedMesh ref={stoMesh} args={[stoGeo, stoMat, stoData.length]} frustumCulled={false} raycast={() => null} />
+            <instancedMesh ref={stoCore} args={[stoGeo, stoCoreMat, stoData.length]} frustumCulled={false} raycast={() => null} />
+          </>
         )}
 
         {/* Cañas beacon */}
@@ -654,7 +665,7 @@ export default function GlobeScene({
           <group ref={beaconGrp}>
             <mesh>
               <octahedronGeometry args={[0.028, 0]} />
-              <meshStandardMaterial color="#ffd984" emissive={EN_ACCENT.gold} emissiveIntensity={1.6} metalness={0.3} roughness={0.2} toneMapped={false} />
+              <meshStandardMaterial color="#ffd984" emissive={EN_ACCENT.gold} emissiveIntensity={2.0} metalness={0.3} roughness={0.2} toneMapped={false} />
             </mesh>
             <mesh position={[0, 0.09, 0]}>
               <cylinderGeometry args={[0.004, 0.011, 0.18, 8, 1, true]} />

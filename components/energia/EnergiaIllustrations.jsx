@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useId, useRef, useState } from "react";
-import { FUEL_COLORS, DC_DEMAND, TIMELINE, VOTE_MATH, SRC } from "../energiaData";
+import { EN_ACCENT, FUEL_COLORS, DC_DEMAND, TIMELINE, VOTE_MATH, SRC } from "../energiaData";
 
 /* ═══════════════════════════════════════════════════════════════
    ENERGÍA — EnergiaIllustrations
@@ -26,8 +26,8 @@ const MONO = "'IBM Plex Mono',monospace";
 /* In-SVG type: fixed-dark panel ⇒ whites are safe in both themes. */
 const LBL = { fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.5, textTransform: "uppercase", fill: "rgba(255,255,255,0.85)" };
 const SUB = { fontFamily: MONO, fontSize: 10, fill: "rgba(255,255,255,0.66)" };
-const GOLD = "#F2B135";
-const CYAN = "#22d3ee";
+const GOLD = EN_ACCENT.gold;
+const CYAN = EN_ACCENT.glow;
 
 /* Panel chrome — ReactorCutaway recipe (EnergiaArt.jsx). */
 const PANEL = {
@@ -157,17 +157,17 @@ function GenGlyph() {
   return (
     <g>
       {/* solar panel, tilted */}
-      <path d="M-56 0 L-48 -14 L-30 -14 L-38 0 Z" fill="rgba(251,146,60,0.16)" stroke={FUEL_COLORS.solar} strokeWidth="1.4" strokeLinejoin="round" />
+      <path d="M-56 0 L-48 -14 L-30 -14 L-38 0 Z" fill="rgba(251,146,60,0.16)" stroke={FUEL_COLORS.solar} strokeWidth="1.5" strokeLinejoin="round" />
       <path d="M-49 -7 L-35 -7" stroke={FUEL_COLORS.solar} strokeWidth="0.8" opacity="0.7" />
       {/* reservoir wave behind the dam */}
-      <path d="M-32 -6 q4 -3 8 0 t8 0" fill="none" stroke={FUEL_COLORS.hydro} strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M-32 -6 q4 -3 8 0 t8 0" fill="none" stroke={FUEL_COLORS.hydro} strokeWidth="1.5" strokeLinecap="round" />
       {/* dam trapezoid */}
-      <path d="M-14 0 L-6 -34 H10 L18 0 Z" fill="rgba(13,148,136,0.16)" stroke={FUEL_COLORS.hydro} strokeWidth="1.6" strokeLinejoin="round" />
+      <path d="M-14 0 L-6 -34 H10 L18 0 Z" fill="rgba(13,148,136,0.16)" stroke={FUEL_COLORS.hydro} strokeWidth="1.5" strokeLinejoin="round" />
       <path d="M-10 -20 H13 M-12 -10 H16" stroke={FUEL_COLORS.hydro} strokeWidth="0.8" opacity="0.5" />
       {/* wind rotor */}
       <path d="M30 0 V-30" stroke={FUEL_COLORS.wind} strokeWidth="1.5" />
       <circle cx="30" cy="-30" r="2" fill={FUEL_COLORS.wind} />
-      <path d="M30 -30 L30 -41 M30 -30 L20.5 -24.5 M30 -30 L39.5 -24.5" stroke={FUEL_COLORS.wind} strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M30 -30 L30 -41 M30 -30 L20.5 -24.5 M30 -30 L39.5 -24.5" stroke={FUEL_COLORS.wind} strokeWidth="1.5" strokeLinecap="round" />
     </g>
   );
 }

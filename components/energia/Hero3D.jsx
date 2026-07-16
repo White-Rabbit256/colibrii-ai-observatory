@@ -39,6 +39,10 @@ const KIND = {
   hydro: "#10B981", geo: "#D97706", wind: "#38BDF8", solar: "#FB923C",
   thermal: "#94A3B8", load: GOLD,
 };
+/* Arc/packet ramp — decorative flow lines converge on the TURQ→GLOW family,
+   varied by lightness only, so gold stays exclusive to SIEPAC/GAM and the
+   KIND legend colors live on the node dots (data encoding). */
+const ARC_KIND = { hydro: "#3ADCCB", geo: "#0FA396", wind: "#67E4F5", solar: "#22d3ee", thermal: "#15808E" };
 
 /* ── Geo → scene projection (centered, aspect-corrected) ── */
 const cLng = (CR_BBOX.lngMin + CR_BBOX.lngMax) / 2;
@@ -369,7 +373,7 @@ function SiepacSpine({ paused, intro }) {
     const draped = flat.getPoints(56).map((p) =>
       new THREE.Vector3(p.x, p.y, TOP_Z + heightAt(p.x, p.y) + 0.035));
     const curve = new THREE.CatmullRomCurve3(draped, false, "catmullrom", 0.2);
-    const tube = new THREE.TubeGeometry(curve, 96, 0.02, 8, false);
+    const tube = new THREE.TubeGeometry(curve, 96, 0.015, 8, false);
     return { tube, curve };
   }, []);
 
@@ -391,8 +395,8 @@ function SiepacSpine({ paused, intro }) {
         <meshStandardMaterial color={GOLD} emissive={GOLD} emissiveIntensity={1.7} transparent opacity={0} toneMapped={false} depthWrite={false} />
       </mesh>
       <group ref={packetRef} visible={false}>
-        <mesh><sphereGeometry args={[0.045, 12, 12]} /><meshBasicMaterial color="#ffe9c0" toneMapped={false} /></mesh>
-        <mesh><sphereGeometry args={[0.1, 10, 10]} /><meshBasicMaterial color={GOLD} transparent opacity={0.35} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} /></mesh>
+        <mesh><sphereGeometry args={[0.038, 12, 12]} /><meshBasicMaterial color="#ffe9c0" toneMapped={false} /></mesh>
+        <mesh><sphereGeometry args={[0.068, 10, 10]} /><meshBasicMaterial color={GOLD} transparent opacity={0.3} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} /></mesh>
       </group>
     </group>
   );
@@ -416,9 +420,13 @@ function PlantNodes({ paused, intro }) {
   const ringGrp = useRef();
   const nodes = useMemo(() => PLANTS_GEO.map((p, i) => {
     const x = px(p.lng), y = py(p.lat);
+    // KIND categories stay, but desaturated so the dots sit quietly on the
+    // terrain; the GAM gold octahedron keeps full punch.
+    const c = new THREE.Color(KIND[p.kind] || "#ffffff");
+    if (p.kind !== "load") c.offsetHSL(0, -0.28, -0.02);
     return {
       ...p, x, y, z: TOP_Z + heightAt(x, y) + 0.03, phase: i * 0.85,
-      isLoad: p.kind === "load", c: new THREE.Color(KIND[p.kind] || "#ffffff"),
+      isLoad: p.kind === "load", c,
     };
   }), []);
 
@@ -443,9 +451,9 @@ function PlantNodes({ paused, intro }) {
         const pop = clamp01((ip - i * 0.05) / 0.24);
         if (n.isLoad) {
           const cyc = (t * 0.7) % 1;
-          const sc = 1 + cyc * 3.4;
+          const sc = 1 + cyc * 2.6;
           m.scale.set(sc, sc, sc);
-          m.material.opacity = (1 - cyc) * 0.7 * pop;
+          m.material.opacity = (1 - cyc) * 0.55 * pop;
         } else {
           const sc = 1 + (Math.sin(t * 2.2 + n.phase) * 0.5 + 0.5) * 0.9;
           m.scale.set(sc, sc, sc);
@@ -463,7 +471,7 @@ function PlantNodes({ paused, intro }) {
             {n.isLoad
               ? <octahedronGeometry args={[0.075, 0]} />
               : <sphereGeometry args={[0.038, 16, 16]} />}
-            <meshStandardMaterial color={n.c} emissive={n.c} emissiveIntensity={n.isLoad ? 2.6 : 2.4} toneMapped={false} />
+            <meshStandardMaterial color={n.c} emissive={n.c} emissiveIntensity={n.isLoad ? 2.6 : 1.8} toneMapped={false} />
           </mesh>
         ))}
       </group>
@@ -492,12 +500,14 @@ function EnergyArcs({ paused, intro }) {
       const x = px(p.lng), y = py(p.lat);
       const z = TOP_Z + heightAt(x, y) + 0.03;
       const dist = Math.hypot(gx - x, gy - y);
-      const lift = 0.55 + dist * 0.3 + (i % 3) * 0.05;
-      const mid = new THREE.Vector3((x + gx) / 2, (y + gy) / 2, TOP_Z + lift);
+      // Low lift + apex biased toward GAM (screen-right) keeps the arcs off
+      // the headline column on desktop.
+      const lift = 0.32 + dist * 0.22 + (i % 3) * 0.04;
+      const mid = new THREE.Vector3(x * 0.42 + gx * 0.58, (y + gy) / 2, TOP_Z + lift);
       const curve = new THREE.QuadraticBezierCurve3(
         new THREE.Vector3(x, y, z), mid, new THREE.Vector3(gx, gy, gz));
-      const tube = new THREE.TubeGeometry(curve, 48, 0.03, 8, false);
-      return { key: p.id, tube, curve, color: new THREE.Color(KIND[p.kind] || GLOW),
+      const tube = new THREE.TubeGeometry(curve, 48, 0.013, 8, false);
+      return { key: p.id, tube, curve, color: new THREE.Color(ARC_KIND[p.kind] || GLOW),
         speed: 0.18 + (i % 4) * 0.035, offset: (i * 0.137) % 1 };
     });
   }, []);
@@ -508,7 +518,7 @@ function EnergyArcs({ paused, intro }) {
     const ip = intro.current.p;
     const draw = clamp01((ip - 0.4) / 0.45); // arcs fade in after country/nodes
     const tubes = tubeGrp.current;
-    if (tubes) for (let i = 0; i < tubes.children.length; i++) tubes.children[i].material.opacity = 0.85 * draw;
+    if (tubes) for (let i = 0; i < tubes.children.length; i++) tubes.children[i].material.opacity = 0.72 * draw;
     const grp = packetGrp.current;
     if (grp) {
       grp.visible = draw > 0.6;
@@ -518,7 +528,7 @@ function EnergyArcs({ paused, intro }) {
         a.curve.getPointAt(tt, scratch);
         const m = grp.children[i];
         m.position.copy(scratch);
-        m.scale.setScalar((0.7 + tt * 0.8) * draw);
+        m.scale.setScalar((0.8 + tt * 0.4) * draw);
       }
     }
   });
@@ -535,8 +545,8 @@ function EnergyArcs({ paused, intro }) {
       <group ref={packetGrp}>
         {arcs.map((a) => (
           <group key={a.key} position={[0, 0, TOP_Z]}>
-            <mesh><sphereGeometry args={[0.05, 14, 14]} /><meshBasicMaterial color={a.color} toneMapped={false} /></mesh>
-            <mesh><sphereGeometry args={[0.11, 12, 12]} /><meshBasicMaterial color={a.color} transparent opacity={0.3} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} /></mesh>
+            <mesh><sphereGeometry args={[0.034, 14, 14]} /><meshBasicMaterial color={a.color} toneMapped={false} /></mesh>
+            <mesh><sphereGeometry args={[0.068, 12, 12]} /><meshBasicMaterial color={a.color} transparent opacity={0.24} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} /></mesh>
           </group>
         ))}
       </group>
@@ -579,7 +589,7 @@ function Scene({ reduced, drag, compact = false }) {
   // right-of-text crop.
   const POS_X = compact ? 0 : 0.6;
   const POS_Y = compact ? -0.02 : 0.05;
-  const BASE_SCALE = compact ? 0.78 : 0.9;
+  const BASE_SCALE = compact ? 0.62 : 0.9;
   const TILT = compact ? -0.58 : BASE_TILT;
 
   useEffect(() => {
@@ -636,9 +646,11 @@ function Scene({ reduced, drag, compact = false }) {
       <hemisphereLight args={["#38BDF8", "#06152E", 0.25]} />
       <pointLight position={[2.6, 1.4, -2.2]} intensity={1.15} color={TURQ} distance={6} />
 
-      <ParticleLayer paused={paused} count={compact ? 100 : 140} spread={11} depth={-3.4} size={0.03} opacity={0.42} color={GLOW} speed={0.008} />
-      <ParticleLayer paused={paused} count={compact ? 150 : 220} spread={9} depth={-1.6} size={0.018} opacity={0.5} color={TURQ} speed={0.016} />
-      <ParticleLayer paused={paused} count={compact ? 30 : 46} spread={12} depth={-2.6} size={0.045} opacity={0.22} color={GOLD} speed={-0.006} />
+      {/* Three parallax depths reading as ONE sparse slow cyan field; ambient
+          gold lives only in the chart texture's counter-glow. */}
+      <ParticleLayer paused={paused} count={compact ? 100 : 140} spread={11} depth={-3.4} size={0.03} opacity={0.3} color={GLOW} speed={0.008} />
+      <ParticleLayer paused={paused} count={compact ? 90 : 130} spread={9} depth={-1.6} size={0.018} opacity={0.26} color={TURQ} speed={0.016} />
+      <ParticleLayer paused={paused} count={compact ? 30 : 46} spread={12} depth={-2.6} size={0.03} opacity={0.12} color={TURQ} speed={-0.006} />
       <OceanChart />
 
       <group ref={group} scale={0.001}>
@@ -657,9 +669,9 @@ function Scene({ reduced, drag, compact = false }) {
           <Bloom
             intensity={0.85}
             luminanceThreshold={0.75}
-            luminanceSmoothing={0.32}
+            luminanceSmoothing={0.25}
             mipmapBlur
-            radius={0.6}
+            radius={0.45}
           />
         </EffectComposer>
       )}
@@ -719,7 +731,7 @@ export default function Hero3D({ compact = false }) {
         dpr={reduced ? 1 : [1, 2]}
         frameloop={frameloop}
         camera={{ position: compact ? [0, -0.5, 4.35] : [0, -0.5, 4.55], fov: 36 }}
-        gl={{ antialias: false, alpha: true, stencil: false, powerPreference: "high-performance" }}
+        gl={{ antialias: true, alpha: true, stencil: false, powerPreference: "high-performance" }}
         style={{ position: "absolute", inset: 0 }}
         eventSource={typeof document !== "undefined" ? document.body : undefined}
         onCreated={({ gl, invalidate }) => { gl.setClearColor(0x000000, 0); armContextRecovery(gl, invalidate); }}
