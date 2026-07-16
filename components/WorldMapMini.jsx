@@ -10,7 +10,8 @@ import { CO, CC } from "./data";
    Pulsing markers at country centroids. Hover tooltip.
    ================================================================= */
 
-const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
+// Pinned exact version — a floating @2 major would let CDN content change under us
+const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json";
 
 /* ISO alpha-3 to world-atlas numeric ID mapping */
 const A3_TO_NUM = {
@@ -47,16 +48,21 @@ const tierLabel = (score, en) =>
 
 export function WorldMapMini({ idx, en, t, dark, onCountryClick }) {
   const [topoData, setTopoData] = useState(null);
+  const [geoError, setGeoError] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
   const [tooltip, setTooltip] = useState(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-  /* Fetch TopoJSON */
+  /* Fetch TopoJSON — surface failure instead of spinning forever */
   useEffect(() => {
+    let cancelled = false;
+    setGeoError(false);
     fetch(GEO_URL)
-      .then((r) => r.json())
-      .then(setTopoData)
-      .catch(() => {});
-  }, []);
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then((d) => { if (!cancelled) setTopoData(d); })
+      .catch(() => { if (!cancelled) setGeoError(true); });
+    return () => { cancelled = true; };
+  }, [retryKey]);
 
   /* Build ranked country list */
   const countries = useMemo(() => {
@@ -83,13 +89,23 @@ export function WorldMapMini({ idx, en, t, dark, onCountryClick }) {
   };
 
   if (!topoData) {
-    /* Loading skeleton */
+    /* Loading skeleton / error state with retry */
     return (
       <div className="world-map-wrapper">
-        <div style={{ background: dark ? "rgba(30,41,59,0.3)" : "rgba(238,241,248,0.5)", borderRadius: 10, height: 320, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ background: dark ? "rgba(30,41,59,0.3)" : "rgba(238,241,248,0.5)", borderRadius: 10, height: 320, display: "flex", flexDirection: "column", gap: 10, alignItems: "center", justifyContent: "center" }}>
           <span style={{ color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", fontSize: 12, letterSpacing: 1 }}>
-            {en ? "Loading map..." : "Cargando mapa..."}
+            {geoError
+              ? (en ? "Map could not be loaded." : "No se pudo cargar el mapa.")
+              : (en ? "Loading map..." : "Cargando mapa...")}
           </span>
+          {geoError && (
+            <button
+              onClick={() => setRetryKey(k => k + 1)}
+              style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid var(--border)", background: "var(--surface)", color: t.tx2, cursor: "pointer", fontSize: 12 }}
+            >
+              {en ? "Retry" : "Reintentar"}
+            </button>
+          )}
         </div>
       </div>
     );

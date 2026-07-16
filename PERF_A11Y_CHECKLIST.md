@@ -1,5 +1,13 @@
 # PowerGlobe — Perf + A11y Verification Checklist (PR #2)
 
+> **⚠️ STATUS (2026-07-15): STALE — describes the retired react-globe.gl implementation.**
+> PowerGlobe was rebuilt as a custom R3F scene (`bd43483`, "react-globe.gl retired"), and the
+> current code contradicts several "why it passes" rationales below: bloom IS enabled in compact
+> mode, DPR is capped at 1.75/2 (not 1.5), and the cited react-globe.gl internals
+> (`TextureLoader`, `pointsMerge`, `pointResolution`) no longer exist. Items that reference them
+> — [1], [5], [8] — are **unverified against the shipped scene** and must be re-run on-device
+> before being cited as passing. Kept for the measurement protocols, which remain valid.
+
 All 12 bullets are binary pass/fail with a concrete measurement protocol. Run in order before merging.
 
 ---

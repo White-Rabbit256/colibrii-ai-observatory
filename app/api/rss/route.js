@@ -3,17 +3,34 @@ import { PAI_NEWS } from "../../../components/data";
 const BASE = "https://colibriilabs.ai";
 const GDELT_URL = "https://api.gdeltproject.org/api/v2/doc/doc?query=%22artificial+intelligence%22+%22costa+rica%22&mode=artlist&maxrecords=5&format=json&sort=datedesc&timespan=7d";
 
-function esc(s) {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+// Re-generate the feed hourly so the GDELT fetch actually runs in production
+export const revalidate = 3600;
+
+function xmlEscape(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+// GDELT seendate looks like "20260714T153000Z" — parse defensively, null on failure
+function parseSeendate(seendate) {
+  if (!seendate) return null;
+  const m = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/.exec(seendate);
+  if (!m) return null;
+  const d = new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}Z`);
+  return isNaN(d.getTime()) ? null : d.toUTCString();
 }
 
 function item({ title, link, desc, date, source }) {
   return `    <item>
-      <title><![CDATA[${title}]]></title>
-      <link>${esc(link)}</link>
-      <description><![CDATA[${desc}]]></description>
+      <title>${xmlEscape(title)}</title>
+      <link>${xmlEscape(link)}</link>
+      <description>${xmlEscape(desc)}</description>
       <pubDate>${date}</pubDate>
-      <source url="${esc(link)}">${esc(source)}</source>
+      <source url="${xmlEscape(link)}">${xmlEscape(source)}</source>
     </item>`;
 }
 
@@ -61,7 +78,7 @@ export async function GET() {
           title: a.title || "AI + Costa Rica News",
           link: a.url || BASE,
           desc: a.seendate ? `GDELT article from ${a.seendate}` : "Live GDELT intelligence feed",
-          date: a.seendate ? new Date(a.seendate.replace(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z/, "$1-$2-$3T$4:$5:$6Z")).toUTCString() : now,
+          date: parseSeendate(a.seendate) || now,
           source: a.domain || "GDELT",
         })
       );

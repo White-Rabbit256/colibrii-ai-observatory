@@ -130,6 +130,10 @@ export const ILIA_RANKINGS = [
   { rank: 14, country: "Paraguay", score: 31.45, tier: "Explorer", change: 0, highlight: "Explorer stage, developing national AI capacity frameworks." },
   { rank: 15, country: "Cuba", score: 29.80, tier: "Explorer", change: 1, highlight: "Excels in open-source software development despite infrastructure constraints." },
   { rank: 16, country: "Guatemala", score: 28.15, tier: "Explorer", change: 2, highlight: "Among the late adopters showing accelerated improvements in 2025." },
+  // NOTE: rank 17 Honduras (25.90) scores below rank 18 Bolivia (26.06) — same values as
+  // components/iliaData.js. Press coverage of the ILIA 2025 report gives Honduras 27.39,
+  // which would restore monotonic rank order, but the primary source (CEPAL/CENIA) could not
+  // be re-verified here, so the portal's published values are kept unchanged.
   { rank: 17, country: "Honduras", score: 25.90, tier: "Explorer", change: 0, highlight: "Excels in open-source software, building from limited base." },
   { rank: 18, country: "Bolivia", score: 26.06, tier: "Explorer", change: -1, highlight: "Explorer stage, limited AI infrastructure and governance frameworks." },
   { rank: 19, country: "Venezuela", score: 19.50, tier: "Explorer", change: 0, highlight: "Lowest ranked, significant infrastructure and governance gaps." }
@@ -151,6 +155,7 @@ export const ILIA_REGIONAL_STATS = {
 };
 
 // ── COSTA RICA ILIA 2025 SCORECARD ──
+// Snapshot of components/iliaData.js CR_ILIA_PROFILE (en) — keep in sync with the portal
 export const CR_ILIA_PROFILE = {
   overall: { score: 53.83, position: 5, tier: "Adopter", regionalAvg: 42.98, aboveAvg: 10.85, change: 4 },
   dimensions: [
@@ -159,13 +164,15 @@ export const CR_ILIA_PROFILE = {
       { id: "data", name: "Data", score: 39.73, position: 13 },
       { id: "talent", name: "Human Talent", score: 53.62, position: 3 }
     ]},
-    { id: "development", name: "AI Development", score: null, subdimensions: [
-      { id: "research", name: "Research", score: null },
-      { id: "adoption", name: "Adoption", score: null }
+    { id: "rda", name: "R&D&A (Research, Development & Adoption)", score: 41.34, position: 8, subdimensions: [
+      { id: "research", name: "Research", score: 33.81, position: 11 },
+      { id: "rd", name: "R&D", score: 26.47, position: 12 },
+      { id: "adoption", name: "Adoption", score: 66.27, position: 4 }
     ]},
-    { id: "governance", name: "Governance", score: null, subdimensions: [
-      { id: "policy", name: "Policy & Regulation", score: null },
-      { id: "ethics", name: "Ethics & Transparency", score: null }
+    { id: "governance", name: "Governance", score: 77.55, position: 4, subdimensions: [
+      { id: "vision", name: "Vision & Institutionality", score: 87.27, position: 4 },
+      { id: "international", name: "International Engagement", score: 75.00, position: 5 },
+      { id: "regulation", name: "Regulation", score: 63.07, position: 8 }
     ]}
   ]
 };
@@ -238,7 +245,7 @@ export const WORKFORCE_IMPACT = {
   ]
 };
 
-// ── DATA SOURCE REGISTRY (96+ sources) ──
+// ── DATA SOURCE REGISTRY ──
 export const DATA_SOURCES = {
   apiSources: [
     { name: "World Bank Open Data", description: "11 indicators x 20 countries", status: "Active", url: "https://api.worldbank.org/v2/" },

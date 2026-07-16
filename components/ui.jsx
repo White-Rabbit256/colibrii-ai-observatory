@@ -54,13 +54,14 @@ export function AN({ v, p = 0, s = "", d = 0 }) {
   useEffect(() => {
     if (v == null) return;
     let start = null;
+    let raf = null;
     const dur = 1200;
     const ease = t => 1 - Math.pow(1 - t, 3);
     const from = ref.current ?? 0;
-    const anim = ts => { if (!start) start = ts; const t = Math.min((ts - start) / dur, 1); setDisp(from + (v - from) * ease(t)); if (t < 1) requestAnimationFrame(anim); };
-    const timer = setTimeout(() => requestAnimationFrame(anim), d);
+    const anim = ts => { if (!start) start = ts; const t = Math.min((ts - start) / dur, 1); setDisp(from + (v - from) * ease(t)); if (t < 1) raf = requestAnimationFrame(anim); };
+    const timer = setTimeout(() => { raf = requestAnimationFrame(anim); }, d);
     ref.current = v;
-    return () => clearTimeout(timer);
+    return () => { clearTimeout(timer); if (raf != null) cancelAnimationFrame(raf); };
   }, [v, d]);
   if (v == null) return <span style={{ color: "var(--text3)" }}>—</span>;
   return <span className="stat-number">{s}{disp.toFixed(p)}</span>;
@@ -91,6 +92,7 @@ export function Card({ children, d = 0, accent, style, onClick, className = "" }
       className={`card ${className}`}
       style={{ padding: 20, ...style, borderTop: accent ? `3px solid ${accent}` : undefined }}
       onClick={onClick}
+      onKeyDown={onClick ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(e); } } : undefined}
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
     >
@@ -195,6 +197,7 @@ export function PartnerBar({ items, en, showLogos = true }) {
                   src={`https://logo.clearbit.com/${domain}?size=32`}
                   alt=""
                   loading="lazy"
+                  referrerPolicy="no-referrer"
                   style={{ width: 14, height: 14, borderRadius: 2 }}
                   onError={(e) => { e.target.style.display = "none"; }}
                 />
@@ -319,10 +322,21 @@ export function KeyInsight({ icon = "💡", text, color = "var(--cyan)" }) {
 
 /* ── FRESHNESS BADGE (data last-updated indicator) ── */
 export function FreshnessBadge({ date, en }) {
+  // Honest freshness signal: green only when the data vintage is actually recent
+  const ageDays = (() => {
+    const m = String(date || "").match(/^(\d{4})-(\d{2})(?:-(\d{2}))?/);
+    if (!m) return null;
+    const d = new Date(+m[1], +m[2] - 1, m[3] ? +m[3] : 15);
+    return Math.floor((Date.now() - d.getTime()) / 86400000);
+  })();
+  const dot = ageDays == null ? "var(--text3)" : ageDays < 90 ? "var(--green)" : ageDays < 365 ? "var(--amber, #d97706)" : "var(--text3)";
+  const label = ageDays != null && ageDays >= 90
+    ? (en ? `Data as of: ${date}` : `Datos a: ${date}`)
+    : (en ? `Updated: ${date}` : `Actualizado: ${date}`);
   return (
     <div style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 10px", background: "var(--surface)", borderRadius: 20, fontSize: 10, color: "var(--text3)", fontFamily: "'IBM Plex Mono',monospace", marginBottom: 12 }}>
-      <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--green)", display: "inline-block" }} />
-      {en ? `Updated: ${date}` : `Actualizado: ${date}`}
+      <span style={{ width: 6, height: 6, borderRadius: "50%", background: dot, display: "inline-block" }} />
+      {label}
     </div>
   );
 }
@@ -362,8 +376,11 @@ export function ShareBtn({ cardRef, en, filename = "colibrii-insight" }) {
       const dataUrl = await toPng(cardRef.current, { quality: 0.95, pixelRatio: 2, backgroundColor: "#0f172a" });
       // Try clipboard first, fall back to download
       if (navigator.clipboard && typeof ClipboardItem !== "undefined") {
-        const resp = await fetch(dataUrl);
-        const blob = await resp.blob();
+        // Decode the data URL directly — fetch(dataUrl) is blocked by the CSP (connect-src has no data:)
+        const bin = atob(dataUrl.split(",")[1]);
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        const blob = new Blob([bytes], { type: "image/png" });
         await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
         setDone(true);
         setTimeout(() => setDone(false), 2000);

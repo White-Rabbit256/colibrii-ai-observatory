@@ -27,6 +27,10 @@ import {
 
 const MONO = "'IBM Plex Mono',monospace";
 const WRI_CSV = "https://cdn.jsdelivr.net/gh/wri/global-power-plant-database@v1.3.0/output_database/global_power_plant_database.csv";
+// Parsed WRI dataset, cached at module scope: leaving and re-entering the
+// Energía tab remounts PowerGlobe, and re-downloading/re-parsing the ~10 MB
+// CSV (~35k rows) every time is pure waste — the data is versioned/immutable.
+let WRI_CACHE = null;
 
 // ── Curated marquee (mobile + WRI fallback) ──
 const CR_MARQUEE = PLANTS_GEO.filter((p) => p.kind !== "load").map((p) => ({
@@ -134,47 +138,44 @@ export default function PowerGlobe({ en = false, compact = false }) {
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [reduced]);
 
-  // ── WRI Web Worker fetch (desktop only, lazy) ──
+  // ── WRI Web Worker fetch (desktop only, lazy, one-shot) ──
+  // No `en` dependency: language only affects announce strings, which live in
+  // their own effect below — toggling ES/EN must never restart the ~10 MB
+  // download/parse or terminate the parse worker mid-work.
   useEffect(() => {
     if (compact || reduced) return;
+    if (WRI_CACHE) { setPlants(WRI_CACHE); setStatus("ok"); return; }
     const el = wrapRef.current;
     if (!el) return;
     let done = false;
     let worker = null;
+    const ctrl = new AbortController();
 
     const handleErr = (err) => {
       console.warn("PowerGlobe: WRI load failed", err);
       setStatus("error");
-      setAnnounce(
-        en ? "Full dataset unavailable — showing curated reference plants."
-           : "Dataset completo no disponible — mostrando referencias destacadas.",
-      );
     };
 
     const run = () => {
       if (done) return;
       done = true;
       setStatus("loading");
-      setAnnounce(en ? "Loading 35,000 plants from WRI…" : "Cargando 35.000 plantas WRI…");
       try {
         worker = new Worker("/workers/wri-parse.worker.js");
       } catch {
         handleErr(new Error("worker"));
         return;
       }
-      fetch(WRI_CSV)
+      fetch(WRI_CSV, { signal: ctrl.signal })
         .then((r) => (r.ok ? r.text() : Promise.reject(new Error(String(r.status)))))
         .then((text) => worker.postMessage({ text, fuelKeys: Object.keys(FUEL_HEX) }))
-        .catch(handleErr);
+        .catch((err) => { if (err?.name !== "AbortError") handleErr(err); });
       worker.onmessage = (e) => {
         worker.terminate();
         if (e.data.error) { handleErr(new Error("schema")); return; }
+        WRI_CACHE = e.data.plants;
         setPlants(e.data.plants);
         setStatus("ok");
-        setAnnounce(
-          en ? `Atlas ready: ${e.data.plants.length.toLocaleString("en")} plants loaded.`
-             : `Atlas listo: ${e.data.plants.length.toLocaleString("es")} plantas cargadas.`,
-        );
       };
       worker.onerror = () => { worker.terminate(); handleErr(new Error("worker")); };
     };
@@ -183,8 +184,29 @@ export default function PowerGlobe({ en = false, compact = false }) {
       if (e.isIntersecting) { run(); io.disconnect(); }
     }, { threshold: 0.1 });
     io.observe(el);
-    return () => { io.disconnect(); if (worker) try { worker.terminate(); } catch {} };
-  }, [compact, reduced, en]);
+    return () => {
+      io.disconnect();
+      ctrl.abort(); // stop a superseded in-flight download instead of letting it stream on
+      if (worker) try { worker.terminate(); } catch {}
+    };
+  }, [compact, reduced]);
+
+  // ── WRI status announcements (language-aware, cheap — decoupled from the fetch) ──
+  useEffect(() => {
+    if (status === "loading") {
+      setAnnounce(en ? "Loading 35,000 plants from WRI…" : "Cargando 35.000 plantas WRI…");
+    } else if (status === "error") {
+      setAnnounce(
+        en ? "Full dataset unavailable — showing curated reference plants."
+           : "Dataset completo no disponible — mostrando referencias destacadas.",
+      );
+    } else if (status === "ok" && plants) {
+      setAnnounce(
+        en ? `Atlas ready: ${plants.length.toLocaleString("en")} plants loaded.`
+           : `Atlas listo: ${plants.length.toLocaleString("es")} plantas cargadas.`,
+      );
+    }
+  }, [status, en, plants]);
 
   // ── Derived display data ──
   const decoratedMarquee = useMemo(

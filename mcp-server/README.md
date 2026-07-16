@@ -107,7 +107,7 @@ Includes the 7-law global legislation tracker (EU AI Act, South Korea, Colorado,
 
 ### 8. `search_data_sources`
 
-Search the 96+ data source registry.
+Search the 68-source data registry.
 
 **Input:** `{ "query": "World Bank", "type": "api" }`
 
@@ -116,7 +116,7 @@ Types: api (13 sources), report (30 annual reports), partner (25 institutions).
 ## Data Coverage
 
 - **Countries:** 20 peer countries across Asia, Europe, and LATAM
-- **Dimensions:** 6 CAPI-CR dimensions with 11 World Bank indicators
+- **Dimensions:** 6 CAPI-CR dimensions (static snapshot scores from proxy indicators — Oxford AI Readiness, HDI, CPI, curated estimates; the portal's live index uses 11 World Bank indicators)
 - **Governance:** 6 indices (CPI, Freedom House, V-Dem, GPI, Oxford AI, HDI)
 - **ILIA:** 19 LATAM countries ranked with tiers and Costa Rica detailed scorecard
 - **Legislation:** 7 key AI laws tracked globally

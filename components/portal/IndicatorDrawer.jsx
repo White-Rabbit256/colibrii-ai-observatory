@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Icon } from "../system/Icon";
 
@@ -10,6 +11,32 @@ import { Icon } from "../system/Icon";
                 source, lastUpdated, interpretation, interpretationEs }
    ═══════════════════════════════════════════════════════════════ */
 export function IndicatorDrawer({ open, onClose, indicator, en, t }) {
+  /* Modal semantics: focus in on open, trap Tab, Escape closes, focus restored on close */
+  const drawerRef = useRef(null);
+  const lastFocused = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    lastFocused.current = document.activeElement;
+    const focusable = () => drawerRef.current
+      ? Array.from(drawerRef.current.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])'))
+      : [];
+    focusable()[0]?.focus();
+    const onKey = (e) => {
+      if (e.key === "Escape") { onClose(); return; }
+      if (e.key !== "Tab") return;
+      const els = focusable();
+      if (!els.length) return;
+      const first = els[0], last = els[els.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      lastFocused.current?.focus?.();
+    };
+  }, [open, onClose]);
+
   if (!indicator) return null;
 
   const handleCite = () => {
@@ -29,7 +56,11 @@ export function IndicatorDrawer({ open, onClose, indicator, en, t }) {
             onClick={onClose}
           />
           <motion.div
+            ref={drawerRef}
             className="indicator-drawer"
+            role="dialog"
+            aria-modal="true"
+            aria-label={en ? (indicator.name || "Indicator detail") : (indicator.nameEs || indicator.name || "Detalle del indicador")}
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
@@ -44,7 +75,7 @@ export function IndicatorDrawer({ open, onClose, indicator, en, t }) {
               <button
                 onClick={onClose}
                 className="indicator-drawer-close"
-                aria-label="Close"
+                aria-label={en ? "Close" : "Cerrar"}
               >
                 <Icon name="x" size={18} color={t.tx3} />
               </button>

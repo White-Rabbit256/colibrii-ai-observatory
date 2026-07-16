@@ -1,8 +1,8 @@
 "use client";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, MotionConfig } from "framer-motion";
 import { TH, TH_DARK, CO, CC, IND_MAP, CUR, GOV, DM, TABS, PARTNERS, cacheGet, cacheSet, mm, av, sco, sla } from "../data";
 import { LoadCard, Grid, TabContent, ErrorBoundary, Flag } from "../ui";
 /* ── Lazy-loaded tab views (reduces initial JS bundle) ── */
@@ -81,6 +81,7 @@ const SLUG_TO_TAB = {
   zf: "zf", pai: "pai", media: "media", sdg: "sdg", about: "about",
   idx: "idx", banca: "banca", pymes: "pymes", health: "health",
   food: "food", infra: "infra", climate: "climate",
+  indice: "idx", index: "idx",
   // Deep Analysis tabs
   govdeep: "govdeep", edudeep: "edudeep", climatedeep: "climatedeep",
   readinessdeep: "readinessdeep", sources: "sources",
@@ -107,6 +108,26 @@ const TAB_TO_SLUG = {
   agentic: "ia-agente",
   energia: "energia",
 };
+
+// Own-key lookup only: hash slugs like #constructor must not walk the prototype chain
+const slugToTab = (raw) => {
+  const slug = String(raw || "").toLowerCase().replace(/-/g, "");
+  return Object.prototype.hasOwnProperty.call(SLUG_TO_TAB, slug) ? SLUG_TO_TAB[slug] : null;
+};
+
+// localStorage throws in cookie-blocking browsers/private modes — never let it crash the shell
+const storageGet = (k) => { try { return window.localStorage.getItem(k); } catch { return null; } };
+const storageSet = (k, v) => { try { window.localStorage.setItem(k, v); } catch { /* storage unavailable */ } };
+
+// Bounded fetch: a stalled third-party API must not hold the whole portal in skeleton state
+const fetchT = (url, ms = 10000) => {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(timer));
+};
+
+// Tabs that render live API data; all others are data-as-code and never wait on the network
+const DATA_TABS = new Set(["home", "media", "idx", "cmp", "countries", "sim"]);
 
 const WB = "https://api.worldbank.org/v2/country";
 const GDELT_URL = "https://api.gdeltproject.org/api/v2/doc/doc?query=%22artificial+intelligence%22+%22costa+rica%22&mode=artlist&maxrecords=24&format=json&sort=datedesc&timespan=7d";
@@ -137,63 +158,69 @@ export default function PortalShell() {
 
   /* ── INIT (single mount effect: language + theme + hash routing + scroll) ── */
   useEffect(() => {
-    const sLang = typeof window !== "undefined" && localStorage.getItem("clb_lang");
+    const sLang = storageGet("clb_lang");
     if (sLang === "en") setEn(true);
-    const sTheme = typeof window !== "undefined" && localStorage.getItem("clb_theme");
+    const sTheme = storageGet("clb_theme");
     if (sTheme === "dark") setDark(true);
     // Read initial tab from URL hash (e.g. #salud, #seguridad, #health)
-    if (typeof window !== "undefined" && window.location.hash) {
-      const slug = window.location.hash.slice(1).toLowerCase().replace(/-/g, "");
-      const mapped = SLUG_TO_TAB[slug];
+    if (window.location.hash) {
+      const mapped = slugToTab(window.location.hash.slice(1));
       if (mapped) setTab(mapped);
     }
     const onScroll = () => setShowScrollTop(window.scrollY > 300);
     window.addEventListener("scroll", onScroll, { passive: true });
-    // Listen for hash changes (browser back/forward)
+    // Browser back/forward walks the hash history (tab changes pushState below)
     const onHash = () => {
-      const slug = window.location.hash.slice(1).toLowerCase().replace(/-/g, "");
-      const mapped = SLUG_TO_TAB[slug];
+      const h = window.location.hash.slice(1);
+      if (!h) { setTab("home"); return; }
+      const mapped = slugToTab(h);
       if (mapped) setTab(mapped);
     };
     window.addEventListener("hashchange", onHash);
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("hashchange", onHash); };
   }, []);
 
-  /* ── LANGUAGE PERSISTENCE ── */
+  /* ── LANGUAGE PERSISTENCE (+ document language for AT/search — WCAG 3.1.1) ── */
   useEffect(() => {
-    localStorage.setItem("clb_lang", en ? "en" : "es");
+    storageSet("clb_lang", en ? "en" : "es");
+    document.documentElement.lang = en ? "en" : "es";
   }, [en]);
 
   /* ── DARK MODE PERSISTENCE ── */
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
-    localStorage.setItem("clb_theme", dark ? "dark" : "light");
+    storageSet("clb_theme", dark ? "dark" : "light");
   }, [dark]);
 
   /* ── SCROLL RESET + URL HASH SYNC ON TAB CHANGE ── */
+  const firstHashSync = useRef(true);
   useEffect(() => {
+    // Skip the mount pass: it runs before the initial-hash setTab lands and would clobber deep links
+    if (firstHashSync.current) { firstHashSync.current = false; return; }
     window.scrollTo({ top: 0, behavior: 'instant' });
-    // Update URL hash to reflect current tab (enables shareable links)
+    // pushState (not replaceState) so back/forward navigates between tabs — the
+    // hashchange listener above completes the loop when the user walks history.
     const slug = TAB_TO_SLUG[tab] || tab;
-    if (typeof window !== "undefined" && tab !== "home") {
-      history.replaceState(null, "", `#${slug}`);
-    } else if (typeof window !== "undefined") {
-      history.replaceState(null, "", window.location.pathname);
-    }
+    const target = tab === "home" ? "" : `#${slug}`;
+    if (window.location.hash === target) return; // change came from back/forward — don't re-push
+    if (tab === "home") history.pushState(null, "", window.location.pathname + window.location.search);
+    else history.pushState(null, "", target);
   }, [tab]);
 
   /* ── API FETCHING (preserved exactly from Portal.jsx) ── */
   const fetchWB = useCallback(async () => {
     const cached = cacheGet("wb");
-    if (cached) return cached;
+    if (cached) return { scores: cached, complete: true };
     const codes = CC.join(";");
     const inds = Object.keys(IND_MAP);
-    const reqs = inds.map(ind => fetch(`${WB}/${codes}/indicator/${ind}?format=json&per_page=500&date=2018:2024&source=2`).then(r => r.json()).catch(() => null));
+    const reqs = inds.map(ind => fetchT(`${WB}/${codes}/indicator/${ind}?format=json&per_page=500&date=2018:2024&source=2`, 12000).then(r => r.json()).catch(() => null));
     const results = await Promise.allSettled(reqs);
     const raw = {};
+    let okInds = 0;
     CC.forEach(c => { raw[c] = {}; });
     results.forEach((res, i) => {
       if (res.status !== "fulfilled" || !res.value?.[1]) return;
+      okInds++;
       const ind = inds[i];
       res.value[1].forEach(row => {
         if (!row.value || !row.countryiso3code || !CC.includes(row.countryiso3code)) return;
@@ -201,6 +228,8 @@ export default function PortalShell() {
         if (!raw[cc][ind] || row.date > raw[cc][ind].year) raw[cc][ind] = { v: row.value, year: row.date };
       });
     });
+    // Total outage: composites from D4/D6 alone would be fabricated scores — refuse instead
+    if (okInds === 0) return { scores: null, complete: false };
     const norm = {};
     CC.forEach(c => { norm[c] = {}; });
     inds.forEach(ind => {
@@ -220,27 +249,29 @@ export default function PortalShell() {
       dims.composite = Object.entries(DM).reduce((s, [dk, { w }]) => s + (dims[dk] ?? 0) * w, 0);
       scores[c] = dims;
     });
-    cacheSet("wb", scores);
-    return scores;
+    const complete = okInds === inds.length;
+    // Only a complete pull is cached — a partial one would pin degraded scores for 30 min
+    if (complete) cacheSet("wb", scores);
+    return { scores, complete };
   }, []);
 
   const fetchGDELT = useCallback(async () => {
     const cached = cacheGet("gdelt");
     if (cached) return cached;
     try {
-      const r = await fetch(GDELT_URL);
+      const r = await fetchT(GDELT_URL, 10000);
       const d = await r.json();
       const articles = d.articles?.slice(0, 24) || [];
       cacheSet("gdelt", articles);
       return articles;
-    } catch { return []; }
+    } catch { return null; } // null = fetch failed (distinct from a legitimately empty list)
   }, []);
 
   const fetchXR = useCallback(async () => {
     const cached = cacheGet("xr");
     if (cached) return cached;
     try {
-      const r = await fetch(XR_URL);
+      const r = await fetchT(XR_URL, 8000);
       const d = await r.json();
       const rate = d.rates?.CRC;
       if (rate) cacheSet("xr", rate);
@@ -254,19 +285,21 @@ export default function PortalShell() {
       setLoading(true);
       const [wbRes, gdeltRes, xrRes] = await Promise.allSettled([fetchWB(), fetchGDELT(), fetchXR()]);
       if (cancelled) return;
-      const scores = wbRes.status === "fulfilled" ? wbRes.value : {};
+      const wb = wbRes.status === "fulfilled" && wbRes.value ? wbRes.value : { scores: null, complete: false };
+      const scores = wb.scores || {};
       setIdx(scores);
       if (scores.CRI) setCrS(scores.CRI.composite);
       const sorted = CC.map(c => ({ code: c, ...CO[c], ...scores[c] })).sort((a, b) => (b.composite ?? 0) - (a.composite ?? 0));
       setBoard(sorted);
       const crIdx = sorted.findIndex(x => x.code === "CRI");
-      setCrR(crIdx >= 0 ? crIdx + 1 : null);
-      setNews(gdeltRes.status === "fulfilled" ? gdeltRes.value : []);
+      setCrR(wb.scores && crIdx >= 0 ? crIdx + 1 : null);
+      const newsVal = gdeltRes.status === "fulfilled" ? gdeltRes.value : null;
+      setNews(newsVal || []);
       setXr(xrRes.status === "fulfilled" ? xrRes.value : null);
       const failures = [
-        wbRes.status !== "fulfilled" || !wbRes.value || Object.keys(wbRes.value).length === 0 ? "World Bank" : null,
-        gdeltRes.status !== "fulfilled" ? "GDELT News" : null,
-        xrRes.status !== "fulfilled" ? "Exchange Rate" : null,
+        !wb.scores || !wb.complete ? "World Bank" : null,
+        newsVal === null ? "GDELT News" : null,
+        xrRes.status !== "fulfilled" || xrRes.value == null ? "Exchange Rate" : null,
       ].filter(Boolean);
       if (failures.length > 0) setDataWarning(failures);
       setLoading(false);
@@ -284,7 +317,8 @@ export default function PortalShell() {
 
   /* ── RENDER TAB ── */
   const renderTab = () => {
-    if (loading) return (
+    // Only live-data tabs wait on the network; data-as-code tabs render immediately
+    if (loading && DATA_TABS.has(tab)) return (
       <div>
         <div style={{ marginBottom: 24 }}>
           <div className="skeleton" style={{ width: 120, height: 10, marginBottom: 8 }} />
@@ -341,10 +375,17 @@ export default function PortalShell() {
     }
   };
 
+  const activeTab = TABS.find(x => x.id === tab);
   return (
+    <MotionConfig reducedMotion="user">
     <div className="portal-layout">
       {/* ── SKIP TO CONTENT (a11y) ── */}
       <a href="#main-content" className="skip-to-content">{en ? "Skip to content" : "Ir al contenido"}</a>
+
+      {/* ── SR tab-change announcement (WCAG 4.1.3) ── */}
+      <div aria-live="polite" style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>
+        {activeTab ? (en ? activeTab.le : activeTab.l) : ""}
+      </div>
 
       {/* ── SIDEBAR ── */}
       <PortalSidebar
@@ -366,12 +407,12 @@ export default function PortalShell() {
           <button
             className="portal-mobile-menu-btn"
             onClick={() => setMobileNav(true)}
-            aria-label="Open menu"
+            aria-label={en ? "Open menu" : "Abrir menú"}
           >
             <Icon name="menu" size={20} color={t.tx2} />
           </button>
           <Link href="/" style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", gap: 6 }} className="portal-mobile-title">
-            <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 28, height: 28 }} />
+            <img src="/colibrii-logo-320.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 28, height: 28 }} />
             <span style={{ fontWeight: 800, fontFamily: "var(--font-display, 'Playfair Display', serif)", fontSize: 13, color: t.tx }}>Colibrii Labs</span>
           </Link>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
@@ -410,10 +451,10 @@ export default function PortalShell() {
 
         {/* ── DATA WARNING BANNER ── */}
         {dataWarning && (
-          <div style={{ padding: "8px 16px", background: dark ? "#422006" : "#fffbeb", borderBottom: `1px solid ${dark ? "#854d0e" : "#fde68a"}`, display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: dark ? "#fbbf24" : "#92400e" }}>
-            <span>⚠️</span>
+          <div role="status" style={{ padding: "8px 16px", background: dark ? "#422006" : "#fffbeb", borderBottom: `1px solid ${dark ? "#854d0e" : "#fde68a"}`, display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: dark ? "#fbbf24" : "#92400e" }}>
+            <span aria-hidden="true">⚠️</span>
             <span>{en ? `Some data sources are temporarily unavailable (${dataWarning.join(", ")}). Showing cached or partial data.` : `Algunas fuentes de datos no disponibles temporalmente (${dataWarning.join(", ")}). Mostrando datos en caché o parciales.`}</span>
-            <button onClick={() => setDataWarning(null)} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", fontSize: 14, color: "inherit", padding: 4 }}>×</button>
+            <button onClick={() => setDataWarning(null)} aria-label={en ? "Dismiss warning" : "Cerrar aviso"} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", fontSize: 14, color: "inherit", padding: 4 }}>×</button>
           </div>
         )}
 
@@ -460,5 +501,6 @@ export default function PortalShell() {
         ↑
       </button>
     </div>
+    </MotionConfig>
   );
 }

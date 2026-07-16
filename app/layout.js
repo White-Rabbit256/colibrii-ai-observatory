@@ -73,10 +73,8 @@ export const metadata = {
     description: "Real-time strategic AI intelligence for Costa Rica's positioning in the global AI transformation. By Andrés Alpízar.",
     images: ["/og-image.png"]
   },
-  alternates: {
-    canonical: "https://colibriilabs.ai",
-    languages: { "es": "https://colibriilabs.ai", "en": "https://colibriilabs.ai" }
-  },
+  // Canonicals are set per page (/, /app) — a root-level canonical would collapse
+  // every route into the homepage and get /app dropped from indexes.
 };
 
 export const viewport = {
@@ -138,7 +136,7 @@ export default function RootLayout({ children }) {
           {
             "@type": "Question",
             name: "How many data sources does Colibrii Labs use?",
-            acceptedAnswer: { "@type": "Answer", text: "The observatory integrates 20+ international data sources including 4 live APIs (World Bank, GDELT, Exchange Rates, REST Countries), 29+ annual reports (WEF, Stanford HAI, Oxford Insights, IMF), and 13 API endpoints planned or available for future integration." }
+            acceptedAnswer: { "@type": "Answer", text: "The observatory integrates 20+ international data sources including 3 live APIs (World Bank, GDELT, Exchange Rates), 29+ annual reports (WEF, Stanford HAI, Oxford Insights, IMF), and 10 API endpoints planned or available for future integration." }
           },
           {
             "@type": "Question",
@@ -168,10 +166,13 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://open.er-api.com" />
         <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
         <link rel="dns-prefetch" href="https://logo.clearbit.com" />
-        <link rel="icon" href="/colibrii-logo.png" type="image/png" />
-        <link rel="apple-touch-icon" href="/colibrii-logo.png" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/colibrii-icon-192.png" type="image/png" sizes="192x192" />
+        <link rel="apple-touch-icon" href="/colibrii-icon-192.png" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="alternate" type="application/rss+xml" title="Colibrii Labs AI Observatory RSS" href="/api/rss" />
+        {/* Apply the stored theme before first paint — prevents the dark-mode light flash */}
+        <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem("clb_theme");if(t==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}` }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>
       <body className={`${inter.variable} ${playfair.variable} ${ibmPlexMono.variable}`}>

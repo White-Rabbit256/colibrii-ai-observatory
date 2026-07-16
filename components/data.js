@@ -1006,9 +1006,9 @@ export const CHECKLIST = (en) => [
 // ── API SOURCES (10+ — merged from both versions) ──
 export const API_SOURCES = (en) => [
   { n: "World Bank Open Data", d: en ? "11 indicators × 20 countries" : "11 indicadores × 20 países", st: en ? "● Active" : "● Activo", c: TH.gn, u: "https://api.worldbank.org/v2/" },
-  { n: "GDELT Project", d: en ? "AI news feed, 72h window" : "Noticias AI, ventana 72h", st: en ? "● Active" : "● Activo", c: TH.gn, u: "https://api.gdeltproject.org" },
+  { n: "GDELT Project", d: en ? "AI news feed, 7-day window" : "Noticias AI, ventana 7 días", st: en ? "● Active" : "● Activo", c: TH.gn, u: "https://api.gdeltproject.org" },
   { n: "Exchange Rates API", d: en ? "Live CRC/USD rates" : "Tasas CRC/USD en vivo", st: en ? "● Active" : "● Activo", c: TH.gn, u: "https://open.er-api.com" },
-  { n: "REST Countries", d: en ? "Population, GDP, flags" : "Población, PIB, banderas", st: en ? "● Active" : "● Activo", c: TH.gn, u: "https://restcountries.com" },
+  { n: "REST Countries", d: en ? "Population, GDP, flags" : "Población, PIB, banderas", st: en ? "◐ Planned" : "◐ Planificado", c: TH.am, u: "https://restcountries.com" },
   { n: "WHO GHO", d: en ? "Health indicators, UHC" : "Indicadores salud, CUS", st: en ? "◐ Planned" : "◐ Planificado", c: TH.am, u: "https://ghoapi.azureedge.net" },
   { n: "GitHub Search", d: en ? "AI repos by country" : "Repos AI por país", st: en ? "◐ Planned" : "◐ Planificado", c: TH.am, u: "https://api.github.com" },
   { n: "OECD SDMX", d: en ? "Labor, R&D data" : "Datos laborales, I+D", st: en ? "○ Available" : "○ Disponible", c: TH.tx3, u: "https://sdmx.oecd.org" },
@@ -1734,7 +1734,7 @@ export const AI_OVERPERFORMER_CONTEXT = (en) => ({
 export const SDG_ALIGNMENT = (en) => [
   { id: 4, name: en ? "Quality Education" : "Educación de Calidad", color: "#C5192D",
     icon: "edu",
-    contribution: en ? "AI literacy metrics across 20 countries, education dimension in CAPI-CR, glossary of 55+ AI terms for public understanding" : "Métricas de alfabetización AI en 20 países, dimensión educación en CAPI-CR, glosario de 55+ términos AI para comprensión pública",
+    contribution: en ? "AI literacy metrics across 20 countries, education dimension in CAPI-CR, glossary of 85+ AI terms for public understanding" : "Métricas de alfabetización AI en 20 países, dimensión educación en CAPI-CR, glosario de 85+ términos AI para comprensión pública",
     metric: en ? "20 countries' education indicators tracked" : "Indicadores educativos de 20 países rastreados" },
   { id: 8, name: en ? "Decent Work & Economic Growth" : "Trabajo Decente y Crecimiento", color: "#A21942",
     icon: "store",
@@ -1742,7 +1742,7 @@ export const SDG_ALIGNMENT = (en) => [
     metric: en ? "170M new AI jobs projected (WEF)" : "170M empleos AI nuevos proyectados (WEF)" },
   { id: 9, name: en ? "Industry, Innovation & Infrastructure" : "Industria, Innovación e Infraestructura", color: "#FD6925",
     icon: "factory",
-    contribution: en ? "CAPI-CR innovation dimension, Free Trade Zone competitiveness analysis, digital infrastructure scoring, 4 live APIs" : "Dimensión innovación CAPI-CR, análisis competitividad Zonas Francas, puntuación infraestructura digital, 4 APIs en vivo",
+    contribution: en ? "CAPI-CR innovation dimension, Free Trade Zone competitiveness analysis, digital infrastructure scoring, 3 live APIs" : "Dimensión innovación CAPI-CR, análisis competitividad Zonas Francas, puntuación infraestructura digital, 3 APIs en vivo",
     metric: en ? "10 proprietary algorithms deployed" : "10 algoritmos propietarios desplegados" },
   { id: 10, name: en ? "Reduced Inequalities" : "Reducción de Desigualdades", color: "#DD1367",
     icon: "chart",
@@ -1879,12 +1879,12 @@ export const AWARD_WINNERS_2025 = (en) => [
     partners: "CGIAR, FAO" },
 ];
 
-// ── OBSERVATORY IMPACT METRICS ──
+// ── OBSERVATORY IMPACT METRICS (counts computed from the registries above — do not hardcode) ──
 export const OBSERVATORY_IMPACT = {
-  countries: 20, algorithms: 10, dataSources: 25, glossaryTerms: 55,
-  liveApis: 4, languages: 2, uptime: "24/7",
+  countries: 20, algorithms: 10, dataSources: 25, glossaryTerms: GLOSSARY(false).length,
+  liveApis: 3, languages: 2, uptime: "24/7",
   sdgsAligned: 8, unAgencies: 6, riskDimensions: 3,
-  analysisViews: 19, wefRiskHorizons: 3,
+  analysisViews: TABS.length, wefRiskHorizons: 3,
 };
 
 // ── AI TRAJECTORY (Report 2) ──

@@ -446,10 +446,14 @@ export default function GlobeScene({
     return new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), n);
   }, [beaconPos]);
 
-  /* ── pointer drag (rotate) ── */
+  /* ── pointer drag (rotate) ──
+     Every handler calls invalidate(): these are raw DOM listeners, invisible
+     to R3F, and under frameloop="demand" (reduced motion, or an arbitration
+     loser in useFrameloopGate) nothing else schedules a frame — without it
+     the globe is frozen mid-drag. Harmless no-op under "always". */
   useEffect(() => {
     const el = gl.domElement;
-    const down = (e) => { drag.current.down = true; drag.current.lx = e.clientX; drag.current.ly = e.clientY; drag.current.vx = 0; };
+    const down = (e) => { drag.current.down = true; drag.current.lx = e.clientX; drag.current.ly = e.clientY; drag.current.vx = 0; invalidate(); };
     const move = (e) => {
       const d = drag.current;
       if (!d.down) return;
@@ -459,8 +463,9 @@ export default function GlobeScene({
       spin.current.x = MathUtils.clamp(spin.current.x + dy * 0.003, -0.9, 0.9);
       d.vx = dx * 0.005;
       d.resume = 2.2; // seconds until autorotate resumes
+      invalidate();
     };
-    const up = () => { drag.current.down = false; };
+    const up = () => { drag.current.down = false; invalidate(); };
     el.addEventListener("pointerdown", down);
     el.addEventListener("pointermove", move);
     window.addEventListener("pointerup", up);
@@ -469,7 +474,7 @@ export default function GlobeScene({
       el.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
     };
-  }, [gl]);
+  }, [gl, invalidate]);
 
   /* ── focus targets ── */
   useEffect(() => {
@@ -482,7 +487,10 @@ export default function GlobeScene({
     } else {
       spin.current.locked = false;
     }
-  }, [focus, compact]);
+    // Kick a demand-mode canvas so the focus/zoom lerp starts; the per-frame
+    // chaining in useFrame keeps invalidating until it settles.
+    invalidate();
+  }, [focus, compact, invalidate]);
 
   /* ── per-frame ── */
   useFrame(({ clock }, dt) => {
@@ -589,18 +597,30 @@ export default function GlobeScene({
         L.el.style.transform = `translate(-50%, 0) translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
       }
     }
+
+    // Demand-mode frame chaining: while a user-triggered transient (active
+    // drag, release inertia, focus/zoom lerp) is unsettled, request the next
+    // frame so frameloop="demand" canvases keep animating until it converges.
+    // The idle pendulum is deliberately NOT chained — "demand" means frozen
+    // frame when nothing is happening. No-op under frameloop="always".
+    const spinSettling = s.locked
+      && (Math.abs(((s.targetY - s.y + Math.PI * 3) % (Math.PI * 2)) - Math.PI) > 0.002
+        || Math.abs(s.targetX - s.x) > 0.002);
+    const zoomSettling = Math.abs(zoom.current.target - zoom.current.v) > 0.003;
+    if (d.down || (!s.locked && d.resume > 0) || spinSettling || zoomSettling) invalidate();
   });
 
-  /* ── hub picking → tooltip ── */
+  /* ── hub picking → tooltip (invalidate so demand-mode canvases repaint on hover) ── */
   const onHubMove = useCallback((e) => {
     e.stopPropagation();
     const i = e.instanceId;
     if (i == null || !hubData[i]) return;
     const h = hubData[i];
     onHover?.({ kind: "dc", d: h });
-  }, [hubData, onHover]);
-  const onArcOver = useCallback((a) => (e) => { e.stopPropagation(); onHover?.({ kind: "arc", d: a }); }, [onHover]);
-  const clearHover = useCallback(() => onHover?.(null), [onHover]);
+    invalidate();
+  }, [hubData, onHover, invalidate]);
+  const onArcOver = useCallback((a) => (e) => { e.stopPropagation(); onHover?.({ kind: "arc", d: a }); invalidate(); }, [onHover, invalidate]);
+  const clearHover = useCallback(() => { onHover?.(null); invalidate(); }, [onHover, invalidate]);
 
   return (
     <>

@@ -1980,27 +1980,29 @@ export const DATA_SOURCES = (en) => [
   }
 ];
 
-// ── Domain summary statistics ──
-export const SOURCES_SUMMARY = (en) => ({
-  totalSources: 96,
-  domains: [
-    { name: en ? "Costa Rica Government" : "Gobierno de Costa Rica", count: 22, integrated: 7 },
-    { name: en ? "International Organizations" : "Organizaciones Internacionales", count: 28, integrated: 9 },
-    { name: en ? "Central Banks LATAM" : "Bancos Centrales LATAM", count: 3, integrated: 0 },
-    { name: en ? "AI Governance" : "Gobernanza AI", count: 5, integrated: 4 },
-    { name: en ? "Cybersecurity" : "Ciberseguridad", count: 5, integrated: 3 },
-    { name: en ? "Financial" : "Financiero", count: 5, integrated: 1 },
-    { name: en ? "Environmental" : "Ambiental", count: 7, integrated: 0 },
-    { name: en ? "Health" : "Salud", count: 4, integrated: 0 },
-    { name: en ? "Research" : "Investigación", count: 5, integrated: 0 },
-    { name: en ? "Education Tools" : "Herramientas Educativas", count: 10, integrated: 0 }
-  ],
-  apiBreakdown: { REST: 42, Download: 28, "Web scrape": 14, SDMX: 2, GraphQL: 1 },
-  freePercentage: 94,
-  phases: [
-    { phase: 1, label: en ? "Currently Integrated" : "Actualmente Integrado", count: 24 },
-    { phase: 2, label: en ? "Priority Integration" : "Integración Prioritaria", count: 46 },
-    { phase: 3, label: en ? "Future Integration" : "Integración Futura", count: 20 },
-    { phase: 4, label: en ? "Long-term / Exploratory" : "Largo Plazo / Exploratorio", count: 6 }
-  ]
-});
+// ── Domain summary statistics — computed from DATA_SOURCES so counts can never drift ──
+export const SOURCES_SUMMARY = (en) => {
+  const list = DATA_SOURCES(en);
+  const byDomain = new Map();
+  list.forEach(s => {
+    if (!byDomain.has(s.domain)) byDomain.set(s.domain, { name: s.domain, count: 0, integrated: 0 });
+    const d = byDomain.get(s.domain);
+    d.count += 1;
+    if (s.currentlyIntegrated) d.integrated += 1;
+  });
+  const apiBreakdown = {};
+  list.forEach(s => { const k = s.apiType || "Other"; apiBreakdown[k] = (apiBreakdown[k] || 0) + 1; });
+  const phaseLabels = {
+    1: en ? "Currently Integrated" : "Actualmente Integrado",
+    2: en ? "Priority Integration" : "Integración Prioritaria",
+    3: en ? "Future Integration" : "Integración Futura",
+    4: en ? "Long-term / Exploratory" : "Largo Plazo / Exploratorio",
+  };
+  return {
+    totalSources: list.length,
+    domains: Array.from(byDomain.values()),
+    apiBreakdown,
+    freePercentage: Math.round((list.filter(s => s.free).length / list.length) * 100),
+    phases: [1, 2, 3, 4].map(p => ({ phase: p, label: phaseLabels[p], count: list.filter(s => s.phase === p).length })),
+  };
+};

@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { TABS } from "../data";
@@ -23,11 +24,37 @@ const GROUPS = [
 ];
 
 export function PortalSidebar({ tab, setTab, en, setEn, dark, setDark, t, mobileOpen, setMobileOpen }) {
+  /* Mobile drawer = modal dialog: trap focus, close on Escape, restore focus on close (WCAG 2.4.3 / 2.1.2) */
+  const asideRef = useRef(null);
+  const lastFocused = useRef(null);
+  useEffect(() => {
+    if (!mobileOpen) return;
+    lastFocused.current = document.activeElement;
+    const focusable = () => asideRef.current
+      ? Array.from(asideRef.current.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])'))
+      : [];
+    focusable()[0]?.focus();
+    const onKey = (e) => {
+      if (e.key === "Escape") { setMobileOpen(false); return; }
+      if (e.key !== "Tab") return;
+      const els = focusable();
+      if (!els.length) return;
+      const first = els[0], last = els[els.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      lastFocused.current?.focus?.();
+    };
+  }, [mobileOpen, setMobileOpen]);
+
   const navContent = (
     <div className="portal-sidebar-content">
       {/* Logo */}
       <Link href="/" style={{ textDecoration: "none", color: "inherit" }} className="portal-sidebar-logo" onClick={() => setMobileOpen?.(false)}>
-        <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 40, height: 40, flexShrink: 0 }} />
+        <img src="/colibrii-logo-320.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 40, height: 40, flexShrink: 0 }} />
         <div>
           <div style={{ fontSize: 14, fontWeight: 800, fontFamily: "var(--font-display, 'Playfair Display', serif)", color: t.tx }}>Colibrii Labs</div>
           <div style={{ fontSize: 8, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", letterSpacing: 1.5 }}>
@@ -103,14 +130,18 @@ export function PortalSidebar({ tab, setTab, en, setEn, dark, setDark, t, mobile
               onClick={() => setMobileOpen(false)}
             />
             <motion.aside
+              ref={asideRef}
               className="portal-sidebar portal-sidebar-mobile"
+              role="dialog"
+              aria-modal="true"
+              aria-label={en ? "Navigation menu" : "Menú de navegación"}
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
             >
               <div className="portal-sidebar-mobile-close">
-                <button onClick={() => setMobileOpen(false)} aria-label="Close menu">
+                <button onClick={() => setMobileOpen(false)} aria-label={en ? "Close menu" : "Cerrar menú"}>
                   <Icon name="x" size={20} />
                 </button>
               </div>

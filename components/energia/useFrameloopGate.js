@@ -58,7 +58,12 @@ export default function useFrameloopGate(wrapRef, reduced = false) {
     };
     registry.set(id, entry);
     const io = new IntersectionObserver(
-      ([e]) => {
+      (records) => {
+        // Records arrive oldest → newest; a fast flick-scroll on a busy main
+        // thread batches several per callback. Only the LAST reflects the
+        // element's current state — reading records[0] can pin an off-screen
+        // canvas at "always" (stale ratio) until the next threshold crossing.
+        const e = records[records.length - 1];
         entry.ratio = e.isIntersecting ? Math.max(e.intersectionRatio, 0.001) : 0;
         arbitrate();
       },
