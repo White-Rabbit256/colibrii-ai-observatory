@@ -27,9 +27,11 @@ const nextConfig = {
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "font-src 'self' https://fonts.gstatic.com",
             "img-src 'self' data: https: blob:",
-            "connect-src 'self' https://api.worldbank.org https://api.gdeltproject.org https://open.er-api.com https://restcountries.com https://ghoapi.azureedge.net https://sdmx.oecd.org https://sdmx.fao.org https://datahub.itu.int https://databrowser.uis.unesco.org https://api.github.com https://cdn.jsdelivr.net https://www.tiktok.com https://services.nvd.nist.gov https://va.vercel-scripts.com https://vitals.vercel-insights.com",
-            // worker-src added for WRI CSV parse Web Worker (Phase 1)
+            // *.mapbox.com: TerrainHero (satellite tiles, terrain DEM, telemetry)
+            "connect-src 'self' https://api.worldbank.org https://api.gdeltproject.org https://open.er-api.com https://restcountries.com https://ghoapi.azureedge.net https://sdmx.oecd.org https://sdmx.fao.org https://datahub.itu.int https://databrowser.uis.unesco.org https://api.github.com https://cdn.jsdelivr.net https://www.tiktok.com https://services.nvd.nist.gov https://va.vercel-scripts.com https://vitals.vercel-insights.com https://api.mapbox.com https://events.mapbox.com https://*.tiles.mapbox.com",
+            // worker-src: WRI CSV parse Web Worker (Phase 1) + mapbox-gl blob worker
             "worker-src 'self' blob:",
+            "child-src 'self' blob:",
             "frame-src 'self' https://www.tiktok.com",
             "frame-ancestors 'none'",
             "base-uri 'self'",

@@ -20,6 +20,7 @@
     "animejs": "^4.4.1",
     "framer-motion": "^12.34.2",
     "html-to-image": "^1.11.13",
+    "mapbox-gl": "^3.28.1",
     "next": "^14.2.21",
     "postprocessing": "^6.39.1",
     "react": "^18.3.1",
