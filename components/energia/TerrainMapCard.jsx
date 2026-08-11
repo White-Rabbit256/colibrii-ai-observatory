@@ -83,10 +83,10 @@ export default function TerrainMapCard({ en = false }) {
     const map = new mapboxgl.Map({
       container: holder.current,
       style: "mapbox://styles/mapbox/satellite-v9",
-      center: [-84.15, 9.7],
-      zoom: 6.75,
-      pitch: 55,
-      bearing: 14,
+      bounds: [[-86.0, 8.0], [-82.4, 11.3]],
+      fitBoundsOptions: { padding: { top: 46, bottom: 60, left: 24, right: 24 } },
+      pitch: 34,
+      bearing: 10,
       scrollZoom: false,
       boxZoom: false,
       doubleClickZoom: false,
@@ -105,28 +105,9 @@ export default function TerrainMapCard({ en = false }) {
       if (!map.getSource("mapbox-dem")) {
         map.addSource("mapbox-dem", { type: "raster-dem", url: "mapbox://mapbox.mapbox-terrain-dem-v1", tileSize: 512, maxzoom: 14 });
       }
-      map.setTerrain({ source: "mapbox-dem", exaggeration: 1.4 });
+      map.setTerrain({ source: "mapbox-dem", exaggeration: 1.15 });
       map.setFog({ color: NAVY, "high-color": NAVY2, "horizon-blend": 0.16, "space-color": "#060f22", "star-intensity": 0 });
 
-      /* ── Spotlight: world polygon with Costa Rica punched out, so the
-         country reads as the subject instead of one nation among many ── */
-      map.addSource("tmc-spot", {
-        type: "geojson",
-        data: {
-          type: "Feature", properties: {},
-          geometry: {
-            type: "Polygon",
-            coordinates: [
-              [[-180, -85], [180, -85], [180, 85], [-180, 85], [-180, -85]],
-              CR_OUTLINE_GEO,
-            ],
-          },
-        },
-      });
-      map.addLayer({
-        id: "tmc-spot", type: "fill", source: "tmc-spot",
-        paint: { "fill-color": NAVY, "fill-opacity": 0.86 },
-      });
       map.addSource("tmc-coast", {
         type: "geojson",
         data: { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: CR_OUTLINE_GEO } },
@@ -134,12 +115,12 @@ export default function TerrainMapCard({ en = false }) {
       map.addLayer({
         id: "tmc-coast-glow", type: "line", source: "tmc-coast",
         layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": GLOW, "line-width": 5, "line-opacity": 0.18, "line-blur": 4 },
+        paint: { "line-color": GLOW, "line-width": 4, "line-opacity": 0.12, "line-blur": 3 },
       });
       map.addLayer({
         id: "tmc-coast", type: "line", source: "tmc-coast",
         layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": GLOW, "line-width": 1.2, "line-opacity": 0.7 },
+        paint: { "line-color": GLOW, "line-width": 1, "line-opacity": 0.45 },
       });
 
       map.addSource("tmc-grid", { type: "geojson", data: gridGeoJSON() });
@@ -217,7 +198,7 @@ export default function TerrainMapCard({ en = false }) {
         )}
 
         {/* Legend */}
-        <div style={{ position: "absolute", left: 14, bottom: 12, zIndex: 3, display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center", maxWidth: "calc(100% - 28px)", padding: "6px 8px", background: "rgba(10,31,63,0.55)", border: `1px solid ${TURQ}26`, borderRadius: 999, backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", pointerEvents: "none" }}>
+        <div style={{ position: "absolute", left: 12, right: 12, bottom: 10, zIndex: 3, display: "flex", flexWrap: "wrap", gap: "4px 10px", alignItems: "center", pointerEvents: "none" }}>
           {Object.keys(KIND).map((k) => (
             <span key={k} style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "2px 8px", fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: "rgba(255,255,255,0.8)" }}>
               <span style={{ width: 7, height: 7, borderRadius: "50%", background: KIND[k], boxShadow: `0 0 6px ${KIND[k]}` }} />

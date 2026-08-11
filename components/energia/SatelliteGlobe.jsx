@@ -35,8 +35,8 @@ const ARC_COLORS = { siepac: GOLD, hvdc: "#67E4F5", ac: TURQ, planned: "#8fb4d8"
 const CANAS = { lng: -85.09, lat: 10.43 };
 
 const VIEWS = {
-  mundo: { center: [-60, 16], zoom: 1.55, pitch: 0, bearing: 0 },
-  cr: { center: [-84.2, 9.9], zoom: 6.1, pitch: 42, bearing: 12 },
+  mundo: { center: [-88, 17], zoom: 1.9, pitch: 0, bearing: 0 },
+  cr: { center: [-84.2, 9.8], zoom: 6.0, pitch: 30, bearing: 8 },
 };
 
 /* Great-circle interpolation so long HVDC corridors curve over the sphere
@@ -310,7 +310,7 @@ export default function SatelliteGlobe({ en = false, compact = false }) {
       }} />
 
       {/* View + layer controls */}
-      <div style={{ position: "absolute", top: 12, right: 12, zIndex: 3, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+      <div style={{ position: "absolute", top: 64, right: 12, zIndex: 3, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
         <div style={{ display: "flex", gap: 6 }}>
           <button style={CHIP(view === "mundo")} onClick={() => setView("mundo")} aria-pressed={view === "mundo"}>{en ? "World" : "Mundo"}</button>
           <button style={CHIP(view === "cr")} onClick={() => setView("cr")} aria-pressed={view === "cr"}>Costa Rica</button>

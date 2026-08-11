@@ -41,9 +41,14 @@ const GAM = PLANTS_GEO.find((p) => p.kind === "load");
 const FEEDERS = PLANTS_GEO.filter((p) => p.kind !== "load");
 
 /* Camera. Padding keeps the country clear of the desktop text column. */
+/* Costa Rica's real extent. We fit to THIS instead of guessing a zoom —
+   the country then always fills the frame at any container size. Pitch is
+   deliberately moderate: past ~40 deg a 300 km-wide country flattens into an
+   edge-on slab and the far edge smears. */
+const CR_BOUNDS = [[-86.0, 8.0], [-82.4, 11.3]];
 const POSE = {
-  wide:    { center: [-84.0, 9.75], zoom: 6.7, pitch: 58, bearing: 18, padding: { top: 0, bottom: 0, left: 400, right: 20 } },
-  compact: { center: [-84.1, 9.85], zoom: 6.35, pitch: 52, bearing: 14, padding: { top: 0, bottom: 0, left: 0, right: 0 } },
+  wide:    { pitch: 36, bearing: 12, padding: { top: 30, bottom: 30, left: 380, right: 40 } },
+  compact: { pitch: 32, bearing: 8,  padding: { top: 24, bottom: 24, left: 20, right: 20 } },
 };
 
 /* Spotlight: whole world, with Costa Rica as a hole. Everything
@@ -76,8 +81,16 @@ const gridGeoJSON = () => ({
   })),
 });
 
-/* Marker: bright core + white keyline so it survives over green terrain,
-   with the plant name always visible (these replace the basemap labels). */
+const plantsGeoJSON = () => ({
+  type: "FeatureCollection",
+  features: PLANTS_GEO.map((p) => ({
+    type: "Feature",
+    properties: { name: p.name, isLoad: p.kind === "load" ? 1 : 0 },
+    geometry: { type: "Point", coordinates: [p.lng, p.lat] },
+  })),
+});
+
+/* Kept for reference; plants now render as native layers (collision-managed). */
 function makeMarkerEl(plant) {
   const isLoad = plant.kind === "load";
   const c = isLoad ? GOLD : GLOW;
@@ -108,11 +121,10 @@ export default function TerrainHero({ compact = false }) {
       /* Pure imagery — no labels, borders or roads. Critical: the streets
          variant made this read as a generic map screenshot. */
       style: "mapbox://styles/mapbox/satellite-v9",
-      center: pose.center,
-      zoom: reduced ? pose.zoom : pose.zoom - 0.3,
+      bounds: CR_BOUNDS,
+      fitBoundsOptions: { padding: pose.padding },
       pitch: pose.pitch,
       bearing: pose.bearing,
-      padding: pose.padding,
       scrollZoom: false,
       boxZoom: false,
       doubleClickZoom: false,
@@ -139,7 +151,7 @@ export default function TerrainHero({ compact = false }) {
           maxzoom: 14,
         });
       }
-      map.setTerrain({ source: "mapbox-dem", exaggeration: 1.8 });
+      map.setTerrain({ source: "mapbox-dem", exaggeration: 1.15 });
 
       map.setFog({
         color: NAVY,
@@ -149,24 +161,17 @@ export default function TerrainHero({ compact = false }) {
         "star-intensity": 0.05,
       });
 
-      /* ── Spotlight mask: everything but Costa Rica sinks into navy ── */
-      map.addSource("th-spot", { type: "geojson", data: spotlightGeoJSON() });
-      map.addLayer({
-        id: "th-spot", type: "fill", source: "th-spot",
-        paint: { "fill-color": NAVY, "fill-opacity": 0.86 },
-      });
-
       /* Coastline rim so the lit country has a crisp edge */
       map.addSource("th-coast", { type: "geojson", data: coastGeoJSON() });
       map.addLayer({
         id: "th-coast-glow", type: "line", source: "th-coast",
         layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": GLOW, "line-width": 5, "line-opacity": 0.18, "line-blur": 4 },
+        paint: { "line-color": GLOW, "line-width": 4, "line-opacity": 0.12, "line-blur": 3 },
       });
       map.addLayer({
         id: "th-coast", type: "line", source: "th-coast",
         layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": GLOW, "line-width": 1.2, "line-opacity": 0.7 },
+        paint: { "line-color": GLOW, "line-width": 1, "line-opacity": 0.45 },
       });
 
       /* Transmission network — thick enough to read over imagery */
@@ -182,19 +187,47 @@ export default function TerrainHero({ compact = false }) {
         paint: { "line-color": GLOW, "line-width": 1.8, "line-opacity": 0.9, "line-dasharray": [2, 2] },
       });
 
-      PLANTS_GEO.forEach((p) => {
-        markers.push(
-          new mapboxgl.Marker({ element: makeMarkerEl(p), anchor: "center" })
-            .setLngLat([p.lng, p.lat])
-            .addTo(map)
-        );
+      /* Plants as native layers. Symbol labels collide-avoid on their own,
+         which the old always-on DOM labels could not do — they overlapped
+         and ran off the frame. */
+      map.addSource("th-plants", { type: "geojson", data: plantsGeoJSON() });
+      map.addLayer({
+        id: "th-plants-halo", type: "circle", source: "th-plants",
+        paint: {
+          "circle-radius": ["match", ["get", "isLoad"], 1, 13, 9],
+          "circle-color": ["match", ["get", "isLoad"], 1, GOLD, GLOW],
+          "circle-opacity": 0.16,
+        },
+      });
+      map.addLayer({
+        id: "th-plants", type: "circle", source: "th-plants",
+        paint: {
+          "circle-radius": ["match", ["get", "isLoad"], 1, 6, 4.5],
+          "circle-color": ["match", ["get", "isLoad"], 1, GOLD, "#dffbff"],
+          "circle-stroke-width": ["match", ["get", "isLoad"], 1, 2, 1.4],
+          "circle-stroke-color": ["match", ["get", "isLoad"], 1, "#fff", GLOW],
+        },
+      });
+      map.addLayer({
+        id: "th-plants-label", type: "symbol", source: "th-plants",
+        layout: {
+          "text-field": ["get", "name"],
+          "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
+          "text-size": ["match", ["get", "isLoad"], 1, 12, 10],
+          "text-offset": [0, 1.25],
+          "text-anchor": "top",
+          "text-letter-spacing": 0.08,
+          "text-max-width": 9,
+          "text-optional": true,
+        },
+        paint: {
+          "text-color": ["match", ["get", "isLoad"], 1, GOLD, "#eaf6ff"],
+          "text-halo-color": "rgba(4,12,28,0.95)",
+          "text-halo-width": 1.4,
+        },
       });
 
       setReady(true);
-
-      if (!reduced) {
-        map.easeTo({ zoom: pose.zoom, duration: 2600, easing: (t) => 1 - Math.pow(1 - t, 3) });
-      }
     });
 
     const ro = new ResizeObserver(() => map.resize());
