@@ -36,6 +36,10 @@ const nextConfig = {
             "frame-ancestors 'none'",
             "base-uri 'self'",
             "form-action 'self'",
+            // No plugin/embed objects — removes a legacy injection vector
+            "object-src 'none'",
+            // Any stray http:// subresource is fetched over https instead
+            "upgrade-insecure-requests",
           ].join('; '),
         },
         { key: 'X-Frame-Options', value: 'DENY' },
