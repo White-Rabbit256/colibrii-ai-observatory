@@ -18,7 +18,7 @@ export async function GET() {
       keywordExactMatch: "",
     });
 
-    const res = await fetch(`${NVD_BASE}?${params}`, {
+    const res = await fetch(`${NVD_BASE}?${params}`, { signal: AbortSignal.timeout(8000),
       headers: { "User-Agent": "ColibriiLabs-Observatory/1.0" },
       next: { revalidate: CACHE_SECONDS },
     });

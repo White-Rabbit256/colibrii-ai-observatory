@@ -305,6 +305,7 @@ export default function CRGridMap({ en }) {
   }, [lockedActive]);
 
   return (
+    <>
     <div
       ref={rootRef}
       id="crGridMapAnchor"
@@ -321,8 +322,8 @@ export default function CRGridMap({ en }) {
         @keyframes crmapSweep { 0% { transform: translateX(-60%); } 100% { transform: translateX(160%); } }
         @keyframes crmapGrid { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
         @keyframes crmapPulse {
-          0%, 100% { transform: scale(1); opacity: .42; }
-          50% { transform: scale(1.95); opacity: .06; }
+          0%, 100% { transform: scale(1); opacity: .3; }
+          50% { transform: scale(1.55); opacity: .08; }
         }
         @keyframes crmapRing {
           0% { transform: scale(.3); opacity: .85; }
@@ -330,7 +331,7 @@ export default function CRGridMap({ en }) {
         }
         .crmap-flow { stroke-dasharray: 0.06 0.08; }
         .crmap-flowing .crmap-flow { animation: crmapFlow 2.6s linear infinite; }
-        .crmap-sweep { animation: crmapSweep 7s ease-in-out infinite; }
+        .crmap-sweep { animation: crmapSweep 9s ease-in-out infinite; }
         .crmap-grid { animation: crmapGrid 5.5s ease-in-out infinite; }
         .crmap-halo, .crmap-ring { transform-box: fill-box; transform-origin: center; }
         .crmap-flowing .crmap-halo { animation: crmapPulse 2.6s ease-in-out infinite; }
@@ -340,6 +341,10 @@ export default function CRGridMap({ en }) {
         .crmap-node:hover .crmap-core, .crmap-node:focus-visible .crmap-core { transform: scale(1.34); }
         .crmap-core { transform-box: fill-box; transform-origin: center; transition: transform .18s ease; }
         .crmap-btn:focus-visible { outline: 2px solid ${GLOW}d9; outline-offset: 3px; border-radius: 50%; }
+        .crmap-chips { display: none; }
+        @media (max-width: 640px) {
+          .crmap-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+        }
         @media (prefers-reduced-motion: reduce) {
           .crmap-flow { animation: none !important; }
           .crmap-sweep, .crmap-grid, .crmap-halo, .crmap-ring { animation: none !important; }
@@ -377,7 +382,7 @@ export default function CRGridMap({ en }) {
           ))}
           {/* soft outer coastline glow (stronger) */}
           <filter id="crCoastGlow" x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="0.075" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.05" />
           </filter>
           {/* line / node glow */}
           <filter id="crSoft" x="-60%" y="-60%" width="220%" height="220%">
@@ -389,7 +394,7 @@ export default function CRGridMap({ en }) {
           </filter>
           {/* brighter halo glow for node cores */}
           <filter id="crNodeGlow" x="-120%" y="-120%" width="340%" height="340%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="0.03" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.02" />
           </filter>
           {/* rounded panel clip so graticule + sweep stay inside */}
           <clipPath id="crPanel">
@@ -397,7 +402,7 @@ export default function CRGridMap({ en }) {
           </clipPath>
           <linearGradient id="crSweepFade" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor={TURQ} stopOpacity="0" />
-            <stop offset="50%" stopColor={TURQ} stopOpacity="0.12" />
+            <stop offset="50%" stopColor={TURQ} stopOpacity="0.08" />
             <stop offset="100%" stopColor={TURQ} stopOpacity="0" />
           </linearGradient>
         </defs>
@@ -419,7 +424,7 @@ export default function CRGridMap({ en }) {
           </g>
 
           {/* outer glow halo (blurred duplicate of the smoothed coast) — drawn on */}
-          <path ref={coastGlowRef} d={LAND_D} fill="none" stroke={TURQ} strokeOpacity={0.55} strokeWidth={0.05} strokeLinejoin="round" strokeLinecap="round" filter="url(#crCoastGlow)" />
+          <path ref={coastGlowRef} d={LAND_D} fill="none" stroke={TURQ} strokeOpacity={0.45} strokeWidth={0.034} strokeLinejoin="round" strokeLinecap="round" filter="url(#crCoastGlow)" />
 
           {/* gradient land fill + inner luminous wash */}
           <path d={LAND_D} fill="url(#crLand)" strokeLinejoin="round" />
@@ -427,7 +432,7 @@ export default function CRGridMap({ en }) {
 
           {/* faint topographic contour bands inside the land */}
           {CONTOURS.map((d, i) => (
-            <path key={`ct${i}`} d={d} fill="none" stroke={GLOW} strokeWidth={0.005} opacity={0.08 - i * 0.014} strokeLinejoin="round" />
+            <path key={`ct${i}`} d={d} fill="none" stroke={GLOW} strokeWidth={0.006} opacity={0.12 - i * 0.022} strokeLinejoin="round" />
           ))}
 
           {/* inner highlight stroke (reads as a lit top edge) — drawn on */}
@@ -460,11 +465,11 @@ export default function CRGridMap({ en }) {
               {/* kind-colored glow halo (animated bloom-in, then CSS pulse) */}
               {isLoad ? (
                 <>
-                  <circle className="crmap-ring" cx={n.x} cy={n.y} r={0.095} fill="none" stroke="#fff" strokeWidth={0.009} opacity={0.45} />
-                  <circle ref={(el) => { haloRefs.current[idx] = el; }} className="crmap-halo" cx={n.x} cy={n.y} r={0.085} fill="#fff" opacity={0.3} filter="url(#crNodeGlow)" />
+                  <circle className="crmap-ring" cx={n.x} cy={n.y} r={0.095} fill="none" stroke={EN_ACCENT.gold} strokeWidth={0.009} opacity={0.55} />
+                  <circle ref={(el) => { haloRefs.current[idx] = el; }} className="crmap-halo" cx={n.x} cy={n.y} r={0.066} fill="#fff" opacity={0.26} filter="url(#crNodeGlow)" />
                 </>
               ) : (
-                <circle ref={(el) => { haloRefs.current[idx] = el; }} className="crmap-halo" cx={n.x} cy={n.y} r={0.068} fill={c} opacity={0.34} filter="url(#crNodeGlow)" style={{ animationDelay: `${n.i * 0.35}s` }} />
+                <circle ref={(el) => { haloRefs.current[idx] = el; }} className="crmap-halo" cx={n.x} cy={n.y} r={0.052} fill={c} opacity={0.28} filter="url(#crNodeGlow)" style={{ animationDelay: `${n.i * 0.35}s` }} />
               )}
               {/* pop-in wrapper (anime scales opacity+scale on this <g>) */}
               <g ref={(el) => { nodeRefs.current[idx] = el; }} className="crmap-corewrap">
@@ -506,7 +511,7 @@ export default function CRGridMap({ en }) {
           style={{
             position: "absolute", left: `${Math.min(Math.max(n.px, 8), 92)}%`,
             top: `calc(${n.py}% + 16px)`, transform: "translateX(-50%)",
-            fontFamily: MONO, fontSize: 8, letterSpacing: 1.2, color: `${GLOW}cc`,
+            fontFamily: MONO, fontSize: 9, letterSpacing: 1.5, color: `${GLOW}d9`,
             textShadow: "0 1px 5px rgba(0,0,0,0.8)", pointerEvents: "none", zIndex: 2, whiteSpace: "nowrap",
           }}
         >
@@ -520,7 +525,7 @@ export default function CRGridMap({ en }) {
         style={{
           position: "absolute", left: `${Math.min(Math.max(LOAD.px, 6), 94)}%`,
           top: `calc(${LOAD.py}% - 24px)`, transform: "translateX(-50%)",
-          fontFamily: MONO, fontSize: 9.5, letterSpacing: 1.5, color: "#fff",
+          fontFamily: MONO, fontSize: 9.5, letterSpacing: 1.5, color: EN_ACCENT.gold,
           textShadow: "0 1px 6px rgba(0,0,0,0.7)", pointerEvents: "none", zIndex: 2,
         }}
       >
@@ -654,5 +659,30 @@ export default function CRGridMap({ en }) {
         ))}
       </div>
     </div>
+
+    {/* mobile-only chip picker — same lock state as the SVG buttons; the
+        Guanacaste cluster (miravalles/guanacaste/borinquen) overlaps at
+        <=640px stage widths, so each plant gets a reliable tap target. */}
+    <div className="crmap-chips" role="group" aria-label={en ? "Select a plant" : "Seleccionar una planta"}>
+      {NODES.map((n) => (
+        <button
+          key={`chip-${n.id}`}
+          type="button"
+          onClick={() => onToggleLock(n.id)}
+          aria-pressed={lockedActive === n.id}
+          style={{
+            fontFamily: MONO, fontSize: 10, letterSpacing: 0.5, padding: "6px 10px", minHeight: 32,
+            borderRadius: 999, cursor: "pointer", color: lockedActive === n.id ? "#fff" : "rgba(255,255,255,0.75)",
+            background: lockedActive === n.id ? `${KIND[n.kind]}2e` : "rgba(255,255,255,0.04)",
+            border: `1px solid ${KIND[n.kind]}${lockedActive === n.id ? "" : "66"}`,
+            display: "inline-flex", alignItems: "center", gap: 6,
+          }}
+        >
+          <span style={{ width: 6, height: 6, borderRadius: "50%", background: KIND[n.kind] }} />
+          {n.name}
+        </button>
+      ))}
+    </div>
+    </>
   );
 }

@@ -19,7 +19,7 @@ const KIND_COLORS = {
   hydro: "#22d3ee",   // EN_ACCENT.glow
   geo: "#F2B135",     // EN_ACCENT.gold
   wind: "#00B5A8",    // EN_ACCENT.turquoise
-  solar: "#fbbf24",
+  solar: "#F2B135",
   thermal: "#ef4444", // EN_ACCENT.risk
   load: "#ffffff",
 };

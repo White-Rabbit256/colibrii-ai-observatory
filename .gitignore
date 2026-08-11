@@ -22,8 +22,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
-.env*.local
+# env files — ALL variants stay out of git. The repo is public, so a
+# committed .env (even one holding only NEXT_PUBLIC_* values) is scraped
+# within minutes. Secrets belong in Vercel project environment variables.
+.env
+.env.*
+!.env.example
 
 # vercel
 .vercel

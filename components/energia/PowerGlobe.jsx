@@ -358,14 +358,14 @@ export default function PowerGlobe({ en = false, compact = false }) {
         }
         .pg-anchor-label {
           position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none;
-          font-family: ${MONO}; font-size: 9px; letter-spacing: 0.6px; line-height: 1.25;
+          font-family: ${MONO}; font-size: 9.5px; letter-spacing: 0.6px; line-height: 1.25;
           color: #fff; text-align: center; white-space: nowrap;
-          background: rgba(6,21,46,0.66); border-radius: 4px; padding: 2px 6px;
-          border: 1px solid rgba(34,211,238,0.4);
+          background: rgba(6,21,46,0.82); border-radius: 4px; padding: 2px 6px;
+          border: 1px solid rgba(34,211,238,0.55);
           text-shadow: 0 1px 4px rgba(0,0,0,0.95);
           transition: opacity 200ms ease; will-change: transform;
         }
-        .pg-anchor-label[data-gold="1"] { border-color: rgba(242,177,53,0.55); }
+        .pg-anchor-label[data-gold="1"] { border-color: rgba(242,177,53,0.7); }
         .pg-anchor-label b { color: ${EN_ACCENT.gold}; font-weight: 700; }
       `}</style>
 
@@ -427,7 +427,7 @@ export default function PowerGlobe({ en = false, compact = false }) {
           frameloop={frameloop}
           camera={{ fov: compact ? 34 : 26, position: [0, 0, 5.6], near: 0.1, far: 60 }}
           gl={{
-            antialias: false,
+            antialias: true,
             alpha: false,
             stencil: false,
             powerPreference: compact ? undefined : "high-performance",
@@ -453,8 +453,8 @@ export default function PowerGlobe({ en = false, compact = false }) {
               <EffectComposer disableNormalPass multisampling={0}>
                 <Bloom
                   intensity={compact ? 0.75 : 0.85}
-                  luminanceThreshold={0.5}
-                  luminanceSmoothing={0.3}
+                  luminanceThreshold={0.7}
+                  luminanceSmoothing={0.25}
                   mipmapBlur
                   radius={compact ? 0.55 : 0.65}
                 />

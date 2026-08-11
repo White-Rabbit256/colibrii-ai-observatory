@@ -20,6 +20,13 @@ import { FACTS } from "../data/facts";
 
 const GridHero = dynamic(() => import("./energia/GridHero"), { ssr: false, loading: () => null });
 const Hero3D = dynamic(() => import("./energia/Hero3D"), { ssr: false, loading: () => null });
+/* Satellite + real-elevation hero. Only loads when a Mapbox token is
+   configured; without one the stylized Hero3D stays the hero, so a missing
+   key can never break the section. */
+const TerrainHero = dynamic(() => import("./energia/TerrainHero"), { ssr: false, loading: () => null });
+const SatelliteGlobe = dynamic(() => import("./energia/SatelliteGlobe"), { ssr: false, loading: () => null });
+const TerrainMapCard = dynamic(() => import("./energia/TerrainMapCard"), { ssr: false, loading: () => null });
+const HAS_TERRAIN = !!process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 const CRGridMap = dynamic(() => import("./energia/CRGridMap"), {
   ssr: false,
   loading: () => <div aria-hidden="true" style={{ aspectRatio: "16 / 10", width: "100%", borderRadius: 16, background: "#06152e", border: "1px solid rgba(0,181,168,0.2)" }} />,
@@ -747,13 +754,15 @@ export function EnergiaDeep({ en = false }) {
         {mode === "mobile3d" ? (
           /* Mobile: dedicated 3D banner ON TOP, text flows cleanly below it */
           <div style={{ position: "relative", width: "100%", height: "clamp(280px, 46vh, 380px)" }}>
-            {heroLive && <Hero3D compact />}
+            {heroLive && (HAS_TERRAIN ? <TerrainHero compact /> : <Hero3D compact />)}
             <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none",
               background: "linear-gradient(180deg, rgba(6,15,34,0) 55%, rgba(6,15,34,0.6) 80%, rgba(10,31,63,1) 100%)" }} />
           </div>
         ) : (
           <>
-            {heroLive && (mode === "desktop3d" ? <Hero3D /> : <GridHero />)}
+            {heroLive && (mode === "desktop3d"
+              ? (HAS_TERRAIN ? <TerrainHero /> : <Hero3D />)
+              : <GridHero />)}
             {/* Legibility scrim — solid navy under the text column, fading to reveal the 3D on the right */}
             <div aria-hidden="true" className="energia-hero-scrim" style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none" }} />
             <div aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
@@ -917,7 +926,7 @@ export function EnergiaDeep({ en = false }) {
           <a href="#crGridMapAnchor" className="energia-skip">
             {en ? "Skip to Costa Rica map" : "Saltar al mapa de Costa Rica"}
           </a>
-          <PowerGlobe en={en} compact={mode === "mobile3d"} />
+          {HAS_TERRAIN ? <SatelliteGlobe en={en} compact={mode === "mobile3d"} /> : <PowerGlobe en={en} compact={mode === "mobile3d"} />}
         </div>
         {/* Zone D: sourced attribution caption — spec §14 / sourcing §3 */}
         <p style={{
@@ -1110,7 +1119,7 @@ export function EnergiaDeep({ en = false }) {
         desc={en ? "The 2025 numbers contradict two popular narratives at once: ICE is not broke, and the grid is not ready for an AI-scale demand wave." : "Los números de 2025 contradicen dos narrativas populares a la vez: el ICE no está quebrado, y la red no está lista para una ola de demanda a escala IA."} />
 
       <ScrollReveal>
-        <div><CRGridMap en={en} /></div>
+        <div>{HAS_TERRAIN ? <TerrainMapCard en={en} /> : <CRGridMap en={en} />}</div>
       </ScrollReveal>
 
       <ScrollReveal>

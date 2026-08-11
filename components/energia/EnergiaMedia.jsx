@@ -62,13 +62,15 @@ export function MediaFigure({ id, en, height = 240, eager = false }) {
     <figure style={{ margin: 0, position: "relative", borderRadius: "var(--radius)", overflow: "hidden", border: "1px solid rgba(0,181,168,0.25)", background: `linear-gradient(150deg, ${EN_ACCENT.navy}, ${EN_ACCENT.navy2})`, height, boxShadow: "var(--shadow-md)" }}>
       {!failed ? (
         <img
-          src={fileSrc(m.file, 1280)}
+          src={fileSrc(m.file, 800)}
+          srcSet={`${fileSrc(m.file, 480)} 480w, ${fileSrc(m.file, 800)} 800w, ${fileSrc(m.file, 1280)} 1280w`}
+          sizes="(max-width: 640px) 92vw, 520px"
           alt={T(m.caption, en)}
           width={1280}
           height={800}
           loading={eager ? "eager" : "lazy"}
           decoding="async"
-          fetchpriority={eager ? "high" : "auto"}
+          fetchPriority={eager ? "high" : "auto"}
           onError={() => setFailed(true)}
           className="energia-media-img"
           style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
@@ -92,11 +94,6 @@ export function MediaFigure({ id, en, height = 240, eager = false }) {
         style={{ position: "absolute", top: 10, right: 10, display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 8px", borderRadius: 999, background: "rgba(4,12,28,0.7)", backdropFilter: "blur(6px)", border: "1px solid rgba(255,255,255,0.15)", fontFamily: "'IBM Plex Mono',monospace", fontSize: 9.5, color: "rgba(255,255,255,0.8)", textDecoration: "none", letterSpacing: 0.3 }}>
         {en ? "Photo: Wikimedia Commons — see license" : "Foto: Wikimedia Commons — ver licencia"} ↗
       </a>
-
-      {/* "FOTO" corner tag */}
-      <span aria-hidden="true" style={{ position: "absolute", top: 10, left: 10, fontFamily: "'IBM Plex Mono',monospace", fontSize: 9.5, letterSpacing: 2, color: EN_ACCENT.turquoise, background: "rgba(4,12,28,0.6)", borderRadius: 6, padding: "2px 7px", border: "1px solid rgba(0,181,168,0.3)" }}>
-        {en ? "PHOTO" : "FOTO"}
-      </span>
 
       <style>{`.energia-media-img{transition:transform .8s cubic-bezier(.2,.6,.2,1)}figure:hover .energia-media-img{transform:scale(1.05)}@media (prefers-reduced-motion: reduce){.energia-media-img{transition:none}figure:hover .energia-media-img{transform:none}}`}</style>
     </figure>
