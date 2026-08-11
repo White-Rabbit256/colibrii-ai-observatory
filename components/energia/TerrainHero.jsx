@@ -81,14 +81,16 @@ const gridGeoJSON = () => ({
   })),
 });
 
-const plantsGeoJSON = () => ({
-  type: "FeatureCollection",
-  features: PLANTS_GEO.map((p) => ({
-    type: "Feature",
-    properties: { name: p.name, isLoad: p.kind === "load" ? 1 : 0 },
-    geometry: { type: "Point", coordinates: [p.lng, p.lat] },
-  })),
-});
+/* Editorial labelling: a map is not a database dump. Five names crowd the
+   Guanacaste corner if every plant is labelled, so we name only the four
+   that carry the story and hand-place each one. The rest stay as dots —
+   the legend and the chip picker identify them. */
+const LABELLED = {
+  gam:        { text: "GAM",         side: "below" },
+  reventazon: { text: "REVENTAZÓN",  side: "right" },
+  miravalles: { text: "MIRAVALLES",  side: "left"  },
+  moin:       { text: "MOÍN",        side: "right" },
+};
 
 /* Kept for reference; plants now render as native layers (collision-managed). */
 function makeMarkerEl(plant) {
@@ -133,7 +135,7 @@ export default function TerrainHero({ compact = false }) {
       touchZoomRotate: false,
       touchPitch: false,
       keyboard: false,
-      attributionControl: true,
+      attributionControl: { compact: true },
       antialias: true,
       fadeDuration: 200,
     });
@@ -164,67 +166,36 @@ export default function TerrainHero({ compact = false }) {
       /* Coastline rim so the lit country has a crisp edge */
       map.addSource("th-coast", { type: "geojson", data: coastGeoJSON() });
       map.addLayer({
-        id: "th-coast-glow", type: "line", source: "th-coast",
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": GLOW, "line-width": 4, "line-opacity": 0.12, "line-blur": 3 },
-      });
-      map.addLayer({
         id: "th-coast", type: "line", source: "th-coast",
         layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": GLOW, "line-width": 1, "line-opacity": 0.45 },
+        paint: { "line-color": "#8fd8e8", "line-width": 0.7, "line-opacity": 0.28 },
       });
 
       /* Transmission network — thick enough to read over imagery */
       map.addSource("th-grid", { type: "geojson", data: gridGeoJSON() });
       map.addLayer({
-        id: "th-grid-glow", type: "line", source: "th-grid",
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": TURQ, "line-width": 5, "line-opacity": 0.25, "line-blur": 3 },
-      });
-      map.addLayer({
         id: "th-grid-core", type: "line", source: "th-grid",
         layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": GLOW, "line-width": 1.8, "line-opacity": 0.9, "line-dasharray": [2, 2] },
+        paint: { "line-color": "#bfe9f5", "line-width": 0.8, "line-opacity": 0.4 },
       });
 
-      /* Plants as native layers. Symbol labels collide-avoid on their own,
-         which the old always-on DOM labels could not do — they overlapped
-         and ran off the frame. */
-      map.addSource("th-plants", { type: "geojson", data: plantsGeoJSON() });
-      map.addLayer({
-        id: "th-plants-halo", type: "circle", source: "th-plants",
-        paint: {
-          "circle-radius": ["match", ["get", "isLoad"], 1, 13, 9],
-          "circle-color": ["match", ["get", "isLoad"], 1, GOLD, GLOW],
-          "circle-opacity": 0.16,
-        },
-      });
-      map.addLayer({
-        id: "th-plants", type: "circle", source: "th-plants",
-        paint: {
-          "circle-radius": ["match", ["get", "isLoad"], 1, 6, 4.5],
-          "circle-color": ["match", ["get", "isLoad"], 1, GOLD, "#dffbff"],
-          "circle-stroke-width": ["match", ["get", "isLoad"], 1, 2, 1.4],
-          "circle-stroke-color": ["match", ["get", "isLoad"], 1, "#fff", GLOW],
-        },
-      });
-      map.addLayer({
-        id: "th-plants-label", type: "symbol", source: "th-plants",
-        layout: {
-          "text-field": ["get", "name"],
-          "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
-          "text-size": ["match", ["get", "isLoad"], 1, 12, 10],
-          "text-offset": [0, 1.25],
-          "text-anchor": "top",
-          "text-letter-spacing": 0.08,
-          "text-max-width": 9,
-          "text-optional": true,
-        },
-        paint: {
-          "text-color": ["match", ["get", "isLoad"], 1, GOLD, "#eaf6ff"],
-          "text-halo-color": "rgba(4,12,28,0.95)",
-          "text-halo-width": 1.4,
-        },
+      /* Plants as small precise marks in the brand typeface. Mapbox's glyph
+         server only serves fonts uploaded to the style, so symbol layers
+         cannot render IBM Plex Mono — DOM markers can, and with only nine
+         points hand-placed labels beat an auto-placer anyway. */
+      PLANTS_GEO.forEach((p) => {
+        const lab = LABELLED[p.id];
+        const el = document.createElement("div");
+        el.className = "th-pt" + (p.kind === "load" ? " is-load" : "");
+        el.setAttribute("role", "img");
+        el.setAttribute("aria-label", `${p.name} — ${p.detail || ""}`);
+        el.innerHTML =
+          '<span class="th-ring"></span><span class="th-dot"></span>' +
+          (lab ? `<span class="th-lab th-lab--${lab.side}">${lab.text}</span>` : "");
+        markers.push(
+          new mapboxgl.Marker({ element: el, anchor: "center" })
+            .setLngLat([p.lng, p.lat]).addTo(map)
+        );
       });
 
       setReady(true);
@@ -263,44 +234,33 @@ export default function TerrainHero({ compact = false }) {
       }} />
 
       <style>{`
-        .en-th-marker {
-          position: relative; width: 22px; height: 22px;
-          display: flex; align-items: center; justify-content: center;
-          pointer-events: none;
+        /* Precise editorial mark: a small solid dot inside a hairline ring.
+           No glow halos — those read as dashboard, not publication. */
+        .th-pt { position: relative; width: 15px; height: 15px; display: flex;
+                 align-items: center; justify-content: center; pointer-events: none; }
+        .th-dot { position: absolute; width: 5px; height: 5px; border-radius: 50%;
+                  background: #fff; box-shadow: 0 0 3px rgba(0,0,0,0.7); }
+        .th-ring { position: absolute; inset: 0; border-radius: 50%;
+                   border: 1px solid rgba(255,255,255,0.7); }
+        .th-pt.is-load { width: 19px; height: 19px; }
+        .th-pt.is-load .th-dot { width: 7px; height: 7px; background: ${GOLD};
+                                 box-shadow: 0 0 6px rgba(242,177,53,0.8); }
+        .th-pt.is-load .th-ring { border-color: ${GOLD}; border-width: 1.2px; }
+
+        /* Labels in the section's own mono, small and letter-spaced, with a
+           soft shadow rather than the heavy black halo Mapbox draws. */
+        .th-lab {
+          position: absolute; white-space: nowrap;
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: 9px; letter-spacing: 1.3px; font-weight: 500;
+          color: rgba(255,255,255,0.94);
+          text-shadow: 0 1px 3px rgba(0,0,0,0.85), 0 0 10px rgba(0,0,0,0.5);
         }
-        .en-th-marker.is-load { width: 32px; height: 32px; }
-        .en-th-core {
-          position: absolute; width: 8px; height: 8px; border-radius: 50%;
-          box-shadow: 0 0 0 1.5px rgba(255,255,255,0.9), 0 0 10px currentColor;
-        }
-        .en-th-marker.is-load .en-th-core {
-          width: 12px; height: 12px;
-          box-shadow: 0 0 0 2px rgba(255,255,255,0.95), 0 0 16px ${GOLD};
-        }
-        .en-th-ring {
-          position: absolute; inset: 0; border-radius: 50%;
-          border: 1.5px solid; opacity: 0.75;
-        }
-        .en-th-marker.is-load .en-th-ring {
-          border-width: 2px; opacity: 0.9; animation: enThPulse 3s ease-out infinite;
-        }
-        .en-th-label {
-          position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
-          margin-top: 4px; white-space: nowrap;
-          font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.8px;
-          text-transform: uppercase; color: #fff;
-          text-shadow: 0 1px 3px #000, 0 0 8px rgba(0,0,0,0.9);
-        }
-        .en-th-marker.is-load .en-th-label {
-          color: ${GOLD}; font-size: 11px; font-weight: 700; letter-spacing: 1.4px;
-        }
-        @keyframes enThPulse {
-          0% { transform: scale(1); opacity: .9; }
-          70%, 100% { transform: scale(2.2); opacity: 0; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .en-th-marker.is-load .en-th-ring { animation: none; }
-        }
+        .th-lab--below { top: 100%; left: 50%; transform: translateX(-50%); margin-top: 5px; }
+        .th-lab--right { left: 100%; top: 50%; transform: translateY(-50%); margin-left: 7px; }
+        .th-lab--left  { right: 100%; top: 50%; transform: translateY(-50%); margin-right: 7px; }
+        .th-pt.is-load .th-lab { color: ${GOLD}; font-size: 10px; letter-spacing: 1.8px; font-weight: 600; }
+
         /* Mapbox chrome: attribution stays (ToS), restyled to fit */
         .mapboxgl-ctrl-bottom-right, .mapboxgl-ctrl-bottom-left { z-index: 2; }
         .mapboxgl-ctrl-attrib {

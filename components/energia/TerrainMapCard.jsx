@@ -64,7 +64,7 @@ function markerEl(plant, onPick) {
   el.setAttribute("aria-label", `${plant.name} — ${plant.detail || ""}`);
   el.innerHTML =
     `<span class="tmc-ring" style="border-color:${c}"></span>` +
-    `<span class="tmc-core" style="background:${c}; box-shadow:0 0 8px ${c}"></span>`;
+    `<span class="tmc-core" style="background:${c}"></span>`;
   el.addEventListener("click", (e) => { e.stopPropagation(); onPick(plant.id); });
   return el;
 }
@@ -95,7 +95,7 @@ export default function TerrainMapCard({ en = false }) {
       touchZoomRotate: false,
       touchPitch: false,
       keyboard: false,
-      attributionControl: true,
+      attributionControl: { compact: true },
       antialias: true,
     });
     mapRef.current = map;
@@ -113,26 +113,16 @@ export default function TerrainMapCard({ en = false }) {
         data: { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: CR_OUTLINE_GEO } },
       });
       map.addLayer({
-        id: "tmc-coast-glow", type: "line", source: "tmc-coast",
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": GLOW, "line-width": 4, "line-opacity": 0.12, "line-blur": 3 },
-      });
-      map.addLayer({
         id: "tmc-coast", type: "line", source: "tmc-coast",
         layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": GLOW, "line-width": 1, "line-opacity": 0.45 },
+        paint: { "line-color": "#8fd8e8", "line-width": 0.7, "line-opacity": 0.28 },
       });
 
       map.addSource("tmc-grid", { type: "geojson", data: gridGeoJSON() });
       map.addLayer({
-        id: "tmc-grid-glow", type: "line", source: "tmc-grid",
-        layout: { "line-cap": "round" },
-        paint: { "line-color": TURQ, "line-width": 5, "line-opacity": 0.25, "line-blur": 3 },
-      });
-      map.addLayer({
         id: "tmc-grid-core", type: "line", source: "tmc-grid",
         layout: { "line-cap": "round" },
-        paint: { "line-color": GLOW, "line-width": 1.8, "line-opacity": 0.9, "line-dasharray": [2, 2] },
+        paint: { "line-color": "#bfe9f5", "line-width": 0.8, "line-opacity": 0.4 },
       });
 
       PLANTS_GEO.forEach((p) => {
@@ -233,11 +223,11 @@ export default function TerrainMapCard({ en = false }) {
 
       <style>{`
         .tmc-marker { position: relative; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; padding: 0; cursor: pointer; }
-        .tmc-core { position: absolute; width: 9px; height: 9px; border-radius: 50%; box-shadow: 0 0 0 1.5px rgba(255,255,255,0.9), 0 0 10px currentColor; }
-        .tmc-ring { position: absolute; width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid; opacity: 0.8; transition: transform .2s ease; }
+        .tmc-core { position: absolute; width: 5px; height: 5px; border-radius: 50%; box-shadow: 0 0 3px rgba(0,0,0,0.7); }
+        .tmc-ring { position: absolute; width: 15px; height: 15px; border-radius: 50%; border: 1px solid; opacity: 0.75; transition: transform .2s ease; }
         .tmc-marker:hover .tmc-ring, .tmc-marker:focus-visible .tmc-ring { transform: scale(1.35); opacity: 0.9; }
-        .tmc-marker.is-load .tmc-core { width: 13px; height: 13px; box-shadow: 0 0 0 2px rgba(255,255,255,0.95), 0 0 16px currentColor; }
-        .tmc-marker.is-load .tmc-ring { width: 34px; height: 34px; border-width: 2px; border-color: ${GOLD} !important; animation: tmcPulse 3.2s ease-out infinite; }
+        .tmc-marker.is-load .tmc-core { width: 7px; height: 7px; box-shadow: 0 0 6px rgba(242,177,53,0.8); }
+        .tmc-marker.is-load .tmc-ring { width: 19px; height: 19px; border-width: 1.2px; border-color: ${GOLD} !important; animation: tmcPulse 3.2s ease-out infinite; }
         .tmc-marker:focus { outline: none; }
         .tmc-marker:focus-visible { outline: 2px solid ${GLOW}; outline-offset: 2px; border-radius: 50%; }
         @keyframes tmcPulse { 0% { transform: scale(1); opacity: .8; } 70%, 100% { transform: scale(2); opacity: 0; } }

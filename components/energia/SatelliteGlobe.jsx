@@ -135,7 +135,7 @@ export default function SatelliteGlobe({ en = false, compact = false }) {
       touchZoomRotate: false,
       touchPitch: false,
       keyboard: false,
-      attributionControl: true,
+      attributionControl: { compact: true },
       antialias: true,
     });
     mapRef.current = map;
@@ -160,7 +160,7 @@ export default function SatelliteGlobe({ en = false, compact = false }) {
         paint: {
           "line-color": ["match", ["get", "kind"],
             "siepac", GOLD, "hvdc", "#67E4F5", "ac", TURQ, "planned", "#8fb4d8", TURQ],
-          "line-width": 3.4, "line-opacity": 0.2, "line-blur": 2.5,
+          "line-width": 2.6, "line-opacity": 0.14, "line-blur": 2,
         },
       });
       /* Two core layers, split by filter: line-dasharray is NOT data-driven
@@ -173,8 +173,8 @@ export default function SatelliteGlobe({ en = false, compact = false }) {
         paint: {
           "line-color": ["match", ["get", "kind"],
             "siepac", GOLD, "hvdc", "#67E4F5", "ac", TURQ, TURQ],
-          "line-width": ["match", ["get", "kind"], "siepac", 1.7, 1.1],
-          "line-opacity": 0.8,
+          "line-width": ["match", ["get", "kind"], "siepac", 1.4, 0.9],
+          "line-opacity": 0.65,
         },
       });
       map.addLayer({
