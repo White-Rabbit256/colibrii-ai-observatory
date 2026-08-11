@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { PLANTS_GEO } from "./crGeo";
+import { PLANTS_GEO, CR_OUTLINE_GEO } from "./crGeo";
 import { EN_ACCENT } from "../energiaData";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -82,11 +82,11 @@ export default function TerrainMapCard({ en = false }) {
     mapboxgl.accessToken = TOKEN;
     const map = new mapboxgl.Map({
       container: holder.current,
-      style: "mapbox://styles/mapbox/satellite-streets-v12",
-      center: [-84.2, 9.55],
-      zoom: 6.35,
-      pitch: 48,
-      bearing: 8,
+      style: "mapbox://styles/mapbox/satellite-v9",
+      center: [-84.15, 9.7],
+      zoom: 6.75,
+      pitch: 55,
+      bearing: 14,
       scrollZoom: false,
       boxZoom: false,
       doubleClickZoom: false,
@@ -108,16 +108,50 @@ export default function TerrainMapCard({ en = false }) {
       map.setTerrain({ source: "mapbox-dem", exaggeration: 1.4 });
       map.setFog({ color: NAVY, "high-color": NAVY2, "horizon-blend": 0.16, "space-color": "#060f22", "star-intensity": 0 });
 
+      /* ── Spotlight: world polygon with Costa Rica punched out, so the
+         country reads as the subject instead of one nation among many ── */
+      map.addSource("tmc-spot", {
+        type: "geojson",
+        data: {
+          type: "Feature", properties: {},
+          geometry: {
+            type: "Polygon",
+            coordinates: [
+              [[-180, -85], [180, -85], [180, 85], [-180, 85], [-180, -85]],
+              CR_OUTLINE_GEO,
+            ],
+          },
+        },
+      });
+      map.addLayer({
+        id: "tmc-spot", type: "fill", source: "tmc-spot",
+        paint: { "fill-color": NAVY, "fill-opacity": 0.86 },
+      });
+      map.addSource("tmc-coast", {
+        type: "geojson",
+        data: { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: CR_OUTLINE_GEO } },
+      });
+      map.addLayer({
+        id: "tmc-coast-glow", type: "line", source: "tmc-coast",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": GLOW, "line-width": 5, "line-opacity": 0.18, "line-blur": 4 },
+      });
+      map.addLayer({
+        id: "tmc-coast", type: "line", source: "tmc-coast",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": GLOW, "line-width": 1.2, "line-opacity": 0.7 },
+      });
+
       map.addSource("tmc-grid", { type: "geojson", data: gridGeoJSON() });
       map.addLayer({
         id: "tmc-grid-glow", type: "line", source: "tmc-grid",
         layout: { "line-cap": "round" },
-        paint: { "line-color": TURQ, "line-width": 3, "line-opacity": 0.2, "line-blur": 2.5 },
+        paint: { "line-color": TURQ, "line-width": 5, "line-opacity": 0.25, "line-blur": 3 },
       });
       map.addLayer({
         id: "tmc-grid-core", type: "line", source: "tmc-grid",
         layout: { "line-cap": "round" },
-        paint: { "line-color": GLOW, "line-width": 1, "line-opacity": 0.7, "line-dasharray": [2, 2.4] },
+        paint: { "line-color": GLOW, "line-width": 1.8, "line-opacity": 0.9, "line-dasharray": [2, 2] },
       });
 
       PLANTS_GEO.forEach((p) => {
@@ -217,12 +251,12 @@ export default function TerrainMapCard({ en = false }) {
       </div>
 
       <style>{`
-        .tmc-marker { position: relative; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; padding: 0; cursor: pointer; }
-        .tmc-core { position: absolute; width: 6px; height: 6px; border-radius: 50%; }
-        .tmc-ring { position: absolute; width: 15px; height: 15px; border-radius: 50%; border: 1px solid; opacity: 0.6; transition: transform .2s ease; }
+        .tmc-marker { position: relative; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; padding: 0; cursor: pointer; }
+        .tmc-core { position: absolute; width: 9px; height: 9px; border-radius: 50%; box-shadow: 0 0 0 1.5px rgba(255,255,255,0.9), 0 0 10px currentColor; }
+        .tmc-ring { position: absolute; width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid; opacity: 0.8; transition: transform .2s ease; }
         .tmc-marker:hover .tmc-ring, .tmc-marker:focus-visible .tmc-ring { transform: scale(1.35); opacity: 0.9; }
-        .tmc-marker.is-load .tmc-core { width: 9px; height: 9px; }
-        .tmc-marker.is-load .tmc-ring { width: 20px; height: 20px; border-width: 1.5px; border-color: ${GOLD} !important; animation: tmcPulse 3.2s ease-out infinite; }
+        .tmc-marker.is-load .tmc-core { width: 13px; height: 13px; box-shadow: 0 0 0 2px rgba(255,255,255,0.95), 0 0 16px currentColor; }
+        .tmc-marker.is-load .tmc-ring { width: 34px; height: 34px; border-width: 2px; border-color: ${GOLD} !important; animation: tmcPulse 3.2s ease-out infinite; }
         .tmc-marker:focus { outline: none; }
         .tmc-marker:focus-visible { outline: 2px solid ${GLOW}; outline-offset: 2px; border-radius: 50%; }
         @keyframes tmcPulse { 0% { transform: scale(1); opacity: .8; } 70%, 100% { transform: scale(2); opacity: 0; } }

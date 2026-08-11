@@ -123,7 +123,7 @@ export default function SatelliteGlobe({ en = false, compact = false }) {
     mapboxgl.accessToken = TOKEN;
     const map = new mapboxgl.Map({
       container: holder.current,
-      style: "mapbox://styles/mapbox/satellite-streets-v12",
+      style: "mapbox://styles/mapbox/satellite-v9",
       projection: "globe",
       center: VIEWS.mundo.center,
       zoom: VIEWS.mundo.zoom,

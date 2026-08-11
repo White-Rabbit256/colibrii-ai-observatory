@@ -2,25 +2,31 @@
 import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { PLANTS_GEO } from "./crGeo";
+import { PLANTS_GEO, CR_OUTLINE_GEO } from "./crGeo";
 import { EN_ACCENT } from "../energiaData";
 
 /* ═══════════════════════════════════════════════════════════════
-   ENERGÍA — TerrainHero (satellite + real elevation)
-   Costa Rica as real Maxar/NASA satellite imagery draped over the
-   Mapbox terrain DEM, tilted — the photographic register the
-   stylized Hero3D relief can't reach by construction. Plant nodes,
-   transmission lines and the GAM load core ride on top in the
-   section palette; brand fog carries the navy atmosphere.
+   ENERGÍA — TerrainHero (satellite + real elevation, spotlit)
+   Costa Rica as real satellite imagery over the Mapbox terrain DEM.
 
-   Requires NEXT_PUBLIC_MAPBOX_TOKEN. Without it this component
-   renders nothing and EnergiaDeep falls back to Hero3D, so the
-   section is never broken by a missing key.
+   The composition rule, learned from the reference the owner sent:
+   the country must read as an OBJECT, not as a screenshot of a
+   region. Three things make that happen and all three are load-
+   bearing —
+     1. satellite-v9, NOT satellite-streets: no country labels, no
+        admin borders, no road furniture. Only imagery + our data.
+     2. A spotlight mask: a world-sized navy polygon with Costa Rica
+        punched out as a hole. Neighbours recede, CR is lit.
+     3. Markers sized to be seen over terrain — bright cores with
+        white keylines, names always on. Our plant labels replace
+        the basemap labels we removed.
 
-   Mapbox ToS: the attribution control stays mounted (restyled,
-   never removed). Scroll-zoom is off so the page still scrolls;
-   on compact/mobile all drag+touch interaction is off for the
-   same reason. Honours prefers-reduced-motion (no intro fly-in).
+   Requires NEXT_PUBLIC_MAPBOX_TOKEN. Without it this renders
+   nothing and EnergiaDeep falls back to Hero3D.
+
+   Mapbox ToS: attribution control stays mounted (restyled only).
+   Page scroll always wins (scrollZoom off; compact kills drag).
+   Honours prefers-reduced-motion.
    ═══════════════════════════════════════════════════════════════ */
 
 const TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
@@ -34,11 +40,31 @@ const GOLD = EN_ACCENT.gold;       // #F2B135
 const GAM = PLANTS_GEO.find((p) => p.kind === "load");
 const FEEDERS = PLANTS_GEO.filter((p) => p.kind !== "load");
 
-/* Camera poses. Padding pushes the country clear of the desktop text column. */
+/* Camera. Padding keeps the country clear of the desktop text column. */
 const POSE = {
-  wide:    { center: [-84.05, 9.72], zoom: 6.45, pitch: 54, bearing: 16, padding: { top: 0, bottom: 0, left: 420, right: 20 } },
-  compact: { center: [-84.15, 9.88], zoom: 5.95, pitch: 46, bearing: 10, padding: { top: 10, bottom: 10, left: 0, right: 0 } },
+  wide:    { center: [-84.0, 9.75], zoom: 6.7, pitch: 58, bearing: 18, padding: { top: 0, bottom: 0, left: 400, right: 20 } },
+  compact: { center: [-84.1, 9.85], zoom: 6.35, pitch: 52, bearing: 14, padding: { top: 0, bottom: 0, left: 0, right: 0 } },
 };
+
+/* Spotlight: whole world, with Costa Rica as a hole. Everything
+   outside the coastline sinks into navy so the country is the subject. */
+const spotlightGeoJSON = () => ({
+  type: "Feature",
+  properties: {},
+  geometry: {
+    type: "Polygon",
+    coordinates: [
+      [[-180, -85], [180, -85], [180, 85], [-180, 85], [-180, -85]],
+      CR_OUTLINE_GEO,
+    ],
+  },
+});
+
+const coastGeoJSON = () => ({
+  type: "Feature",
+  properties: {},
+  geometry: { type: "LineString", coordinates: CR_OUTLINE_GEO },
+});
 
 /* Transmission lines: every generator feeds the GAM load centre. */
 const gridGeoJSON = () => ({
@@ -50,18 +76,19 @@ const gridGeoJSON = () => ({
   })),
 });
 
-/* Small, crisp DOM marker — bright core + tight ring. No fat blobs. */
+/* Marker: bright core + white keyline so it survives over green terrain,
+   with the plant name always visible (these replace the basemap labels). */
 function makeMarkerEl(plant) {
   const isLoad = plant.kind === "load";
   const c = isLoad ? GOLD : GLOW;
   const el = document.createElement("div");
-  el.className = "en-terrain-marker" + (isLoad ? " is-load" : "");
+  el.className = "en-th-marker" + (isLoad ? " is-load" : "");
   el.setAttribute("role", "img");
   el.setAttribute("aria-label", `${plant.name} — ${plant.detail || ""}`);
   el.innerHTML =
-    `<span class="en-tm-ring" style="border-color:${c}"></span>` +
-    `<span class="en-tm-core" style="background:${c}; box-shadow:0 0 ${isLoad ? 10 : 7}px ${c}"></span>` +
-    `<span class="en-tm-label">${plant.name}</span>`;
+    `<span class="en-th-ring" style="border-color:${c}"></span>` +
+    `<span class="en-th-core" style="background:${c}"></span>` +
+    `<span class="en-th-label">${plant.name}</span>`;
   return el;
 }
 
@@ -78,13 +105,14 @@ export default function TerrainHero({ compact = false }) {
     mapboxgl.accessToken = TOKEN;
     const map = new mapboxgl.Map({
       container: holder.current,
-      style: "mapbox://styles/mapbox/satellite-streets-v12",
+      /* Pure imagery — no labels, borders or roads. Critical: the streets
+         variant made this read as a generic map screenshot. */
+      style: "mapbox://styles/mapbox/satellite-v9",
       center: pose.center,
-      zoom: reduced ? pose.zoom : pose.zoom - 0.35,
+      zoom: reduced ? pose.zoom : pose.zoom - 0.3,
       pitch: pose.pitch,
       bearing: pose.bearing,
       padding: pose.padding,
-      /* Page scroll must always win; mobile gets no drag at all. */
       scrollZoom: false,
       boxZoom: false,
       doubleClickZoom: false,
@@ -94,7 +122,6 @@ export default function TerrainHero({ compact = false }) {
       touchPitch: false,
       keyboard: false,
       attributionControl: true,
-      cooperativeGestures: false,
       antialias: true,
       fadeDuration: 200,
     });
@@ -103,7 +130,7 @@ export default function TerrainHero({ compact = false }) {
     const markers = [];
 
     map.on("style.load", () => {
-      /* Real elevation — the whole point of this hero. */
+      /* Real elevation, pushed hard enough that the cordillera reads */
       if (!map.getSource("mapbox-dem")) {
         map.addSource("mapbox-dem", {
           type: "raster-dem",
@@ -112,52 +139,64 @@ export default function TerrainHero({ compact = false }) {
           maxzoom: 14,
         });
       }
-      map.setTerrain({ source: "mapbox-dem", exaggeration: 1.45 });
+      map.setTerrain({ source: "mapbox-dem", exaggeration: 1.8 });
 
-      /* Brand atmosphere: navy haze at the horizon instead of Mapbox blue. */
       map.setFog({
         color: NAVY,
         "high-color": NAVY2,
-        "horizon-blend": 0.18,
+        "horizon-blend": 0.2,
         "space-color": "#060f22",
         "star-intensity": 0.05,
       });
 
-      /* Transmission network + the GAM anchor, drawn over the terrain. */
-      if (!map.getSource("en-grid")) {
-        map.addSource("en-grid", { type: "geojson", data: gridGeoJSON() });
-        map.addLayer({
-          id: "en-grid-glow",
-          type: "line",
-          source: "en-grid",
-          layout: { "line-cap": "round", "line-join": "round" },
-          paint: { "line-color": TURQ, "line-width": 3.2, "line-opacity": 0.22, "line-blur": 2.5 },
-        });
-        map.addLayer({
-          id: "en-grid-core",
-          type: "line",
-          source: "en-grid",
-          layout: { "line-cap": "round", "line-join": "round" },
-          paint: { "line-color": GLOW, "line-width": 1.1, "line-opacity": 0.75, "line-dasharray": [2, 2.4] },
-        });
-      }
+      /* ── Spotlight mask: everything but Costa Rica sinks into navy ── */
+      map.addSource("th-spot", { type: "geojson", data: spotlightGeoJSON() });
+      map.addLayer({
+        id: "th-spot", type: "fill", source: "th-spot",
+        paint: { "fill-color": NAVY, "fill-opacity": 0.86 },
+      });
+
+      /* Coastline rim so the lit country has a crisp edge */
+      map.addSource("th-coast", { type: "geojson", data: coastGeoJSON() });
+      map.addLayer({
+        id: "th-coast-glow", type: "line", source: "th-coast",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": GLOW, "line-width": 5, "line-opacity": 0.18, "line-blur": 4 },
+      });
+      map.addLayer({
+        id: "th-coast", type: "line", source: "th-coast",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": GLOW, "line-width": 1.2, "line-opacity": 0.7 },
+      });
+
+      /* Transmission network — thick enough to read over imagery */
+      map.addSource("th-grid", { type: "geojson", data: gridGeoJSON() });
+      map.addLayer({
+        id: "th-grid-glow", type: "line", source: "th-grid",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": TURQ, "line-width": 5, "line-opacity": 0.25, "line-blur": 3 },
+      });
+      map.addLayer({
+        id: "th-grid-core", type: "line", source: "th-grid",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": GLOW, "line-width": 1.8, "line-opacity": 0.9, "line-dasharray": [2, 2] },
+      });
 
       PLANTS_GEO.forEach((p) => {
-        const m = new mapboxgl.Marker({ element: makeMarkerEl(p), anchor: "center" })
-          .setLngLat([p.lng, p.lat])
-          .addTo(map);
-        markers.push(m);
+        markers.push(
+          new mapboxgl.Marker({ element: makeMarkerEl(p), anchor: "center" })
+            .setLngLat([p.lng, p.lat])
+            .addTo(map)
+        );
       });
 
       setReady(true);
 
-      /* Cinematic settle — one gentle push in, then the camera rests. */
       if (!reduced) {
         map.easeTo({ zoom: pose.zoom, duration: 2600, easing: (t) => 1 - Math.pow(1 - t, 3) });
       }
     });
 
-    /* Keep the country framed when the hero box resizes. */
     const ro = new ResizeObserver(() => map.resize());
     ro.observe(holder.current);
 
@@ -178,16 +217,10 @@ export default function TerrainHero({ compact = false }) {
     >
       <div ref={holder} style={{ position: "absolute", inset: 0 }} />
 
-      {/* Navy unifier — light enough that the imagery still reads as real. */}
-      <div aria-hidden="true" style={{
-        position: "absolute", inset: 0, pointerEvents: "none",
-        background: `linear-gradient(160deg, rgba(10,31,63,0.30), rgba(6,15,34,0.16) 55%, rgba(10,31,63,0.34))`,
-        mixBlendMode: "multiply",
-      }} />
       {/* Edge vignette so the map melts into the hero band */}
       <div aria-hidden="true" style={{
         position: "absolute", inset: 0, pointerEvents: "none",
-        background: "radial-gradient(125% 95% at 55% 42%, transparent 48%, rgba(6,15,34,0.42) 82%, rgba(6,15,34,0.68) 100%)",
+        background: "radial-gradient(125% 95% at 55% 42%, transparent 52%, rgba(6,15,34,0.38) 84%, rgba(6,15,34,0.66) 100%)",
       }} />
       {/* Fade-in over the navy base — no flash of half-loaded tiles */}
       <div aria-hidden="true" style={{
@@ -197,43 +230,45 @@ export default function TerrainHero({ compact = false }) {
       }} />
 
       <style>{`
-        .en-terrain-marker {
-          position: relative; width: 14px; height: 14px;
+        .en-th-marker {
+          position: relative; width: 22px; height: 22px;
           display: flex; align-items: center; justify-content: center;
           pointer-events: none;
         }
-        .en-terrain-marker.is-load { width: 20px; height: 20px; }
-        .en-tm-core {
-          position: absolute; width: 5px; height: 5px; border-radius: 50%;
+        .en-th-marker.is-load { width: 32px; height: 32px; }
+        .en-th-core {
+          position: absolute; width: 8px; height: 8px; border-radius: 50%;
+          box-shadow: 0 0 0 1.5px rgba(255,255,255,0.9), 0 0 10px currentColor;
         }
-        .en-terrain-marker.is-load .en-tm-core { width: 7px; height: 7px; }
-        .en-tm-ring {
+        .en-th-marker.is-load .en-th-core {
+          width: 12px; height: 12px;
+          box-shadow: 0 0 0 2px rgba(255,255,255,0.95), 0 0 16px ${GOLD};
+        }
+        .en-th-ring {
           position: absolute; inset: 0; border-radius: 50%;
-          border: 1px solid; opacity: 0.55;
+          border: 1.5px solid; opacity: 0.75;
         }
-        .en-terrain-marker.is-load .en-tm-ring {
-          opacity: 0.75; animation: enTmPulse 3.2s ease-out infinite;
+        .en-th-marker.is-load .en-th-ring {
+          border-width: 2px; opacity: 0.9; animation: enThPulse 3s ease-out infinite;
         }
-        .en-tm-label {
+        .en-th-label {
           position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
-          margin-top: 3px; white-space: nowrap;
-          font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 1px;
-          text-transform: uppercase; color: rgba(255,255,255,0.82);
-          text-shadow: 0 1px 4px rgba(0,0,0,0.9); opacity: 0;
-          transition: opacity .3s ease;
+          margin-top: 4px; white-space: nowrap;
+          font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.8px;
+          text-transform: uppercase; color: #fff;
+          text-shadow: 0 1px 3px #000, 0 0 8px rgba(0,0,0,0.9);
         }
-        .en-terrain-marker.is-load .en-tm-label {
-          opacity: 1; color: ${GOLD}; font-size: 9.5px;
+        .en-th-marker.is-load .en-th-label {
+          color: ${GOLD}; font-size: 11px; font-weight: 700; letter-spacing: 1.4px;
         }
-        @media (min-width: 768px) { .en-tm-label { opacity: 0.7; } }
-        @keyframes enTmPulse {
-          0% { transform: scale(1); opacity: .75; }
-          70%, 100% { transform: scale(2.3); opacity: 0; }
+        @keyframes enThPulse {
+          0% { transform: scale(1); opacity: .9; }
+          70%, 100% { transform: scale(2.2); opacity: 0; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .en-terrain-marker.is-load .en-tm-ring { animation: none; }
+          .en-th-marker.is-load .en-th-ring { animation: none; }
         }
-        /* Mapbox chrome: keep attribution (ToS) but make it section-native */
+        /* Mapbox chrome: attribution stays (ToS), restyled to fit */
         .mapboxgl-ctrl-bottom-right, .mapboxgl-ctrl-bottom-left { z-index: 2; }
         .mapboxgl-ctrl-attrib {
           background: rgba(6,15,34,0.55) !important;
@@ -241,7 +276,7 @@ export default function TerrainHero({ compact = false }) {
           font-family: 'IBM Plex Mono', monospace; font-size: 9px;
         }
         .mapboxgl-ctrl-attrib a { color: rgba(255,255,255,0.62) !important; }
-        .mapboxgl-ctrl-logo { opacity: 0.55; transform: scale(0.85); transform-origin: bottom left; }
+        .mapboxgl-ctrl-logo { opacity: 0.5; transform: scale(0.8); transform-origin: bottom left; }
         .mapboxgl-canvas:focus { outline: none; }
       `}</style>
     </div>
