@@ -20,7 +20,14 @@ const INDICATORS = [
 async function fetchIndicator(indicator) {
   const url = `${GHO_BASE}/${indicator.code}?$filter=SpatialDim eq '${COUNTRY_CODE}'&$orderby=TimeDim desc&$top=5`;
 
-  const res = await fetch(url, { next: { revalidate: CACHE_SECONDS } });
+  /* 8s ceiling: this route is prerendered at build time, so a hanging
+     upstream stalls the Next build worker until SIGTERM (three retries,
+     then the whole deployment fails). A timeout turns an outage into a
+     fast empty result, which the !res.ok path below already handles. */
+  const res = await fetch(url, {
+    next: { revalidate: CACHE_SECONDS },
+    signal: AbortSignal.timeout(8000),
+  });
 
   if (!res.ok) {
     console.warn(
