@@ -163,15 +163,29 @@ export default function SatelliteGlobe({ en = false, compact = false }) {
           "line-width": 3.4, "line-opacity": 0.2, "line-blur": 2.5,
         },
       });
+      /* Two core layers, split by filter: line-dasharray is NOT data-driven
+         in GL JS, so a ["match", ["get","kind"]] on it fails style validation
+         and drops the layer. Filtered layers give the same visual result. */
       map.addLayer({
         id: "sg-arcs-core", type: "line", source: "sg-arcs",
+        filter: ["!=", ["get", "kind"], "planned"],
         layout: { "line-cap": "round", "line-join": "round" },
         paint: {
           "line-color": ["match", ["get", "kind"],
-            "siepac", GOLD, "hvdc", "#67E4F5", "ac", TURQ, "planned", "#8fb4d8", TURQ],
+            "siepac", GOLD, "hvdc", "#67E4F5", "ac", TURQ, TURQ],
           "line-width": ["match", ["get", "kind"], "siepac", 1.7, 1.1],
-          "line-opacity": ["match", ["get", "kind"], "planned", 0.45, 0.8],
-          "line-dasharray": ["match", ["get", "kind"], "planned", ["literal", [1.5, 2.5]], ["literal", [1, 0]]],
+          "line-opacity": 0.8,
+        },
+      });
+      map.addLayer({
+        id: "sg-arcs-planned", type: "line", source: "sg-arcs",
+        filter: ["==", ["get", "kind"], "planned"],
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: {
+          "line-color": "#8fb4d8",
+          "line-width": 1.1,
+          "line-opacity": 0.45,
+          "line-dasharray": [1.5, 2.5],
         },
       });
 
@@ -180,14 +194,14 @@ export default function SatelliteGlobe({ en = false, compact = false }) {
       map.addLayer({
         id: "sg-hubs-halo", type: "circle", source: "sg-hubs",
         paint: {
-          "circle-radius": ["+", ["get", "r"], 4],
+          "circle-radius": ["+", ["to-number", ["get", "r"]], 4],
           "circle-color": GLOW, "circle-opacity": 0.12,
         },
       });
       map.addLayer({
         id: "sg-hubs-core", type: "circle", source: "sg-hubs",
         paint: {
-          "circle-radius": ["get", "r"],
+          "circle-radius": ["to-number", ["get", "r"]],
           "circle-color": "#eafcff",
           "circle-opacity": 0.92,
           "circle-stroke-width": ["match", ["get", "tier"], 1, 1.6, 0.8],
@@ -276,7 +290,7 @@ export default function SatelliteGlobe({ en = false, compact = false }) {
     const map = mapRef.current;
     if (!map || !ready) return;
     const vis = (on) => (on ? "visible" : "none");
-    ["sg-arcs-glow", "sg-arcs-core"].forEach((id) => map.getLayer(id) && map.setLayoutProperty(id, "visibility", vis(layers.red)));
+    ["sg-arcs-glow", "sg-arcs-core", "sg-arcs-planned"].forEach((id) => map.getLayer(id) && map.setLayoutProperty(id, "visibility", vis(layers.red)));
     ["sg-hubs-halo", "sg-hubs-core"].forEach((id) => map.getLayer(id) && map.setLayoutProperty(id, "visibility", vis(layers.hubs)));
     if (map.getLayer("sg-plants")) map.setLayoutProperty("sg-plants", "visibility", vis(layers.plantas));
   }, [layers, ready]);
