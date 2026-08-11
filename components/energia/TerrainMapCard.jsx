@@ -102,10 +102,11 @@ export default function TerrainMapCard({ en = false }) {
     const markers = [];
 
     map.on("style.load", () => {
-      if (!map.getSource("mapbox-dem")) {
-        map.addSource("mapbox-dem", { type: "raster-dem", url: "mapbox://mapbox.mapbox-terrain-dem-v1", tileSize: 512, maxzoom: 14 });
-      }
-      map.setTerrain({ source: "mapbox-dem", exaggeration: 1.15 });
+      /* NO setTerrain here, deliberately. Terrain displaces the imagery in
+         3D while DOM markers stay at sea level, so marks drift off their
+         true coordinates (GAM and Moín landed in the ocean). On a planar
+         map the projection is exact at any pitch, and the satellite
+         imagery carries its own relief shading anyway. */
       map.setFog({ color: NAVY, "high-color": NAVY2, "horizon-blend": 0.16, "space-color": "#060f22", "star-intensity": 0 });
 
       map.addSource("tmc-coast", {
@@ -238,7 +239,8 @@ export default function TerrainMapCard({ en = false }) {
         }
         .mapboxgl-ctrl-attrib { background: rgba(6,15,34,0.55) !important; border-radius: 5px 0 0 0; font-family: 'IBM Plex Mono', monospace; font-size: 9px; }
         .mapboxgl-ctrl-attrib a { color: rgba(255,255,255,0.62) !important; }
-        .mapboxgl-ctrl-logo { opacity: 0.55; transform: scale(0.85); transform-origin: bottom left; }
+        .mapboxgl-ctrl-logo { opacity: 0.35; transform: scale(0.62); transform-origin: bottom left; }
+        .mapboxgl-ctrl-attrib-button { opacity: 0.4; transform: scale(0.8); }
         .mapboxgl-canvas:focus { outline: none; }
       `}</style>
     </div>

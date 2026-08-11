@@ -145,15 +145,11 @@ export default function TerrainHero({ compact = false }) {
 
     map.on("style.load", () => {
       /* Real elevation, pushed hard enough that the cordillera reads */
-      if (!map.getSource("mapbox-dem")) {
-        map.addSource("mapbox-dem", {
-          type: "raster-dem",
-          url: "mapbox://mapbox.mapbox-terrain-dem-v1",
-          tileSize: 512,
-          maxzoom: 14,
-        });
-      }
-      map.setTerrain({ source: "mapbox-dem", exaggeration: 1.15 });
+      /* NO setTerrain here, deliberately. Terrain displaces the imagery in
+         3D while DOM markers stay at sea level, so marks drift off their
+         true coordinates (GAM and Moín landed in the ocean). On a planar
+         map the projection is exact at any pitch, and the satellite
+         imagery carries its own relief shading anyway. */
 
       map.setFog({
         color: NAVY,
@@ -269,7 +265,8 @@ export default function TerrainHero({ compact = false }) {
           font-family: 'IBM Plex Mono', monospace; font-size: 9px;
         }
         .mapboxgl-ctrl-attrib a { color: rgba(255,255,255,0.62) !important; }
-        .mapboxgl-ctrl-logo { opacity: 0.5; transform: scale(0.8); transform-origin: bottom left; }
+        .mapboxgl-ctrl-logo { opacity: 0.35; transform: scale(0.62); transform-origin: bottom left; }
+        .mapboxgl-ctrl-attrib-button { opacity: 0.4; transform: scale(0.8); }
         .mapboxgl-canvas:focus { outline: none; }
       `}</style>
     </div>
