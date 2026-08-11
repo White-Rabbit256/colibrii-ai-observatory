@@ -24,6 +24,8 @@ const Hero3D = dynamic(() => import("./energia/Hero3D"), { ssr: false, loading: 
    configured; without one the stylized Hero3D stays the hero, so a missing
    key can never break the section. */
 const TerrainHero = dynamic(() => import("./energia/TerrainHero"), { ssr: false, loading: () => null });
+const SatelliteGlobe = dynamic(() => import("./energia/SatelliteGlobe"), { ssr: false, loading: () => null });
+const TerrainMapCard = dynamic(() => import("./energia/TerrainMapCard"), { ssr: false, loading: () => null });
 const HAS_TERRAIN = !!process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 const CRGridMap = dynamic(() => import("./energia/CRGridMap"), {
   ssr: false,
@@ -924,7 +926,7 @@ export function EnergiaDeep({ en = false }) {
           <a href="#crGridMapAnchor" className="energia-skip">
             {en ? "Skip to Costa Rica map" : "Saltar al mapa de Costa Rica"}
           </a>
-          <PowerGlobe en={en} compact={mode === "mobile3d"} />
+          {HAS_TERRAIN ? <SatelliteGlobe en={en} compact={mode === "mobile3d"} /> : <PowerGlobe en={en} compact={mode === "mobile3d"} />}
         </div>
         {/* Zone D: sourced attribution caption — spec §14 / sourcing §3 */}
         <p style={{
@@ -1117,7 +1119,7 @@ export function EnergiaDeep({ en = false }) {
         desc={en ? "The 2025 numbers contradict two popular narratives at once: ICE is not broke, and the grid is not ready for an AI-scale demand wave." : "Los números de 2025 contradicen dos narrativas populares a la vez: el ICE no está quebrado, y la red no está lista para una ola de demanda a escala IA."} />
 
       <ScrollReveal>
-        <div><CRGridMap en={en} /></div>
+        <div>{HAS_TERRAIN ? <TerrainMapCard en={en} /> : <CRGridMap en={en} />}</div>
       </ScrollReveal>
 
       <ScrollReveal>
