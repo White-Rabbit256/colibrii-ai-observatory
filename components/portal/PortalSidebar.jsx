@@ -36,6 +36,49 @@ export function PortalSidebar({ tab, setTab, en, setEn, dark, setDark, t, mobile
         </div>
       </Link>
 
+      {/* AI-X dedicated research experience */}
+      <Link
+        href="/app/ai-x"
+        onClick={() => setMobileOpen?.(false)}
+        aria-label={en ? "Open AI-X Clock existential AI risk observatory" : "Abrir AI-X Clock, observatorio de riesgo existencial de IA"}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          margin: "2px 10px 12px",
+          padding: "10px 11px",
+          border: "1px solid rgba(255,184,77,.28)",
+          borderRadius: 9,
+          textDecoration: "none",
+          color: "inherit",
+          background: dark ? "rgba(255,184,77,.055)" : "rgba(129,78,0,.035)",
+        }}
+      >
+        <span
+          aria-hidden="true"
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: "50%",
+            border: "1px solid #d78b19",
+            display: "grid",
+            placeItems: "center",
+            color: "#d78b19",
+            font: "700 11px 'IBM Plex Mono',monospace",
+            flexShrink: 0,
+          }}
+        >
+          X
+        </span>
+        <span style={{ display: "flex", minWidth: 0, flexDirection: "column", gap: 2 }}>
+          <strong style={{ font: "700 10px 'IBM Plex Mono',monospace", letterSpacing: .5, color: t.tx }}>AI-X CLOCK</strong>
+          <small style={{ font: "8px 'IBM Plex Mono',monospace", lineHeight: 1.35, color: t.tx3 }}>
+            {en ? "Existential risk observatory" : "Observatorio de riesgo existencial"}
+          </small>
+        </span>
+        <span aria-hidden="true" style={{ marginLeft: "auto", color: "#d78b19", fontSize: 12 }}>↗</span>
+      </Link>
+
       {/* Quick Controls — immediately visible (not buried at bottom) */}
       <div className="portal-sidebar-quick-controls">
         <button
