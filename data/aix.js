@@ -1,6 +1,6 @@
 export const aixSnapshot = {
-  asOf: "2026-09-09",
-  version: "0.1.0",
+  asOf: "2026-09-10",
+  version: "0.1.1",
   score: 58,
   minutesToMidnight: 5.0,
   uncertaintyMinutes: [3, 7],
@@ -21,7 +21,8 @@ export const gates = [
     trend: "up",
     summary:
       "Frontier systems now demonstrate very strong performance across coding, cyber, scientific reasoning and other strategically relevant domains.",
-    bottleneck: "Breadth does not yet imply robust strategic competence across arbitrary real-world conditions.",
+    bottleneck:
+      "Breadth does not yet imply robust strategic competence across arbitrary real-world conditions.",
     sourceIds: ["openai-astra", "aisi-trends", "stanford-index"],
   },
   {
@@ -33,8 +34,9 @@ export const gates = [
     trend: "up",
     summary:
       "Agentic task horizons are expanding quickly, but reliability degrades as tasks become longer, more open-ended and less verifiable.",
-    bottleneck: "Long-term autonomous operation is still not robustly demonstrated.",
-    sourceIds: ["aisi-trends", "metr-horizons", "iasr-2026"],
+    bottleneck:
+      "Long-term autonomous operation is still not robustly demonstrated.",
+    sourceIds: ["aisi-cyber-horizons", "metr-horizons", "iasr-2026"],
   },
   {
     id: "access",
@@ -44,9 +46,10 @@ export const gates = [
     confidence: "Medium",
     trend: "up",
     summary:
-      "Deployed agents increasingly receive tools, browsers, code execution, APIs and enterprise-system access.",
-    bottleneck: "Permissions, sandboxing, identity controls and human approvals still constrain many high-impact deployments.",
-    sourceIds: ["nist-rmf", "iasr-2026"],
+      "Deployed agents increasingly receive tools, browsers, code execution, APIs and access to consequential digital systems.",
+    bottleneck:
+      "Permissions, sandboxing, identity controls and human approvals still constrain many high-impact deployments.",
+    sourceIds: ["aisi-trends", "iasr-2026", "nist-datacenter"],
   },
   {
     id: "persistence",
@@ -57,8 +60,9 @@ export const gates = [
     trend: "flat",
     summary:
       "Evidence of persistence exists mainly in evaluations and controlled settings rather than durable real-world autonomous operation.",
-    bottleneck: "No public demonstration of a frontier system reliably surviving determined containment over long periods.",
-    sourceIds: ["iasr-2026", "anthropic-petri"],
+    bottleneck:
+      "No public demonstration shows a frontier system reliably surviving determined containment over long periods.",
+    sourceIds: ["iasr-2026", "aisi-trends"],
   },
   {
     id: "effectors",
@@ -69,7 +73,8 @@ export const gates = [
     trend: "up",
     summary:
       "Cyber and bio-relevant capabilities are advancing, while real-world execution remains constrained by access, materials, safeguards and physical bottlenecks.",
-    bottleneck: "Knowledge and digital capability do not automatically translate into catastrophic real-world actuation.",
+    bottleneck:
+      "Knowledge and digital capability do not automatically translate into catastrophic real-world actuation.",
     sourceIds: ["openai-astra", "anthropic-mythos", "aisi-trends", "sipri-ai-nuclear"],
   },
   {
@@ -81,8 +86,9 @@ export const gates = [
     trend: "up",
     summary:
       "Evaluation awareness, reward hacking and strategically problematic behavior make monitorability a growing concern.",
-    bottleneck: "Observed behavior remains inconsistent and often evaluation-dependent rather than a robust hidden strategy.",
-    sourceIds: ["iasr-2026", "anthropic-petri", "anthropic-auditbench"],
+    bottleneck:
+      "Observed behavior remains inconsistent and often evaluation-dependent rather than a robust hidden strategy.",
+    sourceIds: ["iasr-2026", "openai-astra", "anthropic-petri", "anthropic-auditbench"],
   },
   {
     id: "recovery-denial",
@@ -93,7 +99,8 @@ export const gates = [
     trend: "flat",
     summary:
       "There is little public evidence that present systems could prevent geographically distributed human survivors from restoring control and rebuilding.",
-    bottleneck: "Physical autonomy, durable logistics and global denial of recovery remain major missing capabilities.",
+    bottleneck:
+      "Physical autonomy, durable logistics and global denial of recovery remain major missing capabilities.",
     sourceIds: ["iasr-2026", "stanford-index"],
   },
 ];
@@ -168,61 +175,222 @@ export const signals = [
     date: "2026-09-03",
     type: "Capability",
     title: "OpenAI reports Critical cyber capability for GPT-6 Astra",
-    detail: "Moves G1 and G5 upward; does not by itself imply persistent autonomous loss of control.",
+    detail:
+      "Moves G1 and G5 upward; does not by itself imply persistent autonomous loss of control.",
     sourceId: "openai-astra",
   },
   {
     date: "2026-09-01",
     type: "Effectors",
-    title: "Anthropic releases Mythos 5.1 under restricted access",
-    detail: "Advanced cyber and biology capability increases the importance of deployment controls.",
+    title: "Anthropic announces Mythos 5.1 under restricted access",
+    detail:
+      "Advanced cyber and biology capability increases the importance of deployment controls.",
     sourceId: "anthropic-mythos",
   },
   {
     date: "2026-08-14",
     type: "Governance",
-    title: "Anthropic updates Responsible Scaling Policy",
-    detail: "Governance response is tracked separately from raw capability growth.",
+    title: "Anthropic publishes its August 2026 Responsible Scaling Policy update",
+    detail:
+      "Governance response is tracked separately from raw capability growth.",
     sourceId: "anthropic-rsp",
   },
   {
     date: "2026-07-27",
     type: "Infrastructure",
     title: "NIST publishes draft AI data-center security analysis",
-    detail: "Signals growing attention to the security of the physical compute layer.",
+    detail:
+      "Signals growing attention to the security of the physical compute layer.",
     sourceId: "nist-datacenter",
   },
   {
-    date: "2026-05-08",
+    date: "2026-05-13",
     type: "Agency",
-    title: "METR updates autonomous task-horizon measurements",
-    detail: "Supports a rising G2 trend while preserving substantial long-horizon uncertainty.",
-    sourceId: "metr-horizons",
+    title: "AISI reports autonomous cyber task horizons advancing on a months-scale",
+    detail:
+      "Strengthens the rising G2 trend while explicitly preserving uncertainty about extrapolation to defended real-world systems.",
+    sourceId: "aisi-cyber-horizons",
   },
 ];
 
 export const computeMetrics = [
-  { label: "Global AI compute capacity", value: "~3.3×/yr", note: "Epoch estimate since 2022", sourceId: "epoch-compute" },
-  { label: "Compute doubling time", value: "~7 mo", note: "Epoch estimate", sourceId: "epoch-compute" },
-  { label: "2030 data-center electricity", value: "~945 TWh", note: "IEA projection", sourceId: "iea-energy" },
-  { label: "Current AI-X index", value: "58/100", note: "Geometric aggregation of seven gates", sourceId: null },
+  {
+    label: "Frontier single-site compute",
+    value: "~3.3×/yr",
+    note: "Epoch log-linear fit to record AI data-center compute since Aug 2024",
+    sourceId: "epoch-compute",
+  },
+  {
+    label: "Frontier compute doubling",
+    value: "~7 mo",
+    note: "Epoch point estimate; underlying trend is uncertain",
+    sourceId: "epoch-compute",
+  },
+  {
+    label: "Largest observed IT power",
+    value: "~950 MW",
+    note: "Epoch estimate for the current record-holder, Sep 2026",
+    sourceId: "epoch-power",
+  },
+  {
+    label: "2030 data-center electricity",
+    value: "~945 TWh",
+    note: "IEA Base Case projection",
+    sourceId: "iea-energy",
+  },
 ];
 
 export const sources = [
-  { id: "openai-astra", tier: "A", organization: "OpenAI", date: "2026-09-03", title: "GPT-6 Astra safety overview", url: "https://openai.com/index/safety-overview-gpt-6-astra/", kind: "Frontier lab evaluation" },
-  { id: "anthropic-mythos", tier: "A", organization: "Anthropic", date: "2026-09-01", title: "Claude Mythos", url: "https://www.anthropic.com/claude/mythos", kind: "Frontier lab release" },
-  { id: "anthropic-rsp", tier: "A", organization: "Anthropic", date: "2026-08-14", title: "Responsible Scaling Policy", url: "https://www.anthropic.com/responsible-scaling-policy", kind: "Frontier lab policy" },
-  { id: "aisi-trends", tier: "B", organization: "UK AI Security Institute", date: "2026", title: "Frontier AI Trends Report", url: "https://www.aisi.gov.uk/frontier-ai-trends-report", kind: "Independent evaluation" },
-  { id: "metr-horizons", tier: "B", organization: "METR", date: "2026-05-08", title: "Measuring AI ability to complete long tasks", url: "https://metr.org/time-horizons/", kind: "Independent evaluation" },
-  { id: "anthropic-petri", tier: "A/B", organization: "Anthropic", date: "2026", title: "Petri 2.0: evaluation awareness and alignment", url: "https://www.anthropic.com/research", kind: "Lab research" },
-  { id: "anthropic-auditbench", tier: "A/B", organization: "Anthropic", date: "2026", title: "AuditBench and hidden-behavior research", url: "https://www.anthropic.com/research", kind: "Lab research" },
-  { id: "iasr-2026", tier: "C", organization: "International AI Safety Report", date: "2026", title: "International AI Safety Report 2026", url: "https://internationalaisafetyreport.org/publication/international-ai-safety-report-2026", kind: "International synthesis" },
-  { id: "stanford-index", tier: "C", organization: "Stanford HAI", date: "2026", title: "AI Index 2026 — Technical Performance", url: "https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance", kind: "Academic synthesis" },
-  { id: "sipri-ai-nuclear", tier: "C", organization: "SIPRI", date: "2025", title: "Impact of military AI on nuclear escalation risk", url: "https://www.sipri.org/publications/2025/sipri-insights-peace-and-security/impact-military-artificial-intelligence-nuclear-escalation-risk", kind: "Security research" },
-  { id: "nist-rmf", tier: "C", organization: "NIST", date: "2026", title: "AI Risk Management Framework", url: "https://www.nist.gov/itl/ai-risk-management-framework", kind: "Government framework" },
-  { id: "nist-datacenter", tier: "C", organization: "NIST", date: "2026-07-27", title: "AI Data Center Security Analysis", url: "https://csrc.nist.gov/publications/detail/sp/800-239/draft", kind: "Government security research" },
-  { id: "epoch-compute", tier: "D", organization: "Epoch AI", date: "2026", title: "AI chip production and compute capacity", url: "https://epoch.ai/data-insights/ai-chip-production", kind: "Infrastructure dataset" },
-  { id: "iea-energy", tier: "D", organization: "International Energy Agency", date: "2026", title: "Energy and AI", url: "https://www.iea.org/reports/energy-and-ai/energy-demand-from-ai", kind: "Infrastructure dataset" },
+  {
+    id: "openai-astra",
+    tier: "A",
+    organization: "OpenAI",
+    date: "2026-09-03",
+    verifiedAt: "2026-09-10",
+    title: "Safety overview: GPT-6 Astra",
+    url: "https://openai.com/index/safety-overview-gpt-6-astra/",
+    kind: "Frontier lab evaluation",
+  },
+  {
+    id: "anthropic-mythos",
+    tier: "A",
+    organization: "Anthropic",
+    date: "2026-09-01",
+    verifiedAt: "2026-09-10",
+    title: "Claude Mythos",
+    url: "https://www.anthropic.com/claude/mythos",
+    kind: "Frontier lab release",
+  },
+  {
+    id: "anthropic-rsp",
+    tier: "A",
+    organization: "Anthropic",
+    date: "2026-08-14",
+    verifiedAt: "2026-09-10",
+    title: "Responsible Scaling Policy",
+    url: "https://www.anthropic.com/responsible-scaling-policy",
+    kind: "Frontier lab policy",
+  },
+  {
+    id: "aisi-trends",
+    tier: "B",
+    organization: "UK AI Security Institute",
+    date: "2026",
+    verifiedAt: "2026-09-10",
+    title: "Frontier AI Trends Report",
+    url: "https://www.aisi.gov.uk/frontier-ai-trends-report",
+    kind: "Independent government evaluation",
+  },
+  {
+    id: "aisi-cyber-horizons",
+    tier: "B",
+    organization: "UK AI Security Institute",
+    date: "2026-05-13",
+    verifiedAt: "2026-09-10",
+    title: "How fast is autonomous AI cyber capability advancing?",
+    url: "https://www.aisi.gov.uk/blog/how-fast-is-autonomous-ai-cyber-capability-advancing",
+    kind: "Independent government evaluation",
+  },
+  {
+    id: "metr-horizons",
+    tier: "B",
+    organization: "METR",
+    date: "2026-05-08",
+    verifiedAt: "2026-09-10",
+    title: "Task-Completion Time Horizons of Frontier AI Models",
+    url: "https://metr.org/time-horizons/",
+    kind: "Independent evaluation",
+  },
+  {
+    id: "anthropic-petri",
+    tier: "A/B",
+    organization: "Anthropic Alignment Science",
+    date: "2026-01-22",
+    verifiedAt: "2026-09-10",
+    title: "Petri 2.0: eval-awareness and behavioral auditing",
+    url: "https://alignment.anthropic.com/2026/petri-v2/",
+    kind: "Lab research",
+  },
+  {
+    id: "anthropic-auditbench",
+    tier: "A/B",
+    organization: "Anthropic Alignment Science",
+    date: "2026-03-10",
+    verifiedAt: "2026-09-10",
+    title: "AuditBench: Evaluating Alignment Auditing Techniques on Models with Hidden Behaviors",
+    url: "https://alignment.anthropic.com/2026/auditbench/",
+    kind: "Lab research",
+  },
+  {
+    id: "iasr-2026",
+    tier: "C",
+    organization: "International AI Safety Report",
+    date: "2026",
+    verifiedAt: "2026-09-10",
+    title: "International AI Safety Report 2026",
+    url: "https://internationalaisafetyreport.org/publication/international-ai-safety-report-2026",
+    kind: "International synthesis",
+  },
+  {
+    id: "stanford-index",
+    tier: "C",
+    organization: "Stanford HAI",
+    date: "2026",
+    verifiedAt: "2026-09-10",
+    title: "2026 AI Index — Technical Performance",
+    url: "https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance",
+    kind: "Academic synthesis",
+  },
+  {
+    id: "sipri-ai-nuclear",
+    tier: "C",
+    organization: "SIPRI",
+    date: "2025-06",
+    verifiedAt: "2026-09-10",
+    title: "Impact of Military Artificial Intelligence on Nuclear Escalation Risk",
+    url: "https://www.sipri.org/publications/2025/sipri-insights-peace-and-security/impact-military-artificial-intelligence-nuclear-escalation-risk",
+    kind: "Security research",
+  },
+  {
+    id: "nist-datacenter",
+    tier: "C",
+    organization: "NIST",
+    date: "2026-07-27",
+    verifiedAt: "2026-09-10",
+    title: "SP 800-239 — AI Data Center Security Analysis (Initial Public Draft)",
+    url: "https://csrc.nist.gov/pubs/sp/800/239/ipd",
+    kind: "Government security research",
+  },
+  {
+    id: "epoch-compute",
+    tier: "D",
+    organization: "Epoch AI",
+    date: "2026-06-11",
+    verifiedAt: "2026-09-10",
+    title: "The record for computing capacity in a single data center has doubled every 7 months",
+    url: "https://epoch.ai/data-insights/largest-data-center-compute",
+    kind: "Infrastructure dataset",
+  },
+  {
+    id: "epoch-power",
+    tier: "D",
+    organization: "Epoch AI",
+    date: "2026-09-04",
+    verifiedAt: "2026-09-10",
+    title: "The record for power capacity in a single data center has doubled every 10 months",
+    url: "https://epoch.ai/data-insights/frontier-data-center-power",
+    kind: "Infrastructure dataset",
+  },
+  {
+    id: "iea-energy",
+    tier: "D",
+    organization: "International Energy Agency",
+    date: "2025–2026",
+    verifiedAt: "2026-09-10",
+    title: "Energy and AI — Energy demand from AI",
+    url: "https://www.iea.org/reports/energy-and-ai/energy-demand-from-ai",
+    kind: "Infrastructure projection",
+  },
 ];
 
 export const frontierVoices = [
@@ -230,19 +398,21 @@ export const frontierVoices = [
     name: "Sam Bowman",
     role: "Anthropic researcher",
     stance: "Concern",
-    quote: "the best-aligned model out there ... [but] likely poses more misalignment risk than any model we’ve used",
+    quote:
+      "the best-aligned model out there ... [but] likely poses more misalignment risk than any model we’ve used",
     date: "2026-04-07",
     url: "https://x.com/JorgeGalindo/status/2042145648867180779",
-    note: "Shown as expert commentary, not scored as primary evidence.",
+    note: "Shown as expert commentary, not scored as primary evidence. The linked X post quotes Bowman's original thread.",
   },
   {
     name: "François Chollet",
     role: "AI researcher",
     stance: "Skeptical counterpoint",
-    quote: "The persisting importance of prompt engineering — and now harness engineering — is one of the best indicators of how far we are from AGI.",
+    quote:
+      "The persisting importance of prompt engineering — and now harness engineering — is one of the best indicators of how far we are from AGI.",
     date: "2026-03-14",
     url: "https://x.com/gallabytes/status/2033014100725522472",
-    note: "Shown as expert commentary, not scored as primary evidence.",
+    note: "Shown as expert commentary, not scored as primary evidence. The linked X post quotes Chollet's original post.",
   },
   {
     name: "Sam Altman",
@@ -257,15 +427,17 @@ export const frontierVoices = [
     name: "Dario Amodei",
     role: "Anthropic CEO",
     stance: "Capability warning",
-    quote: "confront the cyber threat posed by increasingly capable AI systems head-on",
+    quote:
+      "confront the cyber threat posed by increasingly capable AI systems head-on",
     date: "2026-04-07",
     url: "https://x.com/mmurph/status/2042288337722229239",
-    note: "Shown as expert commentary, not scored as primary evidence.",
+    note: "Shown as expert commentary, not scored as primary evidence. The linked X post quotes Amodei's original post.",
   },
 ];
 
 export const methodology = {
-  gateScale: "Each gate is scored from 0 to 5 using a documented evidence rubric.",
+  gateScale:
+    "Each gate is scored from 0 to 5 using a documented evidence rubric; scores are judgments constrained by evidence, not measurements with natural units.",
   aggregation:
     "AI-X uses an equal-weight geometric mean across the seven normalized gate scores. A weak gate therefore constrains the overall index instead of being averaged away.",
   formula: "AI-X = 100 × (∏(gate_i / 5))^(1/7)",
