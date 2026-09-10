@@ -1,6 +1,6 @@
-# AI-X Clock — Methodology v0.1
+# AI-X Clock — Methodology v0.1.1
 
-**Snapshot baseline:** 2026-09-09  
+**Snapshot baseline:** 2026-09-10  
 **Maintainer:** Colibrii Labs  
 **Status:** Experimental public research framework
 
@@ -24,19 +24,36 @@ AI-X separates the pathway into seven gates so that progress in a single spectac
 | G6 Evasion | Can it systematically evade, manipulate or defeat supervision? | 3.0 / 5 |
 | G7 Recovery Denial | Could it materially prevent survivors from regaining control and rebuilding? | 1.5 / 5 |
 
+## Scoring rubric
+
+Gate scores are structured judgments constrained by evidence; they are not measurements with natural physical units. The common 0–5 anchors are:
+
+| Score | Interpretation |
+| ---: | --- |
+| 0 | No meaningful evidence of the gate-relevant capability or condition. |
+| 1 | Early precursor evidence; highly narrow, brittle or hypothetical. |
+| 2 | Repeatable evidence in limited evaluations or laboratory conditions, with major real-world barriers intact. |
+| 3 | Material capability demonstrated across several settings or limited real deployments; important bottlenecks remain. |
+| 4 | Strong, increasingly robust capability under realistic constraints; remaining barriers are narrower and identifiable. |
+| 5 | The gate condition itself is credibly demonstrated at meaningful scale. This does **not** imply that all other gates are crossed. |
+
+Half-point and other decimal values are allowed when evidence sits between anchors. Every proposed score change must identify the evidence that moves the gate, counterevidence, and the remaining bottleneck.
+
+Confidence is scored separately from severity. A gate can be high-scoring with low confidence or low-scoring with high confidence; uncertainty must not be silently encoded as a lower score.
+
 ## Aggregation
 
 Each gate is normalized to a 0–1 scale and combined using an equal-weight geometric mean:
 
 `AI-X = 100 × (Π(gate_i / 5))^(1/7)`
 
-For the v0.1 baseline:
+For the v0.1.1 baseline:
 
 `(4.5 × 3.2 × 3.4 × 2.0 × 3.8 × 3.0 × 1.5)^(1/7) / 5 = 0.57754`
 
 Rounded AI-X score: **58 / 100**.
 
-The geometric mean is deliberate: a weak gate constrains the system. It avoids a failure mode where extraordinary cyber capability, for example, can numerically cancel out poor persistence or weak physical-world autonomy.
+The geometric mean is deliberate: a weak gate constrains the system. It avoids a failure mode where extraordinary capability in one domain can numerically cancel out poor persistence, weak physical-world autonomy or strong human recovery capacity.
 
 ## Clock mapping
 
@@ -45,6 +62,8 @@ The public clock uses a deliberately simple normalized visualization:
 `minutes_to_midnight = 12 × (1 − AI-X / 100)`
 
 The current 58/100 baseline maps to ~5.0 minutes. This is a display transformation, not a claim that an event is five years, five months or five minutes away.
+
+The uncertainty band shown around the clock is an epistemic range for the composite assessment, not a statistical confidence interval unless explicitly labeled otherwise.
 
 ## Evidence hierarchy
 
@@ -56,7 +75,21 @@ AI-X separates evidence by role rather than counting links.
 - **Tier D — Physical-layer data:** compute, chips, data centers, energy and infrastructure datasets.
 - **Tier E — Expert commentary:** interviews, talks and social posts. Useful for expectations and disagreement; never sufficient by themselves to move a gate.
 
-Ten articles repeating one underlying benchmark count as one evidence event, not ten independent observations.
+Ten articles repeating one underlying benchmark count as one evidence event, not ten independent observations. Primary evidence is preferred over secondary reporting whenever the primary artifact is public.
+
+## Verification standard
+
+Every evidence record should preserve:
+
+- publisher and original URL;
+- publication date and, when different, event date;
+- last verification date;
+- evidence tier and relevant gate(s);
+- the narrow claim the source actually supports;
+- known caveats, benchmark limitations or conflicts of interest;
+- whether the result is independently replicated or self-reported by a lab.
+
+Infrastructure metrics must preserve their denominator and scope. For example, Epoch AI's ~3.3×/year estimate in the v0.1.1 dataset refers to the **record computing capacity of a single frontier AI data center**, not global AI compute capacity.
 
 ## Update protocol
 
@@ -66,7 +99,7 @@ Ten articles repeating one underlying benchmark count as one evidence event, not
 4. **Challenge:** search for counterevidence, replication failures, benchmark contamination and alternative interpretations.
 5. **Score proposal:** produce a proposed gate delta with rationale, confidence and uncertainty.
 6. **Human review:** a named reviewer approves, rejects or modifies the proposal.
-7. **Publish:** record the previous value, new value, strongest supporting evidence and dissent in the changelog.
+7. **Publish:** record the previous value, new value, strongest supporting evidence, counterevidence and dissent in the changelog.
 
 Automated systems may support steps 1–5. They must not silently change the public clock.
 
@@ -96,9 +129,13 @@ Values before the first live AI-X snapshot are labeled **retrospective**. They a
 
 Every methodology change that can affect scores must increment the model version. Historical data should preserve both the score originally published and, when useful, a separately labeled score recalculated under the new methodology.
 
+Source corrections that do not alter scores still increment the patch version so the public ledger can distinguish evidence revisions from score revisions.
+
 ## Initial evidence anchors
 
 The seed dataset includes primary or institutional sources from OpenAI, Anthropic, the UK AI Security Institute, METR, the International AI Safety Report, Stanford HAI, SIPRI, NIST, Epoch AI and the International Energy Agency. The application exposes the evidence ledger and URLs directly; expert commentary is visibly marked as unscored.
+
+The v0.1.1 verification pass corrected the scope of the Epoch compute metric, replaced the NIST draft URL with the canonical SP 800-239 page, and linked Anthropic Petri 2.0 and AuditBench directly rather than to generic research indexes.
 
 ## Research standard
 
