@@ -105,8 +105,8 @@ export function LandingPage() {
       {/* ── HERO ── */}
       <motion.section className="mkt-hero" initial="hidden" animate="visible" variants={stagger}>
         <motion.div variants={fadeUp} style={{ marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "center", gap: 16 }}>
-          <img src="/colibrii-logo.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 160, height: 160 }} />
-          <img src="/costa-rica-hero.jpg" alt="Costa Rica" style={{ width: 80, height: 56, borderRadius: 8, objectFit: "cover", boxShadow: "0 2px 12px rgba(0,0,0,0.15)" }} />
+          <img src="/colibrii-logo-320.png" alt="Colibrii Labs" className="logo-iridescent" style={{ width: 160, height: 160 }} />
+          <img src="/costa-rica-hero-320.jpg" alt="Costa Rica" width={80} height={56} style={{ width: 80, height: 56, borderRadius: 8, objectFit: "cover", boxShadow: "0 2px 12px rgba(0,0,0,0.15)" }} />
         </motion.div>
         <motion.div variants={fadeUp} style={{ fontSize: 20, fontFamily: "var(--font-display, 'Playfair Display', serif)", fontStyle: "italic", color: "var(--mkt-text2)", marginBottom: 8, letterSpacing: 0.3 }}>
           {en ? "Latin America's First Real-Time AI Observatory" : "El Primer Observatorio AI en Tiempo Real de Am\u00e9rica Latina"}

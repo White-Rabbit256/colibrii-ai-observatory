@@ -288,7 +288,13 @@ export default function CRGridMap({ en }) {
       duration: 220,
       ease: "outQuad",
     }));
-    return () => { try { a.pause(); } catch {} };
+    return () => {
+      try { a.pause(); } catch {}
+      // Drop the instance from the tracking array — this effect fires on every
+      // hover/focus activation, so without removal anims.current grows without
+      // bound while the map is mounted.
+      anims.current = anims.current.filter((x) => x !== a);
+    };
   }, [active, reduced]);
 
   const onEnter = useCallback((id) => setHoverActive(id), []);

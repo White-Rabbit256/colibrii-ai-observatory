@@ -26,7 +26,7 @@
   --border2: #b8bfcc;
   --text: #0f172a;
   --text2: #475569;
-  --text3: #94a3b8;
+  --text3: #64748b; /* was #94a3b8 — 2.3:1 on light bg failed WCAG 1.4.3 for the 9–13px text that uses it */
   --cyan: #2563eb;
   --violet: #6366f1;
   --pink: #ec4899;
@@ -2523,7 +2523,8 @@ input[type="range"]::-moz-range-thumb {
   100% { background-position: 0% 50%; }
 }
 .btn-warm-glow {
-  background: linear-gradient(135deg, #f59e0b, #ef4444, #ec4899);
+  /* darkened stops — white 14px label needs ≥4.5:1 across the whole gradient (WCAG 1.4.3) */
+  background: linear-gradient(135deg, #b45309, #b91c1c, #be185d);
   background-size: 200% 200%;
   animation: warmGlow 3s ease infinite;
 }

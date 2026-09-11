@@ -122,12 +122,23 @@ function HeroBackground() {
         if (p.y < 0 || p.y > H) p.vy *= -1;
       }
 
-      frame = requestAnimationFrame(draw);
+      if (running) frame = requestAnimationFrame(draw);
     }
 
-    draw();
+    /* GPU budget: one static frame under reduced-motion; pause the loop while off-screen */
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let running = false;
+    const start = () => { if (!running) { running = true; frame = requestAnimationFrame(draw); } };
+    const stop = () => { running = false; cancelAnimationFrame(frame); };
+    if (reduced) draw(); // running stays false → single frame, no loop
+    const io = new IntersectionObserver((entries) => {
+      if (reduced) return;
+      const e = entries[entries.length - 1];
+      if (e.isIntersecting) start(); else stop();
+    }, { threshold: 0 });
+    io.observe(canvas);
     window.addEventListener("resize", resize);
-    return () => { cancelAnimationFrame(frame); window.removeEventListener("resize", resize); };
+    return () => { stop(); io.disconnect(); window.removeEventListener("resize", resize); };
   }, []);
 
   return (

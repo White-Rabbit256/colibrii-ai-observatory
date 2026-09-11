@@ -267,8 +267,8 @@ export function Abt({ en, t }) {
         </div>
         <div style={{ padding: "8px 12px", background: `${t.cy}06`, borderRadius: 8, borderLeft: `3px solid ${t.cy}`, fontSize: 12, color: t.tx2, lineHeight: 1.6 }}>
           {en
-            ? "Data flows from 25+ international sources through 4 real-time APIs, is processed by 10 proprietary algorithms, and rendered across 13 analytical views — from country profiles to policy simulators to risk dashboards."
-            : "Los datos fluyen de 25+ fuentes internacionales a través de 4 APIs en tiempo real, son procesados por 10 algoritmos propietarios y se presentan en 13 vistas analíticas — desde perfiles país hasta simuladores de política y dashboards de riesgo."}
+            ? `Data flows from 25+ international sources through 3 real-time APIs, is processed by 10 proprietary algorithms, and rendered across ${FACTS.tabs} analytical views — from country profiles to policy simulators to risk dashboards.`
+            : `Los datos fluyen de 25+ fuentes internacionales a través de 3 APIs en tiempo real, son procesados por 10 algoritmos propietarios y se presentan en ${FACTS.tabs} vistas analíticas — desde perfiles país hasta simuladores de política y dashboards de riesgo.`}
         </div>
       </Card>
 

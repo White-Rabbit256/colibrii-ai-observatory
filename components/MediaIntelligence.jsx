@@ -43,10 +43,18 @@ function SourceLogo({ domain, sourceName, size = 32 }) {
     <img
       src={src}
       alt=""
+      referrerPolicy="no-referrer"
       style={{ width: size, height: size, borderRadius: 4, objectFit: "contain" }}
       onError={() => setStep(prev => prev + 1)}
     />
   );
+}
+
+/* GDELT seendate is "YYYYMMDDTHHMMSSZ" — slice(0,10) would print "20260714T1" */
+function fmtSeendate(raw) {
+  if (!raw) return "";
+  const m = String(raw).match(/^(\d{4})(\d{2})(\d{2})/);
+  return m ? `${m[1]}-${m[2]}-${m[3]}` : String(raw).slice(0, 10);
 }
 
 /* ── Detect news category ── */
@@ -157,7 +165,7 @@ function NewsFeed({ news, en, t }) {
           <div className="news-title">{n.title}</div>
           <div className="news-meta">
             {domain}
-            {(n.seendate || n.date) && ` \u00b7 ${(n.seendate || n.date).slice(0, 10)}`}
+            {(n.seendate || n.date) && ` \u00b7 ${fmtSeendate(n.seendate || n.date)}`}
           </div>
           <div className="news-impact" style={{ background: `${nc.color}10`, color: nc.color }}>
             <span>{nc.icon}</span>
@@ -225,7 +233,7 @@ function NewsFeed({ news, en, t }) {
       ) : feed === "cr" ? (
         <div style={{ marginTop: 8 }}>
           <div style={{ textAlign: "center", padding: "16px 0", color: t.tx3, fontSize: 13, marginBottom: 12 }}>
-            {en ? "No Costa Rica AI articles in the last 72 hours. Here are recent highlights:" : "Sin artículos de Costa Rica sobre AI en las últimas 72 horas. Aquí hay destacados recientes:"}
+            {en ? "No Costa Rica AI articles in the last 7 days. Here are recent highlights:" : "Sin artículos de Costa Rica sobre AI en los últimos 7 días. Aquí hay destacados recientes:"}
           </div>
           <div className="news-grid">
             {CR_FALLBACK_NEWS.map((n, i) => renderArticle(n, i, false))}
@@ -238,7 +246,7 @@ function NewsFeed({ news, en, t }) {
       )}
 
       <div style={{ marginTop: 12, fontSize: 10, color: t.tx3, fontFamily: "'IBM Plex Mono',monospace", textAlign: "center" }}>
-        {en ? "Sources: GDELT Project API (72h live) + Colibrii Labs curated archive" : "Fuentes: GDELT Project API (72h en vivo) + archivo curado Colibrii Labs"}
+        {en ? "Sources: GDELT Project API (7-day live window) + Colibrii Labs curated archive" : "Fuentes: GDELT Project API (ventana en vivo de 7 días) + archivo curado Colibrii Labs"}
       </div>
     </Card>
   );

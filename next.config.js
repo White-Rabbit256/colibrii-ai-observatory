@@ -11,9 +11,12 @@ const nextConfig = {
   async headers() {
     return [
     {
+      // public/ assets are NOT content-hashed — a year-long immutable cache would pin
+      // stale logos/OG images on returning clients. Hashed build assets under
+      // /_next/static already get immutable caching from Next itself.
       source: '/(.*)\\.(js|css|woff2|woff|ttf|ico|svg|png|jpg|jpeg|webp|avif)',
       headers: [
-        { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' },
       ],
     },
     {

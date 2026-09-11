@@ -937,7 +937,7 @@ export function EnergiaDeep({ en = false }) {
               <a href={SRC.iea_wgo.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>IEA</a>
               {", "}
               <a href={SRC.eor.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>SIEPAC EOR</a>{"/"}<a href={SRC.epr.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>EPR</a>)
-              {" · "}<a href={SRC.synergy.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Synergy</a>{", "}<a href={SRC.delloro.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Dell'Oro</a>{" (est.) · "}
+              {" · "}<a href={SRC.synergy.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Synergy</a>{", "}<a href={SRC.delloro.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Dell&apos;Oro</a>{" (est.) · "}
               <a href={SRC.gem_gipt.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>GEM</a>{" ("}<a href={SRC.cc_by_4.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>CC-BY-4.0</a>{"), "}
               <a href={SRC.iea_storage.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>IEA</a>{" ("}<a href={SRC.iea_terms.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Terms</a>{"), "}
               <a href={SRC.eia860.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>EIA 860</a>
@@ -955,7 +955,7 @@ export function EnergiaDeep({ en = false }) {
               <a href={SRC.iea_wgo.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>IEA</a>
               {", "}
               <a href={SRC.eor.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>SIEPAC EOR</a>{"/"}<a href={SRC.epr.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>EPR</a>)
-              {" · "}<a href={SRC.synergy.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Synergy</a>{", "}<a href={SRC.delloro.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Dell'Oro</a>{" (est.) · "}
+              {" · "}<a href={SRC.synergy.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Synergy</a>{", "}<a href={SRC.delloro.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Dell&apos;Oro</a>{" (est.) · "}
               <a href={SRC.gem_gipt.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>GEM</a>{" ("}<a href={SRC.cc_by_4.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>CC-BY-4.0</a>{"), "}
               <a href={SRC.iea_storage.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>IEA</a>{" ("}<a href={SRC.iea_terms.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>Terms</a>{"), "}
               <a href={SRC.eia860.url} target="_blank" rel="noopener noreferrer" style={{ color: "#fff", textDecoration: "underline" }}>EIA 860</a>
@@ -1091,7 +1091,7 @@ export function EnergiaDeep({ en = false }) {
                 <div style={{ flexGrow: 1, height: 10, background: "var(--surface)", borderRadius: 5, overflow: "hidden" }}>
                   <div style={{ width: `${r.pct}%`, height: "100%", borderRadius: 5, background: r.highlight ? `linear-gradient(90deg, ${EN_ACCENT.turquoise}, #22d3ee)` : "rgba(129,140,248,0.55)" }} />
                 </div>
-                <span style={{ ...mono, fontSize: 12.5, fontWeight: 700, color: r.highlight ? "var(--enTurq)" : "var(--text2)", width: 64, textAlign: "right" }}>{r.pct}% <span style={{ fontSize: 9.5, color: "var(--text3)" }}>'{String(r.year).slice(2)}</span></span>
+                <span style={{ ...mono, fontSize: 12.5, fontWeight: 700, color: r.highlight ? "var(--enTurq)" : "var(--text2)", width: 64, textAlign: "right" }}>{r.pct}% <span style={{ fontSize: 9.5, color: "var(--text3)" }}>&apos;{String(r.year).slice(2)}</span></span>
               </div>
             ))}
           </div>

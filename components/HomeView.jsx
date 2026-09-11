@@ -285,7 +285,7 @@ export function Home({ en, t, idx, crS, crR, board, news, xr, govData, dark, set
                 : "Inteligencia estratégica en tiempo real para el posicionamiento de Costa Rica en la transformación global de AI. Índice compuesto de 20 países, 20+ fuentes, 10 algoritmos propietarios."}
             </p>
             <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={() => setTab("idx")} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "10px 20px", border: "none", borderRadius: 8, background: "linear-gradient(135deg, #06b6d4, #a855f7, #ec4899)", backgroundSize: "250% 250%", animation: "coolGlow 5s ease-in-out infinite", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
+              <button onClick={() => setTab("idx")} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "10px 20px", border: "none", borderRadius: 8, background: "linear-gradient(135deg, #0e7490, #7e22ce, #be185d)", backgroundSize: "250% 250%", animation: "coolGlow 5s ease-in-out infinite", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
                 {en ? "Colibrii Index" : "Índice Colibrii"}
               </button>
               <button className="btn-warm-glow" onClick={onExplore} style={{ flex: 1, display: "flex", alignItems: "center", gap: 6, padding: "10px 16px", border: "none", borderRadius: 8, color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>

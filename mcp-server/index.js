@@ -31,9 +31,13 @@ import {
 function resolveCountry(input) {
   if (!input) return null;
   const key = input.trim().toLowerCase();
+  if (!key) return null;
   const code = COUNTRY_ALIASES[key];
   if (code && COUNTRIES[code]) return code;
   // fuzzy: check if any country name starts with the input
+  // (require >= 3 chars so whitespace/single letters don't match arbitrary countries;
+  // shorter inputs like ISO2 codes are handled by the alias table above)
+  if (key.length < 3) return null;
   for (const [c, info] of Object.entries(COUNTRIES)) {
     if (info.name.toLowerCase().startsWith(key) || info.nameEs.toLowerCase().startsWith(key)) return c;
   }
@@ -102,7 +106,7 @@ server.tool(
   async ({ country }) => {
     const code = resolveCountry(country);
     if (!code) {
-      return { content: [{ type: "text", text: JSON.stringify({ error: `Country '${country}' not found. Available: ${Object.values(COUNTRIES).map(c => c.name).join(", ")}` }) }] };
+      return { isError: true, content: [{ type: "text", text: JSON.stringify({ error: `Country '${country}' not found. Available: ${Object.values(COUNTRIES).map(c => c.name).join(", ")}` }) }] };
     }
     const info = COUNTRIES[code];
     const gov = GOVERNANCE[code];
@@ -151,7 +155,7 @@ server.tool(
   async ({ country }) => {
     const code = resolveCountry(country);
     if (!code) {
-      return { content: [{ type: "text", text: JSON.stringify({ error: `Country '${country}' not found.` }) }] };
+      return { isError: true, content: [{ type: "text", text: JSON.stringify({ error: `Country '${country}' not found.` }) }] };
     }
     const capi = computeCapiCR(code);
     const info = COUNTRIES[code];
@@ -165,7 +169,8 @@ server.tool(
           dimensionDescriptions: Object.fromEntries(
             Object.entries(DIMENSIONS).map(([k, v]) => [k, { name: v.name, weight: v.weight, description: v.description }])
           ),
-          methodology: "CAPI-CR is a composite index using World Bank indicators (D1, D2, D3, D5), curated legislative analysis (D4, D6), and governance data. Weights: D1=20%, D2=20%, D3=15%, D4=15%, D5=15%, D6=15%."
+          methodology: "This MCP server returns a static snapshot of CAPI-CR computed from proxy indicators: D1 from Oxford Insights AI Readiness 2024, D2 from UNDP HDI, D3 from Oxford AI Readiness + Transparency International CPI, D5 from curated energy estimates, and expert-curated legislative/security analysis for D4 and D6. Weights: D1=20%, D2=20%, D3=15%, D4=15%, D5=15%, D6=15%. The live index at colibriilabs.ai is computed from 11 World Bank indicators (min-max normalized across the 20 peers), so these snapshot scores approximate but may not match the portal's live values.",
+          dataAsOf: "2026-04"
         }, null, 2)
       }]
     };
@@ -183,7 +188,7 @@ server.tool(
     const resolved = countries.map(c => ({ input: c, code: resolveCountry(c) }));
     const invalid = resolved.filter(r => !r.code);
     if (invalid.length > 0) {
-      return { content: [{ type: "text", text: JSON.stringify({ error: `Countries not found: ${invalid.map(i => i.input).join(", ")}` }) }] };
+      return { isError: true, content: [{ type: "text", text: JSON.stringify({ error: `Countries not found: ${invalid.map(i => i.input).join(", ")}` }) }] };
     }
 
     const comparison = resolved.map(r => {
@@ -252,7 +257,10 @@ server.tool(
     let results = [...ILIA_RANKINGS];
 
     if (country) {
-      const lower = country.toLowerCase();
+      // Resolve ISO codes / aliases (e.g. "CRI", "cl") to the canonical English name;
+      // fall back to a substring match for ILIA countries outside the 20-peer set
+      const code = resolveCountry(country);
+      const lower = code ? COUNTRIES[code].name.toLowerCase() : country.trim().toLowerCase();
       results = results.filter(r => r.country.toLowerCase().includes(lower));
     }
 
@@ -284,7 +292,7 @@ server.tool(
   async ({ country }) => {
     const code = resolveCountry(country);
     if (!code) {
-      return { content: [{ type: "text", text: JSON.stringify({ error: `Country '${country}' not found.` }) }] };
+      return { isError: true, content: [{ type: "text", text: JSON.stringify({ error: `Country '${country}' not found.` }) }] };
     }
     const gov = GOVERNANCE[code];
     const info = COUNTRIES[code];
@@ -375,7 +383,7 @@ server.tool(
     if (country) {
       const code = resolveCountry(country);
       if (!code) {
-        return { content: [{ type: "text", text: JSON.stringify({ error: `Country '${country}' not found.` }) }] };
+        return { isError: true, content: [{ type: "text", text: JSON.stringify({ error: `Country '${country}' not found.` }) }] };
       }
       const info = COUNTRIES[code];
       const reg = REGULATORY_STATUS[code];
@@ -407,9 +415,11 @@ server.tool(
 );
 
 // ── TOOL 8: search_data_sources ──
+const TOTAL_DATA_SOURCES = DATA_SOURCES.apiSources.length + DATA_SOURCES.annualReports.length + DATA_SOURCES.partners.length;
+
 server.tool(
   "search_data_sources",
-  "Search the Observatory's 96+ data source registry. Includes 13 API sources, 30 annual reports, and 25 institutional partners. Filter by type (api, report, partner) or search by keyword.",
+  `Search the Observatory's ${TOTAL_DATA_SOURCES} data source registry. Includes ${DATA_SOURCES.apiSources.length} API sources, ${DATA_SOURCES.annualReports.length} annual reports, and ${DATA_SOURCES.partners.length} institutional partners. Filter by type (api, report, partner) or search by keyword.`,
   {
     query: z.string().optional().describe("Search keyword (e.g. 'World Bank', 'labor', 'UNESCO')"),
     type: z.enum(["all", "api", "report", "partner"]).optional().describe("Filter by source type (default: all)")
@@ -445,7 +455,7 @@ server.tool(
       result.partners = partners;
     }
 
-    result.totalSources = DATA_SOURCES.apiSources.length + DATA_SOURCES.annualReports.length + DATA_SOURCES.partners.length;
+    result.totalSources = TOTAL_DATA_SOURCES;
 
     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
   }

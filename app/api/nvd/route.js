@@ -15,7 +15,6 @@ export async function GET() {
     const params = new URLSearchParams({
       keywordSearch: "artificial intelligence machine learning",
       resultsPerPage: String(RESULTS_PER_PAGE),
-      keywordExactMatch: "",
     });
 
     const res = await fetch(`${NVD_BASE}?${params}`, {
